@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar</title>
+    <style>
+        /* Simple inline styles for the login page */
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e9f5ec;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #37966f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2d7a5e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Dafftar</h2>
+        <form id="DaftarForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Daftar</button>
+        </form>
+        <p>Sudah Punya akun? <a href="login.html">Masuk di sini</a></p>
+    </div>
+
+    <!-- JavaScript to handle login and redirect -->
+    <script>
+      async function verifyToken() {
+        // Ambil token dari localStorage
+        const token = localStorage.getItem('authToken');
+
+        // Jika tidak ada token, alihkan ke login
+        if (!token) {
+            return;
+        }
+
+        try {
+            // Kirim permintaan verifikasi token
+            const response = await fetch('https://siakad-syncnau.fly.dev/verify-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token  // Sertakan token dalam header
+                }
+            });
+
+            // Parsing hasil JSON dari respon
+            const result = await response.json();
+
+            // Jika token valid, simpan username dan valid ke localStorage
+            if (result.valid) {
+                localStorage.setItem('username', result.username);
+                localStorage.setItem('role', result.role);
+                localStorage.setItem('tokenValid', 'true');
+                console.log('Token valid. Username:', result.username);
+
+                // Lanjut ke halaman yang diinginkan setelah verifikasi berhasil
+                window.location.href = "/dashboard.html"; // Ganti dengan halaman tujuan
+            } else {
+                // Jika token invalid, arahkan ke login
+                localStorage.removeItem('authToken');
+            }
+        } catch (error) {
+            console.error('Error verifying token:', error);
+            // Arahkan ke login jika terjadi error
+        }
+    }
+
+// Panggil fungsi verifikasi saat halaman dimuat
+document.addEventListener("DOMContentLoaded", verifyToken);
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form from submitting traditionally
+
+            // Credentials check with both username and password as "admin123"
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // Check if the form is filled
+            if (username && password) {
+                 $.ajax({
+                    url: 'https://siakad-syncnau.fly.dev/register?from="html"', // Pastikan endpoint /login sesuai dengan API server
+                    type: 'POST',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        username: username,
+                        password: password
+                    }),
+                    success: function (response) {
+                        const token = response.token;
+                        if (token) {
+                        // Redirect to the dashboard if credentials are correct
+                        alert("Login berhasil!");
+                        // Simpan token ke localStorage
+                        localStorage.setItem('authToken', token);
+                        window.location.href = "/dashboard.html"; // Redirect to dashboard page
+                        } else {
+                            // Show an error message if credentials are incorrect
+                            alert("Username atau password salah.");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                            $('#responseMessage').text(`Login gagal: ${xhr.responseText}`);
+                        }
+                });
+            } else {
+                alert("Harap isi semua kolom.");
+            }
+        });
+    </script>
+</body>
+
+</html>
