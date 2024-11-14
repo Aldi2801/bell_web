@@ -221,7 +221,7 @@
 
         // Jika tidak ada token, alihkan ke login
         if (!token) {
-            window.location.href = "/login.html";
+            window.location.href = "./login.html";
             return;
         }
 
@@ -249,12 +249,12 @@
             } else {
                 // Jika token invalid, arahkan ke login
                 localStorage.removeItem('authToken');
-                window.location.href = "/login.html";
+                window.location.href = "./login.html";
             }
         } catch (error) {
             console.error('Error verifying token:', error);
             // Arahkan ke login jika terjadi error
-            window.location.href = "/login.html";
+            window.location.href = "./login.html";
         }
     }
 

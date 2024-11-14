@@ -158,12 +158,7 @@ def verif_email():
     if verified_user:
         return jsonify({"msg": "user sudah terverifikasi"})
     token = s.dumps(email, salt='email-confirm')
-    from_param = request.args.get('from')
-    if "verif_email.html" in from_param:
-        mod = from_param.replace('verif_email.html', '')
-        conf_email_url = mod+"/confirm_email.html?token="+token 
-    else:
-        conf_email_url = url_for('confirm_email', token=token, _external=True)
+    conf_email_url = url_for('confirm_email', token=token, _external=True)
     email_body = render_template_string('''
         Hello {{ username }},
         
@@ -232,26 +227,32 @@ def forgot_password():
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    try:
-        email = s.loads(token, salt='reset-password', max_age=3600)
-    except SignatureExpired:
-        return jsonify({"msg": "Token telah kedaluwarsa"}), 400
-    except BadSignature:
-        return jsonify({"msg": "Token tidak valid"}), 400
-    
-    user = users_collection.find_one({'email':email})
-    
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
     if request.method == 'POST':
+        try:
+            email = s.loads(token, salt='reset-password', max_age=3600)
+        except SignatureExpired:
+            return jsonify({"msg": "Token telah kedaluwarsa"}), 400
+        except BadSignature:
+            return jsonify({"msg": "Token tidak valid"}), 400
+        
+        user = users_collection.find_one({'email':email})
+        
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
         data = request.get_json()
         password = data.get('password')
 
         # Hash the new password and update it in the database
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user.password = hashed_password
-        # db.session.commit()
+        result = users_collection.update_one(
+            {"email": email},          # Filter berdasarkan email atau id user
+            {"$set": {"password": hashed_password}} # Set field verify_email ke True
+        )
 
-        flash('Password berhasil direset. Silakan login dengan password baru Anda.')
-        return jsonify({"msg": "Sukses"})
+        # Cek apakah update berhasil
+        if result.modified_count > 0:
+            flash('Password berhasil direset. Silakan login dengan password baru Anda.')
+            return jsonify({"msg": "Sukses"})
+        else:
+            return jsonify({"msg":"update failed."}),500
     return render_template("reset_password.html",token=token)
