@@ -13,9 +13,9 @@ def login():
     user = users_collection.find_one({'username': username})
     if not user:
         return jsonify({"msg": "username salah"}), 404
-    if not bcrypt.check_password_hash(user.password, password):
+    if not bcrypt.check_password_hash(user['password'], password):
         return jsonify({"msg": "password salah"}), 401
-    if user.verify_email == False:
+    if user['verify_email'] == False:
         return jsonify({"msg": "anda belum memverifikasi email"}), 401
     if user and bcrypt.check_password_hash(user['password'], password):
         # Membuat token dengan waktu kedaluwarsa 24 jam
@@ -30,7 +30,7 @@ def login():
         
         return jsonify({'token': token})
     else:
-        return jsonify({'message': 'Invalid credentials'}), 401
+        return jsonify({'mesg': 'Invalid credentials'}), 401
     
 def is_valid_email(email):
     regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
@@ -87,7 +87,7 @@ def register():
             
             hubungi dukungan jika Anda memiliki pertanyaan.
             
-            Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer zulfanisa0103@gmail.com .
+            Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
             
             Salam Hangat,
             
@@ -101,7 +101,7 @@ def register():
         mail.send(msg)
         result = users_collection.insert_one(user)
         if result.inserted_id:
-            return jsonify({'message': 'User registered successfully, Please check your email for validation'}), 201
+            return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201
         else:
             return jsonify({'error': 'Failed to register user'}), 500
     except Exception as e:
@@ -170,14 +170,14 @@ def verif_email():
         
         hubungi dukungan jika Anda memiliki pertanyaan.
         
-        Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer zulfanisa0103@gmail.com .
+        Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
         
         Salam Hangat,
         
         Pejuang D4
-    ''', username=user.username,  conf_email_url=conf_email_url)
+    ''', username=user['username'],  conf_email_url=conf_email_url)
     msg = Message('Confirmasi Email Anda',
-                sender='zulfanisa0103@gmail.com', recipients=[email])
+                sender='masteraldi2809@gmail.com', recipients=[email])
     msg.body = email_body
     mail.send(msg)
     flash("Silahkan cek email anda.")
@@ -213,14 +213,14 @@ def forgot_password():
         
         Jika Anda tidak meminta pengaturan ulang kata sandi, abaikan email ini atau hubungi dukungan jika Anda memiliki pertanyaan.
         
-        Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer zulfanisa0103@gmail.com .
+        Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
         
         Salam Hangat,
         
         Mriki_Project
     ''', user=user,  reset_password_url=reset_password_url)
     msg = Message('Reset Kata Sandi Anda',
-                sender='zulfanisa0103@gmail.com ', recipients=[email])
+                sender='masteraldi2809@gmail.com', recipients=[email])
     msg.body = email_body
     mail.send(msg)
     return jsonify({"msg": "Email untuk mereset kata sandi telah dikirim."})

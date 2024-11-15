@@ -145,7 +145,7 @@
             <input type="password" id="password" placeholder="Password" required>
             <button id="submit" type="submit">Login</button>
         </form>
-        <p>Belum punya akun? <a href="/register">Daftar di sini</a></p>
+        <p><a href="/register">Daftar</a> || <a href="/forgotpassword">Lupa Password</a> || <a href="/verif_email">Verifikasi Email</a></p>
     </div>
 
     <!-- JavaScript untuk menangani login dan redirect -->
@@ -232,8 +232,14 @@ document.addEventListener("DOMContentLoaded", verifyToken);
                  error: function (xhr, status, error) {
                         document.getElementById("submit").disabled = false;
                         document.getElementById("submit").innerHTML = "Login";
-                        console.log(xhr.responseJSON.error)
-                        alert(`Register failed: ${xhr.responseJSON.error}`);
+                        var errorTxt = "Server Error";
+                        if (xhr.responseJSON.error){
+                            errorTxt = xhr.responseJSON.error;
+                        }
+                        if (xhr.responseJSON.msg){
+                            errorTxt = xhr.responseJSON.msg;
+                        }
+                        alert(`Error: ${errorTxt}`);
                     }
             });
         });
