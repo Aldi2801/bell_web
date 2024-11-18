@@ -214,11 +214,11 @@
                         re_password: re_password
                     }),
                     success: function (response) {
-                        const token = response.message;
+                        const token = response.msg;
                         if (token) {
                         // Redirect to the dashboard if credentials are correct
                         document.getElementById("submit").innerHTML = "Daftar";
-                        alert(response.message);
+                        alert(response.msg);
                         window.location.href = "/login"; // Redirect to login
                         document.getElementById("submit").disabled = false;
                         } else {
@@ -233,8 +233,14 @@
                     error: function (xhr, status, error) {
                             document.getElementById("submit").disabled = false;
                             document.getElementById("submit").innerHTML = "Daftar";
-                            console.log(xhr.responseJSON.error)
-                            alert(`Register failed: ${xhr.responseJSON.error}`);
+                            var errorTxt = "Server Error";
+                            if (xhr.responseJSON.error){
+                                errorTxt = xhr.responseJSON.error;
+                            }
+                            if (xhr.responseJSON.msg){
+                                errorTxt = xhr.responseJSON.msg;
+                            }
+                            alert(`Register failed: ${errorTxt}`);
                         }
                 });
             } else {

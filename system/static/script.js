@@ -1,5 +1,5 @@
 // Fungsi untuk verifikasi token dan navigasi halaman
-async function verifyToken() {
+async function verifyTokenLogin() {
     // Ambil token dari localStorage
     const token = localStorage.getItem('authToken');
     // Jika tidak ada token, alihkan ke login
@@ -30,7 +30,7 @@ async function verifyToken() {
     }
 }
 
-async function verifyToken() {
+async function verifyTokenSetelahLogin() {
     const token = localStorage.getItem('authToken');
     if (!token) return redirectToLogin();
 
@@ -51,8 +51,12 @@ async function verifyToken() {
 }
 
 // Panggil fungsi verifikasi saat halaman dimuat
-document.addEventListener("DOMContentLoaded", verifyToken);
-document.addEventListener("DOMContentLoaded", verifyToken);
+if (document.location.href ==="login" or "register" or "forgot_password"or "reset_password" or "verif_email" ){
+    document.addEventListener("DOMContentLoaded", verifyTokenLogin);
+}
+else{
+    document.addEventListener("DOMContentLoaded", verifyTokenSetelahLogin);
+}
 function setupRoleBasedContent(role,username) {
     const roleText = role === 'murid' ? 'Murid' : 'Guru';
     document.getElementById('role-title').textContent = roleText;

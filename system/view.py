@@ -37,6 +37,6 @@ def view_menu_pembayaran():
 @app.route('/verif_email')
 def view_verif_email():
     return render_template("verif_email.html")
-@app.route("/forgotpassword")
+@app.route("/forgot_password")
 def view_forgot_password():
     return render_template("forgot_password.html")
