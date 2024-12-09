@@ -1,7 +1,8 @@
-from . import app, bcrypt, users_collection
+from . import app, bcrypt, db, users_collection
 from flask import request, jsonify, render_template, redirect, url_for
 import jwt
 import datetime
+from bson.objectid import ObjectId
 
 @app.route('/')
 def hello_fly():
@@ -24,7 +25,49 @@ def view_daftar_hadir():
     return render_template("daftar_hadir_siswa.html")
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
-    return render_template("manage_jadwal_new.html")
+    schedule_collection = db["schedules"]
+
+    # Query data
+    schedule_id = ObjectId('67334170f71fdf42ce9446cc')
+    teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
+
+    schedule_data = schedule_collection.find_one({"_id": schedule_id})
+    teacher_map_data = schedule_collection.find_one({"_id": teacher_map_id})
+
+    # Format data jadwal
+    formatted_schedule = [
+        {
+            "day": day["day"],
+            "sessions": [
+                {
+                    "time": session["time"],
+                    "period": session["period"],
+                    "subjects": session["subjects"]
+                }
+                for session in day["sessions"]
+            ]
+        }
+        for day in schedule_data["schedule"]
+    ]
+
+    # Format data kode guru dan mapel
+    formatted_teacher_map = {
+        "kodeGuru": [
+            {next(iter(teacher)): teacher[next(iter(teacher))]} for teacher in teacher_map_data["kodeGuru"]
+        ],
+        "kodeMapel": [
+            {next(iter(subject)): subject[next(iter(subject))]} for subject in teacher_map_data["kodeMapel"]
+        ]
+    }
+
+
+    # Output hasil
+    print("Formatted Schedule:")
+    print(formatted_schedule)
+
+    print("\nFormatted Teacher Map:")
+    print(formatted_teacher_map)
+    return render_template("manage_jadwal_new.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map )
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():
     return render_template("manage_kehadiran.html")

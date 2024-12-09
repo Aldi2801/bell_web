@@ -263,73 +263,7 @@
             alert("You have been logged out!");
         }
         const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
-const schedule = [
-    {
-        "day": "Senin",
-        "sessions": [
-            {"time": "07.00 - 07.40", "period": "1", "subjects": ["Upacara", "", "", "", "", "", "", "", ""]},
-            {"time": "07.40 - 08.20", "period": "2", "subjects": ["K1", "C7", "D11", "B15", "F7", "H12", "H12", "C7"]},
-            {"time": "08.20 - 09.00", "period": "3", "subjects": ["K1", "C7", "D11", "B15", "F7", "H12", "H12", "C7"]},
-            {"time": "09.00 - 09.40", "period": "4", "subjects": ["L9", "L12", "H12", "K8", "C7", "F9", "F9", "L9"]},
-            {"time": "09.40 - 10.20", "period": "5", "subjects": ["L9", "L12", "H12", "K8", "C7", "F9", "F9", "L9"]},
-            {"time": "10.20 - 11.00", "period": "6", "subjects": ["K8", "K1", "C7", "C9", "G15", "L6", "K7", "F9"]},
-            {"time": "11.00 - 11.15", "period": "ISTIRAHAT", "subjects": ["", "", "", "", "", "", "", "", ""]}
-        ]
-    },
-    {
-        "day": "Selasa",
-        "sessions": [
-            {"time": "07.00 - 07.40", "period": "1", "subjects": ["K8", "K11", "G4", "E6", "C7", "D9", "G15", "C15"]},
-            {"time": "07.40 - 08.20", "period": "2", "subjects": ["K8", "K11", "G4", "E6", "C7", "D9", "G15", "C15"]},
-            {"time": "08.20 - 09.00", "period": "3", "subjects": ["F9", "G4", "G15", "C7", "C10", "D14", "B7", "A8"]},
-            {"time": "09.00 - 09.40", "period": "4", "subjects": ["B7", "A8", "C9", "D11", "G15", "F10", "F10", "C15"]},
-            {"time": "09.40 - 10.20", "period": "5", "subjects": ["G10", "D11", "E10", "C15", "C7", "H12", "G9", "E9"]},
-            {"time": "10.20 - 11.00", "period": "6", "subjects": ["C15", "C7", "E10", "H12", "G9", "E9", "D14", "C10"]}
-        ]
-    },
-    {
-        "day": "Rabu",
-        "sessions": [
-            {"time": "07.00 - 07.40", "period": "1", "subjects": ["C7", "C9", "F7", "F8", "H12", "H16", "K15", "C9"]},
-            {"time": "07.40 - 08.20", "period": "2", "subjects": ["C7", "C9", "F7", "F8", "H12", "H16", "K15", "C9"]},
-            {"time": "08.20 - 09.00", "period": "3", "subjects": ["G14", "E3", "K8", "G10", "H9", "L12", "G14", "D9"]},
-            {"time": "09.00 - 09.40", "period": "4", "subjects": ["G14", "E3", "K8", "G10", "H9", "L12", "G14", "D9"]},
-            {"time": "09.40 - 10.20", "period": "5", "subjects": ["K11", "F15", "H12", "E3", "K15", "L6", "K8", "K7"]},
-            {"time": "10.20 - 11.00", "period": "6", "subjects": ["K11", "F15", "H12", "E3", "K15", "L6", "K8", "K7"]}
-        ]
-    },
-    {
-        "day": "Kamis",
-        "sessions": [
-            {"time": "07.00 - 07.40", "period": "1", "subjects": ["H10", "C15", "G7", "E15", "F6", "H16", "D11", "L8"]},
-            {"time": "07.40 - 08.20", "period": "2", "subjects": ["H10", "C15", "G7", "E15", "F6", "H16", "D11", "L8"]},
-            {"time": "08.20 - 09.00", "period": "3", "subjects": ["E10", "E14", "K10", "H8", "L12", "E3", "K7", "K10"]},
-            {"time": "09.00 - 09.40", "period": "4", "subjects": ["E10", "E14", "K10", "H8", "L12", "E3", "K7", "K10"]},
-            {"time": "09.40 - 10.20", "period": "5", "subjects": ["C5", "K8", "K7", "K6", "G15", "H12", "E10", "G15"]},
-            {"time": "10.20 - 11.00", "period": "6", "subjects": ["C5", "K8", "K7", "K6", "G15", "H12", "E10", "G15"]}
-        ]
-    },
-    {
-        "day": "Jum'at",
-        "sessions":  [
-            {"time": "07.00 - 07.40", "period": "1", "subjects": [ "K15", "H8", "E8", "H8", "F9", "E9", "D8","G8"]},
-            {"time": "07.40 - 08.20", "period": "2", "subjects": [ "K15", "H8", "E8", "H8", "F9", "E9", "D8","G8"]},
-            {"time": "08.20 - 09.00", "period": "3", "subjects": [ "H12", "L12", "G7", "H7", "H12", "K10", "K8","G14"]},
-            {"time": "09.00 - 09.40", "period": "4", "subjects": [ "H12", "L12", "G7", "H7", "H12", "K10", "K8","G14"]},
-            {"time": "09.40 - 10.20", "period": "5", "subjects": [ "E5", "H12", "G10", "G12", "C5", "G9", "G15","K10"]},
-            {"time": "10.20 - 11.00", "period": "6", "subjects": [ "E5", "H12", "G10", "G12", "C5", "G9", "G15","K10"]}
-        ]
-    },
-    {
-        "day": "Sabtu",
-        "sessions":  [
-            {"time": "07.00 - 07.40", "period": "1", "subjects": [ "F15", "H15", "K15", "G9", "E7", "G8", "D10","H9"]},
-            {"time": "07.40 - 08.20", "period": "2", "subjects": [ "F15", "H15", "K15", "G9", "E7", "G8", "D10","H9"]},
-            {"time": "08.20 - 09.00", "period": "3", "subjects": [ "G9", "G12", "H9", "H10", "H11", "F15", "K10","K15"]},
-            {"time": "09.00 - 09.40", "period": "4", "subjects": [ "G9", "G12", "H9", "H10", "H11", "F15", "K10","K15"]}
-        ]
-    }
-];
+const schedule = {{ schedule | safe }};
         schedule.forEach(day => {
             day.sessions.forEach((session, index) => {
                 const row = document.createElement('tr');
@@ -375,33 +309,7 @@ const schedule = [
             });
         });
         // Data JSON
-const data = {
-    "kodeGuru": [
-        {"K1": "H. Jamar, S.Pd.I"},
-        {"K8": "H. Hurwiyati, S.Pd"},
-        {"K11": "Titik Eko Purwati, S.Pd"},
-        {"K15": "Biyanto, S.Pd"},
-        {"L6": "Ulinnuha, S.Pd.I"},
-        {"L9": "Purnadi, S.Pd.S"},
-        {"L10": "Nur Arifin, S.Pd.I"},
-        {"F15": "Riski Arofiyah, S.Pd"}
-    ],
-    "kodeMapel": [
-        {"K1": "Bahasa Indonesia"},
-        {"K8": "Matematika"},
-        {"K11": "IPA"},
-        {"K15": "IPS"},
-        {"L6": "Bahasa Inggris"},
-        {"L9": "Bahasa Daerah"},
-        {"L10": "Seni Budaya"},
-        {"L12": "PJOK"},
-        {"G4": "Keterampilan (Khot)"},
-        {"G15": "Tahfidz"},
-        {"H12": "Nahwu"},
-        {"F7": "Amaliyah Ibadah"},
-        {"F9": "Kitab Kuning"}
-    ]
-};
+const data = {{ kode_guru | safe }}
 
 // Fungsi untuk menampilkan data
 function renderList(title, items) {
