@@ -22,7 +22,7 @@ app.config.update(
 
 mail = Mail(app)
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
-uri = "mongodb+srv://rizkydwisaputrar1:iqyCCfGc7vg9j_r@halosus.mwdayc6.mongodb.net/?retryWrites=true&w=majority&appName=halosus"
+uri = "mongodb://localhost:27017/"
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
