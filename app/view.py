@@ -27,9 +27,12 @@ def view_daftar_hadir():
 def view_manage_jadwal():
     schedule_collection = db["schedules"]
 
-    # Query data
-    schedule_id = ObjectId('67334170f71fdf42ce9446cc')
-    teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
+    # ONLINE
+    # schedule_id = ObjectId('67334170f71fdf42ce9446cc')
+    # teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
+    #LOKAL RIZKY
+    schedule_id = ObjectId('6776ae66776ad9915a0728d6')
+    teacher_map_id = ObjectId('6776ae75776ad9915a0728d7')
     #LOKAL ALDI
     #schedule_id = ObjectId('6765893afbd3a1d8ed2dd985')
     #teacher_map_id = ObjectId('6765895ffbd3a1d8ed2dd986')
@@ -74,6 +77,9 @@ def view_manage_jadwal():
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():
     return render_template("manage_kehadiran.html")
+@app.route('/coba')
+def view_coba():
+    return render_template("coba.html")
 @app.route('/manage_ujian')
 def view_manage_ujian():
     return render_template("manage_ujian.html")

@@ -22,17 +22,17 @@ app.config.update(
 
 mail = Mail(app)
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
-# uri = "mongodb+srv://rizkydwisaputrar1:iqyCCfGc7vg9j_r@halosus.mwdayc6.mongodb.net/?retryWrites=true&w=majority&appName=halosus"
-# #lokal ALDI
-# #uri = "mongodb://localhost:27017/"
+#uri = "mongodb+srv://rizkydwisaputrar1:iqyCCfGc7vg9j_r@halosus.mwdayc6.mongodb.net/?retryWrites=true&w=majority&appName=halosus"
+#lokal ALDI
+uri = "mongodb://localhost:27017/"
 
-# # Create a new client and connect to the server
-# client = MongoClient(uri, server_api=ServerApi('1'))
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
 
-# # Send a ping to confirm a successful connection
-# client.admin.command('ping')
-# db = client.get_database('web_sekolah')
-# users_collection = db.users
+# Send a ping to confirm a successful connection
+client.admin.command('ping')
+db = client.get_database('web_sekolah')
+users_collection = db.users
 
     
 # Fungsi untuk verifikasi token
@@ -60,86 +60,5 @@ def page_not_found(error):
 @app.route('/invalid')
 def invalid():
     abort(404)
-    
-from flask import Flask, request, jsonify, render_template
-import midtransclient
-from .database import insert_transaction, get_transaction_by_id
-from .config import MIDTRANS_SERVER_KEY, MIDTRANS_CLIENT_KEY
 
-app = Flask(__name__)
-
-if os.getenv('ENV') == 'production':
-    url = "https://app.midtrans.com/snap/v1/transactions"
-    server_key = os.getenv('Server_Key_Production')
-else:
-    url = "https://app.sandbox.midtrans.com/snap/v1/transactions"
-    server_key = os.getenv('Server_Key_Sandbox')
-import requests
-import json
-import base64
-import time 
-
-
-@app.route('/create-transaction', methods=['POST'])
-def create_transaction():
-    try:
-        # Ambil data dari request
-        data = request.json
-
-        # Payload untuk Midtrans
-        payload = {
-            "transaction_details": {
-                "order_id": f"ORDER-{int(time.time())}",
-                "gross_amount": data['amount']
-            },
-            "customer_details": {
-                "first_name": data['first_name'],
-                "last_name": data['last_name'],
-                "email": data['email']
-            }
-        }
-
-        # Header untuk Midtrans
-        headers = {
-            "Authorization": f"Basic {base64.b64encode(server_key.encode()).decode()}",
-            "Content-Type": "application/json"
-        }
-
-        # Kirim request ke Midtrans
-
-        response = requests.post(
-            url,
-            headers=headers,
-            data=json.dumps(payload)
-        )
-
-        # Debug response Midtrans
-        print("Response status:", response.status_code)
-        print("Response body:", response.json())
-
-        # Jika sukses, kembalikan URL Redirect
-        if response.status_code == 201:
-            transaction = response.json()
-            return jsonify({"redirect_url": transaction['redirect_url']})
-
-        # Jika gagal, kembalikan error
-        return jsonify({"error": "Failed to create transaction", "details": response.json()}), response.status_code
-
-    except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": "Internal server error", "details": str(e)}), 500
-    
-@app.route('/transaction/<transaction_id>', methods=['GET'])
-def transaction_status(transaction_id):
-    transaction = get_transaction_by_id(transaction_id)
-    if not transaction:
-        return jsonify({'error': 'Transaction not found'}), 404
-    return jsonify(transaction)
-
-@app.route('/payment-success', methods=['GET'])
-def payment_success():
-    return render_template('payment_success.html')
-
-@app.route('/')
-def index():
-    return render_template('coba.html')
+from . import api_guru, api_login, api_murid, view, midtrans

@@ -9,10 +9,10 @@ def login():
     data = request.get_json()
     username = data['username']
     password = data['password']
-    
+    print('sdaw')
     user = users_collection.find_one({'username': username})
     if not user:
-        return jsonify({"msg": "username salah"}), 404
+        return jsonify({"msg": "username tidak terdaftar "}), 404
     if not bcrypt.check_password_hash(user['password'], password):
         return jsonify({"msg": "password salah"}), 401
     if user['verify_email'] == False:
