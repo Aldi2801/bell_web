@@ -1,4 +1,4 @@
-from . import app, bcrypt, db, users_collection
+from . import app, bcrypt, db, users_collection, get_semester_and_year
 from flask import request, jsonify, render_template, redirect, url_for
 import jwt
 import datetime
@@ -23,13 +23,13 @@ def view_daftar_hadir_ujian():
 @app.route('/daftar_hadir')
 def view_daftar_hadir():
     return render_template("daftar_hadir_siswa.html")
-@app.route('/manage_jadwal')
-def view_manage_jadwal():
+@app.route('/jadwal')
+def view_jadwal():
     schedule_collection = db["schedules"]
 
     # ONLINE
-    # schedule_id = ObjectId('67334170f71fdf42ce9446cc')
-    # teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
+    #schedule_id = ObjectId('67334170f71fdf42ce9446cc')
+    #teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
     #LOKAL RIZKY
     schedule_id = ObjectId('6776ae66776ad9915a0728d6')
     teacher_map_id = ObjectId('6776ae75776ad9915a0728d7')
@@ -73,10 +73,14 @@ def view_manage_jadwal():
 
     print("\nFormatted Teacher Map:")
     print(formatted_teacher_map)
-    return render_template("manage_jadwal_new.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map )
+    kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
+    return render_template("jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map, kelas=kelas )
+
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():
-    return render_template("manage_kehadiran.html")
+    users = list(db.users.find({"role": "murid"}, {"_id": 0, "name": 1}))
+    kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
+    return render_template("manage_kehadiran.html", users=users, kelas=kelas)
 @app.route('/coba')
 def view_coba():
     return render_template("coba.html")

@@ -196,14 +196,9 @@
                 <th>Hari</th>
                 <th>Waktu</th>
                 <th>Jam Ke</th>
-                <th>7a</th>
-                <th>7b</th>
-                <th>7c</th>
-                <th>8a</th>
-                <th>8b</th>
-                <th>8c</th>
-                <th>9a</th>
-                <th>9b</th>
+                {% for item in kelas %}
+                <th>{{ item.nama }}</th>
+                {% endfor %}
             </tr>
         </thead>
         <tbody>
@@ -213,57 +208,10 @@
     
     </div>
 
-
+    <script src="/static/script_footer.js"></script>
     <script>
-        async function verifyToken() {
-        // Ambil token dari localStorage
-        const token = localStorage.getItem('authToken');
-
-        // Jika tidak ada token, alihkan ke login
-        if (!token) {
-            window.location.href = "/login";
-            return;
-        }
-
-        try {
-            // Kirim permintaan verifikasi token
-            const response = await fetch('/verify-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token  // Sertakan token dalam header
-                }
-            });
-
-            // Parsing hasil JSON dari respon
-            const result = await response.json();
-
-            // Jika token valid, simpan username dan valid ke localStorage
-            if (result.valid) {
-                localStorage.setItem('tokenValid', 'true');
-                console.log('Token valid. Username:', result.username);
-
-                // Lanjut ke halaman yang diinginkan setelah verifikasi berhasil
-            } else {
-                // Jika token invalid, arahkan ke login
-                localStorage.removeItem('authToken');
-                window.location.href = "/login";
-            }
-        } catch (error) {
-            console.error('Error verifying token:', error);
-            // Arahkan ke login jika terjadi error
-            window.location.href = "/login";
-        }
-    }
-
-    // Panggil fungsi verifikasi saat halaman dimuat
-    document.addEventListener("DOMContentLoaded", verifyToken);
-    
-        function handleLogout() {
-            alert("You have been logged out!");
-        }
         const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
-const schedule = {{ schedule | safe }};
+        const schedule = {{ schedule | safe }};
         schedule.forEach(day => {
             day.sessions.forEach((session, index) => {
                 const row = document.createElement('tr');
@@ -309,39 +257,28 @@ const schedule = {{ schedule | safe }};
             });
         });
         // Data JSON
-const data = {{ kode_guru | safe }}
+        const data = {{ kode_guru | safe }}
 
-// Fungsi untuk menampilkan data
-function renderList(title, items) {
-    const container = document.getElementById('container-keterangan');
-    const heading = document.createElement('h2');
-    heading.innerText = title;
-    container.appendChild(heading);
+        // Fungsi untuk menampilkan data
+        function renderList(title, items) {
+            const container = document.getElementById('container-keterangan');
+            const heading = document.createElement('h2');
+            heading.innerText = title;
+            container.appendChild(heading);
 
-    const list = document.createElement('ul');
-    items.forEach(item => {
-        const listItem = document.createElement('li');
-        const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
-        listItem.innerText = `${key}: ${value}`;
-        list.appendChild(listItem);
-    });
-    container.appendChild(list);
-}
-
-// Render kedua list
-renderList("Kode Guru", data.kodeGuru);
-renderList("Kode Mapel", data.kodeMapel);
-        function handleLogout() {
-            localStorage.clear();
-            redirectToLogin();
-        }
-        function menu(){
-            
+            const list = document.createElement('ul');
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
+                listItem.innerText = `${key}: ${value}`;
+                list.appendChild(listItem);
+            });
+            container.appendChild(list);
         }
 
-        function redirectToLogin() {
-            window.location.href = "/login";
-        }
+        // Render kedua list
+        renderList("Kode Guru", data.kodeGuru);
+        renderList("Kode Mapel", data.kodeMapel);
     </script>
 </body>
 

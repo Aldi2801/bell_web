@@ -156,53 +156,8 @@
             </table>
         </div>
     </div>
-    <script>
-        async function verifyToken() {
-        // Ambil token dari localStorage
-        const token = localStorage.getItem('authToken');
-
-        // Jika tidak ada token, alihkan ke login
-        if (!token) {
-            window.location.href = "/login";
-            return;
-        }
-
-        try {
-            // Kirim permintaan verifikasi token
-            const response = await fetch('/verify-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token  // Sertakan token dalam header
-                }
-            });
-
-            // Parsing hasil JSON dari respon
-            const result = await response.json();
-
-            // Jika token valid, simpan username dan valid ke localStorage
-            if (result.valid) {
-                localStorage.setItem('username', result.username);
-                localStorage.setItem('role', result.role);
-                localStorage.setItem('tokenValid', 'true');
-                console.log('Token valid. Username:', result.username);
-
-                // Lanjut ke halaman yang diinginkan setelah verifikasi berhasil
-            } else {
-                // Jika token invalid, arahkan ke login
-                localStorage.removeItem('authToken');
-                window.location.href = "/login";
-            }
-        } catch (error) {
-            console.error('Error verifying token:', error);
-            // Arahkan ke login jika terjadi error
-            window.location.href = "/login";
-        }
-    }
-
-    // Panggil fungsi verifikasi saat halaman dimuat
-    document.addEventListener("DOMContentLoaded", verifyToken);
-    </script>
+    
+    <script src="/static/script_footer.js"></script>
 </body>
 
 </html>

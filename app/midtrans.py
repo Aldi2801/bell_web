@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import midtransclient
 from .database import insert_transaction, get_transaction_by_id
-import os, jwt
+import os, jwt, requests, json, base64, time 
 from . import app, db
 
 if os.getenv('ENV') == 'production':
@@ -10,10 +10,7 @@ if os.getenv('ENV') == 'production':
 else:
     url = "https://app.sandbox.midtrans.com/snap/v1/transactions"
     server_key = os.getenv('Server_Key_Sandbox')
-import requests
-import json
-import base64
-import time 
+
 from datetime import datetime
 
 invoices = db['invoices']
@@ -38,22 +35,22 @@ def create_transaction():
             data['last_name'] = full_name.split()[-1] if len(full_name.split()) > 1 else ''
             data['email'] = decoded_token.get('email', 'anonymous@mail.co')
             data['amount'] = request.json.get('amount', 0)  # Pastikan nilai amount tersedia
+            invoice_id = request.json.get('tagihan_id', 0)
         else:
             # Ambil data langsung dari request jika token tidak tersedia
             data = request.json
-
+            # Simpan tagihan ke MongoDB (koleksi invoices)
+            invoice = {
+                "user_email": data['email'],
+                "description": "SPP dan biaya lainnya",
+                "amount": data['amount'],
+                "created_at": datetime.utcnow()
+            }
+            invoice_id = invoices.insert_one(invoice).inserted_id
+        print(invoice_id)
         # Validasi amount
         if not data.get('amount'):
             return jsonify({'error': 'Amount is required'}), 400
-
-        # Simpan tagihan ke MongoDB (koleksi invoices)
-        invoice = {
-            "user_email": data['email'],
-            "description": "SPP dan biaya lainnya",
-            "amount": data['amount'],
-            "created_at": datetime.utcnow()
-        }
-        invoice_id = invoices.insert_one(invoice).inserted_id
 
         # Payload untuk Midtrans
         order_id = f"ORDER-{int(time.time())}"
@@ -87,7 +84,8 @@ def create_transaction():
             transaction = response.json()
             transaction_data = {
                 "order_id": order_id,
-                "invoice_id": invoice_id,
+                "tagihan_id": invoice_id,
+                "email": data['email'],
                 "amount": data['amount'],
                 "status": "pending",
                 "created_at": datetime.utcnow(),

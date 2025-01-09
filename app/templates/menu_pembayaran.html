@@ -199,30 +199,73 @@
                 <th>Aksi</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>SPP Bulanan</td>
-                <td>Rp 500,000</td>
-                <td>
-                    <button type="button" onclick="bayar(500000)" class="btn btn-primary btn-sm">Bayar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Biaya Formulir</td>
-                <td>Rp 150,000</td>
-                <td>
-                    <button type="button" onclick="bayar(150000)" class="btn btn-primary btn-sm">Bayar</button>
-                </td>
-            </tr>
-            <!-- Tambahkan baris lainnya dengan format serupa -->
+        <tbody id="tagihan-container">
         </tbody>
     </table>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/script_footer.js"></script>
 <script>
-window.bayar = async function(amount) { // Definisi global menggunakan window
+async function fetchMenuPembayaran() {
+    const token = localStorage.getItem('authToken'); // Ambil token dari LocalStorage
+    if (!token) {
+        alert('Anda perlu login terlebih dahulu.');
+        return;
+    }
+
+    try {
+        const res = await fetch('/get_menu_pembayaran', {
+            method: 'GET',
+            headers: {
+                'Authorization': token
+            }
+        });
+
+        if (!res.ok) {
+            if (res.status === 401) {
+                alert('Token kadaluarsa. Silakan login ulang.');
+            } else if (res.status === 403) {
+                alert('Token tidak valid.');
+            } else {
+                alert('Gagal mengambil data tagihan.');
+            }
+            return;
+        }
+
+        const data = await res.json();
+        populateTagihanTable(data); // Panggil fungsi untuk menampilkan data
+    } catch (error) {
+        console.error('Error fetching menu pembayaran:', error);
+        alert('Terjadi kesalahan saat mengambil data tagihan.');
+    }
+}
+
+function populateTagihanTable(tagihan) {
+    const container = document.getElementById('tagihan-container');
+    container.innerHTML = ''; // Kosongkan tabel sebelum mengisi ulang
+
+    if (tagihan.length === 0) {
+        container.innerHTML = '<tr><td colspan="4">Tidak ada tagihan yang belum dibayar.</td></tr>';
+        return;
+    }
+
+    tagihan.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.jenis_pembayaran}</td>
+            <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
+            <td>
+                <button type="button" onclick="bayar(${item.harga}, '${item._id}')" class="btn btn-primary btn-sm">Bayar</button>
+            </td>
+        `;
+        container.appendChild(row);
+    });
+}
+
+// Panggil fetchMenuPembayaran saat halaman dimuat
+document.addEventListener('DOMContentLoaded', fetchMenuPembayaran);
+window.bayar = async function(amount,tagihan_id) { // Definisi global menggunakan window
     const token = localStorage.getItem('authToken');
     if (!token) {
         alert('Token tidak tersedia, Anda perlu login.');
@@ -237,7 +280,8 @@ window.bayar = async function(amount) { // Definisi global menggunakan window
                 'Authorization': token
             },
             body: JSON.stringify({
-                amount: amount // Data yang ingin dikirim
+                amount: amount, // Data yang ingin dikirim
+                tagihan_id: tagihan_id // Data yang ingin dikirim
             })
         });
 

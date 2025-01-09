@@ -6,6 +6,7 @@ from flask_cors import CORS
 from flask_mail import Mail
 from itsdangerous import URLSafeTimedSerializer
 import jwt, os, datetime
+from datetime import datetime
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -35,6 +36,22 @@ db = client.get_database('web_sekolah')
 users_collection = db.users
 
     
+# Data seeder kelas
+kelas_data = [
+    {"nama": "7A"},
+    {"nama": "7B"},
+    {"nama": "7C"},
+    {"nama": "8A"},
+    {"nama": "8B"},
+    {"nama": "8C"},
+    {"nama": "9A"},
+    {"nama": "9B"}
+]
+
+# Menghapus data lama dan memasukkan data baru
+db.kelas.delete_many({})  # Menghapus semua data dalam koleksi
+db.kelas.insert_many(kelas_data)  # Memasukkan data baru
+
 # Fungsi untuk verifikasi token
 @app.route('/verify-token', methods=['POST'])
 def verify_token():
@@ -60,5 +77,52 @@ def page_not_found(error):
 @app.route('/invalid')
 def invalid():
     abort(404)
+
+# Fungsi untuk menentukan semester berdasarkan bulan
+def get_semester_and_year():
+    now = datetime.now()
+    year = now.year
+    month = now.month
+    semester = "Ganjil" if month < 7 else "Genap"
+    if month < 7:
+        tahun_ajaran = f"{year-1}/{year}"
+    else:
+        tahun_ajaran = f"{year}/{year+1}"
+    return semester, tahun_ajaran
+
+@app.before_request
+def create_automatic_bills():
+    tagihan_collection = db.tagihan
+    semester, tahun_ajaran = get_semester_and_year()
+
+    # Tentukan bulan dan pembayaran
+    bulan_mapping = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ]
+    bulan_sekarang = bulan_mapping[datetime.now().month - 1]
+
+    # Periksa dan buat tagihan bulanan (SPP)
+    spp_bulanan = f"SPP Bulanan - {bulan_sekarang} {tahun_ajaran} {semester}"
+    if not tagihan_collection.find_one({"jenis_pembayaran": spp_bulanan}):
+        tagihan_collection.insert_one({
+            "jenis_pembayaran": spp_bulanan,
+            "harga": 500000,
+            "bulan": bulan_sekarang,
+            "semester": semester,
+            "tahun_ajaran": tahun_ajaran,
+            "created_at": datetime.now()
+        })
+
+    # Periksa dan buat tagihan tahunan (Uang Ujian)
+    uang_ujian = f"Uang Ujian {tahun_ajaran} {semester}"
+    if not tagihan_collection.find_one({"jenis_pembayaran": uang_ujian}):
+        tagihan_collection.insert_one({
+            "jenis_pembayaran": uang_ujian,
+            "harga": 1000000,
+            "semester": semester,
+            "tahun_ajaran": tahun_ajaran,
+            "created_at": datetime.now()
+        })
 
 from . import api_guru, api_login, api_murid, view, midtrans

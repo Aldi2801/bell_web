@@ -212,42 +212,20 @@
                 <label for="studentName">Nama Siswa:</label>
                 <select id="studentName" required>
                     <option value="">Pilih Nama Siswa</option>
-                    <option value="Aldi">Aldi</option>
-                    <option value="Budi">Budi</option>
-                    <option value="Citra">Citra</option>
-                    <option value="Dina">Dina</option>
-                    <option value="Eka">Eka</option>
-                    <option value="Farhan">Farhan</option>
-                    <option value="Gita">Gita</option>
-                    <option value="Hadi">Hadi</option>
-                    <option value="Indah">Indah</option>
-                    <option value="Joko">Joko</option>
-                    <option value="Kiki">Kiki</option>
-                    <option value="Lia">Lia</option>
-                    <option value="Mira">Mira</option>
-                    <option value="Nina">Nina</option>
-                    <option value="Oka">Oka</option>
-                    <option value="Putra">Putra</option>
-                    <option value="Qori">Qori</option>
-                    <option value="Rina">Rina</option>
-                    <option value="Sandi">Sandi</option>
-                    <option value="Tina">Tina</option>
-                    <option value="Umar">Umar</option>
-                    <option value="Vina">Vina</option>
-                    <option value="Wawan">Wawan</option>
-                    <option value="Xenia">Xenia</option>
-                    <option value="Yogi">Yogi</option>
-                    <option value="Zara">Zara</option>
-                    <option value="Andi">Andi</option>
-                    <option value="Bella">Bella</option>
-                    <option value="Caca">Caca</option>
-                    <option value="Dodi">Dodi</option>
+                    {% for item in users %}
+                    <option>{{ item.nama }}</option>
+                    {% endfor %}
                 </select>
             </div>
 
             <div class="form-group">
                 <label for="class">Kelas:</label>
-                <input type="text" id="class" required>
+                <select id="class" required>
+                    <option value="">Pilih Kelas</option>
+                    {% for item in kelas %}
+                    <option>{{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="date">Tanggal:</label>
@@ -269,6 +247,7 @@
             <table id="attendanceTable" >
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>Nama Siswa</th>
                         <th>Kelas</th>
                         <th>Tanggal</th>
@@ -276,58 +255,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data kehadiran akan ditambahkan di sini -->
+                    {% for item in attandance %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ item.nama_siswa }}</td>
+                            <td>{{ item.kelas }}</td>
+                            <td>{{ item.tanggal }}</td>
+                            <td>{{ item.status }}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 
+    <script src="/static/script_footer.js"></script>
     <script>
-      async function verifyToken() {
-        // Ambil token dari localStorage
-        const token = localStorage.getItem('authToken');
-
-        // Jika tidak ada token, alihkan ke login
-        if (!token) {
-            window.location.href = "/login";
-            return;
-        }
-
-        try {
-            // Kirim permintaan verifikasi token
-            const response = await fetch('/verify-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token  // Sertakan token dalam header
-                }
-            });
-
-            // Parsing hasil JSON dari respon
-            const result = await response.json();
-
-            // Jika token valid, simpan username dan valid ke localStorage
-            if (result.valid) {
-                localStorage.setItem('username', result.username);
-                localStorage.setItem('role', result.role);
-                localStorage.setItem('tokenValid', 'true');
-                console.log('Token valid. Username:', result.username);
-
-                // Lanjut ke halaman yang diinginkan setelah verifikasi berhasil
-            } else {
-                // Jika token invalid, arahkan ke login
-                localStorage.removeItem('authToken');
-                window.location.href = "/login";
-            }
-        } catch (error) {
-            console.error('Error verifying token:', error);
-            // Arahkan ke login jika terjadi error
-            window.location.href = "/login";
-        }
-    }
-
-    // Panggil fungsi verifikasi saat halaman dimuat
-    document.addEventListener("DOMContentLoaded", verifyToken);
         document.getElementById("attendanceForm").addEventListener("submit", function(event) {
             event.preventDefault();
 
