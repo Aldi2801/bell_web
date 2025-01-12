@@ -8,11 +8,11 @@ def view_manage_jadwal():
     schedule_collection = db["schedules"]
 
     # ONLINE
-    #schedule_id = ObjectId('67334170f71fdf42ce9446cc')
-    #teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
+    schedule_id = ObjectId('67334170f71fdf42ce9446cc')
+    teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
     #LOKAL RIZKY
-    schedule_id = ObjectId('6776ae66776ad9915a0728d6')
-    teacher_map_id = ObjectId('6776ae75776ad9915a0728d7')
+    # schedule_id = ObjectId('6776ae66776ad9915a0728d6')
+    # teacher_map_id = ObjectId('6776ae75776ad9915a0728d7')
     #LOKAL ALDI
     #schedule_id = ObjectId('6765893afbd3a1d8ed2dd985')
     #teacher_map_id = ObjectId('6765895ffbd3a1d8ed2dd986')

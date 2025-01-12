@@ -5,175 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jadwal Pelajaran MTs Al Huda Reban</title>
-    <style>
-        /* Styling Umum */
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to right, #a6c1ee, #fbc2eb);
-            /* Soft gradient background */
-        }
-        
-        h1,
-        h3 {
-            text-align: center;
-            opacity: 0;
-            transform: translateY(-30px);
-            animation: fadeInSlide 1s forwards;
-        }
-        
-        h1 {
-            color: #ecf0f1;
-            /* Ganti warna teks menjadi lebih terang */
-            animation-delay: 0.5s;
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-top:0px;
-        }
-        
-        h3 {
-            color: #ecf0f1;
-            /* Ganti warna teks menjadi lebih terang */
-            animation-delay: 1s;
-            font-size: 1.5rem;
-        }
-        /* Styling Tabel */
-        
-        .container-table {
-            width: 90%;
-            margin: 30px auto;
-            border-collapse: collapse;
-            opacity: 0;
-            transform: translateY(-30px);
-            animation: fadeInSlide 1s forwards;
-            animation-delay: 1.5s;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .container-keterangan{
-            width: 90%;
-            margin: 30px auto;
-            opacity: 0;
-            transform: translateY(-30px);
-            animation: fadeInSlide 1s forwards;
-            animation-delay: 1.5s;
-        }
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 15px;
-            text-align: center;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        
-        th {
-            background-color: #2980b9;
-            color: white;
-            text-transform: uppercase;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f4f4f4;
-        }
-        
-        tr:nth-child(odd) {
-            background-color: #ecf0f1;
-        }
-        
-        tr:hover {
-            background-color: #dfe6e9;
-        }
-        
-        td {
-            color: #2c3e50;
-        }
-        /* Header Style */
-        /* Header Style */
-        
-        header {
-            background-color: #34495e;
-            /* Ganti ke warna yang lebih gelap agar teks putih lebih kontras */
-            color: white;
-            /* Pastikan teks berwarna putih */
-            padding-bottom: 30px;
-            padding-top: 20px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-bottom: 3px solid #2980b9;
-        }
-        .d-flex{
-            display:flex;
-        }
-        .logout-container{
-            text-align: end;
-            width:50%;
-            padding-right: 20px;
-        }
-        .menu-container{
-            text-align: start;
-            width:50%;
-            padding-left: 20px;
-        }
-        .logout-button {
-            background-color: #ecf0f1;
-            color: #2c3e50;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .logout-button:hover {
-            background-color: #2980b9;
-            color: white;
-            transform: scale(1.05);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-        /* Keyframes for Fade In and Slide */
-        
-        @keyframes fadeInSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        /* Responsiveness */
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            h3 {
-                font-size: 1.2rem;
-            }
-            .container-table {
-                width: 100%;
-                font-size: 0.9rem;
-            }
-            .container-keterangan {
-                width:768px;
-                font-size: 0.9rem;
-            }
-            .logout-button {
-                font-size: 0.9rem;
-                padding: 10px 15px;
-            }
-            body{
-                width:768px;
-                background: linear-gradient(to top, #a6c1ee, #fbc2eb);
-            }
-        }
-    </style>
+    
+    <!-- Tambahkan link CSS DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!-- Tambahkan link jQuery dan DataTables JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="/static/style_base.css">
 </head>
 
 <body>
@@ -187,7 +25,7 @@
         </div>
         </div>
         <h1>Jadwal Pelajaran MTs Al Huda Reban</h1>
-        <h3>Tahun Pelajaran 2024/2025 - Semester Genap</h3>
+        <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
     </header>
 
     <table class="container-table"id="scheduleTable">
@@ -210,6 +48,9 @@
 
     <script src="/static/script_footer.js"></script>
     <script>
+    
+
+  $("#tahunPelajaran").text(`Tahun Pelajaran ${startYear}/${endYear} - Semester ${semester}`);
         const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
         const schedule = {{ schedule | safe }};
         schedule.forEach(day => {

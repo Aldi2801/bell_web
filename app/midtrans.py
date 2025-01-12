@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, render_template
 import midtransclient
-from .database import insert_transaction, get_transaction_by_id
 import os, jwt, requests, json, base64, time 
 from . import app, db
 
@@ -106,12 +105,6 @@ def create_transaction():
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
     
-@app.route('/transaction/<transaction_id>', methods=['GET'])
-def transaction_status(transaction_id):
-    transaction = get_transaction_by_id(transaction_id)
-    if not transaction:
-        return jsonify({'error': 'Transaction not found'}), 404
-    return jsonify(transaction)
 
 @app.route('/payment-success', methods=['GET'])
 def payment_success():

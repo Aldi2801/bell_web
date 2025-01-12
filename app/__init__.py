@@ -23,9 +23,9 @@ app.config.update(
 
 mail = Mail(app)
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
-#uri = "mongodb+srv://rizkydwisaputrar1:iqyCCfGc7vg9j_r@halosus.mwdayc6.mongodb.net/?retryWrites=true&w=majority&appName=halosus"
+uri = "mongodb+srv://rizkydwisaputrar1:iqyCCfGc7vg9j_r@halosus.mwdayc6.mongodb.net/?retryWrites=true&w=majority&appName=halosus"
 #lokal ALDI
-uri = "mongodb://localhost:27017/"
+#uri = "mongodb://localhost:27017/"
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
@@ -61,7 +61,8 @@ def verify_token():
     try:
         decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         print(decoded_token['role'])
-        return jsonify({'valid': True, 'username': decoded_token['username'],'role': decoded_token['role']})
+        
+        return jsonify({'valid': True, 'username': decoded_token['username'],'nama_lengkap': decoded_token['nama_lengkap'],'role': decoded_token['role']})
     except jwt.ExpiredSignatureError:
         return jsonify({'valid': False, 'message': 'Token expired'}), 401
     except jwt.InvalidTokenError:

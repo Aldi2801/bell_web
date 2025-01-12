@@ -7,10 +7,10 @@ async function verifyToken() {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': token}
         });
-        const { valid, username, role } = await res.json();
+        const { valid, username,nama_lengkap, role } = await res.json();
         if (valid) {
             localStorage.setItem('tokenValid', 'true');
-            setupRoleBasedContent(role,username);
+            setupRoleBasedContent(role,nama_lengkap);
         } else {
             redirectToLogin();
         }
@@ -48,3 +48,11 @@ function redirectToLogin() {
 }
 
 document.addEventListener("DOMContentLoaded", verifyToken);
+
+const now = new Date();
+const year = now.getFullYear();
+const semester = now.getMonth() + 1 >= 7 ? "Ganjil" : "Genap";
+const startYear = semester === "Ganjil" ? year : year - 1;
+const endYear = startYear + 1;
+
+$("#tahunPelajaran").text(`Tahun Pelajaran ${startYear}/${endYear} - Semester ${semester}`);
