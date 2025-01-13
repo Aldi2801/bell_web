@@ -1,22 +1,13 @@
 from . import app, db
 from flask import request, jsonify, url_for, render_template
 from itsdangerous import BadSignature, SignatureExpired
-import jwt, re, datetime
+import jwt, re, datetime, os 
 from bson.objectid import ObjectId
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
     schedule_collection = db["schedules"]
-
-    # ONLINE
-    schedule_id = ObjectId('67334170f71fdf42ce9446cc')
-    teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
-    #LOKAL RIZKY
-    # schedule_id = ObjectId('6776ae66776ad9915a0728d6')
-    # teacher_map_id = ObjectId('6776ae75776ad9915a0728d7')
-    #LOKAL ALDI
-    #schedule_id = ObjectId('6765893afbd3a1d8ed2dd985')
-    #teacher_map_id = ObjectId('6765895ffbd3a1d8ed2dd986')
-
+    schedule_id = ObjectId(os.getenv("SCHEDULE_ID"))
+    teacher_map_id = ObjectId(os.getenv("TEACHER_MAP_ID"))
     schedule_data = schedule_collection.find_one({"_id": schedule_id})
     teacher_map_data = schedule_collection.find_one({"_id": teacher_map_id})
 
@@ -53,8 +44,9 @@ def view_manage_jadwal():
 
     print("\nFormatted Teacher Map:")
     print(formatted_teacher_map)
-    kelas = list(db.kelas.find())
-    return render_template("manage_jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map, kelas= kelas )
+    users = list(db.users.find({"role": "murid"}, {"_id": 0}))
+    kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
+    return render_template("manage_jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map, users=users, kelas=kelas)
 
 # Endpoint untuk mendapatkan data murid dan kelas
 @app.route('/get-data', methods=['GET'])

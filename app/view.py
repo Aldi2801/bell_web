@@ -1,7 +1,7 @@
 from . import app, bcrypt, db, users_collection, get_semester_and_year
 from flask import request, jsonify, render_template, redirect, url_for
-import jwt
-import datetime
+import jwt, os
+from datetime import datetime
 from bson.objectid import ObjectId
 
 @app.route('/')
@@ -26,16 +26,8 @@ def view_daftar_hadir():
 @app.route('/jadwal')
 def view_jadwal():
     schedule_collection = db["schedules"]
-
-    # ONLINE
-    schedule_id = ObjectId('67334170f71fdf42ce9446cc')
-    teacher_map_id = ObjectId('673341ddf71fdf42ce9446cd')
-    # LOKAL RIZKY
-    # schedule_id = ObjectId('6776ae66776ad9915a0728d6')
-    # teacher_map_id = ObjectId('6776ae75776ad9915a0728d7')
-    # LOKAL ALDI
-    # schedule_id = ObjectId('6765893afbd3a1d8ed2dd985')
-    # teacher_map_id = ObjectId('6765895ffbd3a1d8ed2dd986')
+    schedule_id = ObjectId(os.getenv("SCHEDULE_ID"))
+    teacher_map_id = ObjectId(os.getenv("TEACHER_MAP_ID"))
 
     schedule_data = schedule_collection.find_one({"_id": schedule_id})
     teacher_map_data = schedule_collection.find_one({"_id": teacher_map_id})
@@ -79,7 +71,6 @@ def view_jadwal():
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():
     users = list(db.users.find({"role": "murid"}, {"_id": 0}))
-    print(users)
     kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
     return render_template("manage_kehadiran.html", users=users, kelas=kelas)
 @app.route('/coba')
@@ -87,20 +78,16 @@ def view_coba():
     return render_template("coba.html")
 @app.route('/manage_ujian')
 def view_manage_ujian():
-    return render_template("manage_ujian.html")
+    users = list(db.users.find({"role": "murid"}, {"_id": 0}))
+    kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
+    return render_template("manage_ujian.html", users=users, kelas=kelas)
 @app.route('/menu_pembayaran')
 def view_menu_pembayaran():
-    if request.host == "siakad-syncnau.fly.dev":
-        # Construct the local URL with path and query parameters
-        local_url = f"http://127.0.0.1:4040{request.path}"
-        if request.query_string:
-            local_url += f"?{request.query_string.decode('utf-8')}"
-        return redirect(local_url, code=302)
     status = request.args.get('status', 'undefined')
     order_id= request.args.get('order_id', 'undefined')
     status_code = request.args.get('status_code', 'undefined')
     transaction_status = request.args.get('transaction_status', 'undefined')
-    if status=="finished" and status_code==200 :
+    if status_code=="200":
         # Perbarui status transaksi di MongoDB
         result = db.transactions.update_one(
             {'order_id': order_id},
@@ -109,6 +96,10 @@ def view_menu_pembayaran():
                 'updated_at': datetime.utcnow()
             }}
         )
+        if result.modified_count > 0:
+            print('Transaction updated successfully')
+        else:
+            print('Transaction not found or already updated')
         
     return render_template("menu_pembayaran.html")
 @app.route('/verif_email')

@@ -102,7 +102,7 @@ function populateTagihanTable(tagihan) {
             <td>${item.jenis_pembayaran}</td>
             <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
             <td>
-                <button type="button" onclick="bayar(${item.harga}, '${item._id}')" class="btn btn-primary btn-sm">Bayar</button>
+                <button type="button" onclick="bayar(${item.harga}, '${item._id}')" class="btn btn-primary btn-sm button-submit">Bayar</button>
             </td>
         `;
         container.appendChild(row);

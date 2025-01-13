@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import midtransclient
-import os, jwt, requests, json, base64, time 
+import os, jwt, requests, json, base64, time, uuid
 from . import app, db
 
 if os.getenv('ENV') == 'production':
@@ -52,7 +52,7 @@ def create_transaction():
             return jsonify({'error': 'Amount is required'}), 400
 
         # Payload untuk Midtrans
-        order_id = f"ORDER-{int(time.time())}"
+        order_id = f"ORDER-{uuid.uuid4()}"
         payload = {
             "transaction_details": {
                 "order_id": order_id,
@@ -62,6 +62,9 @@ def create_transaction():
                 "first_name": data['first_name'],
                 "last_name": data['last_name'],
                 "email": data['email']
+            },
+            "callbacks": {
+                "finish": os.getenv("callback_url")
             }
         }
 

@@ -49,8 +49,6 @@
     <script src="/static/script_footer.js"></script>
     <script>
     
-
-  $("#tahunPelajaran").text(`Tahun Pelajaran ${startYear}/${endYear} - Semester ${semester}`);
         const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
         const schedule = {{ schedule | safe }};
         schedule.forEach(day => {
