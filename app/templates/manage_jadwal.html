@@ -96,36 +96,52 @@
         const scheduleForm = document.getElementById('scheduleForm');
 
         // Fungsi untuk menambah atau mengupdate jadwal
-         scheduleForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = {
-                day: document.getElementById('day').value,
-                time: document.getElementById('time').value,
-                period: document.getElementById('period').value,
-                subject: document.getElementById('subject').value,
-            };
+        scheduleForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST', // Gunakan 'PUT' untuk update
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('authToken')
-                    },
-                    body: JSON.stringify(formData),
-                });
+    const day = document.getElementById('day').value;
+    const time = document.getElementById('time').value;
+    const period = parseInt(document.getElementById('period').value, 10);
+    const subject = document.getElementById('subject').value;
 
-                if (response.ok) {
-                    alert('Jadwal berhasil disimpan!');
-                    location.reload();
-                } else {
-                    alert('Gagal menyimpan jadwal.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menyimpan jadwal.');
-            }
+    // Validasi input
+    if (!day || !time || !subject || isNaN(period) || period < 1) {
+        alert('Harap isi semua field dengan benar!');
+        return;
+    }
+
+    // Format validasi waktu (HH:MM - HH:MM)
+    const timeFormat = /^\d{2}:\d{2} - \d{2}:\d{2}$/;
+    if (!timeFormat.test(time)) {
+        alert('Format waktu harus "HH:MM - HH:MM"');
+        return;
+    }
+
+    const formData = { day, time, period, subject };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('authToken')
+            },
+            body: JSON.stringify(formData),
         });
+
+        if (response.ok) {
+            alert('Jadwal berhasil disimpan!');
+            location.reload();
+        } else {
+            const error = await response.json();
+            alert(`Gagal menyimpan jadwal: ${error.message}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat menyimpan jadwal.');
+    }
+});
+
 
         // Fungsi untuk menghapus jadwal
         async function deleteSchedule(id) {

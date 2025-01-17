@@ -72,7 +72,8 @@ def view_jadwal():
 def view_manage_kehadiran():
     users = list(db.users.find({"role": "murid"}, {"_id": 0}))
     kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
-    return render_template("manage_kehadiran.html", users=users, kelas=kelas)
+    attendance = list(db.attendance.find({}, {"_id": 0}))
+    return render_template("manage_kehadiran.html", users=users, kelas=kelas, attendance=attendance)
 @app.route('/coba')
 def view_coba():
     return render_template("coba.html")

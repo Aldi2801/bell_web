@@ -48,15 +48,8 @@ def view_manage_jadwal():
     kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
     return render_template("manage_jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map, users=users, kelas=kelas)
 
-# Endpoint untuk mendapatkan data murid dan kelas
-@app.route('/get-data', methods=['GET'])
-def get_data():
-    users = list(db.users.find({"role": "murid"}, {"_id": 0}))
-    kelas = list(db.kelas.find())
-    return jsonify({"students": users, "classes": kelas})
-
 # Endpoint untuk menyimpan data kehadiran
-@app.route('/save-attendance', methods=['POST'])
+@app.route('/tambah_kehadiran', methods=['POST'])
 def save_attendance():
     data = request.json
     if not all(key in data for key in ("studentName", "class", "date", "status")):
@@ -65,8 +58,32 @@ def save_attendance():
     db.attendance.insert_one(data)
     return jsonify({"message": "Attendance saved successfully"}), 201
 
-# Endpoint untuk mendapatkan data kehadiran
-@app.route('/get-attendance', methods=['GET'])
-def get_attendance():
-    attendance = list(db.attendance.find({}, {"_id": 0}))
-    return jsonify(attendance)
+@app.route('/edit_kehadiran/<id>', methods=['PUT'])
+def edit_attendance(id):
+    data = request.json
+    if not all(key in data for key in ("nama_siswa", "kelas", "tanggal", "status")):
+        return jsonify({"error": "Invalid data"}), 400
+
+    result = db.attendance.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": {
+            "nama_siswa": data["nama_siswa"],
+            "kelas": data["kelas"],
+            "tanggal": data["tanggal"],
+            "status": data["status"]
+        }}
+    )
+
+    if result.modified_count == 0:
+        return jsonify({"error": "No document updated"}), 404
+
+    return jsonify({"message": "Attendance updated successfully"}), 200
+
+@app.route('/hapus_kehadiran/<id>', methods=['DELETE'])
+def delete_attendance(id):
+    result = db.attendance.delete_one({"_id": ObjectId(id)})
+
+    if result.deleted_count == 0:
+        return jsonify({"error": "No document found to delete"}), 404
+
+    return jsonify({"message": "Attendance deleted successfully"}), 200
