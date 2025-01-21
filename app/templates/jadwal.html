@@ -114,10 +114,25 @@
             });
             container.appendChild(list);
         }
+        function renderList2(title, items) {
+            const container = document.getElementById('container-keterangan');
+            const heading = document.createElement('h2');
+            heading.innerText = title;
+            container.appendChild(heading);
+
+            const list = document.createElement('ul');
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
+                listItem.innerText = `${value}`;
+                list.appendChild(listItem);
+            });
+            container.appendChild(list);
+        }
 
         // Render kedua list
-        renderList("Kode Guru", data.kodeGuru);
         renderList("Kode Mapel", data.kodeMapel);
+        renderList2("List Guru", data.kodeGuru);
     </script>
 </body>
 

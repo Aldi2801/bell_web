@@ -51,7 +51,7 @@ async function verifyTokenSetelahLogin() {
 }
 
 // Panggil fungsi verifikasi saat halaman dimuat
-if (document.location.href ==="login" or "register" or "forgot_password"or "reset_password" or "verif_email" ){
+if (document.location.href ==="login" || "register" || "forgot_password"|| "reset_password" || "verif_email" ){
     document.addEventListener("DOMContentLoaded", verifyTokenLogin);
 }
 else{

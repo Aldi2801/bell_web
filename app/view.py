@@ -72,7 +72,8 @@ def view_jadwal():
 def view_manage_kehadiran():
     users = list(db.users.find({"role": "murid"}, {"_id": 0}))
     kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
-    attendance = list(db.attendance.find({}, {"_id": 0}))
+    attendance = list(db.attendance.find())
+    print(attendance)
     return render_template("manage_kehadiran.html", users=users, kelas=kelas, attendance=attendance)
 @app.route('/coba')
 def view_coba():
@@ -81,7 +82,9 @@ def view_coba():
 def view_manage_ujian():
     users = list(db.users.find({"role": "murid"}, {"_id": 0}))
     kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
-    return render_template("manage_ujian.html", users=users, kelas=kelas)
+    test_attendance = list(db.test_attendance.find())
+    print(test_attendance)
+    return render_template("manage_ujian.html", users=users, kelas=kelas, test_attendance=test_attendance)
 @app.route('/menu_pembayaran')
 def view_menu_pembayaran():
     status = request.args.get('status', 'undefined')

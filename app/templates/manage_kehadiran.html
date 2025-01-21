@@ -10,6 +10,7 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="/static/style_base.css">
     <style>
+    
     #editPopup {
         position: fixed;
         top: 50%;
@@ -31,6 +32,7 @@
     #editPopup button {
         margin-top: 10px;
     }
+
     #popupOverlay {
         position: fixed;
         top: 0;
@@ -94,7 +96,7 @@
                         <option value="Alpa">Alpa</option>
                     </select>
                 </div>
-                <button class="button-submit" type="submit">Tambah Kehadiran</button>
+                <button class="button-submit">Tambah Kehadiran</button>
             </form>
 
             <div class="table-container">
@@ -110,16 +112,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in attandance %}
-                        <tr data-id="{{ item.id }}">
+                        {% for item in attendance %}
+                        <tr data-id="{{ item._id }}">
                             <td>{{ loop.index }}</td>
-                            <td>{{ item.nama_siswa }}</td>
-                            <td>{{ item.kelas }}</td>
-                            <td>{{ item.tanggal }}</td>
-                            <td>{{ item.status }}</td>
+                            <td>{{ item.studentName }}</td>
+                            <td>{{ item.class }}</td>
+                            <td>{{ item.date }}</td>
+                            <td class="status-{{ item.status | lower }}">{{ item.status }}</td>
                             <td>
-                                <button class="edit-button">Edit</button>
-                                <button class="delete-button">Hapus</button>
+                                <button class="status-sakit btn btn-warning edit-button">Edit</button>
+                                <button class="status-alpa btn btn-danger delete-button">Hapus</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -153,19 +155,25 @@
                     <option value="Alpa">Alpa</option>
                 </select>
             </div>
-            <button type="submit">Simpan</button>
-            <button type="button" onclick="closeEditPopup()">Batal</button>
+            <button class="btn btn-success" type="submit">Simpan</button>
+            <button class="btn btn-secondary" type="button" onclick="closeEditPopup()">Batal</button>
         </form>
     </div>
   <script src="/static/script_footer.js"></script>
     <script>
-        document.getElementById("attendanceForm").addEventListener("submit", function(event) {
+        document.getElementById("attendanceForm").addEventListener("submit", async function(event)  {
             event.preventDefault();
 
             const studentName = document.getElementById("studentName").value;
             const studentClass = document.getElementById("class").value;
             const date = document.getElementById("date").value;
             const status = document.getElementById("status").value;
+            const formData = {
+                studentName: studentName,
+                class: studentClass,
+                date: date,
+                status: status,
+            };
             try {
                 const response = await fetch("/tambah_kehadiran", {
                     method: 'POST', // Gunakan 'PUT' untuk update
@@ -187,7 +195,10 @@
                 alert('Terjadi kesalahan saat menyimpan.');
             }
 
-        });  
+        });    
+        function closeEditPopup() {
+                $('#editPopup').fadeOut();
+            }
 
     </script>
     <script>
@@ -216,9 +227,9 @@
                 event.preventDefault();
                 const id = $('#editPopup').data('id');
                 const updatedData = {
-                    nama_siswa: $('#editStudentName').val(),
-                    kelas: $('#editClass').val(),
-                    tanggal: $('#editDate').val(),
+                    studentName: $('#editStudentName').val(),
+                    class: $('#editClass').val(),
+                    date: $('#editDate').val(),
                     status: $('#editStatus').val(),
                 };
 
@@ -241,7 +252,6 @@
                     console.error('Error:', error);
                 }
             });
-
             // Handle Delete Button Click
             $(document).on('click', '.delete-button', async function () {
                 const row = $(this).closest('tr');
@@ -264,10 +274,6 @@
                     }
                 }
             });
-
-            function closeEditPopup() {
-                $('#editPopup').fadeOut();
-            }
         });
     </script>
 </body>
