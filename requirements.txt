@@ -1,0 +1,10 @@
+flask 
+Flask-Bcrypt
+Flask-Cors
+Flask-Mail
+poetry
+pymongo 
+python-dotenv
+requests
+midtransclient 
+gunicorn

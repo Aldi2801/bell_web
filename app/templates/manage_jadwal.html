@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Pelajaran MTs Al Huda Reban</title>
+    <!-- Tambahkan link CSS DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!-- Tambahkan link jQuery dan DataTables JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="/static/style_base.css">
+</head>
+
+<body>
+    <header>
+        <div class="d-flex">
+        <div class="menu-container">
+        <button class="logout-button" onclick="location.href='/'">Menu</button>
+        </div>
+        <div class="logout-container">
+        <button class="logout-button" onclick="handleLogout()">Logout</button>
+        </div>
+        </div>
+        <h1>Manage Jadwal Pelajaran MTs Al Huda Reban</h1>
+        <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
+    </header>
+
+<div class="body-container">
+    <div class="container">
+    <div class="form-container">
+        <h2>Tambah/Ubah Jadwal</h2>
+        <form id="scheduleForm">
+            <div class="form-group">
+                <label for="day">Hari:</label>
+                <select id="day" required>
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="class">Kelas:</label>
+                <select id="class" required>
+                    <option value="">Pilih Kelas</option>
+                    {% for item in kelas %}
+                    <option>{{ item.nama }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                 <label for="time">Waktu:</label>
+                <input type="text" id="time" placeholder="Contoh: 07:00 - 08:00" required>
+            </div>
+            <div class="form-group">
+                <label for="period">Jam Ke:</label>
+                <input type="number" id="period" min="1" placeholder="Contoh: 1" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Mapel:</label>
+                <input type="text" id="subject" placeholder="Nama Mapel" required>
+            </div>
+            <button class="button-submit" type="submit">Submit</button>
+        </form>
+
+    </div>
+</div>
+</div>
+ <h1> Jadwal Pelajaran</h1>
+
+    <table class="container-table"id="scheduleTable">
+        <thead>
+            <tr>
+                <th>Hari</th>
+                <th>Waktu</th>
+                <th>Jam Ke</th>
+                {% for item in kelas %}
+                <th>{{ item.nama }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div class="container-keterangan" id="container-keterangan">
+    
+    </div>
+
+    <script src="/static/script_footer.js"></script>
+    <script>
+     const apiUrl = '/api/schedule'; // Ganti dengan URL API backend Anda
+        const scheduleForm = document.getElementById('scheduleForm');
+
+        // Fungsi untuk menambah atau mengupdate jadwal
+        scheduleForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const day = document.getElementById('day').value;
+    const time = document.getElementById('time').value;
+    const period = parseInt(document.getElementById('period').value, 10);
+    const subject = document.getElementById('subject').value;
+
+    // Validasi input
+    if (!day || !time || !subject || isNaN(period) || period < 1) {
+        alert('Harap isi semua field dengan benar!');
+        return;
+    }
+
+    // Format validasi waktu (HH:MM - HH:MM)
+    const timeFormat = /^\d{2}:\d{2} - \d{2}:\d{2}$/;
+    if (!timeFormat.test(time)) {
+        alert('Format waktu harus "HH:MM - HH:MM"');
+        return;
+    }
+
+    const formData = { day, time, period, subject };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('authToken')
+            },
+            body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+            alert('Jadwal berhasil disimpan!');
+            location.reload();
+        } else {
+            const error = await response.json();
+            alert(`Gagal menyimpan jadwal: ${error.message}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat menyimpan jadwal.');
+    }
+});
+
+
+        // Fungsi untuk menghapus jadwal
+        async function deleteSchedule(id) {
+            const token = localStorage.getItem('authToken');
+            if (!token) return redirectToLogin();
+
+            try {
+                const response = await fetch(`${apiUrl}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    }
+                });
+                if (response.ok) {
+                    alert('Jadwal berhasil dihapus!');
+                    location.reload();
+                } else {
+                    alert('Gagal menghapus jadwal.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghapus jadwal.');
+            }
+        }
+
+        const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
+        const schedule = {{ schedule | safe }};
+        schedule.forEach(day => {
+            day.sessions.forEach((session, index) => {
+                const row = document.createElement('tr');
+
+                if (index === 0) {
+                    const dayCell = document.createElement('td');
+                    dayCell.rowSpan = day.sessions.length;
+                    dayCell.innerText = day.day;
+                    row.appendChild(dayCell);
+                }
+
+                const timeCell = document.createElement('td');
+                timeCell.innerText = session.time;
+                row.appendChild(timeCell);
+
+                const periodCell = document.createElement('td');
+                periodCell.innerText = session.period;
+                row.appendChild(periodCell);
+                if (session.period == "ISTIRAHAT"){
+                    const subjectCell = document.createElement('td');
+                    subjectCell.colSpan = "8";
+                    subjectCell.innerText = " ";
+                    row.appendChild(subjectCell);
+                }
+                else{
+                session.subjects.some(subject => {
+                    if (subject == "Upacara"){
+                        const subjectCell = document.createElement('td');
+                        subjectCell.innerText = subject;
+                        subjectCell.colSpan = "8";
+                        row.appendChild(subjectCell);
+                        return true ;
+                    }
+                    else{
+                        const subjectCell = document.createElement('td');
+                        subjectCell.innerText = subject;
+                        row.appendChild(subjectCell);
+                    }
+                });
+                }
+
+                scheduleTable.appendChild(row);
+            });
+        });
+        // Data JSON
+        const data = {{ kode_guru | safe }}
+
+        // Fungsi untuk menampilkan data
+        function renderList(title, items) {
+            const container = document.getElementById('container-keterangan');
+            const heading = document.createElement('h2');
+            heading.innerText = title;
+            container.appendChild(heading);
+
+            const list = document.createElement('ul');
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
+                listItem.innerText = `${key}: ${value}`;
+                list.appendChild(listItem);
+            });
+            container.appendChild(list);
+        }
+        function renderList2(title, items) {
+            const container = document.getElementById('container-keterangan');
+            const heading = document.createElement('h2');
+            heading.innerText = title;
+            container.appendChild(heading);
+
+            const list = document.createElement('ul');
+            items.forEach(item => {
+                const listItem = document.createElement('li');
+                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
+                listItem.innerText = `${value}`;
+                list.appendChild(listItem);
+            });
+            container.appendChild(list);
+        }
+
+        // Render kedua list
+        renderList("Kode Mapel", data.kodeMapel);
+        renderList2("List Guru", data.kodeGuru);
+    </script>
+</body>
+
+</html>

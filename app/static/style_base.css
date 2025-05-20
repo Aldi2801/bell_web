@@ -1,0 +1,489 @@
+        /* Styling Umum */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #a6c1ee, #fbc2eb);
+            /* Soft gradient background */
+        }
+        
+        h1,
+        h3 {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: fadeInSlide 1s forwards;
+        }
+        
+        h1 {
+            color: #ecf0f1;
+            /* Ganti warna teks menjadi lebih terang */
+            animation-delay: 0.5s;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-top:0px;
+        }
+        
+        h3 {
+            color: #ecf0f1;
+            /* Ganti warna teks menjadi lebih terang */
+            animation-delay: 1s;
+            font-size: 1.5rem;
+        }
+        /* Styling Tabel */
+        
+        .container-table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: fadeInSlide 1s forwards;
+            animation-delay: 1.5s;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .container-keterangan{
+            width: 90%;
+            margin: 30px auto;
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: fadeInSlide 1s forwards;
+            animation-delay: 1.5s;
+        }
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        th {
+            background-color: #2980b9;
+            color: white;
+            text-transform: uppercase;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f4f4f4;
+        }
+        
+        tr:nth-child(odd) {
+            background-color: #ecf0f1;
+        }
+        
+        tr:hover {
+            background-color: #dfe6e9;
+        }
+        
+        td {
+            color: #2c3e50;
+        }
+        /* Header Style */
+        /* Header Style */
+        
+        header {
+            background-color: #34495e;
+            /* Ganti ke warna yang lebih gelap agar teks putih lebih kontras */
+            color: white;
+            /* Pastikan teks berwarna putih */
+            padding-bottom: 30px;
+            padding-top: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-bottom: 3px solid #2980b9;
+        }
+        .d-flex{
+            display:flex;
+        }
+        .logout-container{
+            text-align: end;
+            width:50%;
+            padding-right: 20px;
+        }
+        .menu-container{
+            text-align: start;
+            width:50%;
+            padding-left: 20px;
+        }
+        .logout-button {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logout-button:hover {
+            background-color: #2980b9;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        /* Keyframes for Fade In and Slide */
+        
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Responsiveness */
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            h3 {
+                font-size: 1.2rem;
+            }
+            .container-table {
+                width: 100%;
+                font-size: 0.9rem;
+            }
+            .container-keterangan {
+                width:768px;
+                font-size: 0.9rem;
+            }
+            .logout-button {
+                font-size: 0.9rem;
+                padding: 10px 15px;
+            }
+            body{
+                width:768px;
+                background: linear-gradient(to top, #a6c1ee, #fbc2eb);
+            }
+        }
+        .body-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding-top:24px;
+            padding-bottom:24px;
+            background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+            display: flex;
+            justify-content: center;
+            align-items: normal;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 90%;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        h2 {
+            text-align: center;
+            color: #4a90e2;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.6);
+            outline: none;
+        }
+        
+        .button-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #6a1b9a, #d81b60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .button-submit:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+        }
+        
+        .button-submit:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        
+        .table-container {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        table th,
+        table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        
+        table th {
+            background-color: #6a1b9a;
+            color: white;
+        }
+        /* Status Colors */
+        
+        .status-hadir {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 12px;
+            text-align: center;
+        }
+        
+        .status-sakit {
+            background-color: #ffc107;
+            color: black;
+            padding: 5px 12px;
+            text-align: center;
+        }
+        
+        .status-izin {
+            background-color: #17a2b8;
+            color: white;
+            padding: 5px 12px;
+            text-align: center;
+        }
+        
+        .status-alpa {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 12px;
+            text-align: center;
+        }
+        
+        /* Animasi hover pada tabel */
+        
+        table tr:hover {
+            background-color: #f8f8f8;
+            transition: background-color 0.3s ease;
+        }
+        /* Membungkus tabel dengan scroll horizontal pada layar kecil */
+        .table-responsive {
+            overflow-x: auto; /* Mengizinkan scroll horizontal */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling di perangkat touch screen */
+        }
+
+        /* Opsional: styling dasar tabel */
+        .table-responsive table {
+            width: 100%; /* Mengatur tabel agar memenuhi lebar container */
+            border-collapse: collapse; /* Menghilangkan jarak antara border */
+        }
+
+        .table-responsive th,
+        .table-responsive td {
+            padding: 12px;
+            border: 1px solid #ddd; /* Garis pembatas antar sel */
+            text-align: left;
+        }
+
+        .table-responsive th {
+            background-color: #f2f2f2; /* Warna latar belakang header tabel */
+        }
+
+        /* Hanya tampilkan scroll pada layar kecil */
+        @media (max-width: 768px) {
+            .table-responsive {
+                border: 1px solid #ddd; /* Tambahkan border untuk membedakan area scroll */
+                border-radius: 8px; /* Opsional: membuat ujung tabel membulat */
+                padding: 10px;
+            }
+        }
+/* Warna dasar */
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    text-decoration: none;
+}
+
+/* Variasi warna tombol */
+.btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-success {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-warning {
+    color: #212529;
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-light {
+    color: #212529;
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+.btn-dark {
+    color: #fff;
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+/* Tombol dengan outline */
+.btn-outline-primary {
+    color: #007bff;
+    background-color: transparent;
+    border-color: #007bff;
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    background-color: transparent;
+    border-color: #6c757d;
+}
+
+.btn-outline-success {
+    color: #28a745;
+    background-color: transparent;
+    border-color: #28a745;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    background-color: transparent;
+    border-color: #dc3545;
+}
+
+.btn-outline-warning {
+    color: #ffc107;
+    background-color: transparent;
+    border-color: #ffc107;
+}
+
+.btn-outline-info {
+    color: #17a2b8;
+    background-color: transparent;
+    border-color: #17a2b8;
+}
+
+.btn-outline-light {
+    color: #f8f9fa;
+    background-color: transparent;
+    border-color: #f8f9fa;
+}
+
+.btn-outline-dark {
+    color: #343a40;
+    background-color: transparent;
+    border-color: #343a40;
+}
+
+/* Ukuran tombol */
+.btn-lg {
+    padding: 0.5rem 1rem;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    border-radius: 0.3rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+/* Tombol disabled */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Tombol full width */
+.btn-block {
+    display: block;
+    width: 100%;
+}
