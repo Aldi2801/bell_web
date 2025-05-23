@@ -29,8 +29,6 @@ async function verifyToken() {
 
 function setupRoleBasedContent(role,username) {
     const roleText = role === 'murid' ? 'Murid' : 'Guru';
-    document.getElementById('role-title').textContent = roleText;
-    document.getElementById('role-detail').textContent = roleText;
     document.getElementById('username').textContent = username;
     if (role === 'murid') {
         document.getElementById('link-jadwal').href = "/jadwal";

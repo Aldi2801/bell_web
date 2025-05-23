@@ -47,7 +47,7 @@
         <button class="logout-button" onclick="handleLogout()">Logout</button>
         </div>
         </div>
-        <h1 class="header-title">Dashboard <span id="role-title"></span> MTs Al Huda Reban</h1>
+        <h1 class="header-title">Selamat Datang {{session['role']}} MTs Al Huda Reban</h1>
         <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
     </header>
     <div class="container">
@@ -57,14 +57,24 @@
                 <a href="/manage_jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i> Jadwal</a>
                 <a href="/manage_kehadiran" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Kehadiran</a>
                 <a href="/manage_ujian" id="link-ujian"><i class="fas fa-file-alt mr-2"></i> Ujian</a>
+                {% if session['role'] == 'admin' %}
+                <a href="/register_guru"><i class="fas fa-file-alt mr-2"></i>tambah guru</a>
+                {%  endif %}
+                <a href="/manage_Pengumuman"><i class="fas fa-user-check mr-2"></i> Pengumuman</a>
+                {% if session['role'] == 'guru' %}
+                <a href="/manage_Laporan"><i class="fas fa-user-check mr-2"></i> Laporan</a>
+                {%  endif %}
             </nav>
         </div>
         <div class="main-content">
-            <h2>Detail <span id="role-detail"></span></h2>
+            <h2>Selamat Datang {{session['role']}}</h2>
             <ul>
                 <li>Nama: <span id="username"></span></li>
+                {% if session['role'] == 'admin' %}
+                {%else%}
                 <li id="additional-info"></li>
                 <li id="tahunPelajarann">Tahun Ajaran: 2024/2025 - Genap</li>
+                {%  endif %}
             </ul>
         </div>
     </div>

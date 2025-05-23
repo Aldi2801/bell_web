@@ -1,9 +1,12 @@
-from . import app, bcrypt, users_collection, mail, s
-from flask import request, jsonify, url_for, render_template_string, flash, render_template
+from . import app, bcrypt, users_collection, mail, s, is_valid_email
+from flask import request, jsonify, url_for, render_template_string, flash, render_template, session
 from flask_mail import Message
 from itsdangerous import BadSignature, SignatureExpired
 import jwt, re, datetime
+
 # Fungsi login user dan menghasilkan token
+
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -18,8 +21,9 @@ def login():
     if user['verify_email'] == False:
         return jsonify({"msg": "anda belum memverifikasi email"}), 401
     if user and bcrypt.check_password_hash(user['password'], password):
-        # Membuat token dengan waktu kedaluwarsa 24 jam
-        print(user['role'])
+        session['role'] =  user['role']
+
+
         token = jwt.encode({
             'username': username,
             'role': user['role'],
@@ -32,9 +36,6 @@ def login():
     else:
         return jsonify({'mesg': 'Invalid credentials'}), 401
     
-def is_valid_email(email):
-    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
-    return re.match(regex, email)
 
 # Fungsi registrasi user
 @app.route('/register', methods=['POST'])
@@ -73,32 +74,6 @@ def register():
         'role':'murid'
     }
     try:
-        token = s.dumps(email, salt='email-confirm')
-
-        conf_email_url = url_for('confirm_email', token=token, _external=True)
-        email_body = render_template_string('''
-            Hello {{ username }},
-            
-            Anda menerima email ini, karena kami memerlukan verifikasi email untuk akun Anda agar aktif dan dapat digunakan.
-            
-            Silakan klik tautan di bawah ini untuk verifikasi email Anda. Tautan ini akan kedaluwarsa dalam 1 jam.
-            
-            confirm your email: {{ conf_email_url }}
-            
-            hubungi dukungan jika Anda memiliki pertanyaan.
-            
-            Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
-            
-            Salam Hangat,
-            
-            Admin
-        ''', username=username,  conf_email_url=conf_email_url)
-
-        msg = Message('Confirmasi Email Anda',
-                    sender='masteraldi2809@gmail.com', recipients=[email])
-
-        msg.body = email_body
-        mail.send(msg)
         result = users_collection.insert_one(user)
         if result.inserted_id:
             return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201

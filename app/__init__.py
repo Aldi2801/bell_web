@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_mail import Mail
 from itsdangerous import URLSafeTimedSerializer
-import jwt, os, datetime
+import jwt, os, datetime,re
 from datetime import datetime
 
 app = Flask(__name__)
@@ -106,7 +106,7 @@ def create_automatic_bills():
     if not tagihan_collection.find_one({"jenis_pembayaran": spp_bulanan}):
         tagihan_collection.insert_one({
             "jenis_pembayaran": spp_bulanan,
-            "harga": 500000,
+            "harga": 10000,
             "bulan": bulan_sekarang,
             "semester": semester,
             "tahun_ajaran": tahun_ajaran,
@@ -124,4 +124,7 @@ def create_automatic_bills():
             "created_at": datetime.now()
         })
 
+def is_valid_email(email):
+    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
+    return re.match(regex, email)
 from . import api_guru, api_login, api_murid, view, midtrans

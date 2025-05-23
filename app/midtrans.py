@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import midtransclient
 import os, jwt, requests, json, base64, time, uuid
 from . import app, db
-
+print(os.getenv('ENV') )
 if os.getenv('ENV') == 'production':
     url = "https://app.midtrans.com/snap/v1/transactions"
     server_key = os.getenv('Server_Key_Production')
