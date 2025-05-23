@@ -8,12 +8,14 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 flask = "^3.0.3"
-pymongo = "^4.3.3"  # versi contoh
-flask-bcrypt = "^1.0.1"  # versi contoh
-pyjwt = "^2.4.0"  # versi contoh
+pymongo = "^4.10.1"  # Versi diperbarui
+flask-bcrypt = "^1.0.1"
+pyjwt = "^2.9.0"  # Versi diperbarui
 Flask-PyMongo = "^2.3.0"
 Flask-Cors = "^5.0.0"
 flask_mail = "^0.10.0"
+python-dotenv = "^1.0.1"  # Tambahan baru
+midtransclient = "^1.4.2"  # Tambahan baru
 
 [build-system]
 requires = ["poetry-core"]
