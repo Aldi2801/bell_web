@@ -127,4 +127,4 @@ def create_automatic_bills():
 def is_valid_email(email):
     regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
     return re.match(regex, email)
-from . import api_guru, api_login, api_murid, view, midtrans
+from . import api_guru, api_login, api_murid, api_admin, view, midtrans

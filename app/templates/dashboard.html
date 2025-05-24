@@ -58,11 +58,17 @@
                 <a href="/manage_kehadiran" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Kehadiran</a>
                 <a href="/manage_ujian" id="link-ujian"><i class="fas fa-file-alt mr-2"></i> Ujian</a>
                 {% if session['role'] == 'admin' %}
-                <a href="/register_guru"><i class="fas fa-file-alt mr-2"></i>tambah guru</a>
+                <a href="/register_guru"><i class="fas fa-user-check mr-2"></i> Tambah guru</a>
                 {%  endif %}
-                <a href="/manage_Pengumuman"><i class="fas fa-user-check mr-2"></i> Pengumuman</a>
                 {% if session['role'] == 'guru' %}
-                <a href="/manage_Laporan"><i class="fas fa-user-check mr-2"></i> Laporan</a>
+                <a href="/manage_laporan"><i class="fas fa-file-alt mr-2"></i> Manage Laporan</a>
+                {%  endif %}
+                {% if session['role'] == 'murid' %}
+                <a href="/pengumuman"><i class="fas fa-file-alt mr-2"></i> Pengumuman</a>
+                <a href="/tugas" id="link-tugas"><i class="fas fa-file-alt mr-2"></i> Tugas</a>
+                {% else %}
+                <a href="/manage_tugas" id="link-tugas"><i class="fas fa-file-alt mr-2"></i> Manage Tugas</a>
+                <a href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i> Manage Pengumuman</a>
                 {%  endif %}
             </nav>
         </div>
@@ -71,10 +77,10 @@
             <ul>
                 <li>Nama: <span id="username"></span></li>
                 {% if session['role'] == 'admin' %}
-                {%else%}
+                {% else %}
                 <li id="additional-info"></li>
                 <li id="tahunPelajarann">Tahun Ajaran: 2024/2025 - Genap</li>
-                {%  endif %}
+                {% endif %}
             </ul>
         </div>
     </div>

@@ -8,3 +8,4 @@ python-dotenv
 requests
 midtransclient 
 gunicorn
+pyJWT

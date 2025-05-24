@@ -32,44 +32,35 @@
 
         <!-- Daftar Kehadiran -->
         <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Hari</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Senin</td>
-                        <td class="status-hadir">Hadir</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Selasa</td>
-                        <td class="status-izin">Izin</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Rabu</td>
-                        <td class="status-alpa">Alpa</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Kamis</td>
-                        <td class="status-hadir">Hadir</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Jumat Tadarus</td>
-                        <td class="status-izin">Hadir</td>
-                    </tr>
-                    <!-- Tambahkan data siswa lainnya di sini -->
-                </tbody>
-            </table>
-        </div>
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Siswa</th>
+                            <th>Kelas</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in attendance %}
+                        <tr data-id="{{ item._id }}">
+                            <td>{{ loop.index }}</td>
+                            <td>{{ item.studentName }}</td>
+                            <td>{{ item.class }}</td>
+                            <td>{{ item.date }}</td>
+                            <td class="status-{{ item.status | lower }}">{{ item.status }}</td>
+                            <td>
+                                <button class="status-sakit btn btn-warning edit-button">Edit</button>
+                                <button class="status-alpa btn btn-danger delete-button">Hapus</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
     </div>
     </div>
     

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{%if session['role'] != 'murid'%}Manage {%endif%}Pengumuman MTs Al Huda Reban</title>
+    <title>{%if session['role'] != 'murid'%}Manage {%endif%}Tugas MTs Al Huda Reban</title>
     <!-- Tambahkan link CSS DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <!-- Tambahkan link jQuery dan DataTables JavaScript -->
@@ -149,30 +149,34 @@
         <a class="logout-button" onclick="handleLogout()">Logout</a>
         </div>
         </div>
-        <h1>Pengumuman MTs Al Huda Reban</h1>
+        <h1>Tugas MTs Al Huda Reban</h1>
     </header>
     <div>
     <table>
         <thead>
             <th>No</th>
-            <th>Judul Pengumuman</th>
-            <th>Penulis Pengumuman</th>
-            <th>Jenis Pengumuman</th>
-            <th>Isi Pengumuman</th>
-            {%if session['role'] == 'admin' %}
+            <th>Judul Tugas</th>
+            <th>Penulis Tugas</th>
+            <th>Mapel Tugas</th>
+            <th>Isi Tugas</th>
+            {%if session['role'] == 'murid' %}
+            <th>Jawaban Anda</th>
+            {% else %}
             <th>Aksi</th>
             {% endif %}
         </thead>
         <tbody>
-            {% if pengumuman: %}
-            {% for i in pengumuman %}
+            {% if tugas: %}
+            {% for i in tugas %}
             <td>{{loop.index}}</td>
-            <td>{{i.judul_pengumuman}}</td>
-            <td>{{i.penulis_pengumuman}}</td>
-            <td>{{i.jenis_pengumuman}}</td>
-            <td>{{i.isi_pengumuman}}</td>
-            {%if session['role'] == 'admin' %}
-            <td><button >edit</button><hr><button >hapus</button></td>
+            <td>{{i.judul_tugas}}</td>
+            <td>{{i.penulis_tugas}}</td>
+            <td>{{i.mapel_tugas}}</td>
+            <td>{{i.isi_tugas}}</td>
+            {%if session['role'] == 'murid' %}
+            <td><button>kirim jawaban</button></td>
+            {%else %}
+            <td><button >lihat jawaban</button><hr><button >edit</button><hr><button >hapus</button></td>
             {% endif %}
 
             {% endfor %}
@@ -180,24 +184,18 @@
         </tbody>
     </table>
 </div>
-    {%if session['role'] == 'admin' %}
+    {%if session['role'] == 'murid' %}
+    {% else %}
     <div class = 'parent'>
 
     <div class="containerr">
             
-        <h2>Tambah Pengumuman</h2>
+        <h2>Tambah Tugas</h2>
         <form id="daftarForm">
-            <input type="text" id="judul_pengumuman" placeholder="Judul Pengumuman" required>
-            <input type="text" id="penulis_pengumuman" placeholder="Penulis Pengumuman" required>
-            <textarea id="isi_pengumuman" class="form-control" required >isi Pengumuman</textarea>
-            <select id="jenis_pengumuman" class="form-control" required>
-                <option value="">pilih jenis Pengumuman</option>
-                <option value="Informasi Pengumuman">Informasi akademis</option>
-                <option value="Kegiatan Sekolah">Kegiatan Sekolah</option>
-                <option value="Ekstrakulikuler">Ekstrakulikuler</option>
-                <option value="Pengumuman Penting">Pengumuman Penting</option>
-                <option value="Informasi Lainnya">Informasi Lainnya</option>
-            </select>
+            <input type="text" id="judul_tugas" placeholder="Judul Tugas" required>
+            <input type="text" id="penulis_tugas" placeholder="Penulis Tugas" required>
+            <input type="text" id="mapel_tugas" placeholder="Mata Pelajaran Tugas" required>
+            <textarea id="isi_tugas" class="form-control" required >isi Tugas</textarea>
             <button id="submit" type="submit">Submit</button>
         </form>
     </div> 
@@ -250,10 +248,10 @@
             event.preventDefault(); // Prevent form from submitting traditionally
 
             // Get the values from the form fields
-            const judul_pengumuman = document.getElementById("judul_pengumuman").value;
-            const penulis_pengumuman = document.getElementById("penulis_pengumuman").value;
-            const isi_pengumuman = document.getElementById("isi_pengumuman").value;
-            const jenis_pengumuman = document.getElementById("jenis_pengumuman").value;
+            const judul_tugas = document.getElementById("judul_tugas").value;
+            const penulis_tugas = document.getElementById("penulis_tugas").value;
+            const isi_tugas = document.getElementById("isi_tugas").value;
+            const mapel_tugas = document.getElementById("mapel_tugas").value;
             document.getElementById("submit").disabled = true;
             document.getElementById("submit").innerHTML = '<div class="loader" id="loader"></div>';
             // Ambil URL dasar tanpa parameter
@@ -261,17 +259,17 @@
             console.log(baseUrl);
 
             // Check if the form is filled
-            if (judul_pengumuman && penulis_pengumuman && isi_pengumuman && jenis_pengumuman ) {
+            if (judul_tugas && penulis_tugas && isi_tugas && mapel_tugas ) {
                  $.ajax({
-                    url: '/tambah_pengumuman?from="'+baseUrl+'"', // Pastikan endpoint /register sesuai dengan API server
+                    url: '/tambah_tugas?from="'+baseUrl+'"', // Pastikan endpoint /register sesuai dengan API server
                     type: 'POST',
                     contentType: 'application/json',
                     dataType: 'json',
                     data: JSON.stringify({
-                        judul_pengumuman: judul_pengumuman,
-                        penulis_pengumuman: penulis_pengumuman,
-                        isi_pengumuman: isi_pengumuman,
-                        jenis_pengumuman: jenis_pengumuman
+                        judul_tugas: judul_tugas,
+                        penulis_tugas: penulis_tugas,
+                        isi_tugas: isi_tugas,
+                        mapel_tugas: mapel_tugas
                     }),
                     success: function (response) {
                         const token = response.msg;

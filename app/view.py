@@ -17,6 +17,31 @@ def view_register():
 @app.route('/register_guru')
 def view_register_guru():
     return render_template("register_guru.html")
+@app.route('/tugas')
+def view_tugas():
+    tugas = list(db.tugas.find())
+    print(tugas)
+    return render_template("manage_tugas.html", tugas = tugas)
+@app.route('/pengumuman')
+def view_pengumuman():
+    pengumuman = list(db.pengumuman.find())
+    print(pengumuman)
+    return render_template("manage_pengumuman.html", pengumuman = pengumuman)
+@app.route('/manage_tugas')
+def view_manage_tugas():
+    tugas = list(db.tugas.find())
+    print(tugas)
+    return render_template("manage_tugas.html", tugas = tugas)
+@app.route('/manage_pengumuman')
+def view_manage_pengumuman():
+    pengumuman = list(db.pengumuman.find())
+    print(pengumuman)
+    return render_template("manage_pengumuman.html", pengumuman = pengumuman)
+@app.route('/manage_laporan')
+def view_manage_laporan():
+    laporan = list(db.laporan.find())
+    print(laporan)
+    return render_template("manage_laporan.html", laporan = laporan)
 def find_current_period(sesi_list, current_time):
     for sesi in sesi_list:
         jam_mulai, jam_selesai = sesi["jam"].split(" - ")
@@ -28,65 +53,65 @@ def find_current_period(sesi_list, current_time):
 @app.route('/dashboard')
 def view_dashboard():
     mapel_guru =""
-    if session['role']=='guru':
-        kode_guru = session['kode_guru']
-        sekarang = datetime.now()
-        hari = sekarang.strftime("%A")  # English: Monday, Tuesday
-        hari_dict = {
-            "Monday": "Senin",
-            "Tuesday": "Selasa",
-            "Wednesday": "Rabu",
-            "Thursday": "Kamis",
-            "Friday": "Jum'at",
-            "Saturday": "Sabtu",
-            "Sunday": "Minggu"
-        }
-        hari = hari_dict.get(hari, hari)
+    # if session['role']=='guru':
+    #     kode_guru = session['kode_guru']
+    #     sekarang = datetime.now()
+    #     hari = sekarang.strftime("%A")  # English: Monday, Tuesday
+    #     hari_dict = {
+    #         "Monday": "Senin",
+    #         "Tuesday": "Selasa",
+    #         "Wednesday": "Rabu",
+    #         "Thursday": "Kamis",
+    #         "Friday": "Jum'at",
+    #         "Saturday": "Sabtu",
+    #         "Sunday": "Minggu"
+    #     }
+    #     hari = hari_dict.get(hari, hari)
 
-        jam_sekarang = sekarang.time()
+    #     jam_sekarang = sekarang.time()
 
-        # Ambil jadwal hari ini
-        print(hari)
+    #     Ambil jadwal hari ini
+    #     print(hari)
             
-        schedule_collection = db["schedules"]
-        schedule_id = ObjectId(os.getenv("SCHEDULE_ID"))
-        teacher_map_id = ObjectId(os.getenv("TEACHER_MAP_ID"))
-        schedule_data = schedule_collection.find_one({"_id": schedule_id})
-        teacher_map_data = schedule_collection.find_one({"_id": teacher_map_id})
+    #     schedule_collection = db["schedules"]
+    #     schedule_id = ObjectId(os.getenv("SCHEDULE_ID"))
+    #     teacher_map_id = ObjectId(os.getenv("TEACHER_MAP_ID"))
+    #     schedule_data = schedule_collection.find_one({"_id": schedule_id})
+    #     teacher_map_data = schedule_collection.find_one({"_id": teacher_map_id})
 
-        # Format data jadwal
-        formatted_schedule = [
-            {
+    #     Format data jadwal
+    #     formatted_schedule = [
+    #         {
                 
-                "day": day["day"] if day["day"] == hari else '' ,
-                "sessions": [
-                    {
-                        "time": session["time"] if session["time"] == jam_sekarang else '',
-                        "period": session["period"],
-                        "subjects": session["subjects"]
-                    }
-                    for session in day["sessions"]
-                ]
-            }
-            for day in schedule_data["schedule"]
-        ]
+    #             "day": day["day"] if day["day"] == hari else '' ,
+    #             "sessions": [
+    #                 {
+    #                     "time": session["time"] if session["time"] == jam_sekarang else '',
+    #                     "period": session["period"],
+    #                     "subjects": session["subjects"]
+    #                 }
+    #                 for session in day["sessions"]
+    #             ]
+    #         }
+    #         for day in schedule_data["schedule"]
+    #     ]
 
-        # Format data kode guru dan mapel
-        formatted_teacher_map = {
-            "kodeGuru": [
-                {next(iter(teacher)): teacher[next(iter(teacher))]} for teacher in teacher_map_data["kodeGuru"]
-            ],
-            "kodeMapel": [
-                {next(iter(subject)): subject[next(iter(subject))]} for subject in teacher_map_data["kodeMapel"]
-            ]
-        }
+    #     Format data kode guru dan mapel
+    #     formatted_teacher_map = {
+    #         "kodeGuru": [
+    #             {next(iter(teacher)): teacher[next(iter(teacher))]} for teacher in teacher_map_data["kodeGuru"]
+    #         ],
+    #         "kodeMapel": [
+    #             {next(iter(subject)): subject[next(iter(subject))]} for subject in teacher_map_data["kodeMapel"]
+    #         ]
+    #     }
 
-        print({
-            "hari": hari,
-            "jam": sesi["jam"],
-            "periode": sesi["periode"],
-            "pengajar": result
-        })
+    #     print({
+    #         "hari": hari,
+    #         "jam": sesi["jam"],
+    #         "periode": sesi["periode"],
+    #         "pengajar": result
+    #     })
 
 
     return render_template("dashboard.html", mapel_guru= mapel_guru)

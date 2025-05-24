@@ -207,16 +207,15 @@ def save_guru():
 @app.route('/edit_guru/<id>', methods=['PUT'])
 def edit_guru(id):
     data = request.json
-    if not all(key in data for key in ("studentName", "class", "date", "status")):
-        return jsonify({"error": "Invalid data"}), 400
-
-    result = db.attendance.update_one(
+    hashed_password = bcrypt.generate_password_hash(data["password"]).decode('utf-8')
+    result = db.users.update_one(
         {"_id": ObjectId(id)},
         {"$set": {
-            "studentName": data["studentName"],
-            "class": data["class"],
-            "date": data["date"],
-            "status": data["status"]
+            "username":data['username'],
+            "password":hashed_password,
+            "nama_lengkap":data['nama_lengkap'],
+            "email":data['email']
+
         }}
     )
 
@@ -227,7 +226,7 @@ def edit_guru(id):
 
 @app.route('/hapus_guru/<id>', methods=['DELETE'])
 def delete_guru(id):
-    result = db.attendance.delete_one({"_id": ObjectId(id)})
+    result = db.users.delete_one({"_id": ObjectId(id)})
 
     if result.deleted_count == 0:
         return jsonify({"error": "No document found to delete"}), 404
@@ -275,3 +274,24 @@ def delete_test_guru(id):
         return jsonify({"error": "No document found to delete"}), 404
 
     return jsonify({"message": "Attendance deleted successfully"}), 200
+
+
+@app.route('/tambah_ubah_jadwal', methods=['POST'])
+def tambah_ubah_jadwal():
+    data = request.json
+    if not all(key in data for key in ("day", "time", "period", "subject" )):
+        return jsonify({"error": "Invalid data"}), 400
+
+    result = db.test_attendance.update_one(
+        {"day": day,
+        "time": time},
+        {"$set": {
+            "period":data["testName"],
+            "subject":data["subject"],
+        }}
+    )
+
+    if result.modified_count == 0:
+        return jsonify({"error": "No document updated"}), 404
+
+    return jsonify({"message": "Attendance updated successfully"}), 200

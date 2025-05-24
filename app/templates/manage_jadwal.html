@@ -61,8 +61,44 @@
                 <input type="number" id="period" min="1" placeholder="Contoh: 1" required>
             </div>
             <div class="form-group">
-                <label for="subject">Mapel:</label>
-                <input type="text" id="subject" placeholder="Nama Mapel" required>
+                <label for="subject">Kelas 7A:</label>
+                <input type="text" id="7A_guru" placeholder="Kode Guru" required>
+                <input type="text" id="7A_mapel" placeholder="Kode Guru" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Kelas 7B:</label>
+                <input type="text" id="7B_guru" placeholder="Kode Guru" required>
+                <input type="text" id="7B_mapel" placeholder="Kode Guru" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Kelas 7C:</label>
+                <input type="text" id="7C_guru" placeholder="Kode Guru" required>
+                <input type="text" id="7C_mapel" placeholder="Kode Guru" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Kelas 8A:</label>
+                <input type="text" id="8A_guru" placeholder="Kode Guru" required>
+                <input type="text" id="8A_mapel" placeholder="Kode Guru" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Kelas 8B:</label>
+                <input type="text" id="8B_guru" placeholder="Kode Guru" required>
+                <input type="text" id="8B_mapel" placeholder="Kode Guru" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Kelas 8C:</label>
+                <input type="text" id="8C_guru" placeholder="Kode Guru" required>
+                <input type="text" id="8C_mapel" placeholder="Kode Guru" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Kelas 9A:</label>
+                <input type="text" id="9A_guru" placeholder="Kode Guru" required>
+                <input type="text" id="9A_mapel" placeholder="Kode Guru" required>
+            </div>
+            <div class="form-group">
+                <label for="subject">Kelas 9B:</label>
+                <input type="text" id="9B_guru" placeholder="Kode Guru" required>
+                <input type="text" id="9B_mapel" placeholder="Kode Guru" required>
             </div>
             <button class="button-submit" type="submit">Submit</button>
         </form>
@@ -92,11 +128,10 @@
 
     <script src="/static/script_footer.js"></script>
     <script>
-     const apiUrl = '/api/schedule'; // Ganti dengan URL API backend Anda
         const scheduleForm = document.getElementById('scheduleForm');
 
         // Fungsi untuk menambah atau mengupdate jadwal
-        scheduleForm.addEventListener('submit', async (e) => {
+scheduleForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const day = document.getElementById('day').value;
@@ -120,7 +155,7 @@
     const formData = { day, time, period, subject };
 
     try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch('/tambah_ubah_jadwal', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -141,32 +176,6 @@
         alert('Terjadi kesalahan saat menyimpan jadwal.');
     }
 });
-
-
-        // Fungsi untuk menghapus jadwal
-        async function deleteSchedule(id) {
-            const token = localStorage.getItem('authToken');
-            if (!token) return redirectToLogin();
-
-            try {
-                const response = await fetch(`${apiUrl}/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': token
-                    }
-                });
-                if (response.ok) {
-                    alert('Jadwal berhasil dihapus!');
-                    location.reload();
-                } else {
-                    alert('Gagal menghapus jadwal.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghapus jadwal.');
-            }
-        }
 
         const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
         const schedule = {{ schedule | safe }};
