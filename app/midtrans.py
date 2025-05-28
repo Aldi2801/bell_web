@@ -2,7 +2,7 @@
 from flask import request, jsonify, render_template
 import os, uuid, base64, json, requests   
 from dotenv import load_dotenv
-from . import app, jwt, db, Invoice, Transaction 
+from . import app, jwt, db, tagihan, transaksi 
 print(os.getenv('ENV') )
 if os.getenv('ENV') == 'production':
     url = "https://app.midtrans.com/snap/v1/transactions"
@@ -27,17 +27,17 @@ def create_transaction():
             data['last_name'] = full_name.split()[-1] if len(full_name.split()) > 1 else ''
             data['email'] = decoded_token.get('email', 'anonymous@mail.co')
             data['amount'] = request.json.get('amount', 0)
-            invoice_id = request.json.get('tagihan_id', 0)
+            tagihan_id = request.json.get('tagihan_id', 0)
         else:
             data = request.json
-            new_invoice = Invoice(
+            new_tagihan = tagihan(
                 user_email=data['email'],
                 description="SPP dan biaya lainnya",
                 amount=data['amount']
             )
-            db.session.add(new_invoice)
+            db.session.add(new_tagihan)
             db.session.commit()
-            invoice_id = new_invoice.id
+            tagihan_id = new_tagihan.id
 
         if not data.get('amount'):
             return jsonify({'error': 'Amount is required'}), 400
@@ -67,9 +67,9 @@ def create_transaction():
 
         if response.status_code == 201:
             transaction = response.json()
-            new_transaction = Transaction(
+            new_transaction = transaksi(
                 order_id=order_id,
-                tagihan_id=invoice_id,
+                tagihan_id=tagihan_id,
                 email=data['email'],
                 amount=data['amount'],
                 status="pending"
@@ -99,7 +99,7 @@ def midtrans_webhook():
         if not order_id:
             return jsonify({'error': 'Invalid notification'}), 400
 
-        transaction = Transaction.query.filter_by(order_id=order_id).first()
+        transaction = transaksi.query.filter_by(kode_order=order_id).first()
         if transaction:
             transaction.status = status
             transaction.fraud_status = fraud_status
@@ -118,7 +118,7 @@ def view_menu_pembayaran():
     transaction_status = request.args.get('transaction_status', 'undefined')
 
     if status_code == "200":
-        transaction = Transaction.query.filter_by(order_id=order_id).first()
+        transaction = transaksi.query.filter_by(kode_order=order_id).first()
         if transaction:
             transaction.status = transaction_status
             db.session.commit()

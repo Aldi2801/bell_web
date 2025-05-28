@@ -1,4 +1,4 @@
-from . import app, bcrypt, db, users_collection, get_semester_and_year, User, Tugas, Pengumuman, Laporan, Attendance, TestAttendance, Kelas
+from . import app, bcrypt, db, User, tugas, berita, kelas, kbm
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, os
 from datetime import datetime
@@ -18,22 +18,22 @@ def view_register_guru():
     return render_template("register_guru.html")
 @app.route('/tugas')
 def view_tugas():
-    tugas = Tugas.query.all()
+    tugas = tugas.query.all()
     print(tugas)
     return render_template("manage_tugas.html", tugas = tugas)
 @app.route('/pengumuman')
 def view_pengumuman():
-    pengumuman = Pengumuman.query.all()
+    pengumuman = Berita.query.all()
     print(pengumuman)
     return render_template("manage_pengumuman.html", pengumuman = pengumuman)
 
 @app.route('/manage_tugas')
 def view_manage_tugas():
-    tugas = Tugas.query.all()
+    tugas = tugas.query.all()
     return render_template("manage_tugas.html", tugas=tugas)
 @app.route('/manage_pengumuman')
 def view_manage_pengumuman():
-    pengumuman = Pengumuman.query.all()
+    pengumuman = Berita.query.all()
     return render_template("manage_pengumuman.html", pengumuman=pengumuman)
 @app.route('/manage_laporan')
 def view_manage_laporan():
@@ -60,24 +60,18 @@ def view_daftar_hadir():
     return render_template("daftar_hadir_siswa.html")
 @app.route('/jadwal')
 def view_jadwal():
-    kelas = Kelas.query.order_by(Kelas.nama.asc()).all()  # Urutkan berdasarkan nama ASC
+    kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()  # Urutkan berdasarkan nama ASC
     return render_template("jadwal.html", kelas=kelas )
 
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():
     users = User.query.filter_by(role="murid").all()
-    kelas = Kelas.query.order_by(Kelas.nama.asc()).all()
-    attendance = Attendance.query.all()
-    return render_template("manage_kehadiran.html", users=users, kelas=kelas, attendance=attendance)
+    kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()
+    kbm = kbm.query.all()
+    return render_template("manage_kehadiran.html", users=users, kelas=kelas, kbm=kbm)
 @app.route('/coba')
 def view_coba():
     return render_template("coba.html")
-@app.route('/manage_ujian')
-def view_manage_ujian():
-    users = User.query.filter_by(role="murid").all()
-    kelas = Kelas.query.order_by(Kelas.nama.asc()).all()
-    test_attendance = TestAttendance.query.all()
-    return render_template("manage_ujian.html", users=users, kelas=kelas, test_attendance=test_attendance)
 @app.route('/verif_email')
 def view_verif_email():
     return render_template("verif_email.html")

@@ -59,22 +59,8 @@ class User(db.Model, UserMixin):
                             primaryjoin='User.id == UserRoles.user_id',
                             secondaryjoin='Role.id == UserRoles.role_id',
                             backref=db.backref('users', lazy='dynamic'))
- 
-class Pengumuman(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    judul_pengumuman = db.Column(db.String(100), unique=True)
-    penulis_pengumuman = db.Column(db.String(100))
-    jenis_pengumuman = db.Column(db.String(100))
-    isi_pengumuman = db.Column(db.Text)
 
-class Laporan(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    judul_laporan = db.Column(db.String(100), unique=True)
-    penulis_laporan = db.Column(db.String(100))
-    jenis_laporan = db.Column(db.String(100))
-    isi_laporan = db.Column(db.Text)
-
-class AmpuMapel(db.Model):
+class ampuMapel(db.Model):
     id_ampu = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date)
     id_semester = db.Column(db.String(1), db.ForeignKey('semester.id_semester'), nullable=False)
@@ -83,17 +69,17 @@ class AmpuMapel(db.Model):
     id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
     id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian'))
 
-class Berita(db.Model):
+class berita(db.Model):
     id_berita = db.Column(db.Integer, primary_key=True)
     judul = db.Column(db.String(35), nullable=False)
     isi = db.Column(db.String(255), nullable=False)
     nip = db.Column(db.Integer, db.ForeignKey('guru.nip'), nullable=False)
 
-class Gender(db.Model):
+class gender(db.Model):
     id_gender = db.Column(db.String(1), primary_key=True)
     gender = db.Column(db.String(9), nullable=False)
 
-class Guru(db.Model):
+class guru(db.Model):
     nip = db.Column(db.Integer, primary_key=True)
     inisial = db.Column(db.String(4))
     nama = db.Column(db.String(50), nullable=False)
@@ -106,33 +92,33 @@ class Guru(db.Model):
     id_gender = db.Column(db.String(1), db.ForeignKey('gender.id_gender'), nullable=False)
     id_status = db.Column(db.String(1), db.ForeignKey('status.id_status'), nullable=False)
 
-class Kbm(db.Model):
+class kbm(db.Model):
     id_kbm = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date, nullable=False)
     materi = db.Column(db.String(35), nullable=False)
     sub_materi = db.Column(db.String(100))
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu'), nullable=False)
 
-class Kehadiran(db.Model):
+class kehadiran(db.Model):
     id_kehadiran = db.Column(db.Integer, primary_key=True)
     id_keterangan = db.Column(db.String(1), db.ForeignKey('keterangan.id_keterangan'), nullable=False)
     id_kbm = db.Column(db.Integer, db.ForeignKey('kbm.id_kbm'), nullable=False)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
 
-class Kelas(db.Model):
+class kelas(db.Model):
     id_kelas = db.Column(db.String(6), primary_key=True)
     nama_kelas = db.Column(db.String(15), nullable=False)
     tingkat = db.Column(db.String(1), nullable=False)
 
-class Keterangan(db.Model):
+class keterangan(db.Model):
     id_keterangan = db.Column(db.String(1), primary_key=True)
     keterangan = db.Column(db.String(5), nullable=False)
 
-class Mapel(db.Model):
+class mapel(db.Model):
     id_mapel = db.Column(db.String(3), primary_key=True)
     nama_mapel = db.Column(db.String(35), nullable=False)
 
-class PembagianKelas(db.Model):
+class pembagianKelas(db.Model):
     id_pembagian = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
@@ -140,7 +126,7 @@ class PembagianKelas(db.Model):
     id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
     nip = db.Column(db.Integer, db.ForeignKey('guru.nip'), nullable=False)
 
-class Penilaian(db.Model):
+class penilaian(db.Model):
     id_penilaian = db.Column(db.Integer, primary_key=True)
     tugas = db.Column(db.Integer)
     uts = db.Column(db.Integer)
@@ -148,11 +134,11 @@ class Penilaian(db.Model):
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu'), nullable=False)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
 
-class Semester(db.Model):
+class semester(db.Model):
     id_semester = db.Column(db.String(1), primary_key=True)
     semester = db.Column(db.String(6), nullable=False)
 
-class Siswa(db.Model):
+class siswa(db.Model):
     nis = db.Column(db.Integer, primary_key=True)
     nisn = db.Column(db.String(10))
     nama = db.Column(db.String(50), nullable=False)
@@ -161,7 +147,7 @@ class Siswa(db.Model):
     tanggal_lahir = db.Column(db.Date, nullable=False)
     alamat = db.Column(db.String(125), nullable=False)
     no_hp = db.Column(db.String(15), nullable=False)
-    email = db.Column(db.String(30), nullable=False)
+    email = db.Column(db.String(30),unique=True, nullable=False)
     nama_ayah = db.Column(db.String(35), nullable=False)
     nama_ibu = db.Column(db.String(35), nullable=False)
     penghasilan_ayah = db.Column(db.Integer, nullable=False)
@@ -169,35 +155,40 @@ class Siswa(db.Model):
     asal_sekolah = db.Column(db.String(30), nullable=False)
     id_status = db.Column(db.String(1), db.ForeignKey('status.id_status'), nullable=False)
 
-class Status(db.Model):
+class status(db.Model):
     id_status = db.Column(db.String(1), primary_key=True)
     status = db.Column(db.String(20), nullable=False)
 
-class TahunAkademik(db.Model):
+class tahunAkademik(db.Model):
     id_tahun_akademik = db.Column(db.String(4), primary_key=True)
     tahun_akademik = db.Column(db.String(9), nullable=False)
     mulai = db.Column(db.Date, nullable=False)
     sampai = db.Column(db.Date, nullable=False)
 
-class Invoice(db.Model):
-    __tablename__ = 'invoices'
-    id = db.Column(db.Integer, primary_key=True)
+class tagihan(db.Model):
+    id_tagihan = db.Column(db.Integer, primary_key=True)
     user_email = db.Column(db.String(120), nullable=False)
-    description = db.Column(db.String(255))
-    amount = db.Column(db.Float, nullable=False)
+    deskripsi = db.Column(db.String(255))
+    total = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Transaction(db.Model):
-    __tablename__ = 'transactions'
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.String(100), unique=True, nullable=False)
-    tagihan_id = db.Column(db.Integer, db.ForeignKey('invoices.id'), nullable=True)
-    email = db.Column(db.String(120), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
+class transaksi(db.Model):
+    id_transaksi = db.Column(db.Integer, primary_key=True)
+    kode_order = db.Column(db.String(100), unique=True, nullable=False)
+    id_tagihan = db.Column(db.Integer, db.ForeignKey('tagihan.id_tagihan'), nullable=True)
+    email = db.Column(db.String(120),  db.ForeignKey('siswa.email'), nullable=False)
+    total = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), default="pending")
     fraud_status = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class tugas(db.Model):
+    id_tugas = db.Column(db.Integer, primary_key=True)
+    jenis_tugas = db.Column(db.String(50))
+    deskripsi =  db.Column(db.String(255))
+    id_mapel = db.Column(db.Integer, db.ForeignKey('mapel.id_mapel'), nullable=False)
+    nip = db.Column(db.Integer,  db.ForeignKey('guru.nip'), nullable=False)
 
 jwt = JWTManager(app)
 mysql = MySQL()
