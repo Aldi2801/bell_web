@@ -9,3 +9,5 @@ requests
 midtransclient 
 gunicorn
 pyJWT
+flask_sqlalchemy
+flask_mysqldb
