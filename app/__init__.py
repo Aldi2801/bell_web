@@ -2,10 +2,13 @@ from flask import Flask,jsonify,request,session,render_template,g,send_from_dire
 from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+from flask_mail import Mail
+from itsdangerous import URLSafeTimedSerializer
 from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin
 from flask_bcrypt import Bcrypt
 from datetime import timedelta, datetime
-import os
+import jwt, os, re
 
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'localhost'
@@ -19,7 +22,7 @@ app.config['UPLOAD_FOLDER'] = upload_folder
 app.config['UPLOAD_NOTA'] = upload_nota
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/bell_web_sistem'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'bukan rahasia'
+app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
 app.config['SECURITY_PASSWORD_SALT'] = b'asahdjhwquoyo192382qo'
 # Nonaktifkan rute login bawaan
@@ -28,7 +31,15 @@ app.config['SECURITY_LOGOUT_URL'] = '/logout'
 app.config['JWT_SECRET_KEY'] = 'qwdu92y17dqsu81'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
-
+app.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME=os.getenv('MAIL_USERNAME', 'masteraldi2809@gmail.com'),
+    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD', 'xthezwlpdajgtlav')
+)
+mail = Mail(app)
+s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
 ALLOWED_EXTENSIONS = {'xlsx'}
 
 def allowed_file(filename):
@@ -51,6 +62,8 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    nis = db.Column(db.Integer, nullable=True)
+    nip = db.Column(db.Integer, nullable=True)
     email = db.Column(db.String(255), unique=True, nullable=False)  # Fix disini
     active = db.Column(db.Boolean, default=True)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False)
@@ -187,7 +200,7 @@ class tugas(db.Model):
     id_tugas = db.Column(db.Integer, primary_key=True)
     jenis_tugas = db.Column(db.String(50))
     deskripsi =  db.Column(db.String(255))
-    id_mapel = db.Column(db.Integer, db.ForeignKey('mapel.id_mapel'), nullable=False)
+    id_mapel = db.Column(db.String(3), db.ForeignKey('mapel.id_mapel'), nullable=False)
     nip = db.Column(db.Integer,  db.ForeignKey('guru.nip'), nullable=False)
 
 jwt = JWTManager(app)

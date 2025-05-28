@@ -59,6 +59,7 @@
                 <a href="/manage_ujian" id="link-ujian"><i class="fas fa-file-alt mr-2"></i> Ujian</a>
                 {% if session['role'] == 'admin' %}
                 <a href="/register_guru"><i class="fas fa-user-check mr-2"></i> Tambah guru</a>
+                <a href="/menu_pembayaran"><i class="fas fa-user-check mr-2"></i> Tambah Pembayaran</a>
                 {%  endif %}
                 {% if session['role'] == 'guru' %}
                 <a href="/manage_laporan"><i class="fas fa-file-alt mr-2"></i> Manage Laporan</a>
@@ -66,6 +67,7 @@
                 {% if session['role'] == 'murid' %}
                 <a href="/pengumuman"><i class="fas fa-file-alt mr-2"></i> Pengumuman</a>
                 <a href="/tugas" id="link-tugas"><i class="fas fa-file-alt mr-2"></i> Tugas</a>
+                <a href="/menu_pembayaran"><i class="fas fa-file-alt mr-2"></i> Pembayaran</a>
                 {% else %}
                 <a href="/manage_tugas" id="link-tugas"><i class="fas fa-file-alt mr-2"></i> Manage Tugas</a>
                 <a href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i> Manage Pengumuman</a>

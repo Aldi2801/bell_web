@@ -7,9 +7,6 @@ from bson.objectid import ObjectId
 @app.route('/')
 def hello_fly():
     return redirect(url_for("view_dashboard"))
-@app.route('/login')
-def view_login():
-    return render_template("login.html")
 @app.route('/register')
 def view_register():
     return render_template("register.html")

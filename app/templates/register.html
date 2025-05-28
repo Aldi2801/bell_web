@@ -215,11 +215,11 @@
                     }),
                     success: function (response) {
                         const token = response.msg;
-                        if (token) {
+                        if (token == 'Register Berhasil') {
                         // Redirect to the dashboard if credentials are correct
                         document.getElementById("submit").innerHTML = "Daftar";
                         alert(response.msg);
-                        window.location.href = "/login"; // Redirect to login
+                        window.location.href = "/login?msg=Registration+Successful"; // Redirect to login
                         document.getElementById("submit").disabled = false;
                         } else {
                             // Show an error message 

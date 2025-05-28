@@ -139,6 +139,19 @@
 
 <body>
     <div class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li style="color: green;">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {% if msg %}
+        <p style="color: blue;">{{ msg }}</p>
+    {% endif %}
         <h2>Login</h2>
         <form id="loginForm">
             <input type="text" id="username" placeholder="Username" required>
