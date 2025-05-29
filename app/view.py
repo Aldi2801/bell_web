@@ -20,7 +20,7 @@ def view_tugas():
     return render_template("manage_tugas.html", tugas = tugas)
 @app.route('/pengumuman')
 def view_pengumuman():
-    pengumuman = Berita.query.all()
+    pengumuman = berita.query.all()
     print(pengumuman)
     return render_template("manage_pengumuman.html", pengumuman = pengumuman)
 
@@ -30,12 +30,8 @@ def view_manage_tugas():
     return render_template("manage_tugas.html", tugas=tugas)
 @app.route('/manage_pengumuman')
 def view_manage_pengumuman():
-    pengumuman = Berita.query.all()
+    pengumuman = berita.query.all()
     return render_template("manage_pengumuman.html", pengumuman=pengumuman)
-@app.route('/manage_laporan')
-def view_manage_laporan():
-    laporan = Laporan.query.all()
-    return render_template("manage_laporan.html", laporan=laporan)
 def find_current_period(sesi_list, current_time):
     for sesi in sesi_list:
         jam_mulai, jam_selesai = sesi["jam"].split(" - ")
