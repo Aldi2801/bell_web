@@ -3,7 +3,6 @@ import uuid
 from flask import request, render_template, redirect, url_for, jsonify, session,render_template_string,  flash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_mail import Mail, Message
-from flask_bcrypt import Bcrypt
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 # hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
 # print(str(uuid.uuid4()))
