@@ -12,7 +12,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 # print(hashed_passwordd)
 # hashed_passworddd = bcrypt.generate_password_hash('123').decode('utf-8')
 # print(str(uuid.uuid4()))
-# print(hashed_password)
+# print(hashed_password) 
 @app.route('/')
 def homepahe():
     return redirect(url_for('login'))

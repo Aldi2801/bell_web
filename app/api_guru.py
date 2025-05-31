@@ -1,4 +1,4 @@
-from . import app, db, is_valid_email, bcrypt, users_collection, mail, s
+from . import app, db, is_valid_email, bcrypt, User, mail, s, jadwal, detail_jadwal, detail_mapel_jadwal, user, kelas
 from flask import request, jsonify, url_for, render_template, render_template_string,session
 from flask_mail import Message
 from itsdangerous import BadSignature, SignatureExpired
@@ -6,48 +6,9 @@ import jwt, re, datetime, os
 from bson.objectid import ObjectId
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
-    schedule_collection = db["schedules"]
-    schedule_id = ObjectId(os.getenv("SCHEDULE_ID"))
-    teacher_map_id = ObjectId(os.getenv("TEACHER_MAP_ID"))
-    schedule_data = schedule_collection.find_one({"_id": schedule_id})
-    teacher_map_data = schedule_collection.find_one({"_id": teacher_map_id})
-
-    # Format data jadwal
-    formatted_schedule = [
-        {
-            "day": day["day"],
-            "sessions": [
-                {
-                    "time": session["time"],
-                    "period": session["period"],
-                    "subjects": session["subjects"]
-                }
-                for session in day["sessions"]
-            ]
-        }
-        for day in schedule_data["schedule"]
-    ]
-
-    # Format data kode guru dan mapel
-    formatted_teacher_map = {
-        "kodeGuru": [
-            {next(iter(teacher)): teacher[next(iter(teacher))]} for teacher in teacher_map_data["kodeGuru"]
-        ],
-        "kodeMapel": [
-            {next(iter(subject)): subject[next(iter(subject))]} for subject in teacher_map_data["kodeMapel"]
-        ]
-    }
-
-
-    # Output hasil
-    print("Formatted Schedule:")
-    print(formatted_schedule)
-
-    print("\nFormatted Teacher Map:")
-    print(formatted_teacher_map)
-    users = list(db.users.find({"role": "murid"}, {"_id": 0}))
-    kelas = list(db.kelas.find().sort("nama", 1))  # Urutkan berdasarkan nama ASC
-    return render_template("manage_jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map, users=users, kelas=kelas)
+    schedule = jadwal.query.all() 
+    kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()  # Urutkan berdasarkan nama ASC
+    return render_template("manage_jadwal.html", schedule=schedule,kelas=kelas, users=users, Kelas=kelas)
 
 # Endpoint untuk menyimpan data kehadiran
 @app.route('/tambah_kehadiran', methods=['POST'])
@@ -152,24 +113,22 @@ def save_guru():
 
     if password != re_password:
         return jsonify({"msg": "Passwords do not match"}), 400
-    cek_username =  users_collection.find_one({'username':username})
+    cek_username =  User.query.filter_by(username=username).first()
     if cek_username:
         return jsonify({"msg": "Username already exists"}), 400
-    cek_email =  users_collection.find_one({'email':email})
+    cek_email =  User.query.filter_by(email=email).first()
     if cek_email:
         return jsonify({"msg": "Email already exists"}), 400
     # Hash password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     
     # Simpan user baru
-    user = {
-        'username': username,
-        'password': hashed_password,
-        'nama_lengkap': nama_lengkap,
-        'email': email,
-        'verify_email': False,
-        'role':'guru'
-    }
+    user = User(
+        username= username,
+        password= hashed_password,
+        email= email,
+        verify_email= False,
+    )
     try:
         token = s.dumps(email, salt='email-confirm')
         conf_email_url = url_for('confirm_email', token=token, _external=True)
@@ -196,11 +155,16 @@ def save_guru():
 
         msg.body = email_body
         mail.send(msg)
-        result = users_collection.insert_one(user)
-        if result.inserted_id:
+        result = User.query.insert_one(user)
+        try:
+            db.session.add(user)
+            db.session.commit()
+
             return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201
-        else:
-            return jsonify({'error': 'Failed to register user'}), 500
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': 'Failed to register user', 'details': str(e)}), 500
     except Exception as e:
         return jsonify({'error': f"Database error: {str(e)}"}), 500
 
