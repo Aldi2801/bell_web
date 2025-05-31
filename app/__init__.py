@@ -1,6 +1,5 @@
 from flask import Flask,jsonify,request,session,render_template,g,send_from_directory,abort
 from flask_sqlalchemy import SQLAlchemy
-from flask_mysqldb import MySQL
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_mail import Mail
@@ -11,16 +10,12 @@ from datetime import timedelta, datetime
 import jwt, os, re
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'bell_web_sistem'
 project_directory = os.path.abspath(os.path.dirname(__file__))
 upload_folder = os.path.join(project_directory, 'static', 'image')
 upload_nota = os.path.join(project_directory, 'static', 'nota')
 app.config['UPLOAD_FOLDER'] = upload_folder 
 app.config['UPLOAD_NOTA'] = upload_nota
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/bell_web_sistem'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sistem'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
@@ -204,8 +199,6 @@ class tugas(db.Model):
     nip = db.Column(db.Integer,  db.ForeignKey('guru.nip'), nullable=False)
 
 jwt = JWTManager(app)
-mysql = MySQL()
-mysql.init_app(app)
 
 # allow CORS biar api yang dibuat bisa dipake website lain
 from flask_cors import CORS

@@ -4,9 +4,6 @@ import jwt, os
 from datetime import datetime
 from bson.objectid import ObjectId
 
-@app.route('/')
-def hello_fly():
-    return redirect(url_for("view_dashboard"))
 @app.route('/register')
 def view_register():
     return render_template("register.html")
@@ -43,8 +40,10 @@ def find_current_period(sesi_list, current_time):
 @app.route('/dashboard')
 def view_dashboard():
     mapel_guru = ""
-
-    return render_template("dashboard.html", mapel_guru= mapel_guru)
+    if session['role']:
+        return render_template("dashboard.html", mapel_guru= mapel_guru)
+    else:
+        return redirect(url_for("login", msg="Anda Belum Login"))
 @app.route('/daftar_hadir_ujian')
 def view_daftar_hadir_ujian():
     return render_template("daftar_hadir_siswa_ujian.html")

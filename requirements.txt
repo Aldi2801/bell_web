@@ -9,7 +9,11 @@ midtransclient
 gunicorn
 pyjwt
 flask_sqlalchemy
-flask_mysqldb
-pillow
+pymysql
+Pillow
 flask-jwt-extended
 flask-security
+email_validator
+openpyxl
+python-dateutil
+num2words
