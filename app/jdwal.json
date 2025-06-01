@@ -1,6 +1,3 @@
-/** 
-* Paste one or more documents here
-*/
 {
     "schedule": [
       {
@@ -507,44 +504,6 @@
               "F15",
               "K10",
               "K15"
-            ]
-          },
-          {
-            "time": "09.00 - 09.40",
-            "period": "4",
-            "subjects": [
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             },
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             }",
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             },
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             },
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             },
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             },
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             },
-              {id_mapel:"1",
-             nip:"1234566",
-             id_kelas:"7a",
-             }
             ]
           }
         ]

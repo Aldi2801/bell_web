@@ -1,14 +1,126 @@
-from . import app, db, is_valid_email, bcrypt, User, mail, s, jadwal, detail_jadwal, detail_mapel_jadwal, user, kelas
+from . import app, db, is_valid_email, bcrypt, mail, s, User
 from flask import request, jsonify, url_for, render_template, render_template_string,session
 from flask_mail import Message
 from itsdangerous import BadSignature, SignatureExpired
-import jwt, re, datetime, os 
+import jwt, re, datetime, os, json
 from bson.objectid import ObjectId
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
-    schedule = jadwal.query.all() 
-    kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()  # Urutkan berdasarkan nama ASC
-    return render_template("manage_jadwal.html", schedule=schedule,kelas=kelas, users=users, Kelas=kelas)
+    schedule_data = {}
+    # Ambil path absolut dari direktori saat ini (tempat file python ini berada)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    # Gabungkan dengan nama file JSON
+    JADWAL_PATH = os.path.join(BASE_DIR, 'jdwal.json')
+
+    # Baca isi file JSON
+    with open(JADWAL_PATH, 'r', encoding='utf-8') as f:
+        schedule_data = {}
+        schedule_data['schedule'] = json.load(f)
+    teacher_map_data = {}
+    teacher_map_data["kodeGuru"]= [
+        {
+        "K1": "H. Jamar, S.Pd.I"
+        },
+        {
+        "K8": "H. Hurwiyati, S.Pd"
+        },
+        {
+        "K11": "Titik Eko Purwati, S.Pd"
+        },
+        {
+        "K15": "Biyanto, S.Pd"
+        },
+        {
+        "L6": "Ulinnuha, S.Pd.I"
+        },
+        {
+        "L9": "Purnadi, S.Pd.S"
+        },
+        {
+        "L10": "Nur Arifin, S.Pd.I"
+        },
+        {
+        "F15": "Riski Arofiyah, S.Pd"
+        }
+    ],
+    teacher_map_data["kodeMapel"]= [
+        {
+        "K1": "Bahasa Indonesia"
+        },
+        {
+        "K8": "Matematika"
+        },
+        {
+        "K11": "IPA"
+        },
+        {
+        "K15": "IPS"
+        },
+        {
+        "L6": "Bahasa Inggris"
+        },
+        {
+        "L9": "Bahasa Daerah"
+        },
+        {
+        "L10": "Seni Budaya"
+        },
+        {
+        "L12": "PJOK"
+        },
+        {
+        "G4": "Keterampilan (Khot)"
+        },
+        {
+        "G15": "Tahfidz"
+        },
+        {
+        "H12": "Nahwu"
+        },
+        {
+        "F7": "Amaliyah Ibadah"
+        },
+        {
+        "F9": "Kitab Kuning"
+        }
+    ]
+    # Format data jadwal
+    formatted_schedule = [
+        {
+            "day": day["day"],
+            "sessions": [
+                {
+                    "time": session["time"],
+                    "period": session["period"],
+                    "subjects": session["subjects"]
+                }
+                for session in day["sessions"]
+            ]
+        }
+        for day in schedule_data["schedule"]
+    ]
+
+    # Format data kode guru dan mapel
+    formatted_teacher_map = {
+        "kodeGuru": [
+            {next(iter(teacher)): teacher[next(iter(teacher))]} for teacher in teacher_map_data["kodeGuru"]
+        ],
+        "kodeMapel": [
+            {next(iter(subject)): subject[next(iter(subject))]} for subject in teacher_map_data["kodeMapel"]
+        ]
+    }
+
+
+    # Output hasil
+    print("Formatted Schedule:")
+    print(formatted_schedule)
+
+    print("\nFormatted Teacher Map:")
+    print(formatted_teacher_map)
+    users = list(db.users.query.all())
+    kelas = list(db.kelas.query.order_by(kelas.nama_kelas.asc()).all()) # Urutkan berdasarkan nama ASC
+    return render_template("manage_jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map, users=users, kelas=kelas)
 
 # Endpoint untuk menyimpan data kehadiran
 @app.route('/tambah_kehadiran', methods=['POST'])
@@ -113,10 +225,10 @@ def save_guru():
 
     if password != re_password:
         return jsonify({"msg": "Passwords do not match"}), 400
-    cek_username =  User.query.filter_by(username=username).first()
+    cek_username =  users.query.find(username=username)
     if cek_username:
         return jsonify({"msg": "Username already exists"}), 400
-    cek_email =  User.query.filter_by(email=email).first()
+    cek_email =  users.query.find(email=email)
     if cek_email:
         return jsonify({"msg": "Email already exists"}), 400
     # Hash password
@@ -126,8 +238,10 @@ def save_guru():
     user = User(
         username= username,
         password= hashed_password,
+        nama_lengkap= nama_lengkap,
         email= email,
         verify_email= False,
+        role='guru'
     )
     try:
         token = s.dumps(email, salt='email-confirm')
@@ -155,16 +269,9 @@ def save_guru():
 
         msg.body = email_body
         mail.send(msg)
-        result = User.query.insert_one(user)
-        try:
-            db.session.add(user)
-            db.session.commit()
-
-            return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201
-
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': 'Failed to register user', 'details': str(e)}), 500
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201
     except Exception as e:
         return jsonify({'error': f"Database error: {str(e)}"}), 500
 
