@@ -1,9 +1,9 @@
-from . import app, db, is_valid_email, bcrypt, mail, s, User, kelas, siswa, guru, mapel, JadwalPelajaran
+from . import app, db, is_valid_email, bcrypt, mail, s, User, kelas, siswa, guru, mapel, JadwalPelajaran, Role
 from flask import request, jsonify, url_for, render_template, render_template_string,session
 from flask_mail import Message
 from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
-import jwt, re, datetime, os, json, ast
+import jwt, re, datetime, os, json, ast, uuid
 from bson.objectid import ObjectId
 from collections import defaultdict
 
@@ -154,7 +154,7 @@ def save_guru():
     nama_lengkap = data['nama_lengkap']
     email = data['email']
 
-    re_password = data['re_password']
+    re_password = data['re-password']
 
     if not username or not email or not password or not re_password:
         return jsonify({"msg": "All fields are required"}), 400
@@ -164,10 +164,10 @@ def save_guru():
 
     if password != re_password:
         return jsonify({"msg": "Passwords do not match"}), 400
-    cek_username =  User.query.find(username=username)
+    cek_username =  User.query.filter_by(username=username).first()
     if cek_username:
         return jsonify({"msg": "Username already exists"}), 400
-    cek_email =  User.query.find(email=email)
+    cek_email =  User.query.filter_by(email=email).first()
     if cek_email:
         return jsonify({"msg": "Email already exists"}), 400
     # Hash password
@@ -175,13 +175,31 @@ def save_guru():
     
     # Simpan user baru
     user = User(
-        username= username,
-        password= hashed_password,
-        nama_lengkap= nama_lengkap,
-        email= email,
-        verify_email= False,
-        role='guru'
-    )
+            username=username,
+            password=hashed_password,
+            email=email,
+            nip = data['nip'],
+            active=True,
+            fs_uniquifier=str(uuid.uuid4()),
+        )
+    # Simpan user baru
+    new_guru = guru(
+            nama= nama_lengkap,
+            email=email,
+            nip = data['nip'],
+            inisial = data['inisial'],
+            tempat_lahir = data['tempat_lahir'],
+            tanggal_lahir = data['tanggal_lahir'],
+            alamat = data['alamat'],
+            no_hp = data['no_hp'],
+            spesialisasi = data['spesialisasi'],
+            id_gender = data['id_gender'],
+            id_status = data['id_status']
+        )
+    new_role = Role.query.filter_by(name='guru').first()
+    if new_role:
+        user.roles.append(new_role)
+        
     try:
         token = s.dumps(email, salt='email-confirm')
         conf_email_url = url_for('confirm_email', token=token, _external=True)
@@ -209,39 +227,12 @@ def save_guru():
         msg.body = email_body
         mail.send(msg)
         db.session.add(user)
+        db.session.add(new_guru)
         db.session.commit()
         return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201
     except Exception as e:
         return jsonify({'error': f"Database error: {str(e)}"}), 500
 
-@app.route('/edit_guru/<id>', methods=['PUT'])
-def edit_guru(id):
-    data = request.json
-    hashed_password = bcrypt.generate_password_hash(data["password"]).decode('utf-8')
-    result = User.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": {
-            "username":data['username'],
-            "password":hashed_password,
-            "nama_lengkap":data['nama_lengkap'],
-            "email":data['email']
-
-        }}
-    )
-
-    if result.modified_count == 0:
-        return jsonify({"error": "No document updated"}), 404
-
-    return jsonify({"message": "Attendance updated successfully"}), 200
-
-@app.route('/hapus_guru/<id>', methods=['DELETE'])
-def delete_guru(id):
-    result = Users.delete_one({"_id": ObjectId(id)})
-
-    if result.deleted_count == 0:
-        return jsonify({"error": "No document found to delete"}), 404
-
-    return jsonify({"message": "Attendance deleted successfully"}), 200
 
 # Endpoint untuk menyimpan data guru Ujian
 @app.route('/tambah_guru_ujian', methods=['POST'])

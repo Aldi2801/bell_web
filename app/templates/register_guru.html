@@ -131,17 +131,98 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-    </style>
+        .table-responsive thead th {
+    background-color: #c12fdbdb !important;
+    color: white !important;
+    text-align: center;
+}
+  .flash-message-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+            background: linear-gradient(to right, #a6c1ee, #fbc2eb);
+    z-index: 1050;
+    width: 100%;
+    max-width: 500px;
+    padding: 0 15px;
+  }
+
+  .alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeInDown 0.5s ease;
+    position: relative;
+  }
+
+  .btn-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  /* Animasi fade in */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  #tambahModal {
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+</style>
+
         <link rel="stylesheet" href="/static/style_base.css">
 
 </head>
 
 
 <body>
+  <div class="flash-message-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <script>
+    // Auto-hide alert after 4 seconds
+    setTimeout(() => {
+      document.querySelectorAll('.alert').forEach(alert => {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+        setTimeout(() => alert.remove(), 500); // remove after fade out
+      });
+    }, 4000);
+  </script>
     <header>
         <div class="d-flex">
         <div class="menu-container">
         <a class="logout-button" href='/'>Menu</a>
+        <button style="width: 150px !important;" class="logout-button" onclick="openTambahModal()">Tambah Data</button>
         </div>
         <div class="logout-container">
         <a class="logout-button" onclick="handleLogout()">Logout</a>
@@ -149,20 +230,184 @@
         </div>
         <h1>Tambah Guru MTs Al Huda Reban</h1>
     </header>
-    <div class = 'parent'>
+<div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+    <table class="table table-striped table-bordered">
+        <thead style="background-color: #6e0082db; color: white; position: sticky; top: 0; z-index: 1;">
+            <th>No</th>
+            <th>Username</th>
+            <th>nip</th>
+            <th>inisial</th>
+            <th style="width: 1120px">nama Lengkap</th>
+            <th>tempat_lahir</th>
+            <th>tanggal_lahir</th>
+            <th style="width: 1120px">alamat</th>
+            <th>no_hp</th>
+            <th>email</th>
+            <th>spesialisasi</th>
+            <th>id_gender</th>
+            <th>id_status</th>
+            {%if session['role'] == 'admin' %}
+            <th>Aksi</th>
+            {% endif %}
+        </thead>
+        <tbody>
+            {% if guru: %}
+            {% for i in guru %}
+            <tr>
+            <td>{{loop.index}}</td>
+            <td>{{i.username}}</td>
+            <td>{{i.nip}}</td>
+            <td>{{i.inisial}}</td>
+            <td>{{i.nama}}</td>
+            <td>{{i.tempat_lahir}}</td>
+            <td>{{i.tanggal_lahir}}</td>
+            <td>{{i.alamat}}</td>
+            <td>{{i.no_hp}}</td>
+            <td>{{i.email}}</td>
+            <td>{{i.spesialisasi}}</td>
+            <td>{{i.gender}}</td>
+            <td>{{i.status}}</td>
+            {%if session['role'] == 'admin' %}
+            <td>
+    <button class="btn btn-sm btn-primary" onclick="openEditModal('{{ i.nip }}')">Edit</button>
+    <hr>
+    <form method="POST" action="/hapus_guru/{{ i.nip }}" onsubmit="return confirm('Yakin ingin menghapus data guru ini?')">
+        <button class="btn btn-sm btn-danger" type="submit">Hapus</button>
+    </form>
+</td>
 
-    <div class="containerr">
-        <h2>Daftar</h2>
-        <form id="daftarForm">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="text" id="nama_lengkap" placeholder="Nama Lengkap" required>
-            <input type="email" id="email" placeholder="email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <input type="password" id="re-password" placeholder="Retry Password" required>
-            <button id="submit" type="submit">Daftar</button>
-        </form>
-    </div> 
-    </div>
+            {% endif %}
+                </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+<!-- Modal Edit -->
+<div id="editModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
+    <h3 style="color: black !important;;">Edit Data Guru</h3>
+    <form id="editGuruForm" method="POST" action="/edit_guru">
+        <input type="hidden" name="nip" id="edit_nip">
+        <label>Username:</label>
+        <input type="text" name="username" id="edit_username" required><br>
+        <input type="hidden" name="email" id="edit_email" required><br>
+        <input type="hidden" name="nip" id="edit_nip" required><br>
+        <label>Password Baru (opsional):</label>
+        <input type="password" name="password"><br>
+        <label>Role:</label>
+        <select class="form-select form-control" name="role" id="edit_role" required>
+            <option value="guru">Guru</option>
+            <option value="admin">Admin</option>
+        </select><br><br>
+        <button type="submit" class="btn btn-success mb-3">Simpan</button>
+        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
+    </form>
+</div>
+
+    <!-- Modal Tambah -->
+     <!-- Modal Tambah -->
+<div id="tambahModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:999; background:#fff; padding:0; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width: 1000px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
+  
+  <!-- Header (Optional) -->
+  <div style="padding: 20px; height: 30px !important; border-bottom: 1px solid #ddd;">
+    <h4 class="text-center mb-3">Tambah Guru</h4>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div style="padding: 20px; overflow-y: auto; flex: 1;">
+    <form id="daftarForm">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="nip" placeholder="NIP" required>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="username" placeholder="Username" required>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="nama_lengkap" placeholder="Nama Lengkap" required>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="inisial" placeholder="Inisial">
+        </div>
+
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="tempat_lahir" placeholder="Tempat Lahir" required>
+        </div>
+        <div class="col-md-4">
+          <input type="date" class="form-control" name="tanggal_lahir" required>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="alamat" placeholder="Alamat" required>
+        </div>
+
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="no_hp" placeholder="Nomor HP" required>
+        </div>
+        <div class="col-md-4">
+          <input type="email" class="form-control" name="email" placeholder="Email" required>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="spesialisasi" placeholder="Spesialisasi">
+        </div>
+
+        <div class="col-md-4">
+          <select class="form-select" name="id_gender" required>
+            <option value="" selected disabled>Pilih Gender</option>
+            <option value="L">Laki-laki</option>
+            <option value="P">Perempuan</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <select class="form-select" name="id_status" required>
+            <option value="" selected disabled>Pilih Status</option>
+            <option value="1">Aktif</option>
+            <option value="2">Non-Aktif</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <input type="password" class="form-control" name="password" placeholder="Password" required>
+        </div>
+
+        <div class="col-md-4">
+          <input type="password" class="form-control" name="re-password" placeholder="Ulangi Password" required>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <!-- Footer dengan tombol -->
+  <div style="padding: 15px; border-top: 1px solid #ddd; text-align: right;">
+    <button type="submit" id="tomboldaftar" class="btn btn-primary" style="margin-bottom: 15px !important;" form="daftarForm">Daftar</button>
+    <button type="button" class="btn btn-secondary" onclick="closeTambahModal()">Batal</button>
+  </div>
+</div>
+<script>
+function openEditModal(nip) {
+    fetch(`/get_guru/${nip}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('edit_nip').value = data.nip;
+            document.getElementById('edit_username').value = data.username;
+            document.getElementById('edit_role').value = data.role;
+            document.getElementById('edit_email').value = data.email;
+            document.getElementById('edit_nip').value = data.nip;
+            document.getElementById('editModal').style.display = 'block';
+        });
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+function openTambahModal(nip) {
+    document.getElementById('tambahModal').style.display = 'block';
+}
+function closeTambahModal() {
+    document.getElementById('tambahModal').style.display = 'none';
+}
+</script>
 
     <script>
         async function verifyToken() {
@@ -205,55 +450,58 @@
             // Arahkan ke login jika terjadi error
         }
     }
-        document.getElementById("daftarForm").addEventListener("submit", function(event) {
+        document.getElementById("tomboldaftar").addEventListener("click", function(event) {
             event.preventDefault(); // Prevent form from submitting traditionally
+             const form = document.getElementById("daftarForm");
+            const formData = new FormData(form);
+            const data = {};
 
-            // Get the values from the form fields
-            const username = document.getElementById("username").value;
-            const nama_lengkap = document.getElementById("nama_lengkap").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const re_password = document.getElementById("re-password").value;
-            document.getElementById("submit").disabled = true;
-            document.getElementById("submit").innerHTML = '<div class="loader" id="loader"></div>';
+            formData.forEach((value, key) => {
+                data[key] = value.trim();
+            });
+
+            // Validasi dasar
+            if (!data.username || !data.password || !data["re-password"]) {
+                alert("Harap isi semua kolom wajib.");
+                return;
+            }
+
+            if (data.password !== data["re-password"]) {
+                alert("Password dan ulangi password tidak cocok.");
+                return;
+            }
+            document.getElementById("tomboldaftar").disabled = true;
+            document.getElementById("tomboldaftar").innerHTML = '<div class="loader" id="loader"></div>';
             // Ambil URL dasar tanpa parameter
             const baseUrl = window.location.origin + window.location.pathname;
             console.log(baseUrl);
-
-            // Check if the form is filled
-            if (username && nama_lengkap && email && password && re_password) {
-                 $.ajax({
+             $.ajax({
                     url: '/tambah_guru?from="'+baseUrl+'"', // Pastikan endpoint /register sesuai dengan API server
                     type: 'POST',
                     contentType: 'application/json',
                     dataType: 'json',
-                    data: JSON.stringify({
-                        username: username,
-                        nama_lengkap: nama_lengkap,
-                        email: email,
-                        password: password,
-                        re_password: re_password
-                    }),
+                    data: JSON.stringify(data),
                     success: function (response) {
                         const token = response.msg;
                         if (token) {
                         // Redirect to the dashboard if credentials are correct
-                        document.getElementById("submit").innerHTML = "Daftar";
+                        document.getElementById("tomboldaftar").innerHTML = "Daftar";
                         alert(response.msg);
                         window.location.href = "/login"; // Redirect to login
-                        document.getElementById("submit").disabled = false;
+                        document.getElementById("tomboldaftar").disabled = false;
                         } else {
                             // Show an error message 
-                            document.getElementById("submit").disabled = false;
-                            document.getElementById("submit").innerHTML = "Daftar";
+                            document.getElementById("tomboldaftar").disabled = false;
+                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
                             console.log(response)
                             const error = response.error;
                             alert(error);
                         }
                     },
                     error: function (xhr, status, error) {
-                            document.getElementById("submit").disabled = false;
-                            document.getElementById("submit").innerHTML = "Daftar";
+                            document.getElementById("tomboldaftar").disabled = false;
+                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
+                            console.log(status)
                             var errorTxt = "Server Error";
                             if (xhr.responseJSON.error){
                                 errorTxt = xhr.responseJSON.error;
@@ -261,12 +509,10 @@
                             if (xhr.responseJSON.msg){
                                 errorTxt = xhr.responseJSON.msg;
                             }
-                            alert(`Register failed: ${errorTxt}`);
+                            alert(`Submit failed: ${errorTxt}`);
                         }
                 });
-            } else {
-                alert("Harap isi semua kolom.");
-            }
+           
         });
     </script>
 </body>

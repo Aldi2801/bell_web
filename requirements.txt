@@ -17,3 +17,4 @@ email_validator
 openpyxl
 python-dateutil
 num2words
+faker

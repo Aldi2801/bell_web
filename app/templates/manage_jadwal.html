@@ -18,6 +18,7 @@
         <div class="d-flex">
         <div class="menu-container">
         <button class="logout-button" onclick="location.href='/'">Menu</button>
+        <button style="width: 150px !important;" class="logout-button" onclick="openHapusModal()">Hapus Data</button>
         </div>
         <div class="logout-container">
         <button class="logout-button" onclick="handleLogout()">Logout</button>
@@ -198,10 +199,105 @@
     </div>
 
     <script src="/static/script_footer.js"></script>
-    <script>
-        const scheduleForm = document.getElementById('scheduleForm');
+      <!-- Modal Tambah -->
+<div id="HapusModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:999; background:#fff; padding:0; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width: 1000px; width: 95%; max-height: 90vh; flex-direction: column;">
 
-        // Fungsi untuk menambah atau mengupdate jadwal
+  <!-- Header (Optional) -->
+  <div style="padding: 20px; height: 30px !important; border-bottom: 1px solid #ddd;">
+    <h4 class="text-center mb-3">Hapus Jadwal</h4>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div style="padding: 20px; overflow-y: auto; flex: 1;">
+    <form id="deleteForm">
+      <div class="row g-3">
+        <div class="col-md-4">
+            <label for="day"> Pilih Hari: </label>
+          <select name="day" required>
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jum'at</option>
+                    <option value="Sabtu">Sabtu</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="day"> Periode ke: </label>
+          <input type="number" class="form-control" name="period" required>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Footer dengan tombol -->
+  <div style="padding: 15px; border-top: 1px solid #ddd; text-align: right;">
+    <button type="submit" id="tombolhapus" class="btn btn-danger" form="deleteForm">Hapus</button>
+    <button type="button" class="btn btn-secondary" onclick="closeHapusModal()">Batal</button>
+  </div>
+</div>
+<script>
+    
+function closeHapusModal() {
+    document.getElementById('HapusModal').style.display = 'none';
+}
+function openHapusModal(nip) {
+    document.getElementById('HapusModal').style.display = 'block';
+}
+document.getElementById("tombolhapus").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent form from submitting traditionally
+             const form = document.getElementById("deleteForm");
+            const formData = new FormData(form);
+            const data = {};
+
+            formData.forEach((value, key) => {
+                data[key] = value.trim();
+            });
+
+            document.getElementById("tombolhapus").disabled = true;
+            document.getElementById("tombolhapus").innerHTML = '<div class="loader" id="loader"></div>';
+           
+             $.ajax({
+                    url: '/hapus_jadwal',
+                    type: 'DELETE',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    success: function (response) {
+                        const token = response.msg;
+                        if (token) {
+                        // Redirect to the dashboard if credentials are correct
+                        document.getElementById("tombolhapus").innerHTML = "Hapus";
+                        alert(response.msg);
+                        window.location.href = "./"; // Redirect to login
+                        document.getElementById("tombolhapus").disabled = false;
+                        } else {
+                            // Show an error message 
+                            document.getElementById("tombolhapus").disabled = false;
+                            document.getElementById("tombolhapus").innerHTML = "Hapus";
+                            console.log(response)
+                            const error = response.error;
+                            alert(error);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                            document.getElementById("tombolhapus").disabled = false;
+                            document.getElementById("tombolhapus").innerHTML = "Hapus";
+                            console.log(status)
+                            var errorTxt = "Server Error";
+                            if (xhr.responseJSON.error){
+                                errorTxt = xhr.responseJSON.error;
+                            }
+                            if (xhr.responseJSON.msg){
+                                errorTxt = xhr.responseJSON.msg;
+                            }
+                            alert(`Hapus Data Gagal: ${errorTxt}`);
+                        }
+                });
+           
+        });
+const scheduleForm = document.getElementById('scheduleForm');
+// Fungsi untuk menambah atau mengupdate jadwal
 scheduleForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 

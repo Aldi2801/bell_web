@@ -9,7 +9,26 @@ def view_register():
     return render_template("register.html")
 @app.route('/register_guru')
 def view_register_guru():
-    return render_template("register_guru.html")
+    data_guru = guru.query.all()
+    data_fix = []
+
+    for i in data_guru:
+        user = i.user  # ambil user yang sesuai nip
+        data_fix.append({
+            'username': user.username if user else '-',
+            'nip': i.nip,
+            'inisial': i.inisial,
+            'nama': i.nama,
+            'tempat_lahir': i.tempat_lahir,
+            'tanggal_lahir': i.tanggal_lahir.strftime('%Y-%m-%d'),
+            'alamat': i.alamat,
+            'no_hp': i.no_hp,
+            'email': i.email,
+            'spesialisasi': i.spesialisasi,
+            'gender': i.gender_rel.gender if i.gender_rel else '-',
+            'status': i.status_rel.status if i.status_rel else '-'
+        })
+    return render_template("register_guru.html",guru=data_fix)
 @app.route('/tugas')
 def view_tugas():
     tugas = tugas.query.all()

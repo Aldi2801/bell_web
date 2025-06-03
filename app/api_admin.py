@@ -18,8 +18,9 @@ from dateutil.relativedelta import relativedelta
 from flask_jwt_extended import jwt_required
 # Fungsi untuk mengubah angka menjadi teks (terbilang)
 from num2words import num2words
+from flask import flash, redirect
 # Import dari aplikasi lokal
-from . import app, project_directory
+from . import app, db, project_directory, User, siswa, guru, Role, bcrypt, JadwalPelajaran
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
@@ -133,3 +134,106 @@ list_bulan = [{"value":"1","nama_bulan":"Januari"},{"value":"2","nama_bulan":"Fe
                 {"value":"8","nama_bulan":"Agustus"},{"value":"9","nama_bulan":"September"},{"value":"10","nama_bulan":"Oktober"},
                 {"value":"11","nama_bulan":"November"},{"value":"12","nama_bulan":"Desember"}] 
              
+@app.route('/get_guru/<nip>')
+def get_guru(nip):
+    data_guru = guru.query.filter_by(nip=nip).first()
+    user = User.query.filter_by(nip=nip).first()
+    role = user.roles[0].name if user and user.roles else 'guru'
+    return jsonify({
+        'nip': nip,
+        'email': data_guru.email,
+        'nip': nip,
+        'username': user.username if user else '',
+        'role': role
+    })
+
+@app.route('/edit_guru', methods=['POST'])
+def edit_guru():
+    nip = request.form['nip']
+    username = request.form['username']
+    email = request.form['email']
+    nip = request.form['nip']
+    password = request.form.get('password')
+    role = request.form['role']
+
+    user = User.query.filter_by(nip=nip).first()
+
+    # Cek jika sedang edit user yang sudah ada
+    if user:
+        # Cek jika username/email yang baru mau diganti ke milik orang lain
+        if User.query.filter(User.username == username, User.id != user.id).first():
+            flash('Username sudah digunakan oleh user lain', 'danger')
+            return redirect('/register_guru')
+        if User.query.filter(User.email == email, User.id != user.id).first():
+            flash('Email sudah digunakan oleh user lain', 'danger')
+            return redirect('/register_guru')
+
+        user.username = username
+        user.email = email
+        if password:
+            user.password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user.roles = []  # Kosongkan role lama
+        new_role = Role.query.filter_by(name=role).first()
+        if new_role:
+            user.roles.append(new_role)
+        db.session.commit()
+        flash('Data guru berhasil diperbarui', 'success')
+
+    else:
+        # Cek kalau username/email sudah dipakai
+        if User.query.filter_by(username=username).first():
+            flash('Username sudah digunakan', 'danger')
+            return redirect('/register_guru')
+        if User.query.filter_by(email=email).first():
+            flash('Email sudah digunakan', 'danger')
+            return redirect('/register_guru')
+
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = User(
+            username=username,
+            password=hashed_password,
+            email=email,
+            active=True,
+            fs_uniquifier=str(uuid.uuid4()),
+            nip=nip  # jangan lupa set nip!
+        )
+        new_role = Role.query.filter_by(name=role).first()
+        if new_role:
+            user.roles.append(new_role)
+        db.session.add(user)
+        db.session.commit()
+        flash('Data User berhasil dibuat', 'success')
+
+    return redirect('/register_guru')
+
+@app.route('/hapus_guru/<nip>', methods=['POST'])
+def hapus_guru(nip):
+    user = User.query.filter_by(nip=nip).first()
+    data_guru = guru.query.filter_by(nip=nip).first()
+    if user:
+        db.session.delete(user)
+    if data_guru:
+        db.session.delete(data_guru)
+    db.session.commit()
+    flash('Data guru berhasil dihapus', 'success')
+    return redirect('/register_guru')
+@app.route('/hapus_jadwal', methods=['DELETE'])
+def hapus_jadwal():
+    data = request.get_json()
+    print(data)
+    day = data.get('day')
+    period = data.get('period')
+    if not day or not period:
+        return jsonify({'error': 'Day dan periode wajib diisi'}), 400
+
+    # Cari jadwal yang sesuai
+    jadwal = JadwalPelajaran.query.filter_by(day=day, period=period).first()
+
+    if not jadwal:
+        return jsonify({'error': 'Data jadwal tidak ditemukan'}), 404
+
+    # Hapus dari database
+    db.session.delete(jadwal)
+    db.session.commit()
+
+    return jsonify({'msg': 'Jadwal berhasil dihapus'}), 200

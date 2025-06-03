@@ -20,8 +20,8 @@ for i, data in enumerate(hasil_acak, 1):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        add_default_roles()
-        generate_siswa_data()
-        import_data_guru()
+        #add_default_roles()
+        #generate_siswa_data()
+        #import_data_guru()
 
     app.run(host="0.0.0.0", debug=True, port=4040)

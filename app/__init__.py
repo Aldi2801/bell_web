@@ -58,7 +58,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     nis = db.Column(db.Integer, nullable=True)
-    nip = db.Column(db.Integer, nullable=True)
+    nip = db.Column(db.String(25), nullable=True)
     email = db.Column(db.String(255), unique=True, nullable=False)  # Fix disini
     active = db.Column(db.Boolean, default=True)
     fs_uniquifier = db.Column(db.String(64), unique=True, nullable=False)
@@ -73,7 +73,7 @@ class ampuMapel(db.Model):
     tanggal = db.Column(db.Date)
     id_semester = db.Column(db.String(1), db.ForeignKey('semester.id_semester'), nullable=False)
     id_mapel = db.Column(db.String(3), db.ForeignKey('mapel.id_mapel'), nullable=False)
-    nip = db.Column(db.Integer, db.ForeignKey('guru.nip'), nullable=False)
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
     id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
     id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian'))
 
@@ -81,14 +81,14 @@ class berita(db.Model):
     id_berita = db.Column(db.Integer, primary_key=True)
     judul = db.Column(db.String(35), nullable=False)
     isi = db.Column(db.String(255), nullable=False)
-    nip = db.Column(db.Integer, db.ForeignKey('guru.nip'), nullable=False)
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
 
 class gender(db.Model):
     id_gender = db.Column(db.String(1), primary_key=True)
     gender = db.Column(db.String(9), nullable=False)
 
 class guru(db.Model):
-    nip = db.Column(db.Integer, primary_key=True)
+    nip = db.Column(db.String(25), primary_key=True)
     inisial = db.Column(db.String(4))
     nama = db.Column(db.String(50), nullable=False)
     tempat_lahir = db.Column(db.String(20), nullable=False)
@@ -100,6 +100,15 @@ class guru(db.Model):
     id_gender = db.Column(db.String(1), db.ForeignKey('gender.id_gender'), nullable=False)
     id_status = db.Column(db.String(1), db.ForeignKey('status.id_status'), nullable=False)
 
+    gender_rel = db.relationship("gender", backref="guru_list")
+    status_rel = db.relationship("status", backref="guru_list")
+
+    user = db.relationship(
+        "User",
+        primaryjoin="foreign(User.nip) == guru.nip",
+        uselist=False,
+        viewonly=True
+    )
 class kbm(db.Model):
     id_kbm = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date, nullable=False)
@@ -132,7 +141,7 @@ class pembagianKelas(db.Model):
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
     id_kelas = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas'), nullable=False)
     id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
-    nip = db.Column(db.Integer, db.ForeignKey('guru.nip'), nullable=False)
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
 
 class penilaian(db.Model):
     id_penilaian = db.Column(db.Integer, primary_key=True)
@@ -196,7 +205,7 @@ class tugas(db.Model):
     jenis_tugas = db.Column(db.String(50))
     deskripsi =  db.Column(db.String(255))
     id_mapel = db.Column(db.String(3), db.ForeignKey('mapel.id_mapel'), nullable=False)
-    nip = db.Column(db.Integer,  db.ForeignKey('guru.nip'), nullable=False)
+    nip = db.Column(db.String(25),  db.ForeignKey('guru.nip'), nullable=False)
 class JadwalPelajaran(db.Model):
     id_jadwal = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.String(10), nullable=False)
