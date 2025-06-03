@@ -69,8 +69,8 @@
                     <label for="studentName">Nama Siswa:</label>
                     <select id="studentName" required>
                         <option value="">Pilih Nama Siswa</option>
-                        {% for itemm in users %}
-                        <option>{{ itemm.nama_lengkap }}</option>
+                        {% for itemm in siswa %}
+                        <option>{{ itemm.nama }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -79,7 +79,7 @@
                     <select id="class" required>
                         <option value="">Pilih Kelas</option>
                         {% for item in kelas %}
-                        <option>{{ item.nama }}</option>
+                        <option>{{ item.nama_kelas }}</option>
                         {% endfor %}
                     </select>
                 </div>

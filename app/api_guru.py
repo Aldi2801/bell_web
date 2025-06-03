@@ -1,126 +1,65 @@
-from . import app, db, is_valid_email, bcrypt, mail, s, User
+from . import app, db, is_valid_email, bcrypt, mail, s, User, kelas, siswa, guru, mapel, JadwalPelajaran
 from flask import request, jsonify, url_for, render_template, render_template_string,session
 from flask_mail import Message
+from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
-import jwt, re, datetime, os, json
+import jwt, re, datetime, os, json, ast
 from bson.objectid import ObjectId
+from collections import defaultdict
+
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
-    schedule_data = {}
-    # Ambil path absolut dari direktori saat ini (tempat file python ini berada)
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    # Urutan hari
+    hari_order = case(
+        (JadwalPelajaran.day == 'Senin', 1),
+        (JadwalPelajaran.day == 'Selasa', 2),
+        (JadwalPelajaran.day == 'Rabu', 3),
+        (JadwalPelajaran.day == 'Kamis', 4),
+        (JadwalPelajaran.day == 'Jumat', 5),
+        (JadwalPelajaran.day == 'Sabtu', 6),
+        (JadwalPelajaran.day == 'Minggu', 7),
+        else_=8
+    )
 
-    # Gabungkan dengan nama file JSON
-    JADWAL_PATH = os.path.join(BASE_DIR, 'jdwal.json')
+    # Ambil semua jadwal dalam 1 query
+    results = JadwalPelajaran.query.order_by(hari_order, JadwalPelajaran.period).all()
 
-    # Baca isi file JSON
-    with open(JADWAL_PATH, 'r', encoding='utf-8') as f:
-        schedule_data = {}
-        schedule_data['schedule'] = json.load(f)
-    teacher_map_data = {}
-    teacher_map_data["kodeGuru"]= [
-        {
-        "K1": "H. Jamar, S.Pd.I"
-        },
-        {
-        "K8": "H. Hurwiyati, S.Pd"
-        },
-        {
-        "K11": "Titik Eko Purwati, S.Pd"
-        },
-        {
-        "K15": "Biyanto, S.Pd"
-        },
-        {
-        "L6": "Ulinnuha, S.Pd.I"
-        },
-        {
-        "L9": "Purnadi, S.Pd.S"
-        },
-        {
-        "L10": "Nur Arifin, S.Pd.I"
-        },
-        {
-        "F15": "Riski Arofiyah, S.Pd"
-        }
-    ],
-    teacher_map_data["kodeMapel"]= [
-        {
-        "K1": "Bahasa Indonesia"
-        },
-        {
-        "K8": "Matematika"
-        },
-        {
-        "K11": "IPA"
-        },
-        {
-        "K15": "IPS"
-        },
-        {
-        "L6": "Bahasa Inggris"
-        },
-        {
-        "L9": "Bahasa Daerah"
-        },
-        {
-        "L10": "Seni Budaya"
-        },
-        {
-        "L12": "PJOK"
-        },
-        {
-        "G4": "Keterampilan (Khot)"
-        },
-        {
-        "G15": "Tahfidz"
-        },
-        {
-        "H12": "Nahwu"
-        },
-        {
-        "F7": "Amaliyah Ibadah"
-        },
-        {
-        "F9": "Kitab Kuning"
-        }
-    ]
-    # Format data jadwal
+    # Buat struktur data jadwal terformat
+    grouped_schedule = defaultdict(list)
+    for r in results:
+        grouped_schedule[r.day].append({
+            "time": r.time,
+            "period": r.period,
+            "subjects": ast.literal_eval(r.subject) if isinstance(r.subject, str) else r.subject
+        })
+
     formatted_schedule = [
-        {
-            "day": day["day"],
-            "sessions": [
-                {
-                    "time": session["time"],
-                    "period": session["period"],
-                    "subjects": session["subjects"]
-                }
-                for session in day["sessions"]
-            ]
-        }
-        for day in schedule_data["schedule"]
+        {"day": day, "sessions": grouped_schedule[day]}
+        for day in sorted(grouped_schedule, key=lambda d: ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].index(d))
     ]
 
-    # Format data kode guru dan mapel
+    # Ambil guru dan mapel
+    guru_list = guru.query.order_by(guru.nama.asc()).all()
+    mapel_list = mapel.query.order_by(mapel.nama_mapel.asc()).all()
+
     formatted_teacher_map = {
-        "kodeGuru": [
-            {next(iter(teacher)): teacher[next(iter(teacher))]} for teacher in teacher_map_data["kodeGuru"]
-        ],
-        "kodeMapel": [
-            {next(iter(subject)): subject[next(iter(subject))]} for subject in teacher_map_data["kodeMapel"]
-        ]
+        "kodeGuru": [{"inisial": g.inisial, "nama": g.nama} for g in guru_list],
+        "kodeMapel": [{"id_mapel": m.id_mapel, "nama": m.nama_mapel} for m in mapel_list],
     }
 
+    # Ambil siswa dan kelas
+    users = siswa.query.all()
+    data_kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()
+    kelas_dict = [{"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas} for k in data_kelas]
 
-    # Output hasil
-    print("Formatted Schedule:")
-    print(formatted_schedule)
-
-    print("\nFormatted Teacher Map:")
-    print(formatted_teacher_map)
-    users = list(db.users.query.all())
-    kelas = list(db.kelas.query.order_by(kelas.nama_kelas.asc()).all()) # Urutkan berdasarkan nama ASC
-    return render_template("manage_jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map, users=users, kelas=kelas)
+    return render_template(
+        "manage_jadwal.html",
+        schedule=formatted_schedule,
+        kode_guru=formatted_teacher_map["kodeGuru"],
+        kode_mapel=formatted_teacher_map["kodeMapel"],
+        users=users,
+        kelas=kelas_dict
+    )
 
 # Endpoint untuk menyimpan data kehadiran
 @app.route('/tambah_kehadiran', methods=['POST'])
@@ -225,10 +164,10 @@ def save_guru():
 
     if password != re_password:
         return jsonify({"msg": "Passwords do not match"}), 400
-    cek_username =  users.query.find(username=username)
+    cek_username =  User.query.find(username=username)
     if cek_username:
         return jsonify({"msg": "Username already exists"}), 400
-    cek_email =  users.query.find(email=email)
+    cek_email =  User.query.find(email=email)
     if cek_email:
         return jsonify({"msg": "Email already exists"}), 400
     # Hash password
@@ -279,7 +218,7 @@ def save_guru():
 def edit_guru(id):
     data = request.json
     hashed_password = bcrypt.generate_password_hash(data["password"]).decode('utf-8')
-    result = db.users.update_one(
+    result = User.update_one(
         {"_id": ObjectId(id)},
         {"$set": {
             "username":data['username'],
@@ -297,7 +236,7 @@ def edit_guru(id):
 
 @app.route('/hapus_guru/<id>', methods=['DELETE'])
 def delete_guru(id):
-    result = db.users.delete_one({"_id": ObjectId(id)})
+    result = Users.delete_one({"_id": ObjectId(id)})
 
     if result.deleted_count == 0:
         return jsonify({"error": "No document found to delete"}), 404
@@ -349,20 +288,35 @@ def delete_test_guru(id):
 
 @app.route('/tambah_ubah_jadwal', methods=['POST'])
 def tambah_ubah_jadwal():
-    data = request.json
-    if not all(key in data for key in ("day", "time", "period", "subject" )):
-        return jsonify({"error": "Invalid data"}), 400
+    data = request.get_json()
 
-    result = db.test_attendance.update_one(
-        {"day": day,
-        "time": time},
-        {"$set": {
-            "period":data["testName"],
-            "subject":data["subject"],
-        }}
-    )
+    day = data.get('day')
+    time = data.get('time')
+    period = data.get('period')
+    subject = data.get('subject')  # list of strings
 
-    if result.modified_count == 0:
-        return jsonify({"error": "No document updated"}), 404
+    if not (day and time and period is not None and subject):
+        return jsonify({'status': 'error', 'message': 'Data tidak lengkap'}), 400
 
-    return jsonify({"message": "Attendance updated successfully"}), 200
+    # Cek apakah data dengan day + period sudah ada
+    existing = JadwalPelajaran.query.filter_by(day=day, period=period).first()
+
+    if existing:
+        # Update
+        existing.time = time
+        existing.subject = json.dumps(subject)  # simpan sebagai string JSON
+        msg = "Jadwal berhasil diperbarui"
+    else:
+        # Insert baru
+        new_schedule = JadwalPelajaran(
+            day=day,
+            time=time,
+            period=period,
+            subject=json.dumps(subject)
+        )
+        db.session.add(new_schedule)
+        msg = "Jadwal berhasil ditambahkan"
+
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': msg})
+

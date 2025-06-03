@@ -1,6 +1,6 @@
-from . import app, bcrypt, db, User, tugas, berita, kelas, kbm
+from . import app, bcrypt, db, User, tugas, berita, kelas, kbm, siswa, guru, mapel
 from flask import request, jsonify, render_template, redirect, url_for, session
-import jwt, os
+import jwt, os, json
 from datetime import datetime
 from bson.objectid import ObjectId
 
@@ -51,16 +51,90 @@ def view_daftar_hadir_ujian():
 def view_daftar_hadir():
     return render_template("daftar_hadir_siswa.html")
 @app.route('/jadwal')
-def view_jadwal():
-    kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()  # Urutkan berdasarkan nama ASC
-    return render_template("jadwal.html", kelas=kelas )
+def view_jadwal():    
+    schedule_data = {}
+    # Ambil path absolut dari direktori saat ini (tempat file python ini berada)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    # Gabungkan dengan nama file JSON
+    JADWAL_PATH = os.path.join(BASE_DIR, 'jdwal.json')
+
+    # Baca isi file JSON
+    with open(JADWAL_PATH, 'r', encoding='utf-8') as f:
+        schedule_data = {}
+        schedule_data['schedule'] = json.load(f)
+    teacher_map_data = {}
+    formatted_teacher_map = {}
+    data_guru = guru.query.order_by(guru.nama.asc()).all() # Urutkan berdasarkan nama ASC
+    formatted_teacher_map["kodeGuru"] = [
+        { k.inisial : k.nama}
+        for k in data_guru
+    ]
+    data_mapel = mapel.query.order_by(mapel.nama_mapel.asc()).all() # Urutkan berdasarkan nama ASC
+    formatted_teacher_map["kodeMapel"] = [
+        { k.id_mapel : k.nama_mapel}
+        for k in data_mapel
+    ]
+    # Format data jadwal
+    formatted_schedule = [
+        {
+            "day": day["day"],
+            "sessions": [
+                {
+                    "time": session["time"],
+                    "period": session["period"],
+                    "subjects": session["subjects"]
+                }
+                for session in day["sessions"]
+            ]
+        }
+        for day in schedule_data["schedule"]
+    ]
+    # Output hasil
+    print("Formatted Schedule:")
+    print(formatted_schedule)
+
+    print("\nFormatted Teacher Map:")
+    print(formatted_teacher_map)
+    users = siswa.query.all()
+    data_kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all() # Urutkan berdasarkan nama ASC
+    kelas_dict = [
+        {"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas}
+        for k in data_kelas
+    ]
+    print(kelas_dict)
+
+    return render_template("jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict)
 
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():
-    users = User.query.filter_by(role="murid").all()
-    kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()
-    kbm = kbm.query.all()
-    return render_template("manage_kehadiran.html", users=users, kelas=kelas, kbm=kbm)
+    from sqlalchemy.orm import aliased
+    from sqlalchemy.sql import or_
+
+    # results = db.session.query(
+    #     siswa,
+    #     User
+    # ).outerjoin(
+    #     User, siswa.nis == User.nip
+    # ).all()
+
+    # # Bisa juga filter untuk siswa tertentu
+    # # .filter(siswa.nama == 'Nama Siswa')
+
+    # output = []
+    # for s, u in results:
+    #     output.append({
+    #         'nama_siswa': s.nama,
+    #         'nis': s.nis,
+    #         'nip_user': u.nip if u else None,
+    #         'username_user': u.username if u else None
+    #     })
+
+    data_siswa = siswa.query.all()
+        
+    data_kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()
+    data_kbm = kbm.query.all()
+    return render_template("manage_kehadiran.html", siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)
 @app.route('/coba')
 def view_coba():
     return render_template("coba.html")

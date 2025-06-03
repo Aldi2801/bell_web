@@ -197,10 +197,14 @@ class tugas(db.Model):
     deskripsi =  db.Column(db.String(255))
     id_mapel = db.Column(db.String(3), db.ForeignKey('mapel.id_mapel'), nullable=False)
     nip = db.Column(db.Integer,  db.ForeignKey('guru.nip'), nullable=False)
+class JadwalPelajaran(db.Model):
+    id_jadwal = db.Column(db.Integer, primary_key=True)
+    day = db.Column(db.String(10), nullable=False)
+    time = db.Column(db.String(15), nullable=False)
+    period = db.Column(db.Integer, nullable=False)
+    subject = db.Column(db.Text, nullable=False)
 
-jwt = JWTManager(app)
-
-#seeder
+# seeder
 # seeder_siswa.py
 
 from faker import Faker
@@ -448,6 +452,28 @@ def page_not_found(error):
 def invalid():
     # Menggunakan abort untuk memicu kesalahan 404
     abort(404)
+# Fungsi untuk verifikasi token
+@app.route('/verify-token', methods=['POST'])
+def verify_token():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token is missing'}), 403
+    try:
+        decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        print(decoded_token['role'])
+        
+        return jsonify({'valid': True, 'username': decoded_token['username'],'role': decoded_token['role']})
+    except jwt.ExpiredSignatureError:
+        return jsonify({'valid': False, 'message': 'Token expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'valid': False, 'message': 'Invalid token'}), 403
+@app.errorhandler(404)
+def page_not_found(error):
+    if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
+        response = jsonify({'error': 'Not found'})
+        response.status_code = 404
+        return response
+    return render_template('404.html'), 404
 
 # Fungsi untuk menentukan semester berdasarkan bulan
 def get_semester_and_year():
@@ -476,9 +502,9 @@ def create_automatic_bills():
     ujian_tahunan = f"Uang Ujian {tahun_ajaran} {semester}"
 
     # Cek dan buat tagihan SPP
-    existing_spp = Tagihan.query.filter_by(deskripsi=spp_bulanan).first()
+    existing_spp = tagihan.query.filter_by(deskripsi=spp_bulanan).first()
     if not existing_spp:
-        tagihan_spp = Tagihan(
+        tagihan_spp = tagihan(
             user_email="global@system.com",  # atau kosong/null bila tidak spesifik ke siswa
             deskripsi=spp_bulanan,
             total=10000,
@@ -487,9 +513,9 @@ def create_automatic_bills():
         db.session.add(tagihan_spp)
 
     # Cek dan buat tagihan ujian
-    existing_ujian = Tagihan.query.filter_by(deskripsi=ujian_tahunan).first()
+    existing_ujian = tagihan.query.filter_by(deskripsi=ujian_tahunan).first()
     if not existing_ujian:
-        tagihan_ujian = Tagihan(
+        tagihan_ujian = tagihan(
             user_email="global@system.com",
             deskripsi=ujian_tahunan,
             total=1000000,

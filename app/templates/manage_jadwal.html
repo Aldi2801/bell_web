@@ -39,17 +39,8 @@
                     <option value="Selasa">Selasa</option>
                     <option value="Rabu">Rabu</option>
                     <option value="Kamis">Kamis</option>
-                    <option value="Jumat">Jumat</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="class">Kelas:</label>
-                <select id="class" required>
-                    <option value="">Pilih Kelas</option>
-                    {% for item in kelas %}
-                    <option>{{ item.nama }}</option>
-                    {% endfor %}
+                    <option value="Jumat">Jum'at</option>
+                    <option value="Sabtu">Sabtu</option>
                 </select>
             </div>
             <div class="form-group">
@@ -57,48 +48,129 @@
                 <input type="text" id="time" placeholder="Contoh: 07:00 - 08:00" required>
             </div>
             <div class="form-group">
-                <label for="period">Jam Ke:</label>
+                <label for="period">Periode Ke:</label>
                 <input type="number" id="period" min="1" placeholder="Contoh: 1" required>
             </div>
+
             <div class="form-group">
                 <label for="subject">Kelas 7A:</label>
-                <input type="text" id="7A_guru" placeholder="Kode Guru" required>
-                <input type="text" id="7A_mapel" placeholder="Kode Guru" required>
+                <select id="7Aguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="7Amapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="subject">Kelas 7B:</label>
-                <input type="text" id="7B_guru" placeholder="Kode Guru" required>
-                <input type="text" id="7B_mapel" placeholder="Kode Guru" required>
+                <select id="7Bguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="7Bmapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="subject">Kelas 7C:</label>
-                <input type="text" id="7C_guru" placeholder="Kode Guru" required>
-                <input type="text" id="7C_mapel" placeholder="Kode Guru" required>
+                <select id="7Cguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="7Cmapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="subject">Kelas 8A:</label>
-                <input type="text" id="8A_guru" placeholder="Kode Guru" required>
-                <input type="text" id="8A_mapel" placeholder="Kode Guru" required>
+                <select id="8Aguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="8Amapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="subject">Kelas 8B:</label>
-                <input type="text" id="8B_guru" placeholder="Kode Guru" required>
-                <input type="text" id="8B_mapel" placeholder="Kode Guru" required>
+                <select id="8Bguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="8Bmapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="subject">Kelas 8C:</label>
-                <input type="text" id="8C_guru" placeholder="Kode Guru" required>
-                <input type="text" id="8C_mapel" placeholder="Kode Guru" required>
+                <select id="8Cguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="8Cmapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="subject">Kelas 9A:</label>
-                <input type="text" id="9A_guru" placeholder="Kode Guru" required>
-                <input type="text" id="9A_mapel" placeholder="Kode Guru" required>
+                <select id="9Aguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="9Amapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="subject">Kelas 9B:</label>
-                <input type="text" id="9B_guru" placeholder="Kode Guru" required>
-                <input type="text" id="9B_mapel" placeholder="Kode Guru" required>
+                <select id="9Bguru" required>
+                    <option value="">Pilih Guru</option>
+                    {% for item in kode_guru %}
+                    <option value = "{{item.inisial}}">{{item.inisial}} | {{item.nama}}</option>
+                    {% endfor %}
+                </select><hr>
+                <select id="9Bmapel" required>
+                    <option value="">Pilih Mapel</option>
+                    {% for item in kode_mapel %}
+                    <option value = "{{item.id_mapel}}">{{item.id_mapel}} | {{ item.nama }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <button class="button-submit" type="submit">Submit</button>
         </form>
@@ -115,7 +187,7 @@
                 <th>Waktu</th>
                 <th>Jam Ke</th>
                 {% for item in kelas %}
-                <th>{{ item.nama }}</th>
+                <th>{{ item.nama_kelas }}</th>
                 {% endfor %}
             </tr>
         </thead>
@@ -123,7 +195,6 @@
         </tbody>
     </table>
     <div class="container-keterangan" id="container-keterangan">
-    
     </div>
 
     <script src="/static/script_footer.js"></script>
@@ -137,7 +208,17 @@ scheduleForm.addEventListener('submit', async (e) => {
     const day = document.getElementById('day').value;
     const time = document.getElementById('time').value;
     const period = parseInt(document.getElementById('period').value, 10);
-    const subject = document.getElementById('subject').value;
+    const subject = [
+        document.getElementById('7Amapel').value+' - '+document.getElementById('7Aguru').value,
+        document.getElementById('7Bmapel').value+' - '+document.getElementById('7Bguru').value,
+        document.getElementById('7Cmapel').value+' - '+document.getElementById('7Cguru').value,
+        document.getElementById('8Amapel').value+' - '+document.getElementById('8Aguru').value,
+        document.getElementById('8Bmapel').value+' - '+document.getElementById('8Bguru').value,
+        document.getElementById('8Cmapel').value+' - '+document.getElementById('8Cguru').value,
+        document.getElementById('9Amapel').value+' - '+document.getElementById('9Aguru').value,
+        document.getElementById('9Bmapel').value+' - '+document.getElementById('9Bguru').value,
+
+    ]
 
     // Validasi input
     if (!day || !time || !subject || isNaN(period) || period < 1) {
@@ -178,7 +259,9 @@ scheduleForm.addEventListener('submit', async (e) => {
 });
 
         const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
-        const schedule = {{ schedule | safe }};
+        const schedule = {{ schedule | tojson | safe }};
+        console.log(schedule); // sudah berupa object/array JS, tidak perlu parse lagi
+
         schedule.forEach(day => {
             day.sessions.forEach((session, index) => {
                 const row = document.createElement('tr');
@@ -194,16 +277,18 @@ scheduleForm.addEventListener('submit', async (e) => {
                 timeCell.innerText = session.time;
                 row.appendChild(timeCell);
 
-                const periodCell = document.createElement('td');
-                periodCell.innerText = session.period;
-                row.appendChild(periodCell);
-                if (session.period == "ISTIRAHAT"){
+                if (session.period == "7"){
+                    const periodCell = document.createElement('td');
+                    periodCell.innerText = "ISTIRAHAT";
+                    row.appendChild(periodCell);
                     const subjectCell = document.createElement('td');
                     subjectCell.colSpan = "8";
                     subjectCell.innerText = " ";
                     row.appendChild(subjectCell);
-                }
-                else{
+                }else{
+                const periodCell = document.createElement('td');
+                periodCell.innerText = session.period;
+                row.appendChild(periodCell);
                 session.subjects.some(subject => {
                     if (subject == "Upacara"){
                         const subjectCell = document.createElement('td');
@@ -213,6 +298,7 @@ scheduleForm.addEventListener('submit', async (e) => {
                         return true ;
                     }
                     else{
+                        if (subject == 'Jumat'){ subject = "Jum'at"}
                         const subjectCell = document.createElement('td');
                         subjectCell.innerText = subject;
                         row.appendChild(subjectCell);
@@ -224,7 +310,8 @@ scheduleForm.addEventListener('submit', async (e) => {
             });
         });
         // Data JSON
-        const data = {{ kode_guru | safe }}
+        var kode_mapel = {{ kode_mapel | tojson | safe }}
+        var kode_guru = {{ kode_guru | tojson | safe }}
 
         // Fungsi untuk menampilkan data
         function renderList(title, items) {
@@ -236,31 +323,17 @@ scheduleForm.addEventListener('submit', async (e) => {
             const list = document.createElement('ul');
             items.forEach(item => {
                 const listItem = document.createElement('li');
-                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
+                var key = Object.entries(item)[0][1]
+                var value = Object.entries(item)[1][1]
                 listItem.innerText = `${key}: ${value}`;
-                list.appendChild(listItem);
-            });
-            container.appendChild(list);
-        }
-        function renderList2(title, items) {
-            const container = document.getElementById('container-keterangan');
-            const heading = document.createElement('h2');
-            heading.innerText = title;
-            container.appendChild(heading);
-
-            const list = document.createElement('ul');
-            items.forEach(item => {
-                const listItem = document.createElement('li');
-                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
-                listItem.innerText = `${value}`;
                 list.appendChild(listItem);
             });
             container.appendChild(list);
         }
 
         // Render kedua list
-        renderList("Kode Mapel", data.kodeMapel);
-        renderList2("List Guru", data.kodeGuru);
+        renderList("Kode Mapel", kode_mapel);
+        renderList("List Guru", kode_guru);
     </script>
 </body>
 

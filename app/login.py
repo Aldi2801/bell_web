@@ -3,6 +3,7 @@ import uuid
 from flask import request, render_template, redirect, url_for, jsonify, session,render_template_string,  flash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_mail import Mail, Message
+from datetime import datetime, timedelta
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 # hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
 # print(str(uuid.uuid4()))
@@ -30,7 +31,13 @@ def login():
 
         # Memverifikasi password
         if bcrypt.check_password_hash(user.password, password):
-            access_token = create_access_token(identity=username)
+            access_token = jwt.encode({
+            'username': username,
+            'role': user.roles[0].name,
+            'email': user.email,
+            'exp': datetime.utcnow() + timedelta(hours=24)
+        }, app.config['SECRET_KEY'], algorithm='HS256')
+        
             session['jwt_token'] = access_token
             session['username'] = username
             # Ambil role pertama (jika ada)
@@ -59,10 +66,6 @@ def keluar():
     session.pop('jwt_token', None)
     session.pop('username', None)
     flash('Sukses Logout')
-    return redirect(url_for('login'))
-
-@jwt.expired_token_loader
-def expired_token_callback():
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['POST'])

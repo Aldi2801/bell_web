@@ -35,7 +35,7 @@
                 <th>Waktu</th>
                 <th>Jam Ke</th>
                 {% for item in kelas %}
-                <th>{{ item.nama }}</th>
+                <th>{{ item.nama_kelas }}</th>
                 {% endfor %}
             </tr>
         </thead>
@@ -48,9 +48,10 @@
 
     <script src="/static/script_footer.js"></script>
     <script>
-    
         const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
-        const schedule = {{ schedule | safe }};
+        const schedule = {{ schedule | tojson | safe }};
+        console.log(schedule); // sudah berupa object/array JS, tidak perlu parse lagi
+
         schedule.forEach(day => {
             day.sessions.forEach((session, index) => {
                 const row = document.createElement('tr');
@@ -69,13 +70,19 @@
                 const periodCell = document.createElement('td');
                 periodCell.innerText = session.period;
                 row.appendChild(periodCell);
-                if (session.period == "ISTIRAHAT"){
+                
+                if (session.period == "7"){
+                    const periodCell = document.createElement('td');
+                    periodCell.innerText = "ISTIRAHAT";
+                    row.appendChild(periodCell);
                     const subjectCell = document.createElement('td');
                     subjectCell.colSpan = "8";
                     subjectCell.innerText = " ";
                     row.appendChild(subjectCell);
-                }
-                else{
+                }else{
+                const periodCell = document.createElement('td');
+                periodCell.innerText = session.period;
+                row.appendChild(periodCell);
                 session.subjects.some(subject => {
                     if (subject == "Upacara"){
                         const subjectCell = document.createElement('td');
@@ -96,7 +103,8 @@
             });
         });
         // Data JSON
-        const data = {{ kode_guru | safe }}
+        var kode_mapel = {{ kode_mapel | tojson | safe }}
+        var kode_guru = {{ kode_guru | tojson | safe }}
 
         // Fungsi untuk menampilkan data
         function renderList(title, items) {
@@ -114,25 +122,10 @@
             });
             container.appendChild(list);
         }
-        function renderList2(title, items) {
-            const container = document.getElementById('container-keterangan');
-            const heading = document.createElement('h2');
-            heading.innerText = title;
-            container.appendChild(heading);
-
-            const list = document.createElement('ul');
-            items.forEach(item => {
-                const listItem = document.createElement('li');
-                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
-                listItem.innerText = `${value}`;
-                list.appendChild(listItem);
-            });
-            container.appendChild(list);
-        }
 
         // Render kedua list
-        renderList("Kode Mapel", data.kodeMapel);
-        renderList2("List Guru", data.kodeGuru);
+        renderList("Kode Mapel", kode_mapel);
+        renderList("List Guru", kode_guru);
     </script>
 </body>
 
