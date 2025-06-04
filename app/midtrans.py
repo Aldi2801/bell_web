@@ -2,7 +2,7 @@
 from flask import request, jsonify, render_template
 import os, uuid, base64, json, requests   
 from dotenv import load_dotenv
-from . import app, jwt, db, tagihan, transaksi 
+from . import app, jwt, db, tagihan, transaksi , siswa, tahunAkademik
 print(os.getenv('ENV') )
 if os.getenv('ENV') == 'production':
     url = "https://app.midtrans.com/snap/v1/transactions"
@@ -16,24 +16,25 @@ def create_transaction():
     try:
         token = request.headers.get('Authorization')
         data = {}
-
         if token:
             decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            full_name = decoded_token.get('nama_lengkap', '')
+            email = decoded_token.get('email', 'anonymous@mail.co')
+            data_siswa = siswa.query.filter_by(email=email).first()
+            full_name = data_siswa.nama
             if not full_name:
                 return jsonify({'valid': False, 'message': 'Full name missing in token'}), 400
 
             data['first_name'] = full_name.split()[0]
             data['last_name'] = full_name.split()[-1] if len(full_name.split()) > 1 else ''
-            data['email'] = decoded_token.get('email', 'anonymous@mail.co')
+            data['email'] = email
             data['amount'] = request.json.get('amount', 0)
             tagihan_id = request.json.get('tagihan_id', 0)
         else:
             data = request.json
             new_tagihan = tagihan(
                 user_email=data['email'],
-                description="SPP dan biaya lainnya",
-                amount=data['amount']
+                deskripsi="SPP dan biaya lainnya",
+                total=data['amount']
             )
             db.session.add(new_tagihan)
             db.session.commit()
@@ -43,6 +44,7 @@ def create_transaction():
             return jsonify({'error': 'Amount is required'}), 400
 
         order_id = f"ORDER-{uuid.uuid4()}"
+        callback_url = f"http://127.0.0.1:4040/menu_pembayaran?status_code=200&order_id={order_id}&transaction_status=paid"
         payload = {
             "transaction_details": {
                 "order_id": order_id,
@@ -54,7 +56,7 @@ def create_transaction():
                 "email": data['email']
             },
             "callbacks": {
-                "finish": os.getenv("callback_url")
+                "finish": callback_url
             }
         }
 
@@ -68,11 +70,11 @@ def create_transaction():
         if response.status_code == 201:
             transaction = response.json()
             new_transaction = transaksi(
-                order_id=order_id,
-                tagihan_id=tagihan_id,
-                email=data['email'],
-                amount=data['amount'],
-                status="pending"
+                kode_order = order_id,
+                id_tagihan = tagihan_id,
+                email = data['email'],
+                total = data['amount'],
+                status = "pending"
             )
             db.session.add(new_transaction)
             db.session.commit()
@@ -125,6 +127,7 @@ def view_menu_pembayaran():
             print('Transaction updated successfully')
         else:
             print('Transaction not found or already updated')
-
-    return render_template("menu_pembayaran.html")
+    data_siswa = siswa.query.all()
+    tahun_ajaran = tahunAkademik.query.all()
+    return render_template("menu_pembayaran.html", siswa = data_siswa, tahun_ajaran = tahun_ajaran)
 

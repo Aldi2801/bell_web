@@ -17,14 +17,87 @@
     .container{
         max-width:none;
     }
+            .table-responsive thead th {
+    background-color: #c12fdbdb !important;
+    color: white !important;
+    text-align: center;
+}
+  .flash-message-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+            background: linear-gradient(to right, #a6c1ee, #fbc2eb);
+    z-index: 1050;
+    width: 100%;
+    max-width: 500px;
+    padding: 0 15px;
+  }
+
+  .alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeInDown 0.5s ease;
+    position: relative;
+  }
+
+  .btn-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  /* Animasi fade in */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+ 
     </style>
 </head>
 
 <body>
+  <div class="flash-message-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <script>
+    // Auto-hide alert after 4 seconds
+    setTimeout(() => {
+      document.querySelectorAll('.alert').forEach(alert => {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+        setTimeout(() => alert.remove(), 500); // remove after fade out
+      });
+    }, 4000);
+  </script>
     <header>
         <div class="d-flex">
         <div class="menu-container">
         <button class="logout-button" onclick="location.href='/'">Menu</button>
+        <button style="width: 150px !important;" class="logout-button" onclick="openTambahModal()">Tambah Data</button>
         </div>
         <div class="logout-container">
         <button class="logout-button" onclick="handleLogout()">Logout</button>
@@ -39,8 +112,10 @@
         <thead class="table-dark">
             <tr>
                 <th>No</th>
-                <th>Jenis Pembayaran</th>
-                <th>Harga</th>
+                <th>Semester</th>
+                <th>Tahun Ajaran</th>
+                <th>deskripsi</th>
+                <th>Total Pembayaran</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -49,9 +124,153 @@
     </table>
 </div>
 </div>
+<!-- Modal Edit -->
+<div id="editModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
+    <h3 style="color: black !important;;">Edit Data Guru</h3>
+    <form id="editGuruForm" method="POST" action="/edit_guru">
+        <input type="hidden" name="id_tagihan" id="id_tagihan">
+        <label>semester:</label>
+        <select name="user_semester" id="edit_semester" required>
+            <option value="Ganjil">Genjil</option>
+            <option value="Genap">Genap</option>
+        </select>
+        <label>Pilih Siswa:</label>
+        <select name="user_email" class="form-control form-search" id="edit_user_email" required >
+            <option value="semua_siswa">Semua Siswa</option>
+            {% for i in siswa  %}
+            <option value="{{i.email}}">{{i.nama}}</option>
+            {% endfor %}
+        </select><br>
+        <label>tahun_ajaran:</label>
+          <select  name="tahun_ajaran"  id="edit_tahun_ajaran" required class="form-control form-search" >
+            {% for i in tahun_ajaran %}
+            <option value="{{i.tahun_akademik}}">{{i.tahun_akademik}}</option>
+            {% endfor %}
+        </select><br>
+        <label>deskripsi:</label>
+        <input type="text" name="deskripsi" id="edit_deskripsi" required ><br>
+        <label>total:</label>
+        <input type="number" name="total" id="edit_total" required ><br>
+        <button type="submit" class="btn btn-success" >Simpan</button>
+        <button type="button" class="btn btn-secondary" onclick="closeEditModal()" >Batal</button>
+    </form>
+</div>
+<!-- Modal Tambah -->
+<div id="tambahModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:999; background:#fff; padding:0; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width: 1000px; width: 95%; max-height: 90vh; flex-direction: column;">  
+  <!-- Header (Optional) -->
+  <div style="padding: 20px; height: 30px !important; border-bottom: 1px solid #ddd;">
+    <h4 class="text-center mb-3">Tambah Pembayaran</h4>
+  </div>
+  <!-- Scrollable Content -->
+  <div style="padding: 20px; overflow-y: auto; flex: 1;">
+    <form id="daftarForm">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label>semester:</label>
+            <select name="user_semester" id="edit_semester" required>
+                <option value="Ganjil">Genjil</option>
+                <option value="Genap">Genap</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+           <label>Pilih Siswa:</label>
+            <select name="user_email" class="form-control form-search"  id="edit_user_email" required>
+            <option value="semua_siswa">Semua Siswa</option>
+            {% for i in siswa  %}
+            <option value="{{i.email}}">{{i.nama}}</option>
+            {% endfor %}
+        </select>
+        </div>
+        <div class="col-md-4">
+          <input type="text" name="deskripsi"  id="edit_deskripsi" placeholder="deskripsi" required><br>
+        </div>
+        <div class="col-md-4">
+          <select  name="tahun_ajaran"  id="edit_tahun_ajaran" required class="form-control form-search" >
+            {% for i in tahun_ajaran %}
+            <option value="{{i.tahun_akademik}}">{{i.tahun_akademik}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+        <input type="number" name="total"  id="edit_total" placeholder="Total" required><br>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- Footer dengan tombol -->
+  <div style="padding: 15px; border-top: 1px solid #ddd; text-align: right;">
+    <button type="submit" id="tomboldaftar" class="btn btn-primary" style="margin-bottom: 15px !important;" form="daftarForm">Daftar</button>
+    <button type="button" class="btn btn-secondary" onclick="closeTambahModal()">Batal</button>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/script_footer.js"></script>
 <script>
+    
+        document.getElementById("tomboldaftar").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent form from submitting traditionally
+             const form = document.getElementById("daftarForm");
+            const formData = new FormData(form);
+            const data = {};
+
+            formData.forEach((value, key) => {
+                data[key] = value.trim();
+            });
+
+            // Validasi dasar
+            if (!data.username || !data.password || !data["re-password"]) {
+                alert("Harap isi semua kolom wajib.");
+                return;
+            }
+
+            if (data.password !== data["re-password"]) {
+                alert("Password dan ulangi password tidak cocok.");
+                return;
+            }
+            document.getElementById("tomboldaftar").disabled = true;
+            document.getElementById("tomboldaftar").innerHTML = '<div class="loader" id="loader"></div>';
+            // Ambil URL dasar tanpa parameter
+            const baseUrl = window.location.origin + window.location.pathname;
+            console.log(baseUrl);
+             $.ajax({
+                    url: '/tambah_guru?from="'+baseUrl+'"', // Pastikan endpoint /register sesuai dengan API server
+                    type: 'POST',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    success: function (response) {
+                        const token = response.msg;
+                        if (token) {
+                        // Redirect to the dashboard if credentials are correct
+                        document.getElementById("tomboldaftar").innerHTML = "Daftar";
+                        alert(response.msg);
+                        window.location.href = "/login"; // Redirect to login
+                        document.getElementById("tomboldaftar").disabled = false;
+                        } else {
+                            // Show an error message 
+                            document.getElementById("tomboldaftar").disabled = false;
+                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
+                            console.log(response)
+                            const error = response.error;
+                            alert(error);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                            document.getElementById("tomboldaftar").disabled = false;
+                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
+                            console.log(status)
+                            var errorTxt = "Server Error";
+                            if (xhr.responseJSON.error){
+                                errorTxt = xhr.responseJSON.error;
+                            }
+                            if (xhr.responseJSON.msg){
+                                errorTxt = xhr.responseJSON.msg;
+                            }
+                            alert(`Submit failed: ${errorTxt}`);
+                        }
+                });
+           
+        });
 async function fetchMenuPembayaran() {
     const token = localStorage.getItem('authToken'); // Ambil token dari LocalStorage
     if (!token) {
@@ -85,7 +304,9 @@ async function fetchMenuPembayaran() {
         alert('Terjadi kesalahan saat mengambil data tagihan.');
     }
 }
+function bayar_offline(total,id){
 
+}
 function populateTagihanTable(tagihan) {
     const container = document.getElementById('tagihan-container');
     container.innerHTML = ''; // Kosongkan tabel sebelum mengisi ulang
@@ -97,12 +318,29 @@ function populateTagihanTable(tagihan) {
 
     tagihan.forEach((item, index) => {
         const row = document.createElement('tr');
+        if(item.status == 'Belum Lunas'){ 
+            var onclick = `onclick="bayar(${item.total}, '${item.id_tagihan}')"`
+            var onclick_offline = `onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"`
+            var tomboltxt = 'Bayar Online'
+            var tomboltxt_offline = 'Bayar offline'
+        } else{ 
+            var onclick = '' 
+            var onclick_offline = '' 
+            var tomboltxt = 'Sudah Lunas'
+            var tomboltxt_offline = 'Sudah Lunas'}
         row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${item.jenis_pembayaran}</td>
-            <td>Rp ${parseInt(item.harga).toLocaleString('id-ID')}</td>
+            <td>${item.semester}</td>
+            <td>${item.tahun_ajaran}</td>   
+            <td>${item.deskripsi}</td>
+            <td>Rp ${parseInt(item.total).toLocaleString('id-ID')}</td>
             <td>
-                <button type="button" onclick="bayar(${item.harga}, '${item._id}')" class="btn btn-primary btn-sm button-submit">Bayar</button>
+                {% if session['role'] == 'murid' %}
+                <button type="button" ${onclick} class="btn btn-primary btn-sm button-submit">${tomboltxt}</button>
+                {% else %}
+                <button type="button" ${onclick} class="btn btn-primary btn-sm button-submit">${tomboltxt}</button>
+                <button type="button" ${onclick_offline} class="btn btn-primary btn-sm button-submit">${tomboltxt_offline}</button>
+                {% endif %}
             </td>
         `;
         container.appendChild(row);

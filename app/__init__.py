@@ -185,6 +185,8 @@ class tahunAkademik(db.Model):
 class tagihan(db.Model):
     id_tagihan = db.Column(db.Integer, primary_key=True)
     user_email = db.Column(db.String(120), nullable=False)
+    semester = db.Column(db.String(10))
+    tahun_ajaran = db.Column(db.String(10))
     deskripsi = db.Column(db.String(255))
     total = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -483,8 +485,6 @@ def page_not_found(error):
         response.status_code = 404
         return response
     return render_template('404.html'), 404
-
-# Fungsi untuk menentukan semester berdasarkan bulan
 def get_semester_and_year():
     now = datetime.now()
     year = now.year
@@ -506,31 +506,49 @@ def create_automatic_bills():
     ]
     bulan_sekarang = bulan_mapping[datetime.now().month - 1]
 
-    # Deskripsi tagihan
     spp_bulanan = f"SPP Bulanan - {bulan_sekarang} {tahun_ajaran} {semester}"
     ujian_tahunan = f"Uang Ujian {tahun_ajaran} {semester}"
 
-    # Cek dan buat tagihan SPP
-    existing_spp = tagihan.query.filter_by(deskripsi=spp_bulanan).first()
-    if not existing_spp:
-        tagihan_spp = tagihan(
-            user_email="global@system.com",  # atau kosong/null bila tidak spesifik ke siswa
-            deskripsi=spp_bulanan,
-            total=10000,
-            created_at=datetime.now()
-        )
-        db.session.add(tagihan_spp)
+    semua_siswa = siswa.query.all()
 
-    # Cek dan buat tagihan ujian
-    existing_ujian = tagihan.query.filter_by(deskripsi=ujian_tahunan).first()
-    if not existing_ujian:
-        tagihan_ujian = tagihan(
-            user_email="global@system.com",
+    for s in semua_siswa:
+        # Cek apakah tagihan SPP sudah ada untuk siswa ini
+        existing_spp = tagihan.query.filter_by(
+            user_email=s.email,
+            deskripsi=spp_bulanan,
+            semester=semester,
+            tahun_ajaran=tahun_ajaran
+        ).first()
+
+        if not existing_spp:
+            tagihan_spp = tagihan(
+                user_email=s.email,
+                deskripsi=spp_bulanan,
+                total=10000,
+                semester=semester,
+                tahun_ajaran=tahun_ajaran,
+                created_at=datetime.now()
+            )
+            db.session.add(tagihan_spp)
+
+        # Cek apakah tagihan Ujian sudah ada untuk siswa ini
+        existing_ujian = tagihan.query.filter_by(
+            user_email=s.email,
             deskripsi=ujian_tahunan,
-            total=1000000,
-            created_at=datetime.now()
-        )
-        db.session.add(tagihan_ujian)
+            semester=semester,
+            tahun_ajaran=tahun_ajaran
+        ).first()
+
+        if not existing_ujian:
+            tagihan_ujian = tagihan(
+                user_email=s.email,
+                deskripsi=ujian_tahunan,
+                total=1000000,
+                semester=semester,
+                tahun_ajaran=tahun_ajaran,
+                created_at=datetime.now()
+            )
+            db.session.add(tagihan_ujian)
 
     db.session.commit()
 

@@ -58,11 +58,7 @@ def find_current_period(sesi_list, current_time):
     return None
 @app.route('/dashboard')
 def view_dashboard():
-    mapel_guru = ""
-    if session['role']:
-        return render_template("dashboard.html", mapel_guru= mapel_guru)
-    else:
-        return redirect(url_for("login", msg="Anda Belum Login"))
+    return render_template("dashboard.html")
 @app.route('/daftar_hadir_ujian')
 def view_daftar_hadir_ujian():
     return render_template("daftar_hadir_siswa_ujian.html")
