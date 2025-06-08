@@ -11,7 +11,7 @@ def get_menu_pembayaran():
     try:
         decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         user_email = decoded_token['email']
-
+        role = decoded_token['role']
         # Ambil semester dan tahun ajaran saat ini
         semester, tahun_ajaran = get_semester_and_year()
 
@@ -21,12 +21,16 @@ def get_menu_pembayaran():
             semester=semester,
             tahun_ajaran=tahun_ajaran
         ).all()
-
-        # Ambil transaksi yang sudah lunas
-        paid_transactions = transaksi.query.filter_by(
-            email=user_email,
-            status='settlement'
-        ).all()
+        if role == 'murid':
+            # Ambil transaksi yang sudah lunas
+            paid_transactions = transaksi.query.filter_by(
+                email=user_email,
+                status='settlement'
+            ).all()
+        else:
+            paid_transactions = transaksi.query.filter_by(
+                status='settlement'
+            ).all()            
 
         # Ambil id_tagihan yang sudah lunas
         paid_tagihan_ids = {tr.id_tagihan for tr in paid_transactions if tr.id_tagihan is not None}
