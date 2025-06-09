@@ -1,5 +1,5 @@
-from . import app, db, is_valid_email, bcrypt, mail, s, User, kelas, siswa, guru, mapel, JadwalPelajaran, Role
-from flask import request, jsonify, url_for, render_template, render_template_string,session
+from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role
+from flask import flash, redirect, request, jsonify, url_for, render_template, render_template_string,session
 from flask_mail import Message
 from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
@@ -39,8 +39,8 @@ def view_manage_jadwal():
     ]
 
     # Ambil guru dan mapel
-    guru_list = guru.query.order_by(guru.nama.asc()).all()
-    mapel_list = mapel.query.order_by(mapel.nama_mapel.asc()).all()
+    guru_list = Guru.query.order_by(Guru.nama.asc()).all()
+    mapel_list = Mapel.query.order_by(Mapel.nama_mapel.asc()).all()
 
     formatted_teacher_map = {
         "kodeGuru": [{"inisial": g.inisial, "nama": g.nama} for g in guru_list],
@@ -48,8 +48,8 @@ def view_manage_jadwal():
     }
 
     # Ambil siswa dan kelas
-    users = siswa.query.all()
-    data_kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()
+    users = Siswa.query.all()
+    data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()
     kelas_dict = [{"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas} for k in data_kelas]
 
     return render_template(
@@ -183,7 +183,7 @@ def save_guru():
             fs_uniquifier=str(uuid.uuid4()),
         )
     # Simpan user baru
-    new_guru = guru(
+    new_guru = Guru(
             nama= nama_lengkap,
             email=email,
             nip = data['nip'],
@@ -310,4 +310,70 @@ def tambah_ubah_jadwal():
 
     db.session.commit()
     return jsonify({'status': 'success', 'message': msg})
+@app.route("/kbm/list")
+def list_kbm():
+    if session['role'] == 'guru':
+        guru = Guru.query.filter_by(nip=session['nip']).first()
+        ampu_list = AmpuMapel.query.filter_by(nip=guru.nip).all()
+    elif session['role'] == 'admin':
+        guru = Guru.query.all()
+        ampu_list = AmpuMapel.query.all()
+    else:
+        return redirect(url_for('login'))
+    return render_template("list_ampu.html", ampu_list=ampu_list)
+@app.route("/kbm/input/<int:id_ampu>", methods=["GET", "POST"])
+def input_kbm(id_ampu):
+    if request.method == "POST":
+        materi = request.form["materi"]
+        tanggal = request.form["tanggal"]
+        kbm_baru = Kbm(tanggal=tanggal, materi=materi, id_ampu=id_ampu)
+        db.session.add(kbm_baru)
+        db.session.commit()
+        return redirect(f"/kbm/{id_ampu}/daftar")
+    
+    return render_template("form_input_kbm.html", id_ampu=id_ampu)
+@app.route("/kbm/<int:id_ampu>/daftar")
+def daftar_kbm(id_ampu):
+    daftar = Kbm.query.filter_by(id_ampu=id_ampu).all()
+    return render_template("daftar_kbm.html", daftar=daftar)
+def get_siswa_by_kbm(id_kbm):
+    kbm = Kbm.query.get_or_404(id_kbm)
+    ampu = AmpuMapel.query.get_or_404(kbm.id_ampu)
+    if not ampu.id_pembagian:
+        return []  # Kalau belum ada pembagian kelas, kembalikan list kosong
+    siswa_list = Siswa.query.join(PembagianKelas, Siswa.nis == PembagianKelas.nis) \
+        .filter(PembagianKelas.id_pembagian == ampu.id_pembagian).all()
+    return siswa_list
+
+@app.route('/kehadiran/form/<int:id_kbm>')
+def form_kehadiran(id_kbm):
+    kbm = Kbm.query.get_or_404(id_kbm)
+    siswa_list = get_siswa_by_kbm(id_kbm)
+    keterangan_list = Keterangan.query.all()
+
+    # Ambil data kehadiran sebelumnya buat kbm ini, simpan dalam dict {nis: id_keterangan}
+    kehadiran_data = Kehadiran.query.filter_by(id_kbm=id_kbm).all()
+    kehadiran_dict = {k.nis: k.id_keterangan for k in kehadiran_data}
+
+    return render_template('form_kehadiran.html', kbm=kbm, siswa_list=siswa_list,
+                           keterangan_list=keterangan_list, kehadiran_dict=kehadiran_dict)
+
+@app.route('/kehadiran/simpan', methods=['POST'])
+def simpan_kehadiran():
+    id_kbm = request.form.get('id_kbm')
+    data_kehadiran = request.form.getlist('kehadiran')
+    print(data_kehadiran)
+    kehadiran_data = {}
+    for key, value in request.form.items():
+        if key.startswith("kehadiran["):
+            nis = key.split("[")[1].split("]")[0]  # Ambil NIS dari nama field
+            kehadiran_data[int(nis)] = value
+    for nis, id_keterangan in kehadiran_data.items():
+        hadir = Kehadiran(nis=nis, id_keterangan=id_keterangan, id_kbm=id_kbm)
+        db.session.add(hadir)
+
+    db.session.commit()
+    flash("Kehadiran berhasil disimpan", "success")
+
+    return redirect(url_for('form_kehadiran', id_kbm=id_kbm))
 

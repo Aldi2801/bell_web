@@ -1,4 +1,4 @@
-from . import app, bcrypt, db, User, tugas, berita, kelas, kbm, siswa, guru, mapel
+from . import app, bcrypt, db, User, Tugas, Berita, Kelas, Kbm, Siswa, Guru, Mapel
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, os, json
 from datetime import datetime
@@ -9,7 +9,7 @@ def view_register():
     return render_template("register.html")
 @app.route('/register_guru')
 def view_register_guru():
-    data_guru = guru.query.all()
+    data_guru = Guru.query.all()
     data_fix = []
 
     for i in data_guru:
@@ -36,17 +36,17 @@ def view_tugas():
     return render_template("manage_tugas.html", tugas = tugas)
 @app.route('/pengumuman')
 def view_pengumuman():
-    pengumuman = berita.query.all()
+    pengumuman = Berita.query.all()
     print(pengumuman)
     return render_template("manage_pengumuman.html", pengumuman = pengumuman)
 
 @app.route('/manage_tugas')
 def view_manage_tugas():
-    tugas = tugas.query.all()
+    tugas = Tugas.query.all()
     return render_template("manage_tugas.html", tugas=tugas)
 @app.route('/manage_pengumuman')
 def view_manage_pengumuman():
-    pengumuman = berita.query.all()
+    pengumuman = Berita.query.all()
     return render_template("manage_pengumuman.html", pengumuman=pengumuman)
 def find_current_period(sesi_list, current_time):
     for sesi in sesi_list:
@@ -80,12 +80,12 @@ def view_jadwal():
         schedule_data['schedule'] = json.load(f)
     teacher_map_data = {}
     formatted_teacher_map = {}
-    data_guru = guru.query.order_by(guru.nama.asc()).all() # Urutkan berdasarkan nama ASC
+    data_guru = Guru.query.order_by(Guru.nama.asc()).all() # Urutkan berdasarkan nama ASC
     formatted_teacher_map["kodeGuru"] = [
         { k.inisial : k.nama}
         for k in data_guru
     ]
-    data_mapel = mapel.query.order_by(mapel.nama_mapel.asc()).all() # Urutkan berdasarkan nama ASC
+    data_mapel = Mapel.query.order_by(Mapel.nama_mapel.asc()).all() # Urutkan berdasarkan nama ASC
     formatted_teacher_map["kodeMapel"] = [
         { k.id_mapel : k.nama_mapel}
         for k in data_mapel
@@ -111,8 +111,8 @@ def view_jadwal():
 
     print("\nFormatted Teacher Map:")
     print(formatted_teacher_map)
-    users = siswa.query.all()
-    data_kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all() # Urutkan berdasarkan nama ASC
+    users = Siswa.query.all()
+    data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all() # Urutkan berdasarkan nama ASC
     kelas_dict = [
         {"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas}
         for k in data_kelas
@@ -145,10 +145,10 @@ def view_manage_kehadiran():
     #         'username_user': u.username if u else None
     #     })
 
-    data_siswa = siswa.query.all()
+    data_siswa = Siswa.query.all()
         
-    data_kelas = kelas.query.order_by(kelas.nama_kelas.asc()).all()
-    data_kbm = kbm.query.all()
+    data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()
+    data_kbm = Kbm.query.all()
     return render_template("manage_kehadiran.html", siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)
 @app.route('/coba')
 def view_coba():

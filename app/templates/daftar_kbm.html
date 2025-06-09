@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Daftar KBM</h2>
+<table>
+  <tr>
+    <th>Tanggal</th><th>Materi</th><th>Aksi</th>
+  </tr>
+  {% for item in daftar %}
+    <tr>
+      <td>{{ item.tanggal }}</td>
+      <td>{{ item.materi }}</td>
+      <td><a href="/kehadiran/form/{{ item.id_kbm }}">Input Kehadiran</a></td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

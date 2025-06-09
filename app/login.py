@@ -45,7 +45,12 @@ def login():
                 session['role'] = user.roles[0].name
             else:
                 session['role'] = None  # atau bisa kasih nilai default
-
+            if user.roles[0].name == 'guru':
+                session['nip']=  user.nip
+            elif user.roles[0].name == 'murid':
+                session['nis'] = user.nis
+            else:
+                session['role'] = 'admin'
             # Jika user bisa punya lebih dari satu role dan kamu ingin menyimpannya semua:
             # session['roles'] = [role.name for role in user.roles]
             return jsonify({'token':access_token})

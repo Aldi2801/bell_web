@@ -2,7 +2,7 @@
 from flask import request, jsonify, render_template
 import os, uuid, base64, json, requests   
 from dotenv import load_dotenv
-from . import app, jwt, db, tagihan, transaksi , siswa, tahunAkademik
+from . import app, jwt, db, Tagihan, Transaksi , Siswa, TahunAkademik
 print(os.getenv('ENV') )
 if os.getenv('ENV') == 'production':
     url = "https://app.midtrans.com/snap/v1/transactions"
@@ -19,7 +19,7 @@ def create_transaction():
         if token:
             decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             email = decoded_token.get('email', 'anonymous@mail.co')
-            data_siswa = siswa.query.filter_by(email=email).first()
+            data_siswa = Siswa.query.filter_by(email=email).first()
             full_name = data_siswa.nama
             if not full_name:
                 return jsonify({'valid': False, 'message': 'Full name missing in token'}), 400
@@ -31,7 +31,7 @@ def create_transaction():
             tagihan_id = request.json.get('tagihan_id', 0)
         else:
             data = request.json
-            new_tagihan = tagihan(
+            new_tagihan = Tagihan(
                 user_email=data['email'],
                 deskripsi="SPP dan biaya lainnya",
                 total=data['amount']
@@ -69,7 +69,7 @@ def create_transaction():
 
         if response.status_code == 201:
             transaction = response.json()
-            new_transaction = transaksi(
+            new_transaction = Transaksi(
                 kode_order = order_id,
                 id_tagihan = tagihan_id,
                 email = data['email'],
@@ -101,7 +101,7 @@ def midtrans_webhook():
         if not order_id:
             return jsonify({'error': 'Invalid notification'}), 400
 
-        transaction = transaksi.query.filter_by(kode_order=order_id).first()
+        transaction = Transaksi.query.filter_by(kode_order=order_id).first()
         if transaction:
             transaction.status = status
             transaction.fraud_status = fraud_status
@@ -120,14 +120,14 @@ def view_menu_pembayaran():
     transaction_status = request.args.get('transaction_status', 'undefined')
 
     if status_code == "200":
-        transaction = transaksi.query.filter_by(kode_order=order_id).first()
+        transaction = Transaksi.query.filter_by(kode_order=order_id).first()
         if transaction:
             transaction.status = transaction_status
             db.session.commit()
             print('Transaction updated successfully')
         else:
             print('Transaction not found or already updated')
-    data_siswa = siswa.query.all()
-    tahun_ajaran = tahunAkademik.query.all()
+    data_siswa = Siswa.query.all()
+    tahun_ajaran = TahunAkademik.query.all()
     return render_template("menu_pembayaran.html", siswa = data_siswa, tahun_ajaran = tahun_ajaran)
 

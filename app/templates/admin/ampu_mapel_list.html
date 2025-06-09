@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- templates/crud/ampu_mapel.html -->
+<h2>Data Ampu Mapel</h2>
+<a href="/crud/ampu_mapel/tambah">+ Tambah Ampu Mapel</a>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mapel</th>
+            <th>Guru</th>
+            <th>Kelas</th>
+            <th>Semester</th>
+            <th>Tahun Akademik</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in ampu_list %}
+        <tr>
+            <td>{{ a.id_ampu }}</td>
+            <td>{{ a.mapel_rel.nama_mapel }}</td>
+            <td>{{ a.guru_rel.nama }}</td>
+            <td>{{ a.pembagian_rel.kelas_rel.nama_kelas }}</td>
+            <td>{{ a.semester_rel.nama_semester }}</td>
+            <td>{{ a.tahun_akademik_rel.tahun }}</td>
+            <td>
+                <a href="/crud/ampu_mapel/edit/{{ a.id_ampu }}">Edit</a>
+                <a href="/crud/ampu_mapel/hapus/{{ a.id_ampu }}" onclick="return confirm('Yakin?')">Hapus</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

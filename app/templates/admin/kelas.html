@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- templates/crud/kelas.html -->
+<h2>Data Kelas</h2>
+<a href="/admin/kelas/tambah">+ Tambah Kelas</a>
+<table>
+    <thead>
+        <tr>
+            <th>ID Kelas</th>
+            <th>Nama Kelas</th>
+            <th>Tingkat</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for k in kelas %}
+        <tr>
+            <td>{{ k.id_kelas }}</td>
+            <td>{{ k.nama_kelas }}</td>
+            <td>{{ k.tingkat }}</td>
+            <td>
+                <a href="/crud/kelas/edit/{{ k.id_kelas }}">Edit</a>
+                <a href="/crud/kelas/hapus/{{ k.id_kelas }}" onclick="return confirm('Yakin?')">Hapus</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

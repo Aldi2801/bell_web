@@ -70,7 +70,7 @@
                     <select id="studentName" required>
                         <option value="">Pilih Nama Siswa</option>
                         {% for itemm in siswa %}
-                        <option>{{ itemm.nama }}</option>
+                        <option value="itemm.nis">{{ itemm.nama }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -79,7 +79,7 @@
                     <select id="class" required>
                         <option value="">Pilih Kelas</option>
                         {% for item in kelas %}
-                        <option>{{ item.nama_kelas }}</option>
+                        <option >{{ item.nama_kelas }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -88,12 +88,16 @@
                     <input type="date" id="date" required>
                 </div>
                 <div class="form-group">
+                    <label for="date">Tanggal:</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
                     <label for="status">Status Kehadiran:</label>
                     <select id="status" required>
-                        <option value="Hadir">Hadir</option>
-                        <option value="Sakit">Sakit</option>
-                        <option value="Izin">Izin</option>
-                        <option value="Alpa">Alpa</option>
+                        <option value="1">Hadir</option>
+                        <option value="3">Sakit</option>
+                        <option value="2">Izin</option>
+                        <option value="0">Alpa</option>
                     </select>
                 </div>
                 <button class="button-submit">Tambah Kehadiran</button>

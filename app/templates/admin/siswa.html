@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- templates/crud/siswa.html -->
+<h2>Data Siswa</h2>
+<a href="/crud/siswa/tambah">+ Tambah Siswa</a>
+<table>
+    <thead>
+        <tr>
+            <th>NIS</th>
+            <th>Nama</th>
+            <th>Kelas</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in siswa_list %}
+        <tr>
+            <td>{{ s.nis }}</td>
+            <td>{{ s.nama }}</td>
+            <td>{{ s.pembagian_list[-1].kelas_rel.nama_kelas if s.pembagian_list else '-' }}</td>
+            <td>
+                <a href="/crud/siswa/edit/{{ s.nis }}">Edit</a>
+                <a href="/crud/siswa/hapus/{{ s.nis }}" onclick="return confirm('Yakin?')">Hapus</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

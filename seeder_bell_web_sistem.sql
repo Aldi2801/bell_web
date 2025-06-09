@@ -3,13 +3,14 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 03, 2025 at 01:24 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Waktu pembuatan: 31 Bulan Mei 2025 pada 17.02
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -21,43 +22,10 @@ SET time_zone = "+00:00";
 -- Database: `bell_web_sistem`
 --
 
-
--- --------------------------------------------------------
-
 --
--- Table structure for table `berita`
+-- Dumping data untuk tabel `ampu_mapel`
 --
 
---
--- Dumping data for table `berita`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `gender`
---
-
---
--- Dumping data for table `gender`
---
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `guru`
---
-
---
--- Dumping data for table `guru`
---
-
--- --------------------------------------------------------
-
---
--- Dumping data for table `jadwal_pelajaran`
---
 
 INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`) VALUES
 (1, 'Senin', '07.00 - 07.40', 1, '[\'Upacara\', \'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
@@ -96,26 +64,29 @@ INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`)
 (34, 'Sabtu', '08.20 - 09.00', 3, '[\'IPA-TEP\', \'IPS-PRN\', \'MTK-HRW\', \'IPA-ULN\', \'BI-JMR\', \'IPS-BYT\', \'IPS-RA\', \'IPA-BYT\']'),
 (35, 'Sabtu', '09.00 - 09.40', 4, '[\'IPS-JMR\', \'ENG-TEP\', \'IPS-NAR\', \'BI-HRW\', \'IPA-TEP\', \'IPS-JMR\', \'MTK-JMR\', \'IPA-JMR\']');
 
--- --------------------------------------------------------
-
 --
--- Dumping data for table `kehadiran`
+-- Dumping data untuk tabel `berita`
 --
 
-
--- --------------------------------------------------------
 --
--- Dumping data for table `kelas`
+-- Dumping data untuk tabel `gender`
 --
-
 
 INSERT INTO `gender` (`id_gender`, `gender`) VALUES
 ('L', 'laki-laki'),
 ('P', 'perempuan');
--- --------------------------------------------------------
 
 --
--- Dumping data for table `keterangan`
+-- Dumping data untuk tabel `guru`
+--
+
+--
+-- Dumping data untuk tabel `kbm`
+--
+
+
+--
+-- Dumping data untuk tabel `kehadiran`
 --
 
 INSERT INTO `keterangan` (`id_keterangan`, `keterangan`) VALUES
@@ -124,7 +95,10 @@ INSERT INTO `keterangan` (`id_keterangan`, `keterangan`) VALUES
 ('2', 'izin'),
 ('3', 'sakit');
 
--- --------------------------------------------------------
+
+--
+-- Dumping data untuk tabel `kelas`
+--
 
 INSERT INTO `kelas` (`id_kelas`, `nama_kelas`, `tingkat`) VALUES
 ('7a', '7A', '7'),
@@ -135,9 +109,16 @@ INSERT INTO `kelas` (`id_kelas`, `nama_kelas`, `tingkat`) VALUES
 ('8c', '8C', '8'),
 ('9a', '9A', '9'),
 ('9b', '9B', '9');
+
 --
--- Dumping data for table `mapel`
+-- Dumping data untuk tabel `keterangan`
 --
+
+
+--
+-- Dumping data untuk tabel `mapel`
+--
+
 
 INSERT INTO `mapel` (`id_mapel`, `nama_mapel`) VALUES
 ('BI','bahasa indonesia'),
@@ -146,6 +127,10 @@ INSERT INTO `mapel` (`id_mapel`, `nama_mapel`) VALUES
 ('IPS','Ilmu Pengetuhan Sosial'),
 ('MTK','Matematika');
 
+--
+-- Dumping data untuk tabel `pembagian_kelas`
+--
+
 INSERT INTO `tahun_akademik` (`id_tahun_akademik`, `tahun_akademik`, `mulai`, `sampai`) VALUES
 ('1', '2019/2020', '2019-07-01', '2020-06-30'),
 ('2', '2020/2021', '2020-07-01', '2021-06-30'),
@@ -153,9 +138,15 @@ INSERT INTO `tahun_akademik` (`id_tahun_akademik`, `tahun_akademik`, `mulai`, `s
 ('4', '2022/2023', '2022-07-01', '2023-06-30'),
 ('5', '2023/2024', '2023-07-01', '2024-06-30'),
 ('6', '2024/2025', '2024-07-01', '2025-06-30');
--- --------------------------------------------------------
+
+
 --
--- Dumping data for table `role`
+-- Dumping data untuk tabel `penilaian`
+--
+
+
+--
+-- Dumping data untuk tabel `role`
 --
 
 INSERT INTO `role` (`id`, `name`) VALUES
@@ -163,10 +154,8 @@ INSERT INTO `role` (`id`, `name`) VALUES
 (2, 'guru'),
 (1, 'murid');
 
--- --------------------------------------------------------
-
 --
--- Dumping data for table `semester`
+-- Dumping data untuk tabel `semester`
 --
 
 INSERT INTO `semester` (`id_semester`, `semester`) VALUES
@@ -174,16 +163,12 @@ INSERT INTO `semester` (`id_semester`, `semester`) VALUES
 ('1', 'ganjil');
 
 --
--- Dumping data for table `status`
+-- Dumping data untuk tabel `siswa`
 --
 
 INSERT INTO `status` (`id_status`, `status`) VALUES
 ('0', 'tidak aktif '),
 ('1', 'aktif');
-
---
--- Dumping data for table `siswa`
---
 
 INSERT INTO `siswa` (`nis`, `nisn`, `nama`, `id_gender`, `tempat_lahir`, `tanggal_lahir`, `alamat`, `no_hp`, `email`, `nama_ayah`, `nama_ibu`, `penghasilan_ayah`, `penghasilan_ibu`, `asal_sekolah`, `id_status`) VALUES
 (20001, '99000001', 'salman alfaridzi', 'L', 'tega;', '2004-05-01', 'balamoa', '08997635673', 'man@gmail.com', 'jokowi', 'kartini', 5000000, 5000000, 'sd balamoa 2', '1'),
@@ -249,24 +234,10 @@ INSERT INTO `guru` (`nip`, `inisial`, `nama`, `tempat_lahir`, `tanggal_lahir`, `
 ('198606052020041007', 'NAR', 'Nur Arifin, S.Pd.I', 'Tegal', '1986-06-05', 'Jl. Sawo No. 11, Tegal', '081234567807', 'nurarifin@example.com', 'PAI', 'L', '1'),
 ('199012302020042008', 'RA', 'Riski Arofiyah, S.Pd', 'Brebes', '1990-12-30', 'Jl. Semangka No. 12, Brebes', '081234567808', 'riskiarofiyah@example.com', 'IPA', 'P', '1');
 
---
--- Table structure for table `status`
---
-
-
---
--- Dumping data for table `tagihan`
---
-
--- --------------------------------------------------------
-
 
 INSERT INTO `berita` (`id_berita`, `judul`, `isi`, `nip`) VALUES
 (1, 'pengumuan pembagian kelas', 'seluruh orang tua diharapkan mengantar anaknya sampe kedepan sekolah jangan telat ada apel', 198005122020041001);
 
---
--- Dumping data for table `pembagian_kelas`
---
 INSERT INTO `pembagian_kelas` (`id_pembagian`, `tanggal`, `nis`, `id_kelas`, `id_tahun_akademik`, `nip`) VALUES
 (1, '2019-07-01', 20001, '7a', '1', '198005122020041001'),
 (2, '2020-07-01', 20001, '8a', '2', '198005122020041001'),
@@ -277,49 +248,36 @@ INSERT INTO `pembagian_kelas` (`id_pembagian`, `tanggal`, `nis`, `id_kelas`, `id
 (8, '2021-07-01', 20050, '7a', '3', '198005122020041001'),
 (9, '2022-07-01', 20050, '8a', '4', '198208202020042002'),
 (10, '2023-07-01', 20050, '9a', '5', '198502152020042003');
+--
+-- Dumping data untuk tabel `status`
+--
+
 
 --
--- Dumping data for table `tahun_akademik`
+-- Dumping data untuk tabel `tagihan`
 --
 
--- --------------------------------------------------------
 INSERT INTO `tagihan` (`id_tagihan`, `user_email`, `deskripsi`, `total`, `created_at`) VALUES
 (1, 'man@gmail.com', 'pembayaran kemah', 100000, NULL),
 (2, 'global@system.com', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-03 18:18:53'),
 (3, 'global@system.com', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-03 18:18:53');
 
 --
--- Table structure for table `transaksi`
---
-
---
--- Dumping data for table `transaksi`
+-- Dumping data untuk tabel `transaksi`
 --
 
 INSERT INTO `transaksi` (`id_transaksi`, `kode_order`, `id_tagihan`, `email`, `total`, `status`, `fraud_status`, `created_at`, `updated_at`) VALUES
 (1, 'Bla-123', 1, 'man@gmail.com', 100000, 'paid', '0', NULL, NULL);
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `tugas`
---
-
---
--- Dumping data for table `tugas`
+-- Dumping data untuk tabel `tugas`
 --
 
 INSERT INTO `tugas` (`id_tugas`, `jenis_tugas`, `deskripsi`, `id_mapel`, `nip`) VALUES
-(1, 'essai', 'buatlah cerpen maximal 100 kata', '1', '198005122020041001');
-
--- --------------------------------------------------------
+(1, 'essai', 'buatlah cerpen maximal 100 kata', 'BI', '198005122020041001');
 
 --
--- Table structure for table `user`
---
-
---
--- Dumping data for table `user`
+-- Dumping data untuk tabel `user`
 --
 
 INSERT INTO `user` (`id`, `username`, `password`, `nis`, `nip`, `email`, `active`, `fs_uniquifier`) VALUES
@@ -378,43 +336,23 @@ INSERT INTO `user` (`id`, `username`, `password`, `nis`, `nip`, `email`, `active
 (56, 'pangeran49', '$2b$12$BBoSZRengnKD2xITr.iczuzg4tJEkNOrgqBegLnL/dttdnz9NfrJW', NULL, NULL, 'pangerantarihoran49@mail.com', 1, 'abec7b6e-b122-4c62-a18e-01b1c616349a');
 
 --
--- Dumping data for table `user_roles`
+-- Dumping data untuk tabel `user_roles`
 --
+
 
 INSERT INTO `user_roles` (`id`, `user_id`, `role_id`) VALUES
 (4, 4, 1),
 (5, 5, 3),
 (6, 6, 2);
--- --------------------------------------------------------
 
---
--- Table structure for table `ampu_mapel`
---
-
---
--- Dumping data for table `ampu_mapel`
---
 
 INSERT INTO `ampu_mapel` (`id_ampu`, `tanggal`, `id_semester`, `id_mapel`, `nip`, `id_tahun_akademik`, `id_pembagian`) VALUES
-(1, '2025-05-02', '0', '1', '198005122020041001', '1', 1),
-(2, '2025-07-02', '1', '1', '198005122020041001', '1', 2);
-
-
--- --------------------------------------------------------
-
---
--- Dumping data for table `kbm`
---
+(1, '2025-05-02', '0', 'BI', '198005122020041001', '1', 1),
+(2, '2025-07-02', '1', 'BI', '198005122020041001', '1', 2);
 
 INSERT INTO `kbm` (`id_kbm`, `tanggal`, `materi`, `sub_materi`, `id_ampu`) VALUES
 (1, '2025-05-04', 'membuat cerpen', NULL, 1);
 
-
--- --------------------------------------------------------
-
---
--- Dumping data for table `penilaian`
---
 
 INSERT INTO `penilaian` (`id_penilaian`, `tugas`, `uts`, `uas`, `id_ampu`, `nis`) VALUES
 (1, 80, 80, 80, 1, 20001),
@@ -422,6 +360,9 @@ INSERT INTO `penilaian` (`id_penilaian`, `tugas`, `uts`, `uas`, `id_ampu`, `nis`
 
 INSERT INTO `kehadiran` (`id_kehadiran`, `id_keterangan`, `id_kbm`, `nis`) VALUES
 (1, '1', 1, 20001);
+
+
+
 
 
 COMMIT;

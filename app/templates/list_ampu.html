@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Daftar Mapel yang Anda Ampu</h2>
+<ul>
+  {% for ampu in ampu_list %}
+    <li>
+      <!-- akses mapel lewat relasi mapel_rel -->
+      {{ ampu.mapel_rel.nama_mapel }} – 
+      <!-- akses nama kelas lewat pembagian_rel → kelas_rel -->
+      {{ ampu.pembagian_rel.kelas_rel.nama_kelas }}
+      <br>
+      <a href="{{ url_for('input_kbm', id_ampu=ampu.id_ampu) }}">Input KBM</a> |
+      <a href="{{ url_for('daftar_kbm', id_ampu=ampu.id_ampu) }}">Lihat KBM & Input Kehadiran</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

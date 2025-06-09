@@ -1,4 +1,4 @@
-from . import app, db, get_semester_and_year, tagihan, transaksi
+from . import app, db, get_semester_and_year, Tagihan, Transaksi
 from flask import request, jsonify
 import jwt
 
@@ -16,19 +16,19 @@ def get_menu_pembayaran():
         semester, tahun_ajaran = get_semester_and_year()
 
         # Ambil semua tagihan user untuk semester dan tahun ajaran aktif
-        all_tagihan = tagihan.query.filter_by(
+        all_tagihan = Tagihan.query.filter_by(
             user_email=user_email,
             semester=semester,
             tahun_ajaran=tahun_ajaran
         ).all()
         if role == 'murid':
             # Ambil transaksi yang sudah lunas
-            paid_transactions = transaksi.query.filter_by(
+            paid_transactions = Transaksi.query.filter_by(
                 email=user_email,
                 status='settlement'
             ).all()
         else:
-            paid_transactions = transaksi.query.filter_by(
+            paid_transactions = Transaksi.query.filter_by(
                 status='settlement'
             ).all()            
 

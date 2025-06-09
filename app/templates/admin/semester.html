@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- templates/crud/semester.html -->
+<h2>Data Semester</h2>
+<a href="/crud/semester/tambah">+ Tambah Semester</a>
+<table>
+    <thead>
+        <tr>
+            <th>ID Semester</th>
+            <th>Nama Semester</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in semester_list %}
+        <tr>
+            <td>{{ s.id_semester }}</td>
+            <td>{{ s.nama_semester }}</td>
+            <td>
+                <a href="/crud/semester/edit/{{ s.id_semester }}">Edit</a>
+                <a href="/crud/semester/hapus/{{ s.id_semester }}" onclick="return confirm('Yakin?')">Hapus</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Pembagian Kelas</h2>
+<a href="/crud/pembagian/tambah">+ Tambah Pembagian</a>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nama Siswa</th>
+            <th>Kelas</th>
+            <th>Tahun Akademik</th>
+            <th>Wali Kelas</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in pembagian_list %}
+        <tr>
+            <td>{{ p.id_pembagian }}</td>
+            <td>{{ p.siswa_rel.nama }}</td>
+            <td>{{ p.kelas_rel.nama_kelas }}</td>
+            <td>{{ p.tahun_akademik }}</td>
+            <td>{{ p.guru_rel.nama }}</td>
+            <td>
+                <a href="/crud/pembagian/edit/{{ p.id_pembagian }}">Edit</a>
+                <a href="/crud/pembagian/hapus/{{ p.id_pembagian }}" onclick="return confirm('Yakin?')">Hapus</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

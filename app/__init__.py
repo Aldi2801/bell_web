@@ -68,7 +68,8 @@ class User(db.Model, UserMixin):
                             secondaryjoin='Role.id == UserRoles.role_id',
                             backref=db.backref('users', lazy='dynamic'))
 
-class ampuMapel(db.Model):
+class AmpuMapel(db.Model):
+    __tablename__ = 'ampu_mapel'
     id_ampu = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date)
     id_semester = db.Column(db.String(1), db.ForeignKey('semester.id_semester'), nullable=False)
@@ -77,17 +78,24 @@ class ampuMapel(db.Model):
     id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
     id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian'))
 
-class berita(db.Model):
+    # <<< ini yang ditambahkan:
+    mapel_rel      = db.relationship("Mapel",          backref="ampu_mapel_list")
+    pembagian_rel  = db.relationship("PembagianKelas", backref="ampu_mapel", uselist=False,
+                                     foreign_keys=[id_pembagian])
+    semester_rel   = db.relationship("Semester")
+    tahun_akademik_rel = db.relationship("TahunAkademik")
+
+class Berita(db.Model):
     id_berita = db.Column(db.Integer, primary_key=True)
     judul = db.Column(db.String(35), nullable=False)
     isi = db.Column(db.String(255), nullable=False)
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
 
-class gender(db.Model):
+class Gender(db.Model):
     id_gender = db.Column(db.String(1), primary_key=True)
     gender = db.Column(db.String(9), nullable=False)
 
-class guru(db.Model):
+class Guru(db.Model):
     nip = db.Column(db.String(25), primary_key=True)
     inisial = db.Column(db.String(4))
     nama = db.Column(db.String(50), nullable=False)
@@ -100,50 +108,55 @@ class guru(db.Model):
     id_gender = db.Column(db.String(1), db.ForeignKey('gender.id_gender'), nullable=False)
     id_status = db.Column(db.String(1), db.ForeignKey('status.id_status'), nullable=False)
 
-    gender_rel = db.relationship("gender", backref="guru_list")
-    status_rel = db.relationship("status", backref="guru_list")
+    gender_rel = db.relationship("Gender", backref="guru_list")
+    status_rel = db.relationship("Status", backref="guru_list")
 
     user = db.relationship(
         "User",
-        primaryjoin="foreign(User.nip) == guru.nip",
+        primaryjoin="foreign(User.nip) == Guru.nip",
         uselist=False,
         viewonly=True
     )
-class kbm(db.Model):
+class Kbm(db.Model):
     id_kbm = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date, nullable=False)
     materi = db.Column(db.String(35), nullable=False)
     sub_materi = db.Column(db.String(100))
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu'), nullable=False)
 
-class kehadiran(db.Model):
+class Kehadiran(db.Model):
     id_kehadiran = db.Column(db.Integer, primary_key=True)
     id_keterangan = db.Column(db.String(1), db.ForeignKey('keterangan.id_keterangan'), nullable=False)
     id_kbm = db.Column(db.Integer, db.ForeignKey('kbm.id_kbm'), nullable=False)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
 
-class kelas(db.Model):
+class Kelas(db.Model):
     id_kelas = db.Column(db.String(6), primary_key=True)
     nama_kelas = db.Column(db.String(15), nullable=False)
     tingkat = db.Column(db.String(1), nullable=False)
 
-class keterangan(db.Model):
+class Keterangan(db.Model):
     id_keterangan = db.Column(db.String(1), primary_key=True)
     keterangan = db.Column(db.String(5), nullable=False)
 
-class mapel(db.Model):
+class Mapel(db.Model):
     id_mapel = db.Column(db.String(3), primary_key=True)
     nama_mapel = db.Column(db.String(35), nullable=False)
 
-class pembagianKelas(db.Model):
+class PembagianKelas(db.Model):
+    __tablename__ = 'pembagian_kelas'
     id_pembagian = db.Column(db.Integer, primary_key=True)
-    tanggal = db.Column(db.Date)
-    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
-    id_kelas = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas'), nullable=False)
+    tanggal       = db.Column(db.Date)
+    nis          = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
+    id_kelas     = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas'), nullable=False)
     id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
-    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
+    nip          = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
 
-class penilaian(db.Model):
+    # <<< ini yang ditambahkan:
+    kelas_rel = db.relationship("Kelas", backref="pembagian_list")
+    siswa_rel = db.relationship("Siswa", backref="pembagian_list")
+
+class Penilaian(db.Model):
     id_penilaian = db.Column(db.Integer, primary_key=True)
     tugas = db.Column(db.Integer)
     uts = db.Column(db.Integer)
@@ -151,11 +164,11 @@ class penilaian(db.Model):
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu'), nullable=False)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
 
-class semester(db.Model):
+class Semester(db.Model):
     id_semester = db.Column(db.String(1), primary_key=True)
     semester = db.Column(db.String(6), nullable=False)
 
-class siswa(db.Model):
+class Siswa(db.Model):
     nis = db.Column(db.Integer, primary_key=True)
     nisn = db.Column(db.String(10))
     nama = db.Column(db.String(50), nullable=False)
@@ -172,17 +185,17 @@ class siswa(db.Model):
     asal_sekolah = db.Column(db.String(30), nullable=False)
     id_status = db.Column(db.String(1), db.ForeignKey('status.id_status'), nullable=False)
 
-class status(db.Model):
+class Status(db.Model):
     id_status = db.Column(db.String(1), primary_key=True)
     status = db.Column(db.String(20), nullable=False)
 
-class tahunAkademik(db.Model):
+class TahunAkademik(db.Model):
     id_tahun_akademik = db.Column(db.String(4), primary_key=True)
     tahun_akademik = db.Column(db.String(9), nullable=False)
     mulai = db.Column(db.Date, nullable=False)
     sampai = db.Column(db.Date, nullable=False)
 
-class tagihan(db.Model):
+class Tagihan(db.Model):
     id_tagihan = db.Column(db.Integer, primary_key=True)
     user_email = db.Column(db.String(120), nullable=False)
     semester = db.Column(db.String(10))
@@ -191,7 +204,7 @@ class tagihan(db.Model):
     total = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class transaksi(db.Model):
+class Transaksi(db.Model):
     id_transaksi = db.Column(db.Integer, primary_key=True)
     kode_order = db.Column(db.String(100), unique=True, nullable=False)
     id_tagihan = db.Column(db.Integer, db.ForeignKey('tagihan.id_tagihan'), nullable=True)
@@ -202,7 +215,7 @@ class transaksi(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-class tugas(db.Model):
+class Tugas(db.Model):
     id_tugas = db.Column(db.Integer, primary_key=True)
     jenis_tugas = db.Column(db.String(50))
     deskripsi =  db.Column(db.String(255))
@@ -256,7 +269,7 @@ def generate_siswa_data(start_nis=20001, jumlah=50):
         username = nama.lower().split()[0] + str(i)
 
         # Cek apakah siswa sudah ada berdasarkan NIS atau email
-        if siswa.query.filter_by(nis=nis).first() or siswa.query.filter_by(email=email).first():
+        if Siswa.query.filter_by(nis=nis).first() or Siswa.query.filter_by(email=email).first():
             continue
 
         # Cek apakah user sudah ada
@@ -274,7 +287,7 @@ def generate_siswa_data(start_nis=20001, jumlah=50):
             nis=nis
         )
 
-        new_siswa = siswa(
+        new_siswa = Siswa(
             nis=nis,
             nisn=nisn,
             nama=nama,
@@ -404,10 +417,10 @@ def import_data_guru():
     # Simpan ke DB
     generated = 0
     for data in guru_list:
-        existing = guru.query.filter_by(email=data["email"]).first()
+        existing = Guru.query.filter_by(email=data["email"]).first()
         if existing:
             continue
-        new_guru = guru(
+        new_guru = Guru(
             inisial=data["inisial"],
             nama=data["nama"],
             tempat_lahir=data["tempat_lahir"],
@@ -509,11 +522,11 @@ def create_automatic_bills():
     spp_bulanan = f"SPP Bulanan - {bulan_sekarang} {tahun_ajaran} {semester}"
     ujian_tahunan = f"Uang Ujian {tahun_ajaran} {semester}"
 
-    semua_siswa = siswa.query.all()
+    semua_siswa = Siswa.query.all()
 
     for s in semua_siswa:
         # Cek apakah tagihan SPP sudah ada untuk siswa ini
-        existing_spp = tagihan.query.filter_by(
+        existing_spp = Tagihan.query.filter_by(
             user_email=s.email,
             deskripsi=spp_bulanan,
             semester=semester,
@@ -521,7 +534,7 @@ def create_automatic_bills():
         ).first()
 
         if not existing_spp:
-            tagihan_spp = tagihan(
+            tagihan_spp = Tagihan(
                 user_email=s.email,
                 deskripsi=spp_bulanan,
                 total=10000,
@@ -532,7 +545,7 @@ def create_automatic_bills():
             db.session.add(tagihan_spp)
 
         # Cek apakah tagihan Ujian sudah ada untuk siswa ini
-        existing_ujian = tagihan.query.filter_by(
+        existing_ujian = Tagihan.query.filter_by(
             user_email=s.email,
             deskripsi=ujian_tahunan,
             semester=semester,
@@ -540,7 +553,7 @@ def create_automatic_bills():
         ).first()
 
         if not existing_ujian:
-            tagihan_ujian = tagihan(
+            tagihan_ujian = Tagihan(
                 user_email=s.email,
                 deskripsi=ujian_tahunan,
                 total=1000000,

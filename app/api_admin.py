@@ -12,7 +12,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
 import calendar
 from io import BytesIO
-from flask import render_template, request, jsonify, g, send_file
+from flask import abort, render_template, request, jsonify, g, send_file, session
 from PIL import Image
 from dateutil.relativedelta import relativedelta
 from flask_jwt_extended import jwt_required
@@ -20,7 +20,7 @@ from flask_jwt_extended import jwt_required
 from num2words import num2words
 from flask import flash, redirect
 # Import dari aplikasi lokal
-from . import app, db, project_directory, User, siswa, guru, Role, bcrypt, JadwalPelajaran
+from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
@@ -136,7 +136,7 @@ list_bulan = [{"value":"1","nama_bulan":"Januari"},{"value":"2","nama_bulan":"Fe
              
 @app.route('/get_guru/<nip>')
 def get_guru(nip):
-    data_guru = guru.query.filter_by(nip=nip).first()
+    data_guru = Guru.query.filter_by(nip=nip).first()
     user = User.query.filter_by(nip=nip).first()
     role = user.roles[0].name if user and user.roles else 'guru'
     return jsonify({
@@ -209,7 +209,7 @@ def edit_guru():
 @app.route('/hapus_guru/<nip>', methods=['POST'])
 def hapus_guru(nip):
     user = User.query.filter_by(nip=nip).first()
-    data_guru = guru.query.filter_by(nip=nip).first()
+    data_guru = Guru.query.filter_by(nip=nip).first()
     if user:
         db.session.delete(user)
     if data_guru:
@@ -237,3 +237,83 @@ def hapus_jadwal():
     db.session.commit()
 
     return jsonify({'msg': 'Jadwal berhasil dihapus'}), 200
+@app.route('/admin/pembagian_kelas')
+def pembagian_kelas_list():
+    if session.get('role') != 'admin':
+        abort(403)
+    data = PembagianKelas.query.all()
+    return render_template('admin/pembagian_kelas_list.html', data=data)
+
+@app.route('/admin/pembagian_kelas/tambah', methods=['GET', 'POST'])
+def tambah_pembagian_kelas():
+    if session.get('role') != 'admin':
+        abort(403)
+    if request.method == 'POST':
+        pembagian = PembagianKelas(
+            tanggal=request.form['tanggal'],
+            nis=request.form['nis'],
+            id_kelas=request.form['id_kelas'],
+            id_tahun_akademik=request.form['id_tahun_akademik'],
+            nip=request.form['nip']
+        )
+        db.session.add(pembagian)
+        db.session.commit()
+        flash('Pembagian kelas berhasil ditambahkan')
+        return redirect('/admin/pembagian_kelas')
+    siswa = Siswa.query.all()
+    kelas = Kelas.query.all()
+    guru = Guru.query.all()
+    tahun_akademik = TahunAkademik.query.all()
+    return render_template('admin/tambah_pembagian_kelas.html', siswa=siswa, kelas=kelas, guru=guru, tahun_akademik=tahun_akademik)
+@app.route('/admin/ampu_mapel')
+def ampu_mapel_list():
+    if session.get('role') != 'admin':
+        abort(403)
+    data = AmpuMapel.query.all()
+    return render_template('admin/ampu_mapel_list.html', data=data)
+
+@app.route('/admin/ampu_mapel/tambah', methods=['GET', 'POST'])
+def tambah_ampu_mapel():
+    if session.get('role') != 'admin':
+        abort(403)
+    if request.method == 'POST':
+        ampu = AmpuMapel(
+            tanggal=request.form['tanggal'],
+            id_semester=request.form['id_semester'],
+            id_mapel=request.form['id_mapel'],
+            nip=request.form['nip'],
+            id_tahun_akademik=request.form['id_tahun_akademik'],
+            id_pembagian=request.form['id_pembagian']
+        )
+        db.session.add(ampu)
+        db.session.commit()
+        flash('Ampu mapel berhasil ditambahkan')
+        return redirect('/admin/ampu_mapel')
+    guru = Guru.query.all()
+    semester = Semester.query.all()
+    mapel = Mapel.query.all()
+    tahun_akademik = TahunAkademik.query.all()
+    pembagian = PembagianKelas.query.all()
+    return render_template('admin/tambah_ampu_mapel.html', guru=guru, semester=semester, mapel=mapel, tahun_akademik=tahun_akademik, pembagian=pembagian)
+@app.route('/admin/kelas')
+def kelas_list():
+    if session.get('role') != 'admin':
+        abort(403)
+    kelas = Kelas.query.all()
+    return render_template('admin/kelas.html', kelas=kelas)
+
+@app.route('/admin/kelas/tambah', methods=['GET', 'POST'])
+def tambah_kelas():
+    if session.get('role') != 'admin':
+        abort(403)
+    if request.method == 'POST':
+        kelas = Kelas(
+            id_kelas=request.form['id_kelas'],
+            nama_kelas=request.form['nama_kelas'],
+            tingkat=request.form['tingkat']
+        )
+        db.session.add(kelas)
+        db.session.commit()
+        flash('Kelas berhasil ditambahkan')
+        return redirect('/admin/kelas')
+    return render_template('admin/tambah_kelas.html')

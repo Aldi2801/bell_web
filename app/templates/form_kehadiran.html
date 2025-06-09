@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<head>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+    }
+  .alert {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+  }
+  .alert-success { background-color: #d4edda; color: #155724; }
+  .alert-error   { background-color: #f8d7da; color: #721c24; }
+</style>
+
+</head>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  
+  <h2>Input Kehadiran - {{ kbm.materi }}</h2>
+  <p>Tanggal: {{ kbm.tanggal.strftime('%d-%m-%Y') }}</p>
+
+  <form method="POST" action="{{ url_for('simpan_kehadiran') }}">
+    <input type="hidden" name="id_kbm" value="{{ kbm.id_kbm }}">
+
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Siswa</th>
+          <th>Keterangan</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for siswa in siswa_list %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ siswa.nama }}</td>
+            <td>
+                <select class="" name="kehadiran[{{ siswa.nis }}]">
+                    <option value="1" {% if kehadiran_dict.get(siswa.nis) == '1' %}selected{% endif %}>Hadir</option>
+                    <option value="2" {% if kehadiran_dict.get(siswa.nis) == '2' %}selected{% endif %}>Izin</option>
+                    <option value="3" {% if kehadiran_dict.get(siswa.nis) == '3' %}selected{% endif %}>Sakit</option>
+                    <option value="0" {% if kehadiran_dict.get(siswa.nis) == '0' %}selected{% endif %}>Alpha</option>
+                  </select>
+                  
+              </td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+
+    <br>
+    <button class="btn btn-success" type="submit">Simpan Kehadiran</button>
+  </form>
+
+  <script>
+    // Tambahkan fitur validasi semua kolom terisi
+    $("form").submit(function(e) {
+      let kosong = false;
+      $("select").each(function() {
+        if ($(this).val() === "") {
+          kosong = true;
+        }
+      });
+      if (kosong) {
+        alert("Semua siswa harus diisi keterangannya!");
+        e.preventDefault();
+      }
+    });
+  </script>
+
+</body>
+{% endblock %}
