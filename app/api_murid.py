@@ -1,5 +1,5 @@
-from . import app, db, get_semester_and_year, Tagihan, Transaksi
-from flask import request, jsonify
+from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi
+from flask import render_template, request, jsonify
 import jwt
 
 @app.route('/get_menu_pembayaran')
@@ -55,3 +55,10 @@ def get_menu_pembayaran():
         return jsonify({'valid': False, 'message': 'Token expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'valid': False, 'message': 'Invalid token'}), 403
+
+@app.route('/kehadiran')
+def view_kehadiran():
+    data_siswa = Siswa.query.all()        
+    data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()
+    data_kbm = Kbm.query.all()
+    return render_template("kehadiran.html", siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)

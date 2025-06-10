@@ -54,39 +54,27 @@
         <div class="sidebar">
             <h2>Menu</h2>
             <nav id="nav-menu">
-                <a href="/manage_ujian" id="link-ujian"><i class="fas fa-file-alt mr-2"></i> Ujian</a>
                 {% if session['role'] == 'admin' %}
                 <a href="/admin/semester"><i class="fas fa-calendar mr-2 "></i> Semester</a>
                 <a href="/admin/kelas"><i class="fas fa-school mr-2 "></i> Kelas</a>
                 <a href="/admin/siswa"><i class="fas fa-users mr-2 "></i> Siswa</a>
                 <a href="/admin/pembagian"><i class="fas fa-random mr-2 "></i> Pembagian Kelas</a>
                 <a href="/admin/ampu_mapel"><i class="fas fa-book-reader mr-2 "></i> Ampu Mapel</a>
-                <a href="/manage_ujian"><i class="fas fa-file-alt mr-2 "></i> Ujian</a>
-                <a href="/kbm/list"><i class="fas fa-user-check mr-2 "></i> Kehadiran</a>
                 <a href="/manage_jadwal"><i class="fas fa-calendar-alt mr-2 "></i> Jadwal</a>
                 <a href="/register_guru"><i class="fas fa-user-plus mr-2 "></i> Tambah Guru</a>
                 <a href="/menu_pembayaran"><i class="fas fa-cash-register mr-2 "></i> Tambah Pembayaran</a>
-
                 <a href="/kbm/list" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Manage Kehadiran</a>
-                <a href="/manage_jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i> Jadwal</a>
-                <a href="/register_guru"><i class="fas fa-user-check mr-2"></i> Tambah guru</a>
-                <a href="/menu_pembayaran"><i class="fas fa-user-check mr-2"></i> Tambah Pembayaran</a>
-                {%  endif %}
-                {% if session['role'] == 'guru' %}
+                <a href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i> Manage Pengumuman</a>
+                {% elif session['role'] == 'guru' %}
                 <a href="/kbm/list" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Input KBM</a>
                 <a href="/manage_jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i> Jadwal</a>
                 <a href="/manage_laporan"><i class="fas fa-file-alt mr-2"></i> Manage Laporan</a>
-                {%  endif %}
-                {% if session['role'] == 'murid' %}
-                
-                <a href="/manage_kehadiran" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Kehadiran</a>
+                <a href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i> Manage Pengumuman</a>
+                {% elif session['role'] == 'murid' %}
+                <a href="/kehadiran" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Kehadiran</a>
                 <a href="/jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i> Jadwal</a>
                 <a href="/pengumuman"><i class="fas fa-file-alt mr-2"></i> Pengumuman</a>
-                <a href="/tugas" id="link-tugas"><i class="fas fa-file-alt mr-2"></i> Tugas</a>
-                <a href="/menu_pembayaran"><i class="fas fa-file-alt mr-2"></i> Pembayaran</a>
-                {% else %}
-                <a href="/manage_tugas" id="link-tugas"><i class="fas fa-file-alt mr-2"></i> Manage Tugas</a>
-                <a href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i> Manage Pengumuman</a>
+                <a href="/menu_pembayaran"><i class="fas fa-cash-register mr-2 "></i> Pembayaran</a>
                 {%  endif %}
             </nav>
         </div>

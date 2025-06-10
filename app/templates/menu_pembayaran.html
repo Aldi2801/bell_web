@@ -97,7 +97,9 @@
         <div class="d-flex">
         <div class="menu-container">
         <button class="logout-button" onclick="location.href='/'">Menu</button>
+        {% if session['role'] == 'admin' %}
         <button style="width: 150px !important;" class="logout-button" onclick="openTambahModal()">Tambah Data</button>
+        {% endif %}
         </div>
         <div class="logout-container">
         <button class="logout-button" onclick="handleLogout()">Logout</button>

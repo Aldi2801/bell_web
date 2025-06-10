@@ -76,7 +76,7 @@
                     periodCell.innerText = "ISTIRAHAT";
                     row.appendChild(periodCell);
                     const subjectCell = document.createElement('td');
-                    subjectCell.colSpan = "8";
+                    subjectCell.colSpan = "7";
                     subjectCell.innerText = " ";
                     row.appendChild(subjectCell);
                 }else{
@@ -87,7 +87,7 @@
                     if (subject == "Upacara"){
                         const subjectCell = document.createElement('td');
                         subjectCell.innerText = subject;
-                        subjectCell.colSpan = "8";
+                        subjectCell.colSpan = "7";
                         row.appendChild(subjectCell);
                         return true ;
                     }
@@ -103,8 +103,8 @@
             });
         });
         // Data JSON
-        var kode_mapel = {{ kode_mapel | tojson | safe }}
-        var kode_guru = {{ kode_guru | tojson | safe }}
+        var kode_mapel = {{ kode_mapel | tojson | safe }};
+        var kode_guru = {{ kode_guru | tojson | safe }};
 
         // Fungsi untuk menampilkan data
         function renderList(title, items) {

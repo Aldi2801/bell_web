@@ -217,6 +217,7 @@ def hapus_guru(nip):
     db.session.commit()
     flash('Data guru berhasil dihapus', 'success')
     return redirect('/register_guru')
+
 @app.route('/hapus_jadwal', methods=['DELETE'])
 def hapus_jadwal():
     data = request.get_json()
@@ -265,6 +266,7 @@ def tambah_pembagian_kelas():
     guru = Guru.query.all()
     tahun_akademik = TahunAkademik.query.all()
     return render_template('admin/tambah_pembagian_kelas.html', siswa=siswa, kelas=kelas, guru=guru, tahun_akademik=tahun_akademik)
+
 @app.route('/admin/ampu_mapel')
 def ampu_mapel_list():
     if session.get('role') != 'admin':
@@ -272,12 +274,11 @@ def ampu_mapel_list():
     data = AmpuMapel.query.all()
     return render_template('admin/ampu_mapel_list.html', data=data)
 
-@app.route('/admin/ampu_mapel/tambah', methods=['GET', 'POST'])
+@app.route('/admin/ampu_mapel/tambah', methods=['POST'])
 def tambah_ampu_mapel():
     if session.get('role') != 'admin':
         abort(403)
-    if request.method == 'POST':
-        ampu = AmpuMapel(
+    ampu = AmpuMapel(
             tanggal=request.form['tanggal'],
             id_semester=request.form['id_semester'],
             id_mapel=request.form['id_mapel'],
@@ -285,16 +286,18 @@ def tambah_ampu_mapel():
             id_tahun_akademik=request.form['id_tahun_akademik'],
             id_pembagian=request.form['id_pembagian']
         )
-        db.session.add(ampu)
-        db.session.commit()
-        flash('Ampu mapel berhasil ditambahkan')
-        return redirect('/admin/ampu_mapel')
+    db.session.add(ampu)
+    db.session.commit()
+    flash('Ampu mapel berhasil ditambahkan')
+    return redirect('/admin/ampu_mapel')
     guru = Guru.query.all()
     semester = Semester.query.all()
     mapel = Mapel.query.all()
     tahun_akademik = TahunAkademik.query.all()
     pembagian = PembagianKelas.query.all()
     return render_template('admin/tambah_ampu_mapel.html', guru=guru, semester=semester, mapel=mapel, tahun_akademik=tahun_akademik, pembagian=pembagian)
+
+
 @app.route('/admin/kelas')
 def kelas_list():
     if session.get('role') != 'admin':
@@ -302,18 +305,78 @@ def kelas_list():
     kelas = Kelas.query.all()
     return render_template('admin/kelas.html', kelas=kelas)
 
-@app.route('/admin/kelas/tambah', methods=['GET', 'POST'])
+@app.route('/admin/kelas/tambah', methods=['POST'])
 def tambah_kelas():
     if session.get('role') != 'admin':
         abort(403)
-    if request.method == 'POST':
-        kelas = Kelas(
-            id_kelas=request.form['id_kelas'],
-            nama_kelas=request.form['nama_kelas'],
-            tingkat=request.form['tingkat']
-        )
-        db.session.add(kelas)
-        db.session.commit()
-        flash('Kelas berhasil ditambahkan')
-        return redirect('/admin/kelas')
-    return render_template('admin/tambah_kelas.html')
+    kelas = Kelas(
+        id_kelas=request.form['id_kelas'],
+        nama_kelas=request.form['nama_kelas'],
+        tingkat=request.form['tingkat']
+    )
+    db.session.add(kelas)
+    db.session.commit()
+    flash('Kelas berhasil ditambahkan')
+    return redirect('/admin/kelas')
+
+@app.route('/admin/kelas/edit/<int:id_kelas>', methods=['PUT'])
+def edit_kelas(id_kelas):
+    if session.get('role') != 'admin':
+        abort(403)
+    kelas = kelas.query.get_or_404(id_kelas)
+    kelas.nama_kelas = request.form['nama_kelas']
+    db.session.commit()
+    flash('kelas berhasil diperbarui')
+    return redirect('/admin/kelas')
+
+@app.route('/admin/kelas/hapus/<int:id_kelas>', methods=['DELETE'])
+def hapus_kelas(id_kelas):
+    if session.get('role') != 'admin':
+        abort(403)
+    kelas = kelas.query.get_or_404(id_kelas)
+    db.session.delete(kelas)
+    db.session.commit()
+    flash('kelas berhasil dihapus')
+    return redirect('/admin/kelas')
+
+
+@app.route('/admin/semester')
+def semester_list():
+    if session.get('role') != 'admin':
+        abort(403)
+    semester = Semester.query.all()
+    btn_tambah = True
+    return render_template('admin/semester.html', semester=semester, btn_tambah=btn_tambah)
+
+@app.route('/admin/semester/tambah', methods=['POST'])
+def tambah_semester():
+    if session.get('role') != 'admin':
+        abort(403)
+    semester = Semester(
+            id_semester=request.form['id_semester'],
+            nama_semester=request.form['nama_semester']
+    )
+    db.session.add(semester)
+    db.session.commit()
+    flash('Semester berhasil ditambahkan')
+    return redirect('/admin/semester')
+
+@app.route('/admin/semester/edit/<int:id_semester>', methods=['PUT'])
+def edit_semester(id_semester):
+    if session.get('role') != 'admin':
+        abort(403)
+    semester = Semester.query.get_or_404(id_semester)
+    semester.nama_semester = request.form['nama_semester']
+    db.session.commit()
+    flash('Semester berhasil diperbarui')
+    return redirect('/admin/semester')
+
+@app.route('/admin/semester/hapus/<int:id_semester>', methods=['DELETE'])
+def hapus_semester(id_semester):
+    if session.get('role') != 'admin':
+        abort(403)
+    semester = Semester.query.get_or_404(id_semester)
+    db.session.delete(semester)
+    db.session.commit()
+    flash('Semester berhasil dihapus')
+    return redirect('/admin/semester')

@@ -14,10 +14,37 @@
 </head>
 
 <body>
+    <div class="flash-message-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+    
+      <script>
+        // Auto-hide alert after 4 seconds
+        setTimeout(() => {
+          document.querySelectorAll('.alert').forEach(alert => {
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+            setTimeout(() => alert.remove(), 500); // remove after fade out
+          });
+        }, 4000);
+      </script>
+      
     <header>
         <div class="d-flex">
         <div class="menu-container">
         <button class="logout-button" onclick="location.href='/'">Menu</button>
+        {% if btn_tambah %}
+        <button style="width: 150px !important;" class="logout-button" onclick="openTambahModal()">Tambah Data</button>
+        {% endif %}
         </div>
         <div class="logout-container">
         <button class="logout-button" onclick="handleLogout()">Logout</button>
@@ -62,6 +89,128 @@
         </div>
     </div>
         
+
+    <!-- Modal Tambah -->
+<div id="tambahModal" style="
+display: none;
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+z-index: 999;
+background: #fff;
+padding: 1.5rem;
+border-radius: 12px;
+box-shadow: 0 0 20px rgba(0,0,0,0.3);
+max-width: 1000px;
+width: 95%;
+max-height: 90vh;
+overflow-y: auto;
+flex-direction: column;
+">
+<!-- Header (Optional) -->
+<div style="padding: 20px; height: 30px !important; border-bottom: 1px solid #ddd;">
+<h4 class="text-center mb-3">Tambah Guru</h4>
+</div>
+
+<!-- Scrollable Content -->
+<div style="padding: 20px; overflow-y: auto; flex: 1;">
+<form id="SubmitForm">
+  <div class="row g-3">
+    {% block form_tambah %}
+    {% endblock %}
+  </div>
+</form>
+</div>
+
+<!-- Footer dengan tombol -->
+<div style="padding: 15px; border-top: 1px solid #ddd; text-align: right;">
+<button type="submit" id="tombolSubmit" class="btn btn-primary" style="margin-bottom: 15px !important;" form="SubmitForm">Submit</button>
+<button type="button" class="btn btn-secondary" onclick="closeTambahModal()">Batal</button>
+</div>
+</div>
+<script>
+function openEditModal(id_semester) {
+document.getElementById('editModal-' + id_semester).style.display = 'block';
+}
+function closeEditModal(id_semester) {
+document.getElementById('editModal-' + id_semester).style.display = 'none';
+}
+function openTambahModal() {
+document.getElementById('tambahModal').style.display = 'block';
+}
+function closeTambahModal() {
+document.getElementById('tambahModal').style.display = 'none';
+}
+
+// AJAX for Delete Semester (DELETE)
+function deleteSemester(id_semester) {
+    if (!confirm('Yakin?')) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    $.ajax({
+        url: baseUrl + 'hapus/' + id_semester,
+        type: 'DELETE',
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function (response) {
+            alert(response.msg || "Berhasil hapus semester");
+            window.location.reload();
+        },
+        error: function (xhr, status, error) {
+            var errorTxt = "Server Error";
+            if (xhr.responseJSON && xhr.responseJSON.error){
+                errorTxt = xhr.responseJSON.error;
+            }
+            if (xhr.responseJSON && xhr.responseJSON.msg){
+                errorTxt = xhr.responseJSON.msg;
+            }
+            alert(`Delete failed: ${errorTxt}`);
+        }
+    });
+}
+
+// AJAX for Tambah Semester (POST)
+document.getElementById("tombolSubmit").addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent form from submitting traditionally
+    const form = document.getElementById("SubmitForm");
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value.trim();
+    });
+    document.getElementById("tombolSubmit").disabled = true;
+    document.getElementById("tombolSubmit").innerHTML = '<div class="loader" id="loader"></div>';
+    const baseUrl = window.location.origin + window.location.pathname;
+    $.ajax({
+        url: baseUrl + 'tambah',
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        success: function (response) {
+            document.getElementById("tombolSubmit").innerHTML = "Submit";
+            document.getElementById("tombolSubmit").disabled = false;
+            alert(response.msg || "Berhasil tambah semester");
+            window.location.reload();
+        },
+        error: function (xhr, status, error) {
+            document.getElementById("tombolSubmit").disabled = false;
+            document.getElementById("tombolSubmit").innerHTML = "Submit";
+            var errorTxt = "Server Error";
+            if (xhr.responseJSON && xhr.responseJSON.error){
+                errorTxt = xhr.responseJSON.error;
+            }
+            if (xhr.responseJSON && xhr.responseJSON.msg){
+                errorTxt = xhr.responseJSON.msg;
+            }
+            alert(`Submit failed: ${errorTxt}`);
+        }
+    });
+});
+</script>
     <script src="/static/script_footer.js"></script>
+    <script>
+
+    </script>
 </body>
 </html>
