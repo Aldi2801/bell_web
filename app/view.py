@@ -1,4 +1,4 @@
-from . import app, bcrypt, db, User, Tugas, Berita, Kelas, Kbm, Siswa, Guru, Mapel
+from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, os, json
 from datetime import datetime
@@ -29,21 +29,12 @@ def view_register_guru():
             'status': i.status_rel.status if i.status_rel else '-'
         })
     return render_template("register_guru.html",guru=data_fix)
-@app.route('/tugas')
-def view_tugas():
-    tugas = tugas.query.all()
-    print(tugas)
-    return render_template("manage_tugas.html", tugas = tugas)
 @app.route('/pengumuman')
 def view_pengumuman():
     pengumuman = Berita.query.all()
     print(pengumuman)
     return render_template("manage_pengumuman.html", pengumuman = pengumuman)
 
-@app.route('/manage_tugas')
-def view_manage_tugas():
-    tugas = Tugas.query.all()
-    return render_template("manage_tugas.html", tugas=tugas)
 @app.route('/manage_pengumuman')
 def view_manage_pengumuman():
     pengumuman = Berita.query.all()

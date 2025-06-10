@@ -194,7 +194,6 @@ def edit_guru():
             password=hashed_password,
             email=email,
             active=True,
-            fs_uniquifier=str(uuid.uuid4()),
             nip=nip  # jangan lupa set nip!
         )
         new_role = Role.query.filter_by(name=role).first()

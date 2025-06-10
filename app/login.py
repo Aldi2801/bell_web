@@ -92,8 +92,7 @@ def register_():
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-        user = User(username=username, password=hashed_password, email=email, active=True,
-        fs_uniquifier = str(uuid.uuid4()), )
+        user = User(username=username, password=hashed_password, email=email, active=True )
         db.session.add(user)
         db.session.commit()
 
@@ -149,7 +148,7 @@ def confirm_email(token):
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    user.verify_email = True
+    user.active = True
     db.session.commit()
 
     return '''

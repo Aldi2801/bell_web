@@ -180,7 +180,6 @@ def save_guru():
             email=email,
             nip = data['nip'],
             active=True,
-            fs_uniquifier=str(uuid.uuid4()),
         )
     # Simpan user baru
     new_guru = Guru(
