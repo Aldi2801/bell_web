@@ -35,10 +35,6 @@ def view_pengumuman():
     print(pengumuman)
     return render_template("manage_pengumuman.html", pengumuman = pengumuman)
 
-@app.route('/manage_pengumuman')
-def view_manage_pengumuman():
-    pengumuman = Berita.query.all()
-    return render_template("manage_pengumuman.html", pengumuman=pengumuman)
 def find_current_period(sesi_list, current_time):
     for sesi in sesi_list:
         jam_mulai, jam_selesai = sesi["jam"].split(" - ")

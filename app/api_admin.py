@@ -394,3 +394,50 @@ def hapus_semester(id_semester):
     db.session.commit()
     flash('Semester berhasil dihapus')
     return jsonify({'msg': 'Semester berhasil dihapus'})
+
+@app.route('/manage_pengumuman')
+def view_manage_pengumuman():
+    pengumuman = Berita.query.all()
+    guru = Guru.query.all()  # ambil semua guru
+    return render_template('admin/berita.html', berita=berita, guru=guru)
+@app.route('/admin/pengumuman/tambah', methods=['POST'])
+def tambah_pengumuman():
+    print(session.get('role'))
+    if session.get('role') != 'admin':
+        abort(403)
+    berita = Berita(
+            judul = request.json.get('judul'),
+            isi   = request.json.get('isi'),
+            nip   = request.json.get('nip'),
+    )
+    db.session.add(berita)
+    db.session.commit()
+    flash('berita berhasil ditambahkan')
+    return jsonify({'msg':'berita berhasil ditambahkan'})
+
+@app.route('/admin/pengumuman/edit/<id_pengumuman_old>', methods=['PUT'])
+def edit_pengumuman(id_pengumuman_old):
+    if session.get('role') != 'admin':
+        abort(403)
+    berita = Berita.query.filter_by(id_berita=id_pengumuman_old).first()
+    if not berita:
+        return jsonify({'error': 'berita tidak ditemukan'}), 404
+    berita.id_berita = request.json.get('id_berita')
+    berita.judul = request.json.get('judul')
+    berita.isi   = request.json.get('isi')
+    berita.nip   = request.json.get('nip')
+    db.session.commit()
+    flash('berita berhasil diperbarui')
+    return jsonify({'msg': 'berita berhasil diperbarui'})
+
+@app.route('/admin/pengumuman/hapus/<id_pengumuman>', methods=['DELETE'])
+def hapus_pengumuman(id_pengumuman):
+    if session.get('role') != 'admin':
+        abort(403)
+    berita = Berita.query.filter_by(id_berita=id_pengumuman).first()
+    if not berita:
+        return jsonify({'error': 'berita tidak ditemukan'}), 404
+    db.session.delete(berita)
+    db.session.commit()
+    flash('berita berhasil dihapus')
+    return jsonify({'msg': 'berita berhasil dihapus'})

@@ -88,8 +88,8 @@ class Berita(db.Model):
     id_berita = db.Column(db.Integer, primary_key=True)
     judul = db.Column(db.String(35), nullable=False)
     isi = db.Column(db.String(255), nullable=False)
-    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
-
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=True)
+    guru = db.relationship('Guru', backref='berita', lazy=True)
 class Gender(db.Model):
     id_gender = db.Column(db.CHAR(1), primary_key=True)
     gender = db.Column(db.String(9), nullable=False)
