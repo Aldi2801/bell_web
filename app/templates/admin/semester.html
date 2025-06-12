@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
 
 {% block form_tambah %}
-<div class="col-md-4">
-    <input type="text" class="form-control" name="id" placeholder="id semester" required>
-  </div>
-  <div class="col-md-4">
+<div class="col-md-12 mb-3">
+  <input type="text" class="form-control" name="id_semester" placeholder="id semester (1 digit angka / huruf)" 
+    required pattern="[A-Za-z0-9]{1}" maxlength="1" title="Masukkan 1 digit angka atau huruf saja">
+</div><br>
+
+  <div class="col-md-12 mb-3">
     <input type="text" class="form-control" name="nama_semester" placeholder="nama semester" required>
   </div>
 {% endblock %}
@@ -20,13 +22,13 @@
         </tr>
     </thead>
     <tbody>
-        {% for s in semester_list %}
+        {% for s in semester %}
         <tr>
-            <td>{{ s.id_semester }}</td>
-            <td>{{ s.nama_semester }}</td>
+            <td>{{ s.id_semester }} </td>
+            <td>{{ s.semester }}</td>
             <td>
                 <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_semester }}')">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="deleteSemester('{{ s.id_semester }}')">Hapus</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.id_semester }}')">Hapus</button>
             </td>
         </tr>
         <!-- Modal Edit (outside table row, one per semester) -->
@@ -34,8 +36,8 @@
             <h3 style="color: black !important;">Edit Semester</h3>
             <form id="editForm-{{ s.id_semester }}">
                 <input type="hidden" name="id_semester_old" value="{{ s.id_semester }}">
-                id_semester: <input type="text" name="id_semester" value="{{ s.id_semester }}" class="form-control mb-3">
-                Nama Semester: <input type="text" name="nama_semester" value="{{ s.nama_semester }}" class="form-control mb-3" required>
+                <label>id_semester: </label><input type="text" name="id_semester" value="{{ s.id_semester }}" class="form-control mb-3">
+                <label>Nama Semester:</label> <input type="text" name="nama_semester" value="{{ s.semester }}" class="form-control mb-3" required>
                 <button type="submit" id="tombol-edit-{{ s.id_semester }}" class="btn btn-success mb-3">Simpan</button>
                 <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_semester }}')">Batal</button>
             </form>
@@ -45,7 +47,7 @@
 </table>
 <script>
 // AJAX for Edit Semester (PUT)
-{% for s in semester_list %}
+{% for s in semester %}
 document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit", function(event) {
     event.preventDefault();
     const form = this;
@@ -59,11 +61,14 @@ document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit
     tombol.innerHTML = '<div class="loader" id="loader"></div>';
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-        url: baseUrl + 'edit/{{ s.id_semester }}',
+        url: baseUrl + '/edit/{{ s.id_semester }}',
         type: 'PUT',
         contentType: 'application/json',
         dataType: 'json',
-        data: JSON.stringify(data),
+        data: JSON.stringify(data),		
+		xhrFields: {
+			withCredentials: true
+		},
         success: function (response) {
             tombol.innerHTML = "Simpan";
             tombol.disabled = false;

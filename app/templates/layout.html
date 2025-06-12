@@ -110,13 +110,13 @@ flex-direction: column;
 ">
 <!-- Header (Optional) -->
 <div style="padding: 20px; height: 30px !important; border-bottom: 1px solid #ddd;">
-<h4 class="text-center mb-3">Tambah Guru</h4>
+<h4 class="text-center mb-3">Tambah {{title_data}}</h4>
 </div>
 
 <!-- Scrollable Content -->
-<div style="padding: 20px; overflow-y: auto; flex: 1;">
+<div style="padding: 20px; overflow-y: auto; flex: 0;">
 <form id="SubmitForm">
-  <div class="row g-3">
+  <div class="row">
     {% block form_tambah %}
     {% endblock %}
   </div>
@@ -125,7 +125,7 @@ flex-direction: column;
 
 <!-- Footer dengan tombol -->
 <div style="padding: 15px; border-top: 1px solid #ddd; text-align: right;">
-<button type="submit" id="tombolSubmit" class="btn btn-primary" style="margin-bottom: 15px !important;" form="SubmitForm">Submit</button>
+<button type="submit" id="tombolSubmit" class="btn btn-primary" form="SubmitForm">Submit</button>
 <button type="button" class="btn btn-secondary" onclick="closeTambahModal()">Batal</button>
 </div>
 </div>
@@ -144,14 +144,17 @@ document.getElementById('tambahModal').style.display = 'none';
 }
 
 // AJAX for Delete Semester (DELETE)
-function deleteSemester(id_semester) {
+function deleteData(id_semester) {
     if (!confirm('Yakin?')) return;
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-        url: baseUrl + 'hapus/' + id_semester,
+        url: baseUrl + '/hapus/' + id_semester,
         type: 'DELETE',
         contentType: 'application/json',
         dataType: 'json',
+		xhrFields: {
+			withCredentials: true
+		},
         success: function (response) {
             alert(response.msg || "Berhasil hapus semester");
             window.location.reload();
@@ -182,11 +185,14 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
     document.getElementById("tombolSubmit").innerHTML = '<div class="loader" id="loader"></div>';
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-        url: baseUrl + 'tambah',
+        url: baseUrl + '/tambah',
         type: 'POST',
         contentType: 'application/json',
         dataType: 'json',
-        data: JSON.stringify(data),
+        data: JSON.stringify(data),		
+		xhrFields: {
+			withCredentials: true
+		},
         success: function (response) {
             document.getElementById("tombolSubmit").innerHTML = "Submit";
             document.getElementById("tombolSubmit").disabled = false;

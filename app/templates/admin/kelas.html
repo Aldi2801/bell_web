@@ -1,52 +1,62 @@
 {% extends "layout.html" %}
 
 {% block form_tambah %}
-<div class="col-md-4">
-    <input type="text" class="form-control" name="id" placeholder="id semester" required>
-  </div>
-  <div class="col-md-4">
-    <input type="text" class="form-control" name="nama_semester" placeholder="nama semester" required>
+<div class="col-md-12 mb-3">
+  <input type="text" class="form-control" name="id_kelas" placeholder="id kelas (2 digit angka / huruf)" 
+    required pattern="[A-Za-z0-9]{2}" maxlength="2" title="Masukkan 2 digit angka atau huruf saja">
+</div><br>
+
+  <div class="col-md-12 mb-3">
+    <input type="text" class="form-control" name="nama_kelas" placeholder="nama kelas" required>
+  </div><br>
+
+  <div class="col-md-12 mb-3">
+    <input type="text" class="form-control" name="tingkat" placeholder="Tingkat" required
+	pattern="[0-9]{2}" maxlength="2" >
   </div>
 {% endblock %}
 {% block content %}
-<!-- templates/crud/semester.html -->
-<h2>Data Semester</h2>
+<!-- templates/crud/kelas.html -->
+<h2>Data kelas</h2>
 <table>
     <thead>
         <tr>
-            <th>ID Semester</th>
-            <th>Nama Semester</th>
+            <th>ID kelas</th>
+            <th>Nama kelas</th>
+            <th>Tingkat</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        {% for s in semester_list %}
+        {% for s in kelas %}
         <tr>
-            <td>{{ s.id_semester }}</td>
-            <td>{{ s.nama_semester }}</td>
+            <td>{{ s.id_kelas }} </td>
+            <td>{{ s.nama_kelas }}</td>
+            <td>{{ s.tingkat }}</td>
             <td>
-                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_semester }}')">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="deleteSemester('{{ s.id_semester }}')">Hapus</button>
+                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_kelas }}')">Edit</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.id_kelas }}')">Hapus</button>
             </td>
         </tr>
-        <!-- Modal Edit (outside table row, one per semester) -->
-        <div id="editModal-{{ s.id_semester }}" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
-            <h3 style="color: black !important;">Edit Semester</h3>
-            <form id="editForm-{{ s.id_semester }}">
-                <input type="hidden" name="id_semester_old" value="{{ s.id_semester }}">
-                id_semester: <input type="text" name="id_semester" value="{{ s.id_semester }}" class="form-control mb-3">
-                Nama Semester: <input type="text" name="nama_semester" value="{{ s.nama_semester }}" class="form-control mb-3" required>
-                <button type="submit" id="tombol-edit-{{ s.id_semester }}" class="btn btn-success mb-3">Simpan</button>
-                <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_semester }}')">Batal</button>
+        <!-- Modal Edit (outside table row, one per kelas) -->
+        <div id="editModal-{{ s.id_kelas }}" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
+            <h3 style="color: black !important;">Edit kelas</h3>
+            <form id="editForm-{{ s.id_kelas }}">
+                <input type="hidden" name="id_kelas_old" value="{{ s.id_kelas }}">
+                <label>id_kelas: </label><input type="text" name="id_kelas" value="{{ s.id_kelas }}" class="form-control mb-3">
+                <label>Nama kelas:</label> <input type="text" name="nama_kelas" value="{{ s.nama_kelas }}" class="form-control mb-3" required>
+                <label>Tingkat:</label> <input type="text" name="tingkat" value="{{ s.tingkat }}" class="form-control mb-3" required>
+                <button type="submit" id="tombol-edit-{{ s.id_kelas }}" class="btn btn-success mb-3">Simpan</button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_kelas }}')">Batal</button>
             </form>
         </div>
         {% endfor %}
     </tbody>
 </table>
 <script>
-// AJAX for Edit Semester (PUT)
-{% for s in semester_list %}
-document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit", function(event) {
+// AJAX for Edit kelas (PUT)
+{% for s in kelas %}
+document.getElementById("editForm-{{ s.id_kelas }}").addEventListener("submit", function(event) {
     event.preventDefault();
     const form = this;
     const formData = new FormData(form);
@@ -54,20 +64,23 @@ document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit
     formData.forEach((value, key) => {
         data[key] = value.trim();
     });
-    const tombol = document.getElementById("tombol-edit-{{ s.id_semester }}");
+    const tombol = document.getElementById("tombol-edit-{{ s.id_kelas }}");
     tombol.disabled = true;
     tombol.innerHTML = '<div class="loader" id="loader"></div>';
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-        url: baseUrl + 'edit/{{ s.id_semester }}',
+        url: baseUrl + '/edit/{{ s.id_kelas }}',
         type: 'PUT',
         contentType: 'application/json',
         dataType: 'json',
-        data: JSON.stringify(data),
+        data: JSON.stringify(data),		
+		xhrFields: {
+			withCredentials: true
+		},
         success: function (response) {
             tombol.innerHTML = "Simpan";
             tombol.disabled = false;
-            alert(response.msg || "Berhasil update semester");
+            alert(response.msg || "Berhasil update kelas");
             window.location.reload();
         },
         error: function (xhr, status, error) {

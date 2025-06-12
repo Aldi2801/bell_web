@@ -147,75 +147,6 @@ def get_guru(nip):
         'role': role
     })
 
-@app.route('/edit_guru', methods=['POST'])
-def edit_guru():
-    nip = request.form['nip']
-    username = request.form['username']
-    email = request.form['email']
-    nip = request.form['nip']
-    password = request.form.get('password')
-    role = request.form['role']
-
-    user = User.query.filter_by(nip=nip).first()
-
-    # Cek jika sedang edit user yang sudah ada
-    if user:
-        # Cek jika username/email yang baru mau diganti ke milik orang lain
-        if User.query.filter(User.username == username, User.id != user.id).first():
-            flash('Username sudah digunakan oleh user lain', 'danger')
-            return redirect('/register_guru')
-        if User.query.filter(User.email == email, User.id != user.id).first():
-            flash('Email sudah digunakan oleh user lain', 'danger')
-            return redirect('/register_guru')
-
-        user.username = username
-        user.email = email
-        if password:
-            user.password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user.roles = []  # Kosongkan role lama
-        new_role = Role.query.filter_by(name=role).first()
-        if new_role:
-            user.roles.append(new_role)
-        db.session.commit()
-        flash('Data guru berhasil diperbarui', 'success')
-
-    else:
-        # Cek kalau username/email sudah dipakai
-        if User.query.filter_by(username=username).first():
-            flash('Username sudah digunakan', 'danger')
-            return redirect('/register_guru')
-        if User.query.filter_by(email=email).first():
-            flash('Email sudah digunakan', 'danger')
-            return redirect('/register_guru')
-
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user = User(
-            username=username,
-            password=hashed_password,
-            email=email,
-            active=True,
-            nip=nip  # jangan lupa set nip!
-        )
-        new_role = Role.query.filter_by(name=role).first()
-        if new_role:
-            user.roles.append(new_role)
-        db.session.add(user)
-        db.session.commit()
-        flash('Data User berhasil dibuat', 'success')
-
-    return redirect('/register_guru')
-
-@app.route('/hapus_guru/<nip>', methods=['POST'])
-def hapus_guru(nip):
-    user = User.query.filter_by(nip=nip).first()
-    data_guru = Guru.query.filter_by(nip=nip).first()
-    if user:
-        db.session.delete(user)
-    if data_guru:
-        db.session.delete(data_guru)
-    db.session.commit()
-    flash('Data guru berhasil dihapus', 'success')
-    return redirect('/register_guru')
 
 @app.route('/hapus_jadwal', methods=['DELETE'])
 def hapus_jadwal():
@@ -250,11 +181,11 @@ def tambah_pembagian_kelas():
         abort(403)
     if request.method == 'POST':
         pembagian = PembagianKelas(
-            tanggal=request.form['tanggal'],
-            nis=request.form['nis'],
-            id_kelas=request.form['id_kelas'],
-            id_tahun_akademik=request.form['id_tahun_akademik'],
-            nip=request.form['nip']
+            tanggal=request.json.get('tanggal'),
+            nis=request.json.get('nis'),
+            id_kelas=request.json.get('id_kelas'),
+            id_tahun_akademik=request.json.get('id_tahun_akademik'),
+            nip=request.json.get('nip')
         )
         db.session.add(pembagian)
         db.session.commit()
@@ -271,111 +202,195 @@ def ampu_mapel_list():
     if session.get('role') != 'admin':
         abort(403)
     data = AmpuMapel.query.all()
-    return render_template('admin/ampu_mapel_list.html', data=data)
-
-@app.route('/admin/ampu_mapel/tambah', methods=['POST'])
-def tambah_ampu_mapel():
-    if session.get('role') != 'admin':
-        abort(403)
-    ampu = AmpuMapel(
-            tanggal=request.form['tanggal'],
-            id_semester=request.form['id_semester'],
-            id_mapel=request.form['id_mapel'],
-            nip=request.form['nip'],
-            id_tahun_akademik=request.form['id_tahun_akademik'],
-            id_pembagian=request.form['id_pembagian']
-        )
-    db.session.add(ampu)
-    db.session.commit()
-    flash('Ampu mapel berhasil ditambahkan')
-    return redirect('/admin/ampu_mapel')
-    guru = Guru.query.all()
-    semester = Semester.query.all()
-    mapel = Mapel.query.all()
-    tahun_akademik = TahunAkademik.query.all()
-    pembagian = PembagianKelas.query.all()
-    return render_template('admin/tambah_ampu_mapel.html', guru=guru, semester=semester, mapel=mapel, tahun_akademik=tahun_akademik, pembagian=pembagian)
-
+    
+    btn_tambah = True
+    title = "Manage Ampu Mapel"
+    title_data = "Ampu Mapel"
+    return render_template('admin/ampu_mapel_list.html', ampu_mapel = data,btn_tambah=btn_tambah, title=title, title_data = title_data)
 
 @app.route('/admin/kelas')
 def kelas_list():
     if session.get('role') != 'admin':
         abort(403)
     kelas = Kelas.query.all()
-    return render_template('admin/kelas.html', kelas=kelas)
+    btn_tambah = True
+    title = "Manage Kelas"
+    title_data = "Kelas"
+    return render_template('admin/kelas.html', kelas=kelas,btn_tambah=btn_tambah, title=title, title_data = title_data)
+
+@app.route('/admin/semester')
+def semester_list():
+    print(session.get('role'))
+    if session.get('role') != 'admin':
+        abort(403)
+    semester = Semester.query.all()
+    btn_tambah = True
+    title = "Manage Semester"
+    title_data = "Semester"
+    return render_template('admin/semester.html', semester=semester, btn_tambah=btn_tambah, title=title, title_data = title_data)
+
+@app.route('/edit_guru', methods=['POST'])
+def edit_guru():
+    nip = request.json.get('nip')
+    username = request.json.get('username')
+    email = request.json.get('email')
+    nip = request.json.get('nip')
+    password = request.form.get('password')
+    role = request.json.get('role')
+
+    user = User.query.filter_by(nip=nip).first()
+
+    # Cek jika sedang edit user yang sudah ada
+    if user:
+        # Cek jika username/email yang baru mau diganti ke milik orang lain
+        if User.query.filter(User.username == username, User.id != user.id).first():
+            flash('Username sudah digunakan oleh user lain', 'danger')
+            return jsonify({'msg': 'Username sudah digunakan oleh user lain'}), 400
+        if User.query.filter(User.email == email, User.id != user.id).first():
+            flash('Email sudah digunakan oleh user lain', 'danger')
+            return jsonify({'msg': 'Email sudah digunakan oleh user lain'}), 400
+
+        user.username = username
+        user.email = email
+        if password:
+            user.password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user.roles = []  # Kosongkan role lama
+        new_role = Role.query.filter_by(name=role).first()
+        if new_role:
+            user.roles.append(new_role)
+        db.session.commit()
+        flash('Data guru berhasil diperbarui', 'success')
+
+    else:
+        # Cek kalau username/email sudah dipakai
+        if User.query.filter_by(username=username).first():
+            flash('Username sudah digunakan', 'danger')
+            return jsonify({'msg': 'Username sudah digunakan'}), 400
+        if User.query.filter_by(email=email).first():
+            flash('Email sudah digunakan', 'danger')
+            return jsonify({'msg': 'Email sudah digunakan'}), 400
+
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = User(
+            username=username,
+            password=hashed_password,
+            email=email,
+            active=True,
+            nip=nip  # jangan lupa set nip!
+        )
+        new_role = Role.query.filter_by(name=role).first()
+        if new_role:
+            user.roles.append(new_role)
+        db.session.add(user)
+        db.session.commit()
+        flash('Data User berhasil dibuat', 'success')
+
+    return jsonify({'msg': 'Data guru berhasil diperbarui'})
+
+@app.route('/hapus_guru/<nip>', methods=['POST'])
+def hapus_guru(nip):
+    user = User.query.filter_by(nip=nip).first()
+    data_guru = Guru.query.filter_by(nip=nip).first()
+    if user:
+        db.session.delete(user)
+    if data_guru:
+        db.session.delete(data_guru)
+    db.session.commit()
+    flash('Data guru berhasil dihapus', 'success')
+    return jsonify({'msg': 'Data guru berhasil dihapus'})
+
+@app.route('/admin/ampu_mapel/tambah', methods=['POST'])
+def tambah_ampu_mapel():
+    if session.get('role') != 'admin':
+        abort(403)
+    ampu = AmpuMapel(
+            tanggal=request.json.get('tanggal'),
+            id_semester=request.json.get('id_semester'),
+            id_mapel=request.json.get('id_mapel'),
+            nip=request.json.get('nip'),
+            id_tahun_akademik=request.json.get('id_tahun_akademik'),
+            id_pembagian=request.json.get('id_pembagian')
+        )
+    db.session.add(ampu)
+    db.session.commit()
+    flash('Ampu mapel berhasil ditambahkan')
+    return jsonify({'msg': 'Ampu mapel berhasil ditambahkan'})
 
 @app.route('/admin/kelas/tambah', methods=['POST'])
 def tambah_kelas():
     if session.get('role') != 'admin':
         abort(403)
     kelas = Kelas(
-        id_kelas=request.form['id_kelas'],
-        nama_kelas=request.form['nama_kelas'],
-        tingkat=request.form['tingkat']
+        id_kelas=request.json.get('id_kelas'),
+        nama_kelas=request.json.get('nama_kelas'),
+        tingkat=request.json.get('tingkat')
     )
     db.session.add(kelas)
     db.session.commit()
     flash('Kelas berhasil ditambahkan')
-    return redirect('/admin/kelas')
+    return jsonify({'msg': 'Kelas berhasil ditambahkan'})
 
-@app.route('/admin/kelas/edit/<int:id_kelas>', methods=['PUT'])
+@app.route('/admin/kelas/edit/<id_kelas>', methods=['PUT'])
 def edit_kelas(id_kelas):
     if session.get('role') != 'admin':
         abort(403)
-    kelas = kelas.query.get_or_404(id_kelas)
-    kelas.nama_kelas = request.form['nama_kelas']
+    kelas = Kelas.query.filter_by(id_kelas=id_kelas).first()
+    if not kelas:
+        return jsonify({'error': 'Kelas tidak ditemukan'}), 404
+    kelas.id_kelas = request.json.get('id_kelas')
+    kelas.nama_kelas = request.json.get('nama_kelas')
+    kelas.tingkat = request.json.get('tingkat')
     db.session.commit()
-    flash('kelas berhasil diperbarui')
-    return redirect('/admin/kelas')
+    flash('Kelas berhasil diperbarui')
+    return jsonify({'msg': 'Kelas berhasil diperbarui'})
 
-@app.route('/admin/kelas/hapus/<int:id_kelas>', methods=['DELETE'])
+@app.route('/admin/kelas/hapus/<id_kelas>', methods=['DELETE'])
 def hapus_kelas(id_kelas):
     if session.get('role') != 'admin':
         abort(403)
-    kelas = kelas.query.get_or_404(id_kelas)
+    kelas = Kelas.query.filter_by(id_kelas=id_kelas).first()
+    if not kelas:
+        return jsonify({'error': 'Kelas tidak ditemukan'}), 404
     db.session.delete(kelas)
     db.session.commit()
-    flash('kelas berhasil dihapus')
-    return redirect('/admin/kelas')
-
-
-@app.route('/admin/semester')
-def semester_list():
-    if session.get('role') != 'admin':
-        abort(403)
-    semester = Semester.query.all()
-    btn_tambah = True
-    return render_template('admin/semester.html', semester=semester, btn_tambah=btn_tambah)
+    flash('Kelas berhasil dihapus')
+    return jsonify({'msg': 'Kelas berhasil dihapus'})
 
 @app.route('/admin/semester/tambah', methods=['POST'])
 def tambah_semester():
+    print(session.get('role'))
     if session.get('role') != 'admin':
         abort(403)
     semester = Semester(
-            id_semester=request.form['id_semester'],
-            nama_semester=request.form['nama_semester']
+            id_semester=request.json.get('id_semester'),
+            semester=request.json.get('nama_semester')
     )
     db.session.add(semester)
     db.session.commit()
     flash('Semester berhasil ditambahkan')
-    return redirect('/admin/semester')
+    return jsonify({'msg':'Semester berhasil ditambahkan'})
 
-@app.route('/admin/semester/edit/<int:id_semester>', methods=['PUT'])
-def edit_semester(id_semester):
+@app.route('/admin/semester/edit/<id_semester_old>', methods=['PUT'])
+def edit_semester(id_semester_old):
     if session.get('role') != 'admin':
         abort(403)
-    semester = Semester.query.get_or_404(id_semester)
-    semester.nama_semester = request.form['nama_semester']
+    semester = Semester.query.filter_by(id_semester=id_semester_old).first()
+    if not semester:
+        return jsonify({'error': 'Semester tidak ditemukan'}), 404
+    semester.id_semester = request.json.get('id_semester')
+    semester.semester = request.json.get('nama_semester')
     db.session.commit()
     flash('Semester berhasil diperbarui')
-    return redirect('/admin/semester')
+    return jsonify({'msg': 'Semester berhasil diperbarui'})
 
-@app.route('/admin/semester/hapus/<int:id_semester>', methods=['DELETE'])
+@app.route('/admin/semester/hapus/<id_semester>', methods=['DELETE'])
 def hapus_semester(id_semester):
     if session.get('role') != 'admin':
         abort(403)
-    semester = Semester.query.get_or_404(id_semester)
+    semester = Semester.query.filter_by(id_semester=id_semester).first()
+    if not semester:
+        return jsonify({'error': 'Semester tidak ditemukan'}), 404
     db.session.delete(semester)
     db.session.commit()
     flash('Semester berhasil dihapus')
-    return redirect('/admin/semester')
+    return jsonify({'msg': 'Semester berhasil dihapus'})

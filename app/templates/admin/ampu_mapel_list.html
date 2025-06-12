@@ -1,91 +1,128 @@
 {% extends "layout.html" %}
 
 {% block form_tambah %}
-<div class="col-md-4">
-    <input type="text" class="form-control" name="id" placeholder="id semester" required>
-  </div>
-  <div class="col-md-4">
-    <input type="text" class="form-control" name="nama_semester" placeholder="nama semester" required>
-  </div>
+<div class="col-md-12 mb-3">
+    <input type="date" class="form-control" name="tanggal" placeholder="Tanggal" required>
+</div><br>
+
+<div class="col-md-12 mb-3">
+    <input type="text" class="form-control" name="id_semester" placeholder="ID Semester (1 digit)" required pattern="[A-Za-z0-9]{1}" maxlength="1">
+</div><br>
+
+<div class="col-md-12 mb-3">
+    <input type="text" class="form-control" name="id_mapel" placeholder="ID Mapel (3 digit)" required pattern="[A-Za-z0-9]{3}" maxlength="3">
+</div><br>
+
+<div class="col-md-12 mb-3">
+    <input type="text" class="form-control" name="nip" placeholder="NIP Guru" required maxlength="25">
+</div><br>
+
+<div class="col-md-12 mb-3">
+    <input type="text" class="form-control" name="id_tahun_akademik" placeholder="ID Tahun Akademik (4 digit)" required pattern="[A-Za-z0-9]{4}" maxlength="4">
+</div><br>
+
+<div class="col-md-12 mb-3">
+    <input type="number" class="form-control" name="id_pembagian" placeholder="ID Pembagian Kelas">
+</div>
 {% endblock %}
+
 {% block content %}
-<!-- templates/crud/semester.html -->
-<h2>Data Semester</h2>
+<h2>Data Ampu Mapel</h2>
 <table>
-    <thead>
-        <tr>
-            <th>ID Semester</th>
-            <th>Nama Semester</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for s in semester_list %}
-        <tr>
-            <td>{{ s.id_semester }}</td>
-            <td>{{ s.nama_semester }}</td>
-            <td>
-                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_semester }}')">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="deleteSemester('{{ s.id_semester }}')">Hapus</button>
-            </td>
-        </tr>
-        <!-- Modal Edit (outside table row, one per semester) -->
-        <div id="editModal-{{ s.id_semester }}" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
-            <h3 style="color: black !important;">Edit Semester</h3>
-            <form id="editForm-{{ s.id_semester }}">
-                <input type="hidden" name="id_semester_old" value="{{ s.id_semester }}">
-                id_semester: <input type="text" name="id_semester" value="{{ s.id_semester }}" class="form-control mb-3">
-                Nama Semester: <input type="text" name="nama_semester" value="{{ s.nama_semester }}" class="form-control mb-3" required>
-                <button type="submit" id="tombol-edit-{{ s.id_semester }}" class="btn btn-success mb-3">Simpan</button>
-                <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_semester }}')">Batal</button>
-            </form>
-        </div>
-        {% endfor %}
-    </tbody>
+        <thead>
+                <tr>
+                        <th>ID Ampu</th>
+                        <th>Tanggal</th>
+                        <th>ID Semester</th>
+                        <th>ID Mapel</th>
+                        <th>NIP</th>
+                        <th>ID Tahun Akademik</th>
+                        <th>ID Pembagian</th>
+                        <th>Aksi</th>
+                </tr>
+        </thead>
+        <tbody>
+                {% for s in ampu_mapel %}
+                <tr>
+                        <td>{{ s.id_ampu }}</td>
+                        <td>{{ s.tanggal }}</td>
+                        <td>{{ s.id_semester }}</td>
+                        <td>{{ s.id_mapel }}</td>
+                        <td>{{ s.nip }}</td>
+                        <td>{{ s.id_tahun_akademik }}</td>
+                        <td>{{ s.id_pembagian }}</td>
+                        <td>
+                                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_ampu }}')">Edit</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.id_ampu }}')">Hapus</button>
+                        </td>
+                </tr>
+                <!-- Modal Edit -->
+                <div id="editModal-{{ s.id_ampu }}" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
+                        <h3 style="color: black !important;">Edit Ampu Mapel</h3>
+                        <form id="editForm-{{ s.id_ampu }}">
+                                <input type="hidden" name="id_ampu" value="{{ s.id_ampu }}">
+                                <label>Tanggal:</label>
+                                <input type="date" name="tanggal" value="{{ s.tanggal }}" class="form-control mb-3" required>
+                                <label>ID Semester:</label>
+                                <input type="text" name="id_semester" value="{{ s.id_semester }}" class="form-control mb-3" required maxlength="1">
+                                <label>ID Mapel:</label>
+                                <input type="text" name="id_mapel" value="{{ s.id_mapel }}" class="form-control mb-3" required maxlength="3">
+                                <label>NIP:</label>
+                                <input type="text" name="nip" value="{{ s.nip }}" class="form-control mb-3" required maxlength="25">
+                                <label>ID Tahun Akademik:</label>
+                                <input type="text" name="id_tahun_akademik" value="{{ s.id_tahun_akademik }}" class="form-control mb-3" required maxlength="4">
+                                <label>ID Pembagian:</label>
+                                <input type="number" name="id_pembagian" value="{{ s.id_pembagian }}" class="form-control mb-3">
+                                <button type="submit" id="tombol-edit-{{ s.id_ampu }}" class="btn btn-success mb-3">Simpan</button>
+                                <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_ampu }}')">Batal</button>
+                        </form>
+                </div>
+                {% endfor %}
+        </tbody>
 </table>
 <script>
-// AJAX for Edit Semester (PUT)
-{% for s in semester_list %}
-document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit", function(event) {
-    event.preventDefault();
-    const form = this;
-    const formData = new FormData(form);
-    const data = {};
-    formData.forEach((value, key) => {
-        data[key] = value.trim();
-    });
-    const tombol = document.getElementById("tombol-edit-{{ s.id_semester }}");
-    tombol.disabled = true;
-    tombol.innerHTML = '<div class="loader" id="loader"></div>';
-    const baseUrl = window.location.origin + window.location.pathname;
-    $.ajax({
-        url: baseUrl + 'edit/{{ s.id_semester }}',
-        type: 'PUT',
-        contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify(data),
-        success: function (response) {
-            tombol.innerHTML = "Simpan";
-            tombol.disabled = false;
-            alert(response.msg || "Berhasil update semester");
-            window.location.reload();
+{% for s in ampu_mapel %}
+document.getElementById("editForm-{{ s.id_ampu }}").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+                data[key] = value.trim();
+        });
+        const tombol = document.getElementById("tombol-edit-{{ s.id_ampu }}");
+        tombol.disabled = true;
+        tombol.innerHTML = '<div class="loader" id="loader"></div>';
+        const baseUrl = window.location.origin + window.location.pathname;
+        $.ajax({
+                url: baseUrl + '/edit/{{ s.id_ampu }}',
+                type: 'PUT',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(data),		
+        xhrFields: {
+            withCredentials: true
         },
-        error: function (xhr, status, error) {
-            tombol.innerHTML = "Simpan";
-            tombol.disabled = false;
-            var errorTxt = "Server Error";
-            if (xhr.responseJSON && xhr.responseJSON.error){
-                errorTxt = xhr.responseJSON.error;
-            }
-            if (xhr.responseJSON && xhr.responseJSON.msg){
-                errorTxt = xhr.responseJSON.msg;
-            }
-            alert(`Edit failed: ${errorTxt}`);
-        }
-    });
+                success: function (response) {
+                        tombol.innerHTML = "Simpan";
+                        tombol.disabled = false;
+                        alert(response.msg || "Berhasil update data");
+                        window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                        tombol.innerHTML = "Simpan";
+                        tombol.disabled = false;
+                        var errorTxt = "Server Error";
+                        if (xhr.responseJSON && xhr.responseJSON.error){
+                                errorTxt = xhr.responseJSON.error;
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.msg){
+                                errorTxt = xhr.responseJSON.msg;
+                        }
+                        alert(`Edit failed: ${errorTxt}`);
+                }
+        });
 });
 {% endfor %}
-
 </script>
-    
 {% endblock %}
