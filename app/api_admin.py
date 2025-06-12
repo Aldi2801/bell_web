@@ -173,29 +173,59 @@ def pembagian_kelas_list():
     if session.get('role') != 'admin':
         abort(403)
     data = PembagianKelas.query.all()
-    return render_template('admin/pembagian_kelas_list.html', data=data)
+    siswa = Siswa.query.all()
+    guru = Guru.query.all()
+    tahunakademik = TahunAkademik.query.all()
+    kelas = Kelas.query.all()
+    btn_tambah = True
+    title = "Manage Pembagian Kelas"
+    title_data = "Pembagian Kelas"
+    return render_template('admin/pembagian_kelas_list.html', pembagian_kelas=data, btn_tambah=btn_tambah, title=title, title_data=title_data
+                           , siswa = siswa , guru = guru , tahunakademik = tahunakademik, kelas = kelas)
 
-@app.route('/admin/pembagian_kelas/tambah', methods=['GET', 'POST'])
+@app.route('/admin/pembagian_kelas/tambah', methods=['POST'])
 def tambah_pembagian_kelas():
     if session.get('role') != 'admin':
         abort(403)
-    if request.method == 'POST':
-        pembagian = PembagianKelas(
-            tanggal=request.json.get('tanggal'),
-            nis=request.json.get('nis'),
-            id_kelas=request.json.get('id_kelas'),
-            id_tahun_akademik=request.json.get('id_tahun_akademik'),
-            nip=request.json.get('nip')
-        )
-        db.session.add(pembagian)
-        db.session.commit()
-        flash('Pembagian kelas berhasil ditambahkan')
-        return redirect('/admin/pembagian_kelas')
-    siswa = Siswa.query.all()
-    kelas = Kelas.query.all()
-    guru = Guru.query.all()
-    tahun_akademik = TahunAkademik.query.all()
-    return render_template('admin/tambah_pembagian_kelas.html', siswa=siswa, kelas=kelas, guru=guru, tahun_akademik=tahun_akademik)
+    pembagian = PembagianKelas(
+        tanggal=request.json.get('tanggal'),
+        nis=request.json.get('nis'),
+        id_kelas=request.json.get('id_kelas'),
+        id_tahun_akademik=request.json.get('id_tahun_akademik'),
+        nip=request.json.get('nip')
+    )
+    db.session.add(pembagian)
+    db.session.commit()
+    flash('Pembagian kelas berhasil ditambahkan')
+    return jsonify({'msg': 'Pembagian kelas berhasil ditambahkan'})
+
+@app.route('/admin/pembagian_kelas/edit/<id_pembagian>', methods=['PUT'])
+def edit_pembagian_kelas(id_pembagian):
+    if session.get('role') != 'admin':
+        abort(403)
+    pembagian = PembagianKelas.query.filter_by(id_pembagian=id_pembagian).first()
+    if not pembagian:
+        return jsonify({'error': 'Pembagian kelas tidak ditemukan'}), 404
+    pembagian.tanggal = request.json.get('tanggal')
+    pembagian.nis = request.json.get('nis')
+    pembagian.id_kelas = request.json.get('id_kelas')
+    pembagian.id_tahun_akademik = request.json.get('id_tahun_akademik')
+    pembagian.nip = request.json.get('nip')
+    db.session.commit()
+    flash('Pembagian kelas berhasil diperbarui')
+    return jsonify({'msg': 'Pembagian kelas berhasil diperbarui'})
+
+@app.route('/admin/pembagian_kelas/hapus/<id_pembagian>', methods=['DELETE'])
+def hapus_pembagian_kelas(id_pembagian):
+    if session.get('role') != 'admin':
+        abort(403)
+    pembagian = PembagianKelas.query.filter_by(id_pembagian=id_pembagian).first()
+    if not pembagian:
+        return jsonify({'error': 'Pembagian kelas tidak ditemukan'}), 404
+    db.session.delete(pembagian)
+    db.session.commit()
+    flash('Pembagian kelas berhasil dihapus')
+    return jsonify({'msg': 'Pembagian kelas berhasil dihapus'})
 
 @app.route('/admin/ampu_mapel')
 def ampu_mapel_list():

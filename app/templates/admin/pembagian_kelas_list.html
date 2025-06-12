@@ -1,43 +1,126 @@
 {% extends "layout.html" %}
 
 {% block form_tambah %}
-<div class="col-md-4">
-    <input type="text" class="form-control" name="id" placeholder="id semester" required>
-  </div>
-  <div class="col-md-4">
-    <input type="text" class="form-control" name="nama_semester" placeholder="nama semester" required>
-  </div>
+    <div class="col-md-4">
+        <label for="tanggal" class="form-label">Tanggal</label>
+        <input type="date" class="form-control" name="tanggal" id="tanggal" required>
+    </div>
+    <div class="col-md-4">
+        <label for="nis" class="form-label">Siswa</label>
+        <select class="form-select" name="nis" id="nis" required>
+            <option value="" disabled selected>Pilih Siswa</option>
+            {% for siswa in siswa %}
+                <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label for="id_kelas" class="form-label">Kelas</label>
+        <select class="form-select" name="id_kelas" id="id_kelas" required>
+            <option value="" disabled selected>Pilih Kelas</option>
+            {% for kelas in kelas %}
+                <option value="{{ kelas.id_kelas }}">{{ kelas.id_kelas }} - {{ kelas.nama_kelas }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label for="id_tahun_akademik" class="form-label">Tahun Akademik</label>
+        <select class="form-select" name="id_tahun_akademik" id="id_tahun_akademik" required>
+            <option value="" disabled selected>Pilih Tahun Akademik</option>
+            {% for tahun in tahunakademik %}
+                <option value="{{ tahun.id_tahun_akademik }}">{{ tahun.tahun_akademik }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label for="nip" class="form-label">NIP Guru</label>
+        <select class="form-select" name="nip" id="nip" required>
+            <option value="" disabled selected>Pilih Guru</option>
+            {% for guru in guru %}
+                <option value="{{ guru.nip }}">{{ guru.nip }} - {{ guru.nama }}</option>
+            {% endfor %}
+        </select>
+    </div>
 {% endblock %}
 {% block content %}
-<!-- templates/crud/semester.html -->
-<h2>Data Semester</h2>
+<!-- templates/crud/Pembagian Kelas.html -->
+<h2>Data Pembagian Kelas</h2>
 <table>
     <thead>
         <tr>
-            <th>ID Semester</th>
-            <th>Nama Semester</th>
+            <th>ID Pembagian Kelas</th>
+            <th>Tanggal</th>
+            <th>NIS</th>
+            <th>Nama Siswa</th>
+            <th>ID Kelas</th>
+            <th>Nama Kelas</th>
+            <th>Tahun Akademik</th>
+            <th>NIP</th>
+            <th>Nama Guru</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        {% for s in semester_list %}
+        {% for s in pembagian_kelas %}
         <tr>
-            <td>{{ s.id_semester }}</td>
-            <td>{{ s.nama_semester }}</td>
+            <td>{{ s.id_pembagian }}</td>
+            <td>{{ s.tanggal }}</td>
+            <td>{{ s.nis }}</td>
+            <td>{{ s.siswa_rel.nama }}</td>
+            <td>{{ s.id_kelas }}</td>
+            <td>{{ s.kelas_rel.nama_kelas }}</td>
+            <td>{{ s.ida_rel.tahun_akademik}}</td>
+            <td>{{ s.nip }}</td>
+            <td>{{ s.guru_rel.nama}}</td>
             <td>
-                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_semester }}')">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="deleteSemester('{{ s.id_semester }}')">Hapus</button>
+                <!-- Tombol aksi -->
+                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_pembagian }}')">Edit</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.id_pembagian }}')">Hapus</button>
             </td>
         </tr>
         <!-- Modal Edit (outside table row, one per semester) -->
-        <div id="editModal-{{ s.id_semester }}" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
-            <h3 style="color: black !important;">Edit Semester</h3>
-            <form id="editForm-{{ s.id_semester }}">
-                <input type="hidden" name="id_semester_old" value="{{ s.id_semester }}">
-                id_semester: <input type="text" name="id_semester" value="{{ s.id_semester }}" class="form-control mb-3">
-                Nama Semester: <input type="text" name="nama_semester" value="{{ s.nama_semester }}" class="form-control mb-3" required>
-                <button type="submit" id="tombol-edit-{{ s.id_semester }}" class="btn btn-success mb-3">Simpan</button>
-                <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_semester }}')">Batal</button>
+        <div id="editModal-{{ s.id_pembagian }}" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
+            <h3 style="color: black !important;">Edit Pembagian Kelas</h3>
+            <form id="editForm-{{ s.id_pembagian }}">
+            <input type="hidden" name="id_pembagian_old" value="{{ s.id_pembagian }}">
+            <div class="mb-3">
+                <label for="tanggal-{{ s.id_pembagian }}" class="form-label">Tanggal</label>
+                <input type="date" name="tanggal" id="tanggal-{{ s.id_pembagian }}" value="{{ s.tanggal }}" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="nis-{{ s.id_pembagian }}" class="form-label">Siswa</label>
+                <select name="nis" id="nis-{{ s.id_pembagian }}" class="form-select" required>
+                {% for siswa in siswa %}
+                    <option value="{{ siswa.nis }}" {% if siswa.nis == s.nis %}selected{% endif %}>{{ siswa.nis }} - {{ siswa.nama }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="id_kelas-{{ s.id_pembagian }}" class="form-label">Kelas</label>
+                <select name="id_kelas" id="id_kelas-{{ s.id_pembagian }}" class="form-select" required>
+                {% for kelas in kelas %}
+                    <option value="{{ kelas.id_kelas }}" {% if kelas.id_kelas == s.id_kelas %}selected{% endif %}>{{ kelas.id_kelas }} - {{ kelas.nama_kelas }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="id_tahun_akademik-{{ s.id_pembagian }}" class="form-label">Tahun Akademik</label>
+                <select name="id_tahun_akademik" id="id_tahun_akademik-{{ s.id_pembagian }}" class="form-select" required>
+                {% for tahun in tahunakademik %}
+                    <option value="{{ tahun.id_tahun_akademik }}" {% if tahun.id_tahun_akademik == s.id_tahun_akademik %}selected{% endif %}>{{ tahun.tahun_akademik }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="nip-{{ s.id_pembagian }}" class="form-label">NIP Guru</label>
+                <select name="nip" id="nip-{{ s.id_pembagian }}" class="form-select" required>
+                {% for guru in guru %}
+                    <option value="{{ guru.nip }}" {% if guru.nip == s.nip %}selected{% endif %}>{{ guru.nip }} - {{ guru.nama }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <button type="submit" id="tombol-edit-{{ s.id_pembagian }}" class="btn btn-success mb-3">Simpan</button>
+            <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_pembagian }}')">Batal</button>
             </form>
         </div>
         {% endfor %}
@@ -45,8 +128,8 @@
 </table>
 <script>
 // AJAX for Edit Semester (PUT)
-{% for s in semester_list %}
-document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit", function(event) {
+{% for s in pembagian_kelas %}
+document.getElementById("editForm-{{ s.id_pembagian }}").addEventListener("submit", function(event) {
     event.preventDefault();
     const form = this;
     const formData = new FormData(form);
@@ -54,12 +137,12 @@ document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit
     formData.forEach((value, key) => {
         data[key] = value.trim();
     });
-    const tombol = document.getElementById("tombol-edit-{{ s.id_semester }}");
+    const tombol = document.getElementById("tombol-edit-{{ s.id_pembagian }}");
     tombol.disabled = true;
     tombol.innerHTML = '<div class="loader" id="loader"></div>';
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-        url: baseUrl + 'edit/{{ s.id_semester }}',
+        url: baseUrl + '/edit/{{ s.id_pembagian }}',
         type: 'PUT',
         contentType: 'application/json',
         dataType: 'json',

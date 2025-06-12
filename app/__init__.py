@@ -154,6 +154,8 @@ class PembagianKelas(db.Model):
     # <<< ini yang ditambahkan:
     kelas_rel = db.relationship("Kelas", backref="pembagian_list")
     siswa_rel = db.relationship("Siswa", backref="pembagian_list")
+    ida_rel = db.relationship("TahunAkademik", backref="pembagian_list")
+    guru_rel = db.relationship("Guru", backref="pembagian_list")
 
 class Semester(db.Model):
     id_semester = db.Column(db.CHAR(1), primary_key=True)
