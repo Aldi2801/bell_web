@@ -215,88 +215,9 @@ class JadwalPelajaran(db.Model):
 
 # seeder
 # seeder_siswa.py
-
-from faker import Faker
-import random
-import uuid
 from datetime import datetime
-from werkzeug.security import generate_password_hash
 
-fake = Faker('id_ID')
-def clean_nama(nama):
-    # Hilangkan gelar umum dari nama
-    gelar = ['S.Pd', 'S.Kom', 'M.Pd', 'Dr.','dr','hj','Hj','M.M',',','.', 'Drs.', 'H.', 'Ir.', 'S.E.', 'S.H.', 'S.T.', 'M.Kom', 'Ph.D']
-    for g in gelar:
-        nama = nama.replace(g, '')
-    return nama.strip()
-
-def generate_siswa_data(start_nis=20001, jumlah=50):
-    generated = 0
-    for i in range(jumlah):
-        nis = start_nis + i
-        nisn = f"9900{str(i+1).zfill(4)}"
-        raw_nama = fake.name_male() if i % 2 == 0 else fake.name_female()
-        nama = clean_nama(raw_nama)  # gunakan fungsi clean
-        id_gender = 'L' if i % 2 == 0 else 'P'
-        tempat_lahir = fake.city()
-        tanggal_lahir = fake.date_of_birth(minimum_age=14, maximum_age=16)
-        alamat = fake.address().replace("\n", ", ")
-        no_hp = f"08{random.randint(1000000000, 9999999999)}"
-        email = f"{nama.lower().replace(' ', '').replace('.', '').replace(',', '')}{i}@mail.com"
-        nama_ayah = fake.first_name_male()
-        nama_ibu = fake.first_name_female()
-        penghasilan_ayah = random.randint(3000000, 7000000)
-        penghasilan_ibu = random.randint(2000000, 6000000)
-        asal_sekolah = f"SDN {random.randint(1, 50)} {fake.city()}"
-        id_status = '1'
-
-        # Username berbasis nama
-        username = nama.lower().split()[0] + str(i)
-
-        # Cek apakah siswa sudah ada berdasarkan NIS atau email
-        if Siswa.query.filter_by(nis=nis).first() or Siswa.query.filter_by(email=email).first():
-            continue
-
-        # Cek apakah user sudah ada
-        if User.query.filter_by(email=email).first():
-            continue
-
-        hashed_password = bcrypt.generate_password_hash("password123").decode('utf-8')
-
-        new_user = User(
-            username=username,
-            password=hashed_password,
-            email=email,
-            active=True,
-            nis=nis
-        )
-
-        new_siswa = Siswa(
-            nis=nis,
-            nisn=nisn,
-            nama=nama,
-            id_gender=id_gender,
-            tempat_lahir=tempat_lahir,
-            tanggal_lahir=tanggal_lahir,
-            alamat=alamat,
-            no_hp=no_hp,
-            email=email,
-            nama_ayah=nama_ayah,
-            nama_ibu=nama_ibu,
-            penghasilan_ayah=penghasilan_ayah,
-            penghasilan_ibu=penghasilan_ibu,
-            asal_sekolah=asal_sekolah,
-            id_status=id_status
-        )
-
-        db.session.add(new_user)
-        db.session.add(new_siswa)
-        generated += 1
-
-    db.session.commit()
-    print(f"{generated} data siswa berhasil ditambahkan.")
-
-#seeder guru 
+# seeder guru 
 from datetime import date
 def import_data_guru():
     guru_list = [

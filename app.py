@@ -1,4 +1,4 @@
-from app import app, db, Role, generate_siswa_data, import_data_guru # pastikan Role diimpor dari model kamu
+from app import app, db, Role # pastikan Role diimpor dari model kamu
 
 def add_default_roles():
     role_names = ['murid', 'guru', 'admin']
