@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Data Kehadiran Anda</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Nama Murid</th>
+            <th>Tanggal</th>
+            <th>Mata Pelajaran</th>
+            <th>Nama Kelas</th>
+            <th>Tingkat</th>
+            <th>Materi</th>
+            <th>Keterangan</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for kehadiran, tanggal, materi, nama_mapel, keterangan, nama_kelas, tingkat in data_kehadiran %}
+        <tr>
+            <td>
+                {{nama_lengkap}}
+            </td>
+            <td>{{ tanggal }}</td>
+            <td>{{ nama_mapel }}</td>
+            <td>{{ nama_kelas }}</td>
+            <td>{{ tingkat }}</td>
+            <td>{{ materi }}</td>
+            <td>{{ keterangan }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

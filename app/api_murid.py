@@ -1,5 +1,6 @@
-from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi
-from flask import render_template, request, jsonify
+from requests import session
+from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi, AmpuMapel, Kehadiran, Mapel, Keterangan, PembagianKelas
+from flask import render_template, request, jsonify, session
 import jwt
 
 @app.route('/get_menu_pembayaran')
@@ -62,3 +63,35 @@ def view_kehadiran():
     data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()
     data_kbm = Kbm.query.all()
     return render_template("kehadiran.html", siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)
+
+@app.route('/murid/kehadiran')
+def kehadiran():
+    # Ambil NIS dari user yang login
+    nis = session.get('nis', None)
+
+    # Ambil nama lengkap murid dari tabel Siswa berdasarkan NIS
+    siswa = Siswa.query.filter_by(nis=nis).first()
+    nama_lengkap = siswa.nama if siswa else None
+
+    # Query kehadiran siswa
+    data_kehadiran = (
+        db.session.query(
+            Kehadiran,
+            Kbm.tanggal,
+            Kbm.materi,
+            Mapel.nama_mapel,
+            Keterangan.keterangan,
+            Kelas.nama_kelas,
+            Kelas.tingkat
+        )
+        .join(Kbm, Kehadiran.id_kbm == Kbm.id_kbm)
+        .join(AmpuMapel, Kbm.id_ampu == AmpuMapel.id_ampu)
+        .join(Mapel, AmpuMapel.id_mapel == Mapel.id_mapel)
+        .join(Keterangan, Kehadiran.id_keterangan == Keterangan.id_keterangan)
+        .join(PembagianKelas, AmpuMapel.id_pembagian == PembagianKelas.id_pembagian)
+        .join(Kelas, PembagianKelas.id_kelas == Kelas.id_kelas)
+        .filter(Kehadiran.nis == nis)
+        .all()
+    )
+
+    return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran, nama_lengkap=nama_lengkap)

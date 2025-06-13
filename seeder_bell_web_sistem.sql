@@ -34,7 +34,7 @@ INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`)
 (4, 'Senin', '09.00 - 09.40', 4, '[\'IPS-JMR\', \'MTK-RA\', \'BI-RA\', \'BI-ULN\', \'MTK-HRW\', \'IPA-NAR\', \'IPS-RA\', \'MTK-BYT\']'),
 (5, 'Senin', '09.40 - 10.20', 5, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-JMR\', \'BI-ULN\', \'ENG-JMR\', \'IPA-HRW\', \'BI-HRW\']'),
 (6, 'Senin', '10.20 - 11.00', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'MTK-TEP\', \'IPS-BYT\', \'ENG-HRW\', \'IPS-HRW\', \'MTK-JMR\', \'BI-RA\']'),
-(7, 'Senin', '11.00 - 11.15', 7, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
+(7, 'Senin', '11.00 - 11.15', 7, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
 (8, 'Selasa', '07.00 - 07.40', 1, '[\'BI-JMR\', \'BI-HRW\', \'BI-BYT\', \'MTK-NAR\', \'ENG-HRW\', \'IPA-ULN\', \'IPS-NAR\', \'MTK-HRW\']'),
 (9, 'Selasa', '07.40 - 08.20', 2, '[\'IPS-PRN\', \'IPS-TEP\', \'BI-NAR\', \'MTK-RA\', \'IPS-BYT\', \'MTK-PRN\', \'IPS-ULN\', \'IPA-ULN\']'),
 (10, 'Selasa', '08.20 - 09.00', 3, '[\'IPA-HRW\', \'IPS-BYT\', \'ENG-RA\', \'ENG-TEP\', \'IPS-JMR\', \'BI-PRN\', \'IPA-HRW\', \'IPS-ULN\']'),

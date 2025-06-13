@@ -45,88 +45,89 @@
     <div class="container-keterangan" id="container-keterangan">
     
     </div>
+<script src="/static/script_footer.js"></script>
+<script>
+    const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
+    const schedule = {{ schedule | tojson | safe }};
+    console.log(schedule); // sudah berupa object/array JS, tidak perlu parse lagi
+const jumlah_kelas = document.querySelectorAll("#scheduleTable thead tr th").length - 3;
 
-    <script src="/static/script_footer.js"></script>
-    <script>
-        const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
-        const schedule = {{ schedule | tojson | safe }};
-        console.log(schedule); // sudah berupa object/array JS, tidak perlu parse lagi
+schedule.forEach(day => {
+    day.sessions.forEach((session, index) => {
+        const row = document.createElement('tr');
 
-        schedule.forEach(day => {
-            day.sessions.forEach((session, index) => {
-                const row = document.createElement('tr');
-
-                if (index === 0) {
-                    const dayCell = document.createElement('td');
-                    dayCell.rowSpan = day.sessions.length;
-                    dayCell.innerText = day.day;
-                    row.appendChild(dayCell);
-                }
-
-                const timeCell = document.createElement('td');
-                timeCell.innerText = session.time;
-                row.appendChild(timeCell);
-
-                const periodCell = document.createElement('td');
-                periodCell.innerText = session.period;
-                row.appendChild(periodCell);
-                
-                if (session.period == "7"){
-                    const periodCell = document.createElement('td');
-                    periodCell.innerText = "ISTIRAHAT";
-                    row.appendChild(periodCell);
-                    const subjectCell = document.createElement('td');
-                    subjectCell.colSpan = "7";
-                    subjectCell.innerText = " ";
-                    row.appendChild(subjectCell);
-                }else{
-                const periodCell = document.createElement('td');
-                periodCell.innerText = session.period;
-                row.appendChild(periodCell);
-                session.subjects.some(subject => {
-                    if (subject == "Upacara"){
-                        const subjectCell = document.createElement('td');
-                        subjectCell.innerText = subject;
-                        subjectCell.colSpan = "7";
-                        row.appendChild(subjectCell);
-                        return true ;
-                    }
-                    else{
-                        const subjectCell = document.createElement('td');
-                        subjectCell.innerText = subject;
-                        row.appendChild(subjectCell);
-                    }
-                });
-                }
-
-                scheduleTable.appendChild(row);
-            });
-        });
-        // Data JSON
-        var kode_mapel = {{ kode_mapel | tojson | safe }};
-        var kode_guru = {{ kode_guru | tojson | safe }};
-
-        // Fungsi untuk menampilkan data
-        function renderList(title, items) {
-            const container = document.getElementById('container-keterangan');
-            const heading = document.createElement('h2');
-            heading.innerText = title;
-            container.appendChild(heading);
-
-            const list = document.createElement('ul');
-            items.forEach(item => {
-                const listItem = document.createElement('li');
-                const [key, value] = Object.entries(item)[0]; // Mendapatkan kunci dan nilai pertama dalam objek
-                listItem.innerText = `${key}: ${value}`;
-                list.appendChild(listItem);
-            });
-            container.appendChild(list);
+        if (index === 0) {
+            const dayCell = document.createElement('td');
+            dayCell.rowSpan = day.sessions.length;
+            dayCell.innerText = day.day;
+            row.appendChild(dayCell);
         }
 
-        // Render kedua list
-        renderList("Kode Mapel", kode_mapel);
-        renderList("List Guru", kode_guru);
-    </script>
+        const timeCell = document.createElement('td');
+        timeCell.innerText = session.time;
+        row.appendChild(timeCell);
+
+        if (session.period === "7") {
+			const periodCell = document.createElement('td');
+			periodCell.innerText = "ISTIRAHAT";
+			row.appendChild(periodCell);
+
+			const istirahatCell = document.createElement('td');
+			istirahatCell.colSpan = jumlah_kelas;
+			istirahatCell.innerText = ""; // kosong atau bisa isi "—"
+			row.appendChild(istirahatCell);
+		}
+		else {
+            // Normal: period + subjects
+            const periodCell = document.createElement('td');
+            periodCell.innerText = session.period;
+            row.appendChild(periodCell);
+
+            session.subjects.some(subject => {
+                const subjectCell = document.createElement('td');
+                subjectCell.innerText = subject;
+
+                if (subject === "Upacara") {
+                    subjectCell.colSpan = "8";
+                    row.appendChild(subjectCell);
+                    return true; // stop loop
+                } else {
+                    row.appendChild(subjectCell);
+                }
+            });
+        }
+
+        scheduleTable.appendChild(row);
+    });
+});
+
+
+    // Data JSON
+    var kode_mapel = {{ kode_mapel | tojson | safe }};
+    var kode_guru = {{ kode_guru | tojson | safe }};
+
+    // Fungsi untuk menampilkan data
+    function renderList(title, items) {
+        const container = document.getElementById('container-keterangan');
+        const heading = document.createElement('h2');
+        heading.innerText = title;
+        container.appendChild(heading);
+
+        const list = document.createElement('ul');
+        items.forEach(item => {
+            const listItem = document.createElement('li');
+            const [key, value] = Object.entries(item)[0];
+            listItem.innerText = `${key}: ${value}`;
+            list.appendChild(listItem);
+        });
+        container.appendChild(list);
+    }
+
+    // Render kedua list
+    renderList("Kode Mapel", kode_mapel);
+    renderList("List Guru", kode_guru);
+</script>
+
 </body>
 
 </html>
