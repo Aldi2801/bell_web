@@ -41,9 +41,56 @@ def find_current_period(sesi_list, current_time):
         if start <= current_time <= end:
             return sesi
     return None
+from flask_login import current_user
+from flask import render_template, session
+
 @app.route('/dashboard')
-def view_dashboard():
-    return render_template("dashboard.html")
+def dashboard():
+    role = session.get('role')
+    user = User.query.filter_by(username=session.get('username'))
+
+    profil = {}
+    if role == 'admin':
+        profil = {
+            'username': user.username,
+            'email': user.email,
+            'role': 'Admin'
+        }
+
+    elif role == 'guru':
+        guru = Guru.query.filter_by(nip=user.nip).first()
+        profil = {
+            'nama': guru.nama,
+            'nip': guru.nip,
+            'tempat_lahir': guru.tempat_lahir,
+            'tanggal_lahir': guru.tanggal_lahir,
+            'alamat': guru.alamat,
+            'no_hp': guru.no_hp,
+            'email': guru.email,
+            'gender': guru.gender_rel.gender,
+            'status': guru.status_rel.status,
+            'spesialisasi': guru.spesialisasi,
+            'role': 'Guru'
+        }
+
+    elif role == 'murid':
+        siswa = Siswa.query.filter_by(nis=user.nis).first()
+        kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
+        profil = {
+            'nama': siswa.nama,
+            'nis': siswa.nis,
+            'tempat_lahir': siswa.tempat_lahir,
+            'tanggal_lahir': siswa.tanggal_lahir,
+            'alamat': siswa.alamat,
+            'no_hp': siswa.no_hp,
+            'email': siswa.email,
+            'gender': siswa.gender_rel.gender,
+            'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
+            'role': 'Murid'
+        }
+
+    return render_template('dashboard.html', profil=profil)
+
 @app.route('/daftar_hadir_ujian')
 def view_daftar_hadir_ujian():
     return render_template("daftar_hadir_siswa_ujian.html")

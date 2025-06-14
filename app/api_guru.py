@@ -39,18 +39,14 @@ def view_manage_jadwal():
     ]
 
     # Ambil guru dan mapel
+    guru_list = Guru.query.order_by(Guru.nama.asc()).all()
+    mapel_list = Mapel.query.order_by(Mapel.nama_mapel.asc()).all()
 
-    formatted_teacher_map = {}
-    data_guru = Guru.query.order_by(Guru.nama.asc()).all() # Urutkan berdasarkan nama ASC
-    formatted_teacher_map["kodeGuru"] = [
-        { k.inisial : k.nama}
-        for k in data_guru
-    ]
-    data_mapel = Mapel.query.order_by(Mapel.nama_mapel.asc()).all() # Urutkan berdasarkan nama ASC
-    formatted_teacher_map["kodeMapel"] = [
-        { k.id_mapel : k.nama_mapel}
-        for k in data_mapel
-    ]
+    formatted_teacher_map = {
+        "kodeGuru": [{"inisial": g.inisial, "nama": g.nama} for g in guru_list],
+        "kodeMapel": [{"id_mapel": m.id_mapel, "nama": m.nama_mapel} for m in mapel_list],
+    }
+
     # Ambil siswa dan kelas
     users = Siswa.query.all()
     data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()

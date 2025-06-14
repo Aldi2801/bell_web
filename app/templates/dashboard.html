@@ -68,8 +68,8 @@
                 {% elif session['role'] == 'guru' %}
                 <a href="/kbm/list" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Input KBM</a>
                 <a href="/manage_jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i> Jadwal</a>
-                <a href="/manage_laporan"><i class="fas fa-file-alt mr-2"></i> Manage Laporan</a>
                 <a href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i> Manage Pengumuman</a>
+                <a href="/lihat_pembayaran"><i class="fas fa-file-alt mr-2"></i> Lihat Pembayaran Murid</a>
                 {% elif session['role'] == 'murid' %}
                 <a href="/murid/kehadiran" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i> Kehadiran</a>
                 <a href="/jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i> Jadwal</a>
@@ -79,16 +79,16 @@
             </nav>
         </div>
         <div class="main-content">
-            <h2>Selamat Datang {{session['role']}}</h2>
-            <ul>
-                <li>Nama: <span id="username"></span></li>
-                {% if session['role'] == 'admin' %}
-                {% else %}
-                <li id="additional-info"></li>
-                <li id="tahunPelajarann">Tahun Ajaran: 2024/2025 - Genap</li>
-                {% endif %}
-            </ul>
-        </div>
+			<h2>Profil {{ profil['role'] }}</h2>
+			<ul>
+				{% for key, value in profil.items() %}
+					{% if key != 'role' %}
+					<li>{{ key.replace("_", " ").title() }}: <strong>{{ value }}</strong></li>
+					{% endif %}
+				{% endfor %}
+			</ul>
+		</div>
+
     </div>
     <script src="/static/script_footer.js"></script>
 </body>
