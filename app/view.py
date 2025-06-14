@@ -1,8 +1,11 @@
-from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel
+from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel, JadwalPelajaran
 from flask import request, jsonify, render_template, redirect, url_for, session
-import jwt, os, json
+import jwt, re, datetime, os, json, ast, uuid
 from datetime import datetime
 from bson.objectid import ObjectId
+from sqlalchemy import case
+from bson.objectid import ObjectId
+from collections import defaultdict
 
 @app.route('/register')
 def view_register():
@@ -29,11 +32,6 @@ def view_register_guru():
             'status': i.status_rel.status if i.status_rel else '-'
         })
     return render_template("register_guru.html",guru=data_fix)
-@app.route('/pengumuman')
-def view_pengumuman():
-    pengumuman = Berita.query.all()
-    print(pengumuman)
-    return render_template("manage_pengumuman.html", pengumuman = pengumuman)
 
 def find_current_period(sesi_list, current_time):
     for sesi in sesi_list:
@@ -54,18 +52,6 @@ def view_daftar_hadir():
     return render_template("daftar_hadir_siswa.html")
 @app.route('/jadwal')
 def view_jadwal():    
-    schedule_data = {}
-    # Ambil path absolut dari direktori saat ini (tempat file python ini berada)
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-    # Gabungkan dengan nama file JSON
-    JADWAL_PATH = os.path.join(BASE_DIR, 'jdwal.json')
-
-    # Baca isi file JSON
-    with open(JADWAL_PATH, 'r', encoding='utf-8') as f:
-        schedule_data = {}
-        schedule_data['schedule'] = json.load(f)
-    teacher_map_data = {}
     formatted_teacher_map = {}
     data_guru = Guru.query.order_by(Guru.nama.asc()).all() # Urutkan berdasarkan nama ASC
     formatted_teacher_map["kodeGuru"] = [
@@ -78,26 +64,34 @@ def view_jadwal():
         for k in data_mapel
     ]
     # Format data jadwal
-    formatted_schedule = [
-        {
-            "day": day["day"],
-            "sessions": [
-                {
-                    "time": session["time"],
-                    "period": session["period"],
-                    "subjects": session["subjects"]
-                }
-                for session in day["sessions"]
-            ]
-        }
-        for day in schedule_data["schedule"]
-    ]
-    # Output hasil
-    print("Formatted Schedule:")
-    print(formatted_schedule)
+    # Urutan hari
+    hari_order = case(
+        (JadwalPelajaran.day == 'Senin', 1),
+        (JadwalPelajaran.day == 'Selasa', 2),
+        (JadwalPelajaran.day == 'Rabu', 3),
+        (JadwalPelajaran.day == 'Kamis', 4),
+        (JadwalPelajaran.day == 'Jumat', 5),
+        (JadwalPelajaran.day == 'Sabtu', 6),
+        (JadwalPelajaran.day == 'Minggu', 7),
+        else_=8
+    )
 
-    print("\nFormatted Teacher Map:")
-    print(formatted_teacher_map)
+    # Ambil semua jadwal dalam 1 query
+    results = JadwalPelajaran.query.order_by(hari_order, JadwalPelajaran.period).all()
+
+    # Buat struktur data jadwal terformat
+    grouped_schedule = defaultdict(list)
+    for r in results:
+        grouped_schedule[r.day].append({
+            "time": r.time,
+            "period": r.period,
+            "subjects": ast.literal_eval(r.subject) if isinstance(r.subject, str) else r.subject
+        })
+
+    formatted_schedule = [
+        {"day": day, "sessions": grouped_schedule[day]}
+        for day in sorted(grouped_schedule, key=lambda d: ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].index(d))
+    ]
     users = Siswa.query.all()
     data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all() # Urutkan berdasarkan nama ASC
     kelas_dict = [
@@ -137,9 +131,6 @@ def view_manage_kehadiran():
     data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()
     data_kbm = Kbm.query.all()
     return render_template("manage_kehadiran.html", siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)
-@app.route('/coba')
-def view_coba():
-    return render_template("coba.html")
 @app.route('/verif_email')
 def view_verif_email():
     return render_template("verif_email.html")

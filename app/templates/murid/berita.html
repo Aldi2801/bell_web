@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Data Berita</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID Berita</th>
+      <th>Judul</th>
+      <th>Isi</th>
+      <th>Pembuat</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in berita %}
+    <tr>
+      <td>{{ s.id_berita }}</td>
+      <td>{{ s.judul }}</td>
+      <td>{{ s.isi }}</td>
+      <td>{{ s.guru.nama }} ({{ s.nip }})</td>
+    
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

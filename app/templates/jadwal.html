@@ -66,8 +66,8 @@ schedule.forEach(day => {
         const timeCell = document.createElement('td');
         timeCell.innerText = session.time;
         row.appendChild(timeCell);
-
-        if (session.period === "7") {
+		console.log(session.period)
+        if (session.period === 7) {
 			const periodCell = document.createElement('td');
 			periodCell.innerText = "ISTIRAHAT";
 			row.appendChild(periodCell);

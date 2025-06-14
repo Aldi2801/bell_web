@@ -20,7 +20,7 @@ from flask_jwt_extended import jwt_required
 from num2words import num2words
 from flask import flash, redirect
 # Import dari aplikasi lokal
-from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran
+from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
@@ -427,13 +427,17 @@ def hapus_semester(id_semester):
 
 @app.route('/manage_pengumuman')
 def view_manage_pengumuman():
-    pengumuman = Berita.query.all()
+    berita = Berita.query.all()
     guru = Guru.query.all()  # ambil semua guru
-    return render_template('admin/berita.html', berita=berita, guru=guru)
-@app.route('/admin/pengumuman/tambah', methods=['POST'])
+    btn_tambah = True
+    title = "Manage Berita"
+    title_data = "Berita / Pengumuman"
+    return render_template('guru/berita.html', berita=berita, guru=guru,btn_tambah=btn_tambah,title=title,title_data=title_data)
+
+@app.route('/manage_pengumuman/tambah', methods=['POST'])
 def tambah_pengumuman():
     print(session.get('role'))
-    if session.get('role') != 'admin':
+    if session.get('role') == 'murid':
         abort(403)
     berita = Berita(
             judul = request.json.get('judul'),
@@ -445,14 +449,13 @@ def tambah_pengumuman():
     flash('berita berhasil ditambahkan')
     return jsonify({'msg':'berita berhasil ditambahkan'})
 
-@app.route('/admin/pengumuman/edit/<id_pengumuman_old>', methods=['PUT'])
+@app.route('/manage_pengumuman/edit/<id_pengumuman_old>', methods=['PUT'])
 def edit_pengumuman(id_pengumuman_old):
-    if session.get('role') != 'admin':
+    if session.get('role') == 'murid':
         abort(403)
     berita = Berita.query.filter_by(id_berita=id_pengumuman_old).first()
     if not berita:
         return jsonify({'error': 'berita tidak ditemukan'}), 404
-    berita.id_berita = request.json.get('id_berita')
     berita.judul = request.json.get('judul')
     berita.isi   = request.json.get('isi')
     berita.nip   = request.json.get('nip')
@@ -460,9 +463,9 @@ def edit_pengumuman(id_pengumuman_old):
     flash('berita berhasil diperbarui')
     return jsonify({'msg': 'berita berhasil diperbarui'})
 
-@app.route('/admin/pengumuman/hapus/<id_pengumuman>', methods=['DELETE'])
+@app.route('/manage_pengumuman/hapus/<id_pengumuman>', methods=['DELETE'])
 def hapus_pengumuman(id_pengumuman):
-    if session.get('role') != 'admin':
+    if session.get('role') == 'murid':
         abort(403)
     berita = Berita.query.filter_by(id_berita=id_pengumuman).first()
     if not berita:

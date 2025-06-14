@@ -95,3 +95,12 @@ def kehadiran():
     )
 
     return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran, nama_lengkap=nama_lengkap)
+
+@app.route('/pengumuman')
+def view_pengumuman():
+    berita = Berita.query.all()
+    guru = Guru.query.all()  # ambil semua guru
+    btn_tambah = True
+    title = "Manage Semester"
+    title_data = "Semester"
+    return render_template('murid/berita.html', berita=berita, guru=guru,btn_tambah=btn_tambah,title=title,title_data=title_data)
