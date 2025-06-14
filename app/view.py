@@ -1,4 +1,4 @@
-from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel, JadwalPelajaran
+from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, re, datetime, os, json, ast, uuid
 from datetime import datetime
@@ -47,7 +47,9 @@ from flask import render_template, session
 @app.route('/dashboard')
 def dashboard():
     role = session.get('role')
-    user = User.query.filter_by(username=session.get('username'))
+    user = User.query.filter_by(username=session.get('username')).first()
+    print(session['username'])
+    print(user)
 
     profil = {}
     if role == 'admin':

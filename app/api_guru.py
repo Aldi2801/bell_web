@@ -376,3 +376,29 @@ def simpan_kehadiran():
 
     return redirect(url_for('form_kehadiran', id_kbm=id_kbm))
 
+@app.route('/bayar_offline', methods=['POST'])
+def bayar_offline():
+    data = request.json
+    id_tagihan = data.get('id_tagihan')
+    total = data.get('total')
+    user = session.get('username')  # atau session['username']
+
+    if not id_tagihan or not total:
+        return jsonify(success=False, message="Data tidak lengkap")
+
+    kode_order = f"offline_{user}"
+    transaksi = Transaksi(
+        id_tagihan=id_tagihan,
+        kode_order=kode_order,
+        total=total,
+        metode="Offline",
+        status="paid",
+        waktu=datetime.now()
+    )
+    db.session.add(transaksi)
+
+    tagihan = Tagihan.query.get(id_tagihan)
+    tagihan.status = 'Lunas'
+
+    db.session.commit()
+    return jsonify(success=True)

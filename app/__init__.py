@@ -177,6 +177,9 @@ class Siswa(db.Model):
     penghasilan_ibu = db.Column(db.Integer, nullable=False)
     asal_sekolah = db.Column(db.String(30), nullable=False)
     id_status = db.Column(db.CHAR(1), db.ForeignKey('status.id_status'), nullable=False)
+    gender_rel = db.relationship("Gender", backref="siswa_list")
+    status_rel = db.relationship("Status", backref="siswa_list")
+
 
 class Status(db.Model):
     id_status = db.Column(db.CHAR(1), primary_key=True)

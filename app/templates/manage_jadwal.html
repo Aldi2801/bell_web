@@ -195,18 +195,16 @@
         <tbody>
         </tbody>
     </table>
+	<div class="container-keterangan" >
     <h2>Daftar Guru</h2>
-	<div>
 <ul>
   {% for guru in kode_guru %}
     <li>{{ guru.inisial }} : {{ guru.nama }}</li>
   {% endfor %}
 </ul>
-</div>
 
 <h2>Daftar Mapel</h2>
-	<div>
-<ul>
+<ul style="margin-bottom:100px">
   {% for mapel in kode_mapel %}
     <li>{{ mapel.id_mapel }} : {{ mapel.nama }}</li>
   {% endfor %}

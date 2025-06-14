@@ -3,6 +3,8 @@ from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transa
 from flask import render_template, request, jsonify, session
 import jwt
 
+from sqlalchemy import and_
+
 @app.route('/get_menu_pembayaran')
 def get_menu_pembayaran():
     token = request.headers.get('Authorization')
@@ -13,42 +15,84 @@ def get_menu_pembayaran():
         decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         user_email = decoded_token['email']
         role = decoded_token['role']
-        # Ambil semester dan tahun ajaran saat ini
+
         semester, tahun_ajaran = get_semester_and_year()
 
-        # Ambil semua tagihan user untuk semester dan tahun ajaran aktif
-        all_tagihan = Tagihan.query.filter_by(
-            user_email=user_email,
-            semester=semester,
-            tahun_ajaran=tahun_ajaran
-        ).all()
         if role == 'murid':
-            # Ambil transaksi yang sudah lunas
-            paid_transactions = Transaksi.query.filter_by(
-                email=user_email,
-                status='settlement'
+            all_tagihan = Tagihan.query.filter(
+                and_(
+                    Tagihan.user_email == user_email,
+                    Tagihan.semester == semester,
+                    Tagihan.tahun_ajaran == tahun_ajaran
+                )
             ).all()
-        else:
-            paid_transactions = Transaksi.query.filter_by(
-                status='settlement'
-            ).all()            
 
-        # Ambil id_tagihan yang sudah lunas
+            paid_transactions = Transaksi.query.filter(
+                and_(
+                    Transaksi.email == user_email,
+                    Transaksi.status == 'settlement'
+                )
+            ).all()
+
+        else:
+            # Untuk admin/guru: Ambil semua tagihan
+            all_tagihan = Tagihan.query.filter(
+                and_(
+                    Tagihan.semester == semester,
+                    Tagihan.tahun_ajaran == tahun_ajaran
+                )
+            ).all()
+
+            paid_transactions = Transaksi.query.filter(
+                Transaksi.status == 'settlement'
+            ).all()
+
+        # Buat map tagihan yang sudah lunas
         paid_tagihan_ids = {tr.id_tagihan for tr in paid_transactions if tr.id_tagihan is not None}
 
-        # Siapkan daftar tagihan lengkap dengan status
-        result_tagihan = [
-            {
+        # Untuk admin/guru: buat cache siswa dan kelas agar tidak query berulang-ulang
+        siswa_map = {}
+        kelas_map = {}
+
+        def get_siswa_data(email):
+            if email in siswa_map:
+                return siswa_map[email]
+            siswa = Siswa.query.filter_by(email=email).first()
+            if not siswa:
+                siswa_map[email] = None
+                return None
+
+            # Ambil kelas aktif dari PembagianKelas
+            pembagian = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
+            kelas_nama = pembagian.kelas_rel.nama_kelas if pembagian else 'Belum dibagi'
+            data = {
+                'nama': siswa.nama,
+                'kelas': kelas_nama
+            }
+            siswa_map[email] = data
+            return data
+
+        # Buat list hasil
+        result_tagihan = []
+        for t in all_tagihan:
+            status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
+            siswa_info = get_siswa_data(t.user_email) if role != 'murid' else None
+
+            result = {
                 'id_tagihan': t.id_tagihan,
                 'deskripsi': t.deskripsi,
                 'total': t.total,
                 'semester': t.semester,
                 'tahun_ajaran': t.tahun_ajaran,
-                'created_at': t.created_at.isoformat(),
-                'status': 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
+                'created_at': t.created_at.isoformat() if t.created_at else None,
+                'status': status
             }
-            for t in all_tagihan
-        ]
+
+            if siswa_info:
+                result['nama_siswa'] = siswa_info['nama']
+                result['kelas'] = siswa_info['kelas']
+
+            result_tagihan.append(result)
 
         return jsonify(result_tagihan)
 

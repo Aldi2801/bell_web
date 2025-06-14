@@ -110,21 +110,29 @@
     </header>
 <div class="body-container">
     <div class="container">
-    <table class="table table-bordered table-striped mt-4 container-table">
-        <thead class="table-dark">
-            <tr>
-                <th>No</th>
-                <th>Semester</th>
-                <th>Tahun Ajaran</th>
-                <th>deskripsi</th>
-                <th>Total Pembayaran</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="tagihan-container">
-        </tbody>
-    </table>
-</div>
+        {% if session['role'] != 'murid' %}
+        <button class="btn btn-success mt-3" onclick="openTambahModal()">Tambah Tagihan</button>
+        {% endif %}
+        <table class="table table-bordered table-striped mt-4 container-table">
+            <thead class="table-dark">
+                <tr>
+                    <th>No</th>
+                    {% if session['role'] != 'murid' %}
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    {% endif %}
+                    <th>Semester</th>
+                    <th>Tahun Ajaran</th>
+                    <th>Deskripsi</th>
+                    <th>Total Pembayaran</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tagihan-container">
+            </tbody>
+        </table>
+    </div>
 </div>
 <!-- Modal Edit -->
 <div id="editModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
@@ -306,49 +314,79 @@ async function fetchMenuPembayaran() {
         alert('Terjadi kesalahan saat mengambil data tagihan.');
     }
 }
-function bayar_offline(total,id){
-
-}
 function populateTagihanTable(tagihan) {
     const container = document.getElementById('tagihan-container');
-    container.innerHTML = ''; // Kosongkan tabel sebelum mengisi ulang
+    container.innerHTML = '';
 
     if (tagihan.length === 0) {
-        container.innerHTML = '<tr><td colspan="4">Tidak ada tagihan yang belum dibayar.</td></tr>';
+        container.innerHTML = '<tr><td colspan="8">Tidak ada tagihan yang ditemukan.</td></tr>';
         return;
     }
 
     tagihan.forEach((item, index) => {
         const row = document.createElement('tr');
-        if(item.status == 'Belum Lunas'){ 
-            var onclick = `onclick="bayar(${item.total}, '${item.id_tagihan}')"`
-            var onclick_offline = `onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"`
-            var tomboltxt = 'Bayar Online'
-            var tomboltxt_offline = 'Bayar offline'
-        } else{ 
-            var onclick = '' 
-            var onclick_offline = '' 
-            var tomboltxt = 'Sudah Lunas'
-            var tomboltxt_offline = 'Sudah Lunas'}
+        let tombolBayar = '', tombolOffline = '';
+
+        if(item.status === 'Belum Lunas') {
+            tombolBayar = `<button type="button" onclick="bayar(${item.total}, '${item.id_tagihan}')" class="btn btn-primary btn-sm">Bayar Online</button>`;
+            tombolOffline = `<button type="button" onclick="bayar_offline(${item.total}, '${item.id_tagihan}')" class="btn btn-warning btn-sm">Bayar Offline</button>`;
+        } else {
+            tombolBayar = '<span class="badge bg-success">Lunas</span>';
+            tombolOffline = '';
+        }
+
         row.innerHTML = `
             <td>${index + 1}</td>
+            {% if session['role'] != 'murid' %}
+            <td>${item.nama_siswa || '-'}</td>
+            <td>${item.kelas || '-'}</td>
+            {% endif %}
             <td>${item.semester}</td>
-            <td>${item.tahun_ajaran}</td>   
+            <td>${item.tahun_ajaran}</td>
             <td>${item.deskripsi}</td>
             <td>Rp ${parseInt(item.total).toLocaleString('id-ID')}</td>
-            <td>
-                {% if session['role'] == 'murid' %}
-                <button type="button" ${onclick} class="btn btn-primary btn-sm button-submit">${tomboltxt}</button>
-                {% else %}
-                <button type="button" ${onclick} class="btn btn-primary btn-sm button-submit">${tomboltxt}</button>
-                <button type="button" ${onclick_offline} class="btn btn-primary btn-sm button-submit">${tomboltxt_offline}</button>
-                {% endif %}
-            </td>
+            <td>${item.status}</td>
+            <td>${tombolBayar} ${tombolOffline}</td>
         `;
         container.appendChild(row);
     });
 }
 
+function bayar_offline(total, id_tagihan) {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        alert('Anda belum login.');
+        return;
+    }
+
+    const konfirmasi = confirm("Apakah Anda yakin ingin menandai pembayaran ini sebagai 'Offline Paid'?");
+    if (!konfirmasi) return;
+
+    fetch('/bayar_offline', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+        },
+        body: JSON.stringify({
+            id_tagihan: id_tagihan,
+            total: total
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            alert('Pembayaran offline berhasil.');
+            fetchMenuPembayaran();
+        } else {
+            alert('Gagal memproses pembayaran offline: ' + (res.message || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        console.error('Error bayar offline:', err);
+        alert('Terjadi kesalahan saat memproses pembayaran offline.');
+    });
+}
 // Panggil fetchMenuPembayaran saat halaman dimuat
 document.addEventListener('DOMContentLoaded', fetchMenuPembayaran);
 window.bayar = async function(amount,tagihan_id) { // Definisi global menggunakan window
