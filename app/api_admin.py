@@ -20,7 +20,7 @@ from flask_jwt_extended import jwt_required
 from num2words import num2words
 from flask import flash, redirect
 # Import dari aplikasi lokal
-from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan
+from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
@@ -474,4 +474,90 @@ def hapus_pengumuman(id_pengumuman):
     db.session.commit()
     flash('berita berhasil dihapus')
     return jsonify({'msg': 'berita berhasil dihapus'})
+# Model Siswa tetap, tidak diubah
 
+@app.route('/admin/siswa')
+def view_admin_siswa():
+    siswa_list = Siswa.query.all()
+    gender_list = Gender.query.all()
+    status_list = Status.query.all()
+    btn_tambah = True
+    title = "Manage Siswa"
+    title_data = "Siswa"
+    return render_template('admin/siswa.html', siswa_list=siswa_list,gender_list=gender_list,status_list=status_list,
+    btn_tambah=btn_tambah, title=title, title_data=title_data)
+
+
+@app.route('/admin/siswa/tambah', methods=['POST'])
+def tambah_admin_siswa():
+    if session.get('role') == 'murid':
+        abort(403)
+
+    data = request.json
+    siswa = Siswa(
+        nis=int(data.get('nis')),
+        nisn=data.get('nisn'),
+        nama=data.get('nama'),
+        id_gender=data.get('id_gender'),
+        tempat_lahir=data.get('tempat_lahir'),
+        tanggal_lahir=data.get('tanggal_lahir'),
+        alamat=data.get('alamat'),
+        no_hp=data.get('no_hp'),
+        email=data.get('email'),
+        nama_ayah=data.get('nama_ayah'),
+        nama_ibu=data.get('nama_ibu'),
+        penghasilan_ayah=int(data.get('penghasilan_ayah')),
+        penghasilan_ibu=int(data.get('penghasilan_ibu')),
+        asal_sekolah=data.get('asal_sekolah'),
+        id_status=data.get('id_status'),
+    )
+
+    db.session.add(siswa)
+    db.session.commit()
+    flash('Siswa berhasil ditambahkan')
+    return jsonify({'msg': 'Siswa berhasil ditambahkan'})
+
+
+@app.route('/admin/siswa/edit/<int:nis>', methods=['PUT'])
+def edit_admin_siswa(nis):
+    if session.get('role') == 'murid':
+        abort(403)
+
+    siswa = Siswa.query.get(nis)
+    if not siswa:
+        return jsonify({'error': 'Siswa tidak ditemukan'}), 404
+
+    data = request.json
+    siswa.nisn = data.get('nisn')
+    siswa.nama = data.get('nama')
+    siswa.id_gender = data.get('id_gender')
+    siswa.tempat_lahir = data.get('tempat_lahir')
+    siswa.tanggal_lahir = data.get('tanggal_lahir')
+    siswa.alamat = data.get('alamat')
+    siswa.no_hp = data.get('no_hp')
+    siswa.email = data.get('email')
+    siswa.nama_ayah = data.get('nama_ayah')
+    siswa.nama_ibu = data.get('nama_ibu')
+    siswa.penghasilan_ayah = int(data.get('penghasilan_ayah'))
+    siswa.penghasilan_ibu = int(data.get('penghasilan_ibu'))
+    siswa.asal_sekolah = data.get('asal_sekolah')
+    siswa.id_status = data.get('id_status')
+
+    db.session.commit()
+    flash('Siswa berhasil diperbarui')
+    return jsonify({'msg': 'Siswa berhasil diperbarui'})
+
+
+@app.route('/admin/siswa/hapus/<int:nis>', methods=['DELETE'])
+def hapus_admin_siswa(nis):
+    if session.get('role') == 'murid':
+        abort(403)
+
+    siswa = Siswa.query.get(nis)
+    if not siswa:
+        return jsonify({'error': 'Siswa tidak ditemukan'}), 404
+
+    db.session.delete(siswa)
+    db.session.commit()
+    flash('Siswa berhasil dihapus')
+    return jsonify({'msg': 'Siswa berhasil dihapus'})
