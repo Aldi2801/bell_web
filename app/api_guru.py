@@ -1,4 +1,4 @@
-from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role
+from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role, Tagihan, Transaksi
 from flask import flash, redirect, request, jsonify, url_for, render_template, render_template_string,session
 from flask_mail import Message
 from sqlalchemy import case
@@ -386,19 +386,105 @@ def bayar_offline():
     if not id_tagihan or not total:
         return jsonify(success=False, message="Data tidak lengkap")
 
+    tagihan = Tagihan.query.get(id_tagihan)
     kode_order = f"offline_{user}"
     transaksi = Transaksi(
         id_tagihan=id_tagihan,
         kode_order=kode_order,
+        email= tagihan.user_email,
         total=total,
-        metode="Offline",
-        status="paid",
-        waktu=datetime.now()
+        fraud_status = 0,
+        status="settlement",
+        created_at=datetime.datetime.now()
     )
     db.session.add(transaksi)
 
-    tagihan = Tagihan.query.get(id_tagihan)
-    tagihan.status = 'Lunas'
-
     db.session.commit()
     return jsonify(success=True)
+
+@app.route('/menu_pembayaran/tambah', methods=['POST'])
+def tambah_tagihan():
+    if session.get('role') == 'murid':
+        abort(403)
+    if request.json.get('user_email') == 'semua_siswa':
+        siswa_list = Siswa.query.all()
+        for siswa in siswa_list:
+            tagihan = Tagihan(
+                user_email=siswa.email,
+                semester=request.json.get('semester'),
+                tahun_ajaran=request.json.get('tahun_ajaran'),
+                deskripsi=request.json.get('deskripsi'),
+                total=request.json.get('total')
+            )
+            db.session.add(tagihan)
+        db.session.commit()
+        return jsonify({'msg': 'Tagihan berhasil ditambahkan ke semua siswa'})
+    else:
+        tagihan = Tagihan(
+            user_email=request.json.get('user_email'),
+            semester=request.json.get('semester'),
+            tahun_ajaran=request.json.get('tahun_ajaran'),
+            deskripsi=request.json.get('deskripsi'),
+            total=request.json.get('total')
+        )
+        db.session.add(tagihan)
+        db.session.commit()
+        flash('Tagihan berhasil ditambahkan')
+        return jsonify({'msg': 'Tagihan berhasil ditambahkan'})
+@app.route('/get_tagihan/<int:id_tagihan>', methods=['GET'])
+def get_tagihan(id_tagihan):
+    tagihan = Tagihan.query.filter_by(id_tagihan=id_tagihan).first()
+    if not tagihan:
+        return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
+
+    # Cari transaksi yang terhubung ke tagihan ini
+    transaksi = Transaksi.query.filter_by(id_tagihan=id_tagihan).first()
+
+    # Jika transaksi ditemukan dan statusnya 'paid', ubah jadi 'lunas'
+    if transaksi and transaksi.status == 'paid':
+        status = 'Lunas'
+    else:
+        status = "Belum Lunas"
+    print(status)
+    return jsonify({
+        'id_tagihan': tagihan.id_tagihan,
+        'user_email': tagihan.user_email,
+        'semester': tagihan.semester,
+        'tahun_ajaran': tagihan.tahun_ajaran,
+        'deskripsi': tagihan.deskripsi,
+        'total': tagihan.total,
+        'status': status
+        
+    })
+
+@app.route('/menu_pembayaran/edit/<int:id_tagihan>', methods=['PUT'])
+def edit_tagihan(id_tagihan):
+    if session.get('role') == 'murid':
+        abort(403)
+
+    tagihan = Tagihan.query.filter_by(id_tagihan=id_tagihan).first()
+    if not tagihan:
+        return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
+
+    tagihan.user_email = request.json.get('user_email')
+    tagihan.semester = request.json.get('semester')
+    tagihan.tahun_ajaran = request.json.get('tahun_ajaran')
+    tagihan.deskripsi = request.json.get('deskripsi')
+    tagihan.total = request.json.get('total')
+
+    db.session.commit()
+    flash('Tagihan berhasil diperbarui')
+    return jsonify({'msg': 'Tagihan berhasil diperbarui'})
+@app.route('/menu_pembayaran/hapus/<int:id_tagihan>', methods=['DELETE'])
+def hapus_tagihan(id_tagihan):
+    if session.get('role') == 'murid':
+        abort(403)
+
+    tagihan = Tagihan.query.filter_by(id_tagihan=id_tagihan).first()
+    if not tagihan:
+        return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
+
+    db.session.delete(tagihan)
+    db.session.commit()
+    flash('Tagihan berhasil dihapus')
+    return jsonify({'msg': 'Tagihan berhasil dihapus'})

@@ -1,8 +1,9 @@
 from requests import session
-from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi, AmpuMapel, Kehadiran, Mapel, Keterangan, PembagianKelas
-from flask import render_template, request, jsonify, session
+from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi, AmpuMapel, Kehadiran, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
+from flask import render_template, request, jsonify, session, redirect
 import jwt
 
+from sqlalchemy import and_
 from sqlalchemy import and_
 
 @app.route('/get_menu_pembayaran')
@@ -17,42 +18,30 @@ def get_menu_pembayaran():
         role = decoded_token['role']
 
         semester, tahun_ajaran = get_semester_and_year()
-
+        print(user_email)
+        # Ambil semua tagihan
         if role == 'murid':
-            all_tagihan = Tagihan.query.filter(
-                and_(
-                    Tagihan.user_email == user_email,
-                    Tagihan.semester == semester,
-                    Tagihan.tahun_ajaran == tahun_ajaran
-                )
+            all_tagihan = Tagihan.query.filter_by(
+                user_email=user_email,
             ).all()
 
             paid_transactions = Transaksi.query.filter(
-                and_(
-                    Transaksi.email == user_email,
-                    Transaksi.status == 'settlement'
-                )
+                Transaksi.email == user_email,
+                Transaksi.status.in_(['settlement', 'paid'])
             ).all()
-
         else:
-            # Untuk admin/guru: Ambil semua tagihan
-            all_tagihan = Tagihan.query.filter(
-                and_(
-                    Tagihan.semester == semester,
-                    Tagihan.tahun_ajaran == tahun_ajaran
-                )
-            ).all()
+            # admin / guru
+            all_tagihan = Tagihan.query.all()
 
             paid_transactions = Transaksi.query.filter(
-                Transaksi.status == 'settlement'
+                Transaksi.status.in_(['settlement', 'paid'])
             ).all()
 
-        # Buat map tagihan yang sudah lunas
+        # Buat set id_tagihan yang sudah lunas
         paid_tagihan_ids = {tr.id_tagihan for tr in paid_transactions if tr.id_tagihan is not None}
 
-        # Untuk admin/guru: buat cache siswa dan kelas agar tidak query berulang-ulang
+        # Untuk caching data siswa (khusus admin/guru)
         siswa_map = {}
-        kelas_map = {}
 
         def get_siswa_data(email):
             if email in siswa_map:
@@ -62,9 +51,8 @@ def get_menu_pembayaran():
                 siswa_map[email] = None
                 return None
 
-            # Ambil kelas aktif dari PembagianKelas
             pembagian = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
-            kelas_nama = pembagian.kelas_rel.nama_kelas if pembagian else 'Belum dibagi'
+            kelas_nama = pembagian.kelas_rel.nama_kelas if pembagian and pembagian.kelas_rel else 'Belum dibagi'
             data = {
                 'nama': siswa.nama,
                 'kelas': kelas_nama
@@ -72,7 +60,7 @@ def get_menu_pembayaran():
             siswa_map[email] = data
             return data
 
-        # Buat list hasil
+        # Bangun response
         result_tagihan = []
         for t in all_tagihan:
             status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
@@ -93,7 +81,7 @@ def get_menu_pembayaran():
                 result['kelas'] = siswa_info['kelas']
 
             result_tagihan.append(result)
-
+        print(result_tagihan)
         return jsonify(result_tagihan)
 
     except jwt.ExpiredSignatureError:
@@ -101,12 +89,56 @@ def get_menu_pembayaran():
     except jwt.InvalidTokenError:
         return jsonify({'valid': False, 'message': 'Invalid token'}), 403
 
+
+from sqlalchemy.orm import joinedload
+
 @app.route('/kehadiran')
 def view_kehadiran():
-    data_siswa = Siswa.query.all()        
+    nis = session.get('nis')
+    print(nis)
+    if nis:
+        nama_siswa = Siswa.query.filter_by(nis=nis).first()
+    else:
+        redirect('/')
+
     data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()
     data_kbm = Kbm.query.all()
-    return render_template("kehadiran.html", siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)
+    # Ambil semua kehadiran berdasarkan nis
+    kehadiran_list = Kehadiran.query\
+            .filter_by(nis=nis)\
+            .join(Kbm, Kehadiran.id_kbm == Kbm.id_kbm)\
+            .join(Keterangan, Kehadiran.id_keterangan == Keterangan.id_keterangan)\
+            .join(AmpuMapel, AmpuMapel.id_ampu == Kbm.id_ampu)\
+            .join(Guru, Guru.nip == AmpuMapel.nip)\
+            .add_columns(
+                AmpuMapel.id_mapel('id_mapel'),
+                AmpuMapel.nip('nip'),
+                AmpuMapel.id_tahun_akademik('id_tahun_akademik'),
+                Guru.nama('nama_guru'),
+                Kbm.tanggal.label('tanggal'),
+                Kbm.materi.label('materi'),
+                Kbm.sub_materi.label('sub_materi'),
+                Keterangan.keterangan.label('keterangan')
+            ).all()
+
+    print(kehadiran_list)
+    # Format data hasil
+    result = []
+    for k in kehadiran_list:
+            nama_kelas = PembagianKelas.query.filter_by(nis=nis,id_tahun_akademik=k.id_tahun_akademik).first()
+            result.append({
+                'nama_lengkap':nama_siswa.nama,
+                'tanggal': k.tanggal.isoformat(),
+                'nama_mapel':k.id_mapel,
+                'nama_kelas':nama_kelas.id_kelas,
+                'nip':k.nip,
+                'nama_guru':k.nama_guru,
+                'materi': k.materi,
+                'sub_materi': k.sub_materi,
+                'keterangan': k.keterangan
+            })
+    print(result)
+    return render_template("kehadiran.html",kehadiran_list= kehadiran_list, siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)
 
 @app.route('/murid/kehadiran')
 def kehadiran():
@@ -144,7 +176,7 @@ def kehadiran():
 def view_pengumuman():
     berita = Berita.query.all()
     guru = Guru.query.all()  # ambil semua guru
-    btn_tambah = True
-    title = "Manage Semester"
-    title_data = "Semester"
+    btn_tambah = False
+    title = "Pengumuman"
+    title_data = "Pengumuman"
     return render_template('murid/berita.html', berita=berita, guru=guru,btn_tambah=btn_tambah,title=title,title_data=title_data)

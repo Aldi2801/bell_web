@@ -20,7 +20,7 @@ from flask_jwt_extended import jwt_required
 from num2words import num2words
 from flask import flash, redirect
 # Import dari aplikasi lokal
-from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita
+from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
@@ -474,3 +474,4 @@ def hapus_pengumuman(id_pengumuman):
     db.session.commit()
     flash('berita berhasil dihapus')
     return jsonify({'msg': 'berita berhasil dihapus'})
+

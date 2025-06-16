@@ -1,5 +1,5 @@
 
-from flask import request, jsonify, render_template
+from flask import request, jsonify, render_template, session
 import os, uuid, base64, json, requests   
 from dotenv import load_dotenv
 from . import app, jwt, db, Tagihan, Transaksi , Siswa, TahunAkademik
@@ -129,5 +129,15 @@ def view_menu_pembayaran():
             print('Transaction not found or already updated')
     data_siswa = Siswa.query.all()
     tahun_ajaran = TahunAkademik.query.all()
-    return render_template("menu_pembayaran.html", siswa = data_siswa, tahun_ajaran = tahun_ajaran)
+    role = session.get('role')
+    if role != 'murid':        
+        btn_tambah = True
+        title = "Manage pembayaran"
+        title_data = "Pembayaran"
+    else:
+        btn_tambah = False
+        title = "Pembayaran"
+        title_data = "Pembayaran"
+    return render_template("menu_pembayaran.html", siswa = data_siswa, tahun_ajaran = tahun_ajaran, 
+    btn_tambah = btn_tambah, title = title, title_data = title_data)
 

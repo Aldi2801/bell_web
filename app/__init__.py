@@ -419,61 +419,61 @@ def get_semester_and_year():
         tahun_ajaran = f"{year}/{year+1}"
     return semester, tahun_ajaran
 
-@app.before_request
-def create_automatic_bills():
-    semester, tahun_ajaran = get_semester_and_year()
+# @app.before_request
+# def create_automatic_bills():
+    # semester, tahun_ajaran = get_semester_and_year()
 
-    bulan_mapping = [
-        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-    ]
-    bulan_sekarang = bulan_mapping[datetime.now().month - 1]
+    # bulan_mapping = [
+        # "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        # "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    # ]
+    # bulan_sekarang = bulan_mapping[datetime.now().month - 1]
 
-    spp_bulanan = f"SPP Bulanan - {bulan_sekarang} {tahun_ajaran} {semester}"
-    ujian_tahunan = f"Uang Ujian {tahun_ajaran} {semester}"
+    # spp_bulanan = f"SPP Bulanan - {bulan_sekarang} {tahun_ajaran} {semester}"
+    # ujian_tahunan = f"Uang Ujian {tahun_ajaran} {semester}"
 
-    semua_siswa = Siswa.query.all()
+    # semua_siswa = Siswa.query.all()
 
-    for s in semua_siswa:
-        # Cek apakah tagihan SPP sudah ada untuk siswa ini
-        existing_spp = Tagihan.query.filter_by(
-            user_email=s.email,
-            deskripsi=spp_bulanan,
-            semester=semester,
-            tahun_ajaran=tahun_ajaran
-        ).first()
+    # for s in semua_siswa:
+        # # Cek apakah tagihan SPP sudah ada untuk siswa ini
+        # existing_spp = Tagihan.query.filter_by(
+            # user_email=s.email,
+            # deskripsi=spp_bulanan,
+            # semester=semester,
+            # tahun_ajaran=tahun_ajaran
+        # ).first()
 
-        if not existing_spp:
-            tagihan_spp = Tagihan(
-                user_email=s.email,
-                deskripsi=spp_bulanan,
-                total=10000,
-                semester=semester,
-                tahun_ajaran=tahun_ajaran,
-                created_at=datetime.now()
-            )
-            db.session.add(tagihan_spp)
+        # if not existing_spp:
+            # tagihan_spp = Tagihan(
+                # user_email=s.email,
+                # deskripsi=spp_bulanan,
+                # total=10000,
+                # semester=semester,
+                # tahun_ajaran=tahun_ajaran,
+                # created_at=datetime.now()
+            # )
+            # db.session.add(tagihan_spp)
 
-        # Cek apakah tagihan Ujian sudah ada untuk siswa ini
-        existing_ujian = Tagihan.query.filter_by(
-            user_email=s.email,
-            deskripsi=ujian_tahunan,
-            semester=semester,
-            tahun_ajaran=tahun_ajaran
-        ).first()
+        # # Cek apakah tagihan Ujian sudah ada untuk siswa ini
+        # existing_ujian = Tagihan.query.filter_by(
+            # user_email=s.email,
+            # deskripsi=ujian_tahunan,
+            # semester=semester,
+            # tahun_ajaran=tahun_ajaran
+        # ).first()
 
-        if not existing_ujian:
-            tagihan_ujian = Tagihan(
-                user_email=s.email,
-                deskripsi=ujian_tahunan,
-                total=1000000,
-                semester=semester,
-                tahun_ajaran=tahun_ajaran,
-                created_at=datetime.now()
-            )
-            db.session.add(tagihan_ujian)
+        # if not existing_ujian:
+            # tagihan_ujian = Tagihan(
+                # user_email=s.email,
+                # deskripsi=ujian_tahunan,
+                # total=1000000,
+                # semester=semester,
+                # tahun_ajaran=tahun_ajaran,
+                # created_at=datetime.now()
+            # )
+            # db.session.add(tagihan_ujian)
 
-    db.session.commit()
+    # db.session.commit()
 
 def is_valid_email(email):
     regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'

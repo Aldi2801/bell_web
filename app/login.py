@@ -18,48 +18,45 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 def homepahe():
     return redirect(url_for('login'))
     #return render_template('index.html')
-@app.route('/login', methods=['GET','POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.json['username']
-        password = request.json['password']
-        # Mencari pengguna berdasarkan username
+        username = request.json.get('username')
+        password = request.json.get('password')
         user = User.query.filter_by(username=username).first()
 
         if not user:
-            return "Username salah", 401
+            return jsonify({'error': 'Username salah'}), 401
 
-        # Memverifikasi password
         if bcrypt.check_password_hash(user.password, password):
             access_token = jwt.encode({
-            'username': username,
-            'role': user.roles[0].name,
-            'email': user.email,
-            'exp': datetime.utcnow() + timedelta(hours=24)
-        }, app.config['SECRET_KEY'], algorithm='HS256')
-        
+                'username': username,
+                'role': user.roles[0].name,
+                'email': user.email,
+                'exp': datetime.utcnow() + timedelta(hours=24)
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+
             session['jwt_token'] = access_token
             session['username'] = username
-            # Ambil role pertama (jika ada)
             if user.roles:
                 session['role'] = user.roles[0].name
             else:
-                session['role'] = None  # atau bisa kasih nilai default
+                session['role'] = None
             if user.roles[0].name == 'guru':
-                session['nip']=  user.nip
+                session['nip'] = user.nip
             elif user.roles[0].name == 'murid':
                 session['nis'] = user.nis
             else:
                 session['role'] = 'admin'
-            # Jika user bisa punya lebih dari satu role dan kamu ingin menyimpannya semua:
-            # session['roles'] = [role.name for role in user.roles]
-            return jsonify({'token':access_token})
+
+            return jsonify({'token': access_token})
         else:
-            return "Password salah", 402
-        
+            return jsonify({'error': 'Password salah'}), 402
     else:
         msg = request.args.get('msg')
         return render_template('login.html', msg=msg)
+
     
 
 # Endpoint yang memerlukan autentikasi

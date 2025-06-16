@@ -48,7 +48,7 @@ from flask import render_template, session
 def dashboard():
     role = session.get('role')
     user = User.query.filter_by(username=session.get('username')).first()
-    print(session['username'])
+    print(session.get('username'))
     print(user)
 
     profil = {}

@@ -15,17 +15,17 @@
         </tr>
     </thead>
     <tbody>
-        {% for kehadiran, tanggal, materi, nama_mapel, keterangan, nama_kelas, tingkat in data_kehadiran %}
+        {% for i in kehadiran_list %}
         <tr>
             <td>
-                {{nama_lengkap}}
+                {{ i.nama_lengkap}}
             </td>
-            <td>{{ tanggal }}</td>
-            <td>{{ nama_mapel }}</td>
-            <td>{{ nama_kelas }}</td>
-            <td>{{ tingkat }}</td>
-            <td>{{ materi }}</td>
-            <td>{{ keterangan }}</td>
+            <td>{{ i.tanggal }}</td>
+            <td>{{ i.nama_mapel }}</td>
+            <td>{{ i.nama_kelas }}</td>
+            <td>{{ i.tingkat }}</td>
+            <td>{{ i.materi }}</td>
+            <td>{{ i.keterangan }}</td>
         </tr>
         {% endfor %}
     </tbody>

@@ -132,6 +132,11 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+#errorMsg {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}
 
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -139,6 +144,8 @@
 
 <body>
     <div class="container">
+	<div id="errorMsg" style="color:red; margin-top:10px;"></div>
+
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
@@ -208,54 +215,44 @@
 // Panggil fungsi verifikasi saat halaman dimuat
 document.addEventListener("DOMContentLoaded", verifyToken);
 
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Mencegah form dari pengiriman tradisional
-            document.getElementById("submit").disabled = true;
-            document.getElementById("submit").innerHTML = '<div class="loader" id="loader"></div>';
-            // Cek kredensial dengan username dan password "admin123"
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
+       document.getElementById("loginForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    document.getElementById("submit").disabled = true;
+    document.getElementById("submit").innerHTML = '<div class="loader" id="loader"></div>';
+    document.getElementById("errorMsg").innerText = ""; // Reset pesan error
 
-            $.ajax({
-                url: '/login', // Pastikan endpoint /login sesuai dengan API server
-                type: 'POST',
-                contentType: 'application/json',
-                dataType: 'json',
-                data: JSON.stringify({
-                    username: username,
-                    password: password
-                }),
-                success: function (response) {
-                    const token = response.token;
-                    if (token) {
-                    // Redirect to the dashboard if credentials are correct
-                    alert("Login berhasil!");
-                    // Simpan token ke localStorage
-                    localStorage.setItem('authToken', token);
-                    window.location.href = "/dashboard"; // Redirect to dashboard page
-                    document.getElementById("submit").disabled = false;
-                    document.getElementById("submit").innerHTML = "Login";
-                    } else {
-                        // Show an error message if credentials are incorrect
-                        document.getElementById("submit").disabled = false;
-                        document.getElementById("submit").innerHTML = "Login";
-                        alert("Username atau password salah.");
-                    }
-                },
-                 error: function (xhr, status, error) {
-                        document.getElementById("submit").disabled = false;
-                        document.getElementById("submit").innerHTML = "Login";
-                        var errorTxt = "Server Error";
-                        if (xhr.responseJSON.error){
-                            errorTxt = xhr.responseJSON.error;
-                        }
-                        if (xhr.responseJSON.msg){
-                            errorTxt = xhr.responseJSON.msg;
-                        }
-                        alert(`Error: ${errorTxt}`);
-                    }
-            });
-        });
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    $.ajax({
+        url: '/login',
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({ username, password }),
+        success: function (response) {
+            const token = response.token;
+            if (token) {
+                localStorage.setItem('authToken', token);
+                window.location.href = "/dashboard";
+            }
+            document.getElementById("submit").disabled = false;
+            document.getElementById("submit").innerHTML = "Login";
+        },
+        error: function (xhr) {
+            document.getElementById("submit").disabled = false;
+            document.getElementById("submit").innerHTML = "Login";
+
+            let errorTxt = "Terjadi kesalahan.";
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+                errorTxt = xhr.responseJSON.error;
+            }
+
+            document.getElementById("errorMsg").innerText = errorTxt;
+        }
+    });
+});
+
     </script>
 </body>
 

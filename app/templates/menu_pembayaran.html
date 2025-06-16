@@ -1,119 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tagihan Pembayaran</title>
-    <!-- Tambahkan link CSS DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <!-- Tambahkan link jQuery dan DataTables JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="/static/style_base.css">
-    <style>
-    .body-container{
-        align-items:normal;
-    }
-    .container{
-        max-width:none;
-    }
-            .table-responsive thead th {
-    background-color: #c12fdbdb !important;
-    color: white !important;
-    text-align: center;
-}
-  .flash-message-container {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-            background: linear-gradient(to right, #a6c1ee, #fbc2eb);
-    z-index: 1050;
-    width: 100%;
-    max-width: 500px;
-    padding: 0 15px;
-  }
+{% extends "layout.html" %}
 
-  .alert {
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 1rem;
-    font-weight: 500;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    animation: fadeInDown 0.5s ease;
-    position: relative;
-  }
-
-  .btn-close {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    border: none;
-    background: transparent;
-    font-size: 1.2rem;
-    cursor: pointer;
-  }
-
-  /* Animasi fade in */
-  @keyframes fadeInDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
- 
-    </style>
-</head>
-
-<body>
-  <div class="flash-message-container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-  </div>
-
-  <script>
-    // Auto-hide alert after 4 seconds
-    setTimeout(() => {
-      document.querySelectorAll('.alert').forEach(alert => {
-        alert.classList.remove('show');
-        alert.classList.add('fade');
-        setTimeout(() => alert.remove(), 500); // remove after fade out
-      });
-    }, 4000);
-  </script>
-    <header>
-        <div class="d-flex">
-        <div class="menu-container">
-        <button class="logout-button" onclick="location.href='/'">Menu</button>
-        {% if session['role'] == 'admin' %}
-        <button style="width: 150px !important;" class="logout-button" onclick="openTambahModal()">Tambah Data</button>
-        {% endif %}
-        </div>
-        <div class="logout-container">
-        <button class="logout-button" onclick="handleLogout()">Logout</button>
-        </div>
-        </div>
-        <h1>Tagihan Pembayaran MTs Al Huda Reban</h1>
-        <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
-    </header>
-<div class="body-container">
-    <div class="container">
-        {% if session['role'] != 'murid' %}
-        <button class="btn btn-success mt-3" onclick="openTambahModal()">Tambah Tagihan</button>
-        {% endif %}
-        <table class="table table-bordered table-striped mt-4 container-table">
+{% block form_tambah %}
+<div class="mb-3">
+        <label>Semester:</label>
+        <select class="form-control"  name="semester" id="tambah_semester" required>
+          <option value="Ganjil">Ganjil</option>
+          <option value="Genap">Genap</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label>Pilih Siswa:</label>
+        <select class="form-control"  name="user_email" class="form-control form-search" id="tambah_user_email" required>
+          <option value="semua_siswa">Semua Siswa</option>
+          {% for i in siswa %}
+          <option value="{{i.email}}">{{i.nama}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label>Tahun Ajaran:</label>
+        <select class="form-control"  name="tahun_ajaran" id="tambah_tahun_ajaran" required class="form-control form-search">
+          {% for i in tahun_ajaran %}
+          <option value="{{i.tahun_akademik}}">{{i.tahun_akademik}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label>Deskripsi:</label>
+        <input class="form-control"  type="text" name="deskripsi" id="tambah_deskripsi" placeholder="Deskripsi" required>
+      </div>
+      <div class="mb-3">
+        <label>Total Pembayaran:</label>
+        <input class="form-control"  type="number" name="total" id="tambah_total" placeholder="Total" required>
+      </div>
+{% endblock %}
+{% block content %}
+<div class="table-responsive">
+  <table id="myTable" class="table table-bordered table-striped mt-4 container-table">
             <thead class="table-dark">
                 <tr>
                     <th>No</th>
@@ -133,210 +56,144 @@
             </tbody>
         </table>
     </div>
-</div>
+	
 <!-- Modal Edit -->
-<div id="editModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
-    <h3 style="color: black !important;;">Edit Data Guru</h3>
-    <form id="editGuruForm" method="POST" action="/edit_guru">
-        <input type="hidden" name="id_tagihan" id="id_tagihan">
-        <label>semester:</label>
-        <select name="user_semester" id="edit_semester" required>
-            <option value="Ganjil">Genjil</option>
-            <option value="Genap">Genap</option>
-        </select>
-        <label>Pilih Siswa:</label>
-        <select name="user_email" class="form-control form-search" id="edit_user_email" required >
-            <option value="semua_siswa">Semua Siswa</option>
-            {% for i in siswa  %}
-            <option value="{{i.email}}">{{i.nama}}</option>
-            {% endfor %}
-        </select><br>
-        <label>tahun_ajaran:</label>
-          <select  name="tahun_ajaran"  id="edit_tahun_ajaran" required class="form-control form-search" >
-            {% for i in tahun_ajaran %}
-            <option value="{{i.tahun_akademik}}">{{i.tahun_akademik}}</option>
-            {% endfor %}
-        </select><br>
-        <label>deskripsi:</label>
-        <input type="text" name="deskripsi" id="edit_deskripsi" required ><br>
-        <label>total:</label>
-        <input type="number" name="total" id="edit_total" required ><br>
-        <button type="submit" class="btn btn-success" >Simpan</button>
-        <button type="button" class="btn btn-secondary" onclick="closeEditModal()" >Batal</button>
-    </form>
-</div>
-<!-- Modal Tambah -->
-<div id="tambahModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:999; background:#fff; padding:0; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width: 1000px; width: 95%; max-height: 90vh; flex-direction: column;">  
-  <!-- Header (Optional) -->
-  <div style="padding: 20px; height: 30px !important; border-bottom: 1px solid #ddd;">
-    <h4 class="text-center mb-3">Tambah Pembayaran</h4>
-  </div>
-  <!-- Scrollable Content -->
-  <div style="padding: 20px; overflow-y: auto; flex: 1;">
-    <form id="daftarForm">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label>semester:</label>
-            <select name="user_semester" id="edit_semester" required>
-                <option value="Ganjil">Genjil</option>
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="tambahTagihanLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTagihanLabel">Edit Tagihan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form id="editTagihanForm">
+		<input type="hidden" name="id_tagihan" id="edit_id_tagihan">
+        <div class="mb-3">
+            <label>Semester:</label>
+            <select class="form-control" name="semester" id="edit_semester" required>
+                <option value="Ganjil">Ganjil</option>
                 <option value="Genap">Genap</option>
             </select>
         </div>
-        <div class="col-md-4">
-           <label>Pilih Siswa:</label>
-            <select name="user_email" class="form-control form-search"  id="edit_user_email" required>
-            <option value="semua_siswa">Semua Siswa</option>
-            {% for i in siswa  %}
-            <option value="{{i.email}}">{{i.nama}}</option>
-            {% endfor %}
-        </select>
+        <div class="mb-3">
+            <label>Pilih Siswa:</label>
+            <select class="form-control" name="user_email" class="form-control form-search" id="edit_user_email" required>
+                <option value="semua_siswa">Semua Siswa</option>
+                {% for i in siswa %}
+                <option value="{{i.email}}">{{i.nama}}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="col-md-4">
-          <input type="text" name="deskripsi"  id="edit_deskripsi" placeholder="deskripsi" required><br>
+        <div class="mb-3">
+            <label>Tahun Ajaran:</label>
+            <select class="form-control" name="tahun_ajaran" id="edit_tahun_ajaran" required class="form-control form-search">
+                {% for i in tahun_ajaran %}
+                <option value="{{i.tahun_akademik}}">{{i.tahun_akademik}}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="col-md-4">
-          <select  name="tahun_ajaran"  id="edit_tahun_ajaran" required class="form-control form-search" >
-            {% for i in tahun_ajaran %}
-            <option value="{{i.tahun_akademik}}">{{i.tahun_akademik}}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-4">
-        <input type="number" name="total"  id="edit_total" placeholder="Total" required><br>
-        </div>
+        <div class="mb-3">
+            <label>Deskripsi:</label>      
+			 <input class="form-control" type="text" name="deskripsi" id="edit_deskripsi" placeholder="Deskripsi" required>
+		</div>
+		<div class="mb-3">
+        <label>Total Pembayaran:</label>
+			<input class="form-control" type="number" name="total" id="edit_total" placeholder="Total" required>
+		</div>
+          <!-- Modal Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" id="tomboldaftar" class="btn btn-primary">Simpan </button>
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
-  <!-- Footer dengan tombol -->
-  <div style="padding: 15px; border-top: 1px solid #ddd; text-align: right;">
-    <button type="submit" id="tomboldaftar" class="btn btn-primary" style="margin-bottom: 15px !important;" form="daftarForm">Daftar</button>
-    <button type="button" class="btn btn-secondary" onclick="closeTambahModal()">Batal</button>
+    </div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/static/script_footer.js"></script>
 <script>
-    
-        document.getElementById("tomboldaftar").addEventListener("click", function(event) {
-            event.preventDefault(); // Prevent form from submitting traditionally
-             const form = document.getElementById("daftarForm");
-            const formData = new FormData(form);
-            const data = {};
+// Persingkat kodingan JS tagihan (fungsional tetap sama)
 
-            formData.forEach((value, key) => {
-                data[key] = value.trim();
-            });
+const getToken = () => localStorage.getItem('authToken');
+const alertIfNoToken = () => { if (!getToken()) return alert('Anda perlu login terlebih dahulu.'), true; };
+const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': getToken() });
 
-            // Validasi dasar
-            if (!data.username || !data.password || !data["re-password"]) {
-                alert("Harap isi semua kolom wajib.");
-                return;
-            }
+const handleResponse = async (res, successMsg, failMsg) => {
+    const data = await res.json();
+    if (data.success) {
+        alert(successMsg);
+        fetchMenuPembayaran();
+    } else alert(failMsg + (data.message || ' Unknown error'));
+};
 
-            if (data.password !== data["re-password"]) {
-                alert("Password dan ulangi password tidak cocok.");
-                return;
-            }
-            document.getElementById("tomboldaftar").disabled = true;
-            document.getElementById("tomboldaftar").innerHTML = '<div class="loader" id="loader"></div>';
-            // Ambil URL dasar tanpa parameter
-            const baseUrl = window.location.origin + window.location.pathname;
-            console.log(baseUrl);
-             $.ajax({
-                    url: '/tambah_guru?from="'+baseUrl+'"', // Pastikan endpoint /register sesuai dengan API server
-                    type: 'POST',
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    data: JSON.stringify(data),
-                    success: function (response) {
-                        const token = response.msg;
-                        if (token) {
-                        // Redirect to the dashboard if credentials are correct
-                        document.getElementById("tomboldaftar").innerHTML = "Daftar";
-                        alert(response.msg);
-                        window.location.href = "/login"; // Redirect to login
-                        document.getElementById("tomboldaftar").disabled = false;
-                        } else {
-                            // Show an error message 
-                            document.getElementById("tomboldaftar").disabled = false;
-                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
-                            console.log(response)
-                            const error = response.error;
-                            alert(error);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                            document.getElementById("tomboldaftar").disabled = false;
-                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
-                            console.log(status)
-                            var errorTxt = "Server Error";
-                            if (xhr.responseJSON.error){
-                                errorTxt = xhr.responseJSON.error;
-                            }
-                            if (xhr.responseJSON.msg){
-                                errorTxt = xhr.responseJSON.msg;
-                            }
-                            alert(`Submit failed: ${errorTxt}`);
-                        }
-                });
-           
-        });
 async function fetchMenuPembayaran() {
-    const token = localStorage.getItem('authToken'); // Ambil token dari LocalStorage
-    if (!token) {
-        alert('Anda perlu login terlebih dahulu.');
-        return;
-    }
-
+    if (alertIfNoToken()) return;
     try {
-        const res = await fetch('/get_menu_pembayaran', {
-            method: 'GET',
-            headers: {
-                'Authorization': token
-            }
-        });
-
-        if (!res.ok) {
-            if (res.status === 401) {
-                alert('Token kadaluarsa. Silakan login ulang.');
-            } else if (res.status === 403) {
-                alert('Token tidak valid.');
-            } else {
-                alert('Gagal mengambil data tagihan.');
-            }
-            return;
-        }
-
+        const res = await fetch('/get_menu_pembayaran', { headers: headers() });
+        if (!res.ok) return alert({ 401: 'Token kadaluarsa', 403: 'Token tidak valid' }[res.status] || 'Gagal mengambil data tagihan.');
         const data = await res.json();
-        populateTagihanTable(data); // Panggil fungsi untuk menampilkan data
-    } catch (error) {
-        console.error('Error fetching menu pembayaran:', error);
+        populateTagihanTable(data);
+        $('#myTable').DataTable();
+    } catch (err) {
+        console.error(err);
         alert('Terjadi kesalahan saat mengambil data tagihan.');
     }
 }
+document.getElementById("editTagihanForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (alertIfNoToken()) return;
+    const form = e.target;
+    const data = Object.fromEntries(new FormData(form));
+    const id = data.id_tagihan;  // pastikan ada input name="id_tagihan" di form edit
+    try { const res = await fetch(`/menu_pembayaran/edit/${id}`, { method: 'PUT', headers: headers(),
+            body: JSON.stringify(data)
+        });
+		const d = await res.json();
+		if (!d.msg) {
+			if(!d.error){
+			 alert('Terjadi kesalahan saat mengubah tagihan.'); 
+			}
+			alert(d.error);
+		}
+		alert(d.msg)
+		$('#editModal').modal('hide');
+		const b = await fetchMenuPembayaran();
+    } catch { 		if (!d.msg) {
+			if(!d.error){
+			 alert('Terjadi kesalahan saat mengubah tagihan.'); 
+			}
+			alert(d.error);
+		}
+		alert(d.msg) }
+});
+
+
+window.editTagihan = async id => {
+    if (alertIfNoToken()) return;
+    try {
+        const res = await fetch(`/get_tagihan/${id}`, { headers: headers() });
+        const d = await res.json();
+        ['id_tagihan', 'semester', 'user_email', 'tahun_ajaran', 'deskripsi','total'].forEach(f =>
+            document.getElementById("edit_" + f).value = d[f]);
+			
+        // ✅ Hanya buka modal kalau data berhasil diambil
+        $('#editModal').modal('show');
+    } catch (e) { alert('Gagal mengambil data tagihan untuk diedit.'); $('#editModal').modal('hide');}
+};
+
+
 function populateTagihanTable(tagihan) {
     const container = document.getElementById('tagihan-container');
-    container.innerHTML = '';
+    container.innerHTML = tagihan.length ? '' : '<tr><td colspan="8">Tidak ada tagihan yang ditemukan.</td></tr>';
 
-    if (tagihan.length === 0) {
-        container.innerHTML = '<tr><td colspan="8">Tidak ada tagihan yang ditemukan.</td></tr>';
-        return;
-    }
-
-    tagihan.forEach((item, index) => {
+    tagihan.forEach((item, i) => {
         const row = document.createElement('tr');
-        let tombolBayar = '', tombolOffline = '';
-
-        if(item.status === 'Belum Lunas') {
-            tombolBayar = `<button type="button" onclick="bayar(${item.total}, '${item.id_tagihan}')" class="btn btn-primary btn-sm">Bayar Online</button>`;
-            tombolOffline = `<button type="button" onclick="bayar_offline(${item.total}, '${item.id_tagihan}')" class="btn btn-warning btn-sm">Bayar Offline</button>`;
-        } else {
-            tombolBayar = '<span class="badge bg-success">Lunas</span>';
-            tombolOffline = '';
-        }
-
+        const lunas = item.status === 'Belum Lunas';
         row.innerHTML = `
-            <td>${index + 1}</td>
+            <td>${i + 1}</td>
             {% if session['role'] != 'murid' %}
             <td>${item.nama_siswa || '-'}</td>
             <td>${item.kelas || '-'}</td>
@@ -346,89 +203,50 @@ function populateTagihanTable(tagihan) {
             <td>${item.deskripsi}</td>
             <td>Rp ${parseInt(item.total).toLocaleString('id-ID')}</td>
             <td>${item.status}</td>
-            <td>${tombolBayar} ${tombolOffline}</td>
-        `;
+            <td>
+			 {% if session['role'] != 'murid' %}
+                ${lunas ? `<button onclick="bayar(${item.total}, '${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Online</button>
+                          <button onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-success btn-sm">Bayar Offline</button>`
+                      : '<button style="width:100px; margin-bottom:5px"  class="btn btn-success btn-sm">Lunas</button>'}
+               
+                <button onclick="editTagihan('${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-warning btn-sm">Edit</button>
+                <button onclick=" deleteData('${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-danger btn-sm">Hapus</button>
+                {% else %}
+				
+			${lunas ? `<button onclick="bayar(${item.total}, '${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Online</button>`
+                      : '<button style="width:100px; margin-bottom:5px"  class="btn btn-success btn-sm">Lunas</button>'}
+               
+				{% endif %}
+            </td>`;
         container.appendChild(row);
     });
 }
 
-function bayar_offline(total, id_tagihan) {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-        alert('Anda belum login.');
-        return;
-    }
-
-    const konfirmasi = confirm("Apakah Anda yakin ingin menandai pembayaran ini sebagai 'Offline Paid'?");
-    if (!konfirmasi) return;
-
-    fetch('/bayar_offline', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token
-        },
-        body: JSON.stringify({
-            id_tagihan: id_tagihan,
-            total: total
-        })
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (res.success) {
-            alert('Pembayaran offline berhasil.');
-            fetchMenuPembayaran();
-        } else {
-            alert('Gagal memproses pembayaran offline: ' + (res.message || 'Unknown error'));
-        }
-    })
-    .catch(err => {
-        console.error('Error bayar offline:', err);
-        alert('Terjadi kesalahan saat memproses pembayaran offline.');
-    });
+function bayar_offline(total, id) {
+    if (alertIfNoToken()) return;
+    if (!confirm("Yakin ingin menandai sebagai 'Offline Paid'?")) return;
+    fetch('/bayar_offline', { method: 'POST', headers: headers(), body: JSON.stringify({ id_tagihan: id, total }) })
+        .then(res => handleResponse(res, 'Pembayaran offline berhasil.', 'Gagal memproses pembayaran offline: '))
+        .catch(() => alert('Terjadi kesalahan saat memproses pembayaran offline.'));
 }
-// Panggil fetchMenuPembayaran saat halaman dimuat
-document.addEventListener('DOMContentLoaded', fetchMenuPembayaran);
-window.bayar = async function(amount,tagihan_id) { // Definisi global menggunakan window
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-        alert('Token tidak tersedia, Anda perlu login.');
-        return;
-    }
 
+window.bayar = async function(amount, id) {
+    if (alertIfNoToken()) return;
     try {
         const res = await fetch('/create-transaction', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': token
-            },
-            body: JSON.stringify({
-                amount: amount, // Data yang ingin dikirim
-                tagihan_id: tagihan_id // Data yang ingin dikirim
-            })
+            method: 'POST', headers: headers(),
+            body: JSON.stringify({ amount, tagihan_id: id })
         });
-
-        if (!res.ok) {
-            alert('Gagal memproses pembayaran');
-            console.error('Failed to fetch user details');
-            return;
-        }
-
         const data = await res.json();
-        if (!data.redirect_url) {
-            alert('Gagal memproses pembayaran');
-            console.error('Failed to fetch user details');
-            return;
-        }
-        else{
-            window.open(data.redirect_url, "_blank");
-        }
-    } catch (error) {
-        console.error('An error occurred:', error);
+        data.redirect_url ? window.open(data.redirect_url, '_blank') : alert('Gagal memproses pembayaran');
+    } catch (e) {
+        console.error(e);
         alert('Terjadi kesalahan saat memproses pembayaran.');
     }
 };
+
+document.addEventListener('DOMContentLoaded', fetchMenuPembayaran);
+
 </script>
-</body>
-</html>
+
+{% endblock %}
