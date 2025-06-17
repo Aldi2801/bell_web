@@ -39,7 +39,7 @@
   <form method="POST" action="{{ url_for('simpan_kehadiran') }}">
     <input type="hidden" name="id_kbm" value="{{ kbm.id_kbm }}">
 
-    <table>
+    <table id="myTable">
       <thead>
         <tr>
           <th>No</th>
@@ -71,6 +71,9 @@
     <button class="btn btn-success" type="submit">Simpan Kehadiran</button>
   </form>
 
+<script>
+ $('#myTable').DataTable();
+ </script>
   <script>
     // Tambahkan fitur validasi semua kolom terisi
     $("form").submit(function(e) {

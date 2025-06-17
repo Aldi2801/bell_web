@@ -82,6 +82,9 @@
 </table>
 </div>
 <script>
+ $('#myTable').DataTable();
+ </script>
+<script>
 // AJAX Edit berita (PUT)
 {% for s in berita %}
 document.getElementById("editForm-{{ s.id_berita }}").addEventListener("submit", function(event) {

@@ -2,7 +2,7 @@
 
 {% block content %}
 <h2>Daftar KBM</h2>
-<table>
+<table id="myTable">
   <tr>
     <th>Tanggal</th><th>Materi</th><th>Aksi</th>
   </tr>
@@ -14,4 +14,8 @@
     </tr>
   {% endfor %}
 </table>
+
+<script>
+ $('#myTable').DataTable();
+ </script>
 {% endblock %}

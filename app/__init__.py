@@ -174,15 +174,20 @@ class Siswa(db.Model):
     tanggal_lahir = db.Column(db.Date, nullable=False)
     alamat = db.Column(db.String(125), nullable=False)
     no_hp = db.Column(db.String(15), nullable=False)
-    email = db.Column(db.String(30),unique=True, nullable=False)
     nama_ayah = db.Column(db.String(35), nullable=False)
     nama_ibu = db.Column(db.String(35), nullable=False)
     penghasilan_ayah = db.Column(db.Integer, nullable=False)
     penghasilan_ibu = db.Column(db.Integer, nullable=False)
     asal_sekolah = db.Column(db.String(30), nullable=False)
     id_status = db.Column(db.CHAR(1), db.ForeignKey('status.id_status'), nullable=False)
+
+    # New FK ke User
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=True)
+
+    # Relasi
     gender_rel = db.relationship("Gender", backref="siswa_list")
     status_rel = db.relationship("Status", backref="siswa_list")
+    user = db.relationship("User", back_populates="siswa")
 
 
 class Status(db.Model):
@@ -197,7 +202,7 @@ class TahunAkademik(db.Model):
 
 class Tagihan(db.Model):
     id_tagihan = db.Column(db.Integer, primary_key=True)
-    user_email = db.Column(db.String(120), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     semester = db.Column(db.String(10))
     tahun_ajaran = db.Column(db.String(10))
     deskripsi = db.Column(db.String(255))
@@ -207,8 +212,11 @@ class Tagihan(db.Model):
 class Transaksi(db.Model):
     id_transaksi = db.Column(db.Integer, primary_key=True)
     kode_order = db.Column(db.String(100), unique=True, nullable=False)
-    id_tagihan = db.Column(db.Integer, db.ForeignKey('tagihan.id_tagihan'), nullable=True)
-    email = db.Column(db.String(120),  db.ForeignKey('siswa.email'), nullable=False)
+    id_tagihan = db.Column(db.Integer, db.ForeignKey('tagihan.id_tagihan'), nullable=True)    
+    # Tetap pakai salinan email
+    email = db.Column(db.String(120), nullable=False)
+    # Optional relasi ke siswa (jika perlu tracing)
+    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=True)
     total = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), default="pending")
     fraud_status = db.Column(db.String(50), nullable=True)

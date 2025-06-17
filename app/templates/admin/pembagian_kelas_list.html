@@ -45,7 +45,7 @@
 {% block content %}
 <!-- templates/crud/Pembagian Kelas.html -->
 <h2>Data Pembagian Kelas</h2>
-<table>
+<table id="myTable">
     <thead>
         <tr>
             <th>ID Pembagian Kelas</th>
@@ -126,6 +126,9 @@
         {% endfor %}
     </tbody>
 </table>
+<script>
+ $('#myTable').DataTable();
+ </script>
 <script>
 // AJAX for Edit Semester (PUT)
 {% for s in pembagian_kelas %}

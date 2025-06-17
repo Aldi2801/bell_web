@@ -2,7 +2,7 @@
 
 {% block content %}
 <h2>Data Kehadiran Anda</h2>
-<table>
+<table id="myTable">
     <thead>
         <tr>
             <th>Nama Murid</th>
@@ -30,4 +30,7 @@
         {% endfor %}
     </tbody>
 </table>
+<script>
+ $('#myTable').DataTable();
+ </script>
 {% endblock %}

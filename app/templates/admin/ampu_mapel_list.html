@@ -27,7 +27,7 @@
 
 {% block content %}
 <h2>Data Ampu Mapel</h2>
-<table>
+<table id="myTable">
         <thead>
                 <tr>
                         <th>ID Ampu</th>
@@ -79,6 +79,9 @@
                 {% endfor %}
         </tbody>
 </table>
+<script>
+ $('#myTable').DataTable();
+ </script>
 <script>
 {% for s in ampu_mapel %}
 document.getElementById("editForm-{{ s.id_ampu }}").addEventListener("submit", function(event) {

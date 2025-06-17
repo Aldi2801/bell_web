@@ -13,7 +13,7 @@
 {% block content %}
 <!-- templates/crud/semester.html -->
 <h2>Data Semester</h2>
-<table>
+<table id="myTable">
     <thead>
         <tr>
             <th>ID Semester</th>
@@ -45,6 +45,9 @@
         {% endfor %}
     </tbody>
 </table>
+<script>
+ $('#myTable').DataTable();
+ </script>
 <script>
 // AJAX for Edit Semester (PUT)
 {% for s in semester %}

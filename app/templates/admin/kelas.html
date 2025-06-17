@@ -18,7 +18,7 @@
 {% block content %}
 <!-- templates/crud/kelas.html -->
 <h2>Data kelas</h2>
-<table>
+<table id="myTable">
     <thead>
         <tr>
             <th>ID kelas</th>
@@ -53,6 +53,9 @@
         {% endfor %}
     </tbody>
 </table>
+<script>
+ $('#myTable').DataTable();
+ </script>
 <script>
 // AJAX for Edit kelas (PUT)
 {% for s in kelas %}
