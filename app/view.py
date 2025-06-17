@@ -85,7 +85,7 @@ def dashboard():
             'tanggal_lahir': siswa.tanggal_lahir,
             'alamat': siswa.alamat,
             'no_hp': siswa.no_hp,
-            'email': siswa.email,
+            'email': session.get('email',''),
             'gender': siswa.gender_rel.gender,
             'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
             'role': 'Murid'

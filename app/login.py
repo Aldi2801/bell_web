@@ -39,6 +39,7 @@ def login():
 
             session['jwt_token'] = access_token
             session['username'] = username
+            session['email'] = user.email
             if user.roles:
                 session['role'] = user.roles[0].name
             else:

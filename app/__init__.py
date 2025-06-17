@@ -59,7 +59,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
     nis = db.Column(db.Integer, nullable=True)
     nip = db.Column(db.String(25), nullable=True)
-    email = db.Column(db.String(255), unique=True, nullable=False)  # Fix disini
+    email = db.Column(db.String(255), unique=True, nullable=False)
     active = db.Column(db.Boolean, default=True)
 
     roles = db.relationship('Role', secondary='user_roles', 
@@ -67,6 +67,7 @@ class User(db.Model, UserMixin):
                             secondaryjoin='Role.id == UserRoles.role_id',
                             backref=db.backref('users', lazy='dynamic'))
 
+    siswa = db.relationship("Siswa", back_populates="user", uselist=False)  # <-- Tambahkan ini
 
 class Berita(db.Model):
     id_berita = db.Column(db.Integer, primary_key=True)
