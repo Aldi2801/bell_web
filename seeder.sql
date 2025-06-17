@@ -11,7 +11,7 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
+SET FOREIGN_KEY_CHECKS=0;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -26,16 +26,6 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `ampu_mapel`
 --
-
-CREATE TABLE `ampu_mapel` (
-  `id_ampu` int(11) NOT NULL,
-  `tanggal` date DEFAULT NULL,
-  `id_semester` char(1) NOT NULL,
-  `id_mapel` char(3) NOT NULL,
-  `nip` varchar(25) NOT NULL,
-  `id_tahun_akademik` varchar(4) NOT NULL,
-  `id_pembagian` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `ampu_mapel`
@@ -199,13 +189,6 @@ INSERT INTO `ampu_mapel` (`id_ampu`, `tanggal`, `id_semester`, `id_mapel`, `nip`
 -- Table structure for table `berita`
 --
 
-CREATE TABLE `berita` (
-  `id_berita` int(11) NOT NULL,
-  `judul` varchar(35) NOT NULL,
-  `isi` varchar(255) NOT NULL,
-  `nip` varchar(25) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `berita`
 --
@@ -218,11 +201,6 @@ INSERT INTO `berita` (`id_berita`, `judul`, `isi`, `nip`) VALUES
 --
 -- Table structure for table `gender`
 --
-
-CREATE TABLE `gender` (
-  `id_gender` char(1) NOT NULL,
-  `gender` varchar(9) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `gender`
@@ -237,20 +215,6 @@ INSERT INTO `gender` (`id_gender`, `gender`) VALUES
 --
 -- Table structure for table `guru`
 --
-
-CREATE TABLE `guru` (
-  `nip` varchar(25) NOT NULL,
-  `inisial` varchar(4) DEFAULT NULL,
-  `nama` varchar(50) NOT NULL,
-  `tempat_lahir` varchar(20) NOT NULL,
-  `tanggal_lahir` date NOT NULL,
-  `alamat` varchar(125) NOT NULL,
-  `no_hp` varchar(15) NOT NULL,
-  `email` varchar(30) NOT NULL,
-  `spesialisasi` varchar(20) DEFAULT NULL,
-  `id_gender` char(1) NOT NULL,
-  `id_status` char(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `guru`
@@ -271,14 +235,6 @@ INSERT INTO `guru` (`nip`, `inisial`, `nama`, `tempat_lahir`, `tanggal_lahir`, `
 --
 -- Table structure for table `jadwal_pelajaran`
 --
-
-CREATE TABLE `jadwal_pelajaran` (
-  `id_jadwal` int(11) NOT NULL,
-  `day` varchar(10) NOT NULL,
-  `time` varchar(15) NOT NULL,
-  `period` int(11) NOT NULL,
-  `subject` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `jadwal_pelajaran`
@@ -326,14 +282,6 @@ INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`)
 --
 -- Table structure for table `kbm`
 --
-
-CREATE TABLE `kbm` (
-  `id_kbm` int(11) NOT NULL,
-  `tanggal` date NOT NULL,
-  `materi` varchar(35) NOT NULL,
-  `sub_materi` varchar(100) DEFAULT NULL,
-  `id_ampu` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `kbm`
@@ -796,13 +744,6 @@ INSERT INTO `kbm` (`id_kbm`, `tanggal`, `materi`, `sub_materi`, `id_ampu`) VALUE
 --
 -- Table structure for table `kehadiran`
 --
-
-CREATE TABLE `kehadiran` (
-  `id_kehadiran` int(11) NOT NULL,
-  `id_keterangan` char(1) NOT NULL,
-  `id_kbm` int(11) NOT NULL,
-  `nis` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `kehadiran`
@@ -1716,12 +1657,6 @@ INSERT INTO `kehadiran` (`id_kehadiran`, `id_keterangan`, `id_kbm`, `nis`) VALUE
 -- Table structure for table `kelas`
 --
 
-CREATE TABLE `kelas` (
-  `id_kelas` varchar(6) NOT NULL,
-  `nama_kelas` varchar(15) NOT NULL,
-  `tingkat` char(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `kelas`
 --
@@ -1742,11 +1677,6 @@ INSERT INTO `kelas` (`id_kelas`, `nama_kelas`, `tingkat`) VALUES
 -- Table structure for table `keterangan`
 --
 
-CREATE TABLE `keterangan` (
-  `id_keterangan` char(1) NOT NULL,
-  `keterangan` varchar(5) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `keterangan`
 --
@@ -1762,11 +1692,6 @@ INSERT INTO `keterangan` (`id_keterangan`, `keterangan`) VALUES
 --
 -- Table structure for table `mapel`
 --
-
-CREATE TABLE `mapel` (
-  `id_mapel` char(3) NOT NULL,
-  `nama_mapel` varchar(35) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mapel`
@@ -1784,15 +1709,6 @@ INSERT INTO `mapel` (`id_mapel`, `nama_mapel`) VALUES
 --
 -- Table structure for table `pembagian_kelas`
 --
-
-CREATE TABLE `pembagian_kelas` (
-  `id_pembagian` int(11) NOT NULL,
-  `tanggal` date DEFAULT NULL,
-  `nis` int(11) NOT NULL,
-  `id_kelas` varchar(6) NOT NULL,
-  `id_tahun_akademik` varchar(4) NOT NULL,
-  `nip` varchar(25) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `pembagian_kelas`
@@ -1956,11 +1872,6 @@ INSERT INTO `pembagian_kelas` (`id_pembagian`, `tanggal`, `nis`, `id_kelas`, `id
 -- Table structure for table `role`
 --
 
-CREATE TABLE `role` (
-  `id` int(11) NOT NULL,
-  `name` varchar(80) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `role`
 --
@@ -1976,11 +1887,6 @@ INSERT INTO `role` (`id`, `name`) VALUES
 -- Table structure for table `semester`
 --
 
-CREATE TABLE `semester` (
-  `id_semester` char(1) NOT NULL,
-  `semester` varchar(6) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `semester`
 --
@@ -1994,24 +1900,6 @@ INSERT INTO `semester` (`id_semester`, `semester`) VALUES
 --
 -- Table structure for table `siswa`
 --
-
-CREATE TABLE `siswa` (
-  `nis` int(11) NOT NULL,
-  `nisn` varchar(10) DEFAULT NULL,
-  `nama` varchar(50) NOT NULL,
-  `id_gender` char(1) NOT NULL,
-  `tempat_lahir` varchar(20) NOT NULL,
-  `tanggal_lahir` date NOT NULL,
-  `alamat` varchar(125) NOT NULL,
-  `no_hp` varchar(15) NOT NULL,
-  `email` varchar(30) NOT NULL,
-  `nama_ayah` varchar(35) NOT NULL,
-  `nama_ibu` varchar(35) NOT NULL,
-  `penghasilan_ayah` int(11) NOT NULL,
-  `penghasilan_ibu` int(11) NOT NULL,
-  `asal_sekolah` varchar(30) NOT NULL,
-  `id_status` char(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `siswa`
@@ -2075,11 +1963,6 @@ INSERT INTO `siswa` (`nis`, `nisn`, `nama`, `id_gender`, `tempat_lahir`, `tangga
 -- Table structure for table `status`
 --
 
-CREATE TABLE `status` (
-  `id_status` char(1) NOT NULL,
-  `status` varchar(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `status`
 --
@@ -2092,17 +1975,7 @@ INSERT INTO `status` (`id_status`, `status`) VALUES
 
 --
 -- Table structure for table `tagihan`
---
-
-CREATE TABLE `tagihan` (
-  `id_tagihan` int(11) NOT NULL,
-  `user_email` varchar(120) NOT NULL,
-  `semester` varchar(10) DEFAULT NULL,
-  `tahun_ajaran` varchar(10) DEFAULT NULL,
-  `deskripsi` varchar(255) DEFAULT NULL,
-  `total` float NOT NULL,
-  `created_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-
 
 --
 -- Dumping data for table `tagihan`
@@ -2217,13 +2090,6 @@ INSERT INTO `tagihan` (`id_tagihan`, `user_email`, `semester`, `tahun_ajaran`, `
 -- Table structure for table `tahun_akademik`
 --
 
-CREATE TABLE `tahun_akademik` (
-  `id_tahun_akademik` varchar(4) NOT NULL,
-  `tahun_akademik` varchar(9) NOT NULL,
-  `mulai` date NOT NULL,
-  `sampai` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `tahun_akademik`
 --
@@ -2242,18 +2108,6 @@ INSERT INTO `tahun_akademik` (`id_tahun_akademik`, `tahun_akademik`, `mulai`, `s
 -- Table structure for table `transaksi`
 --
 
-CREATE TABLE `transaksi` (
-  `id_transaksi` int(11) NOT NULL,
-  `kode_order` varchar(100) NOT NULL,
-  `id_tagihan` int(11) DEFAULT NULL,
-  `email` varchar(120) NOT NULL,
-  `total` float NOT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `fraud_status` varchar(50) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `transaksi`
 --
@@ -2267,16 +2121,6 @@ INSERT INTO `transaksi` (`id_transaksi`, `kode_order`, `id_tagihan`, `email`, `t
 --
 -- Table structure for table `user`
 --
-
-CREATE TABLE `user` (
-  `id` int(11) NOT NULL,
-  `username` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `nis` int(11) DEFAULT NULL,
-  `nip` varchar(25) DEFAULT NULL,
-  `email` varchar(255) NOT NULL,
-  `active` tinyint(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
@@ -2348,12 +2192,6 @@ INSERT INTO `user` (`id`, `username`, `password`, `nis`, `nip`, `email`, `active
 --
 -- Table structure for table `user_roles`
 --
-
-CREATE TABLE `user_roles` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `role_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user_roles`
@@ -2646,6 +2484,8 @@ ALTER TABLE `user`
 --
 ALTER TABLE `user_roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+
+SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
