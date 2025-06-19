@@ -1,0 +1,236 @@
+{% if session['jwt_token'] %}
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sistem Gudang</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/image/Logo.png" />
+    <link rel="stylesheet" type="text/css" href="/static/assets/extra-libs/css-chart/css-chart.css" />
+    <link rel="stylesheet" type="text/css" href="/static/assets/libs/quill/dist/quill.snow.css" />
+    <link rel="stylesheet" type="text/css" href="/static/assets/libs/select2/dist/css/select2.min.css" />
+    <link href="/static/dist/css/style.min.css" rel="stylesheet" />
+    <link href="/static/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/assets/libs/apexcharts/dist/apexcharts.css" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+      .ql-align-right { text-align: right; }
+      .ql-align-left { text-align: left; }
+      .ql-align-center { text-align: center; }
+      .ql-align-justify { text-align: justify; }
+      .rata-kiri-mobile { text-align: right !important; }
+      @media (max-width: 640px) { .rata-kiri-mobile { text-align: left !important; } .btn-info { margin-top: 5px; margin-bottom: 5px; } }
+      .table-responsive { overflow-x: scroll; cursor: grab; }
+      .table-responsive:active { cursor: grabbing; }
+      .table-responsive::-webkit-scrollbar { height: 15px; }
+      .table-responsive::-webkit-scrollbar-thumb { background-color: #888; border-radius: 10px; }
+      .table-responsive::-webkit-scrollbar-track { background-color: #f1f1f1; }
+      .table-responsive { scrollbar-color: #888 #f1f1f1; scrollbar-width: thick; }
+      .table {margin-bottom: 0px;} 
+      .shrink-logo {max-width: 70px !important;}
+      /* Default size for larger screens */
+      .responsive-svg {
+        width: auto ; /* Keep the image responsive */
+        height: 50px;    /* Maintain aspect ratio */
+      }
+    </style>
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" ></script>
+    <script src="/static/assets/libs/jquery/dist/jquery.min.js" ></script>
+    
+    <!-- jQuery UI -->
+    <script src="/static/assets/extra-libs/taskboard/js/jquery-ui.min.js" ></script>
+    
+    <!-- SEO Meta Tags -->
+  	<meta name="description" content="PT. Bregas Saporete Medikalindo adalah perusahaan yang bergerak di bidang distribusi alat kesehatan dan medis. Berlokasi di Tegal, Jawa Tengah, perusahaan ini menyediakan berbagai produk medis berkualitas tinggi untuk memenuhi kebutuhan fasilitas kesehatan di Indonesia.">
+  	<meta property="og:title" content="PT. Bregas Saporete Medikalindo">
+  	<meta property="og:description" content="PT. Bregas Saporete Medikalindo adalah perusahaan yang bergerak di bidang distribusi alat kesehatan dan medis. Berlokasi di Tegal, Jawa Tengah, perusahaan ini menyediakan berbagai produk medis berkualitas tinggi untuk memenuhi kebutuhan fasilitas kesehatan di Indonesia.">
+  	<meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhLdVYF6ZCvuavJJ8IcrujLNynWSbw5BZG8eTX7e3Dv8RSIlvvgEdy0m10m4sOsuUbhRMTHsmylbZ9EpN_AHdoMlOJoouH8I96vZtGgxwxJ1UKb13XdV5RdTNctnfDRXP2I9tfwHVXrTbU5/s1600/LOGO+PT1.png">
+  	<meta property="og:url" content="https://bregassaporetemedikalindo.blogspot.com/">
+  
+  	<!-- JSON-LD Schema.org -->
+  	<script type="application/ld+json">
+  	{
+  	  "@context": "https://schema.org",
+  	  "@type": "Organization",
+  	  "name": "PT. Bregas Saporete Medikalindo",
+  	  "url": "https://bregassaporetemedikalindo.blogspot.com/",
+  	  "logo": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhLdVYF6ZCvuavJJ8IcrujLNynWSbw5BZG8eTX7e3Dv8RSIlvvgEdy0m10m4sOsuUbhRMTHsmylbZ9EpN_AHdoMlOJoouH8I96vZtGgxwxJ1UKb13XdV5RdTNctnfDRXP2I9tfwHVXrTbU5/s1600/LOGO+PT1.png",
+  	  "contactPoint": {
+  		"@type": "ContactPoint",
+  		"telephone": "+6281318654328",
+  		"contactType": "customer service",
+  		"areaServed": "ID",
+  		"availableLanguage": "id"
+  	  },
+  	  "sameAs": [
+  		"https://www.facebook.com/bregas.saporete.medikalindo",
+  		"https://www.instagram.com/bregas.saporete.medikalindo"
+  	  ]
+  	}
+  	</script> 
+  
+    <!-- App Scripts -->
+    <script src="/static/dist/js/app.min.js" ></script>
+    <script src="/static/dist/js/app.init.stylish.js" ></script>
+    <script src="/static/dist/js/app-style-switcher.js" ></script>
+  
+    <!-- Table -->
+    <script src="/static/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <div id="main-wrapper">
+      <header class="topbar">
+        <nav class="navbar top-navbar navbar-expand-md navbar-dark">
+          <div class="navbar-header">
+            <!-- This is for the sidebar toggle which is visible on mobile only -->
+            <a
+              class="nav-toggler waves-effect waves-light d-block d-md-none"
+              href="javascript:void(0)"
+              ><i class="ri-close-line ri-menu-2-line fs-6"></i
+            ></a>
+            
+            <!--You can put here icon as well // <i class="wi wi-sunset"></i> //-->
+            <!-- Dark Logo icon -->
+            <!-- Light Logo icon -->
+            <div class="">
+            <center>
+            <img
+              src="/static/image/LOGOPT1.webp"
+              alt="homepage"
+              style="width:100px"
+              class="responsive-svg responsive-logo"
+            />
+            </center>
+            </div>
+            <a
+              class="topbartoggler d-block d-md-none  waves-effect waves-light"
+              href="javascript:void(0)"
+              style="padding-left:100px"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+              ><i class="ri-more-line fs-6"></i
+            ></a>
+         
+          </div>
+          <!-- ============================================================== -->
+          <!-- End Logo -->
+          <!-- ============================================================== -->
+          <div class="navbar-collapse collapse" id="navbarSupportedContent">
+            <!-- ============================================================== -->
+            <!-- toggle and nav items -->
+            <!-- ============================================================== -->
+            <ul class="navbar-nav me-auto">
+              <!-- This is  -->
+              <li class="nav-item">
+                <a
+                  class="nav-link sidebartoggler d-none d-md-block"
+                  href="javascript:void(0)"
+                  ><i data-feather="menu"></i
+                ></a>
+              </li>
+              <!-- search -->
+            </ul>
+            <ul class="navbar-nav">
+              <li class="nav-item dropdown profile-dropdown">
+                <a
+                  class="nav-link dropdown-toggle d-flex align-items-center"
+                  href="#"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <!--<img
+                    src="/static/image/default_admin.jpg"
+                    alt="user"
+                    width="30"
+                    class="profile-pic rounded-circle"
+                  />-->
+                  <div class="d-none d-md-flex">
+                    <span class="ms-2">Hi, <span class="text-dark fw-bold">{{ session['username'] }}</span></span >
+                    <span>
+                      <i data-feather="chevron-down" class="feather-sm"></i>
+                    </span>
+                  </div>
+                </a>
+                <div
+                  class="dropdown-menu dropdown-menu-end mailbox dropdown-menu-animate-up"
+                  style="width: 50%"
+                >
+                  <ul class="list-style-none">
+                    <li class="p-30 pt-0">
+                      <div class="mt-4">
+                        <a
+                          class="btn btn-info text-white"
+                          href="/keluar"
+                        >
+                          Logout
+                        </a>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      {% include "include/sidebar2.html" %}
+      <div class="page-wrapper">
+        {% block content %}{% endblock content %}  
+      </div>
+      <footer class="footer text-center" id='copyright'>
+      </footer>
+    </div>
+    <script src="/static/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- apps -->
+    <script>
+      function handleResponse(data,crud,url) { console.log(data); try { if (data.msg === "SUKSES") { alert("Sukses "+crud+" data"); window.location.href = url; } else { alert("Gagal "+crud+" data"); window.location.href = url; } } catch (error) { console.log(error); alert("Error: " + error); window.location.href = url; } }
+    </script>
+    <!-- slimscrollbar scrollbar JavaScript -->
+    <script src="/static/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/static/assets/extra-libs/sparkline/sparkline.js"></script>
+    <!--Wave Effects -->
+    <script src="/static/dist/js/waves.js"></script>
+    <!--Menu sidebar -->
+    <script src="/static/dist/js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="/static/dist/js/feather.min.js"></script>
+    <script src="/static/dist/js/custom.min.js"></script>
+    <!-- This Page JS -->
+    <script src="/static/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <!-- Quill editor -->
+    <script src="/static/assets/libs/quill/dist/quill.min.js"></script>
+    <!-- page agenda js-->
+    <script src="/static/assets/libs/moment/min/moment.min.js"></script>
+    {% block js %}{% endblock js %}
+    <script>
+    document.addEventListener("DOMContentLoaded",function(){const t=document.querySelector(".topbartoggler"),e=document.querySelector(".responsive-logo");t&&e&&t.addEventListener("click",function(){e.classList.add("shrink-logo")})});
+    </script>
+    <script>
+    var url=window.location+"",path=url.replace(window.location.protocol+"//"+window.location.host+"/",""),element=$("ul#sidebarnav a").filter(function(){var t=this.href.split("?")[0],e=url.split("?")[0],a=path.split("?")[0];return t===e||t===a});element.parentsUntil(".sidebar-nav").each(function(){if($(this).is("li")&&0!==$(this).children("a").length)$(this).children("a").addClass("active"),0===$(this).parent("ul#sidebarnav").length?$(this).addClass("active"):$(this).addClass("selected");else if(!$(this).is("ul")&&0===$(this).children("a").length)$(this).addClass("selected");else $(this).is("ul")&&$(this).addClass("in")}),element.addClass("active"),$("#sidebarnav a").on("click",function(){if(!$(this).hasClass("active"))$("ul",$(this).parents("ul:first")).removeClass("in"),$("a",$(this).parents("ul:first")).removeClass("active"),$(this).next("ul").addClass("in"),$(this).addClass("active");else $(this).hasClass("active")&&($(this).removeClass("active"),$(this).parents("ul:first").removeClass("active"),$(this).next("ul").removeClass("in"))}),$("#sidebarnav >li >a.has-arrow").on("click",function(t){t.preventDefault()}),($(window).width()>768||window.Touch)&&$(".scroll-sidebar").animate({scrollTop:$("#sidebarnav .sidebar-item.selected").offset().top-80},500);
+    </script>
+    <script>
+    var tahunSaatIni=(new Date).getFullYear();document.getElementById("copyright").innerHTML=tahunSaatIni+" © All Rights Reserved";
+    </script>
+  </body>
+</html>
+{% else %}
+<!-- Jika jwt_token tidak ada -->
+<script>
+    window.location.href = "/";
+</script>
+{% endif %}

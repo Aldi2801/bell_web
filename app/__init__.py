@@ -1,6 +1,5 @@
 from flask import Flask,jsonify,request,session,render_template,g,send_from_directory,abort
 from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_mail import Mail
 from itsdangerous import URLSafeTimedSerializer
@@ -8,6 +7,7 @@ from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMix
 from flask_bcrypt import Bcrypt
 from datetime import timedelta, datetime
 import jwt, os, re
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 project_directory = os.path.abspath(os.path.dirname(__file__))
@@ -33,6 +33,7 @@ app.config.update(
     MAIL_USERNAME=os.getenv('MAIL_USERNAME', 'masteraldi2809@gmail.com'),
     MAIL_PASSWORD=os.getenv('MAIL_PASSWORD', 'xthezwlpdajgtlav')
 )
+jwt = JWTManager(app)
 mail = Mail(app)
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
 ALLOWED_EXTENSIONS = {'xlsx'}

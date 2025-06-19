@@ -2,10 +2,7 @@ from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel, Jad
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, re, datetime, os, json, ast, uuid
 from datetime import datetime
-from bson.objectid import ObjectId
 from sqlalchemy import case
-from bson.objectid import ObjectId
-from collections import defaultdict
 
 @app.route('/register')
 def view_register():

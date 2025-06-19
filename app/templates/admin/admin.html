@@ -1,0 +1,169 @@
+{% if session.jwt_token %}
+	<!-- Jika jwt_token ada -->
+	<script>
+		window.location.href = "/admin/dashboard";
+	</script>
+{% else %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Login</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="../static/css/login.css">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../static/image/Logo MTs Al Huda Reban.webp" />
+	<!-- Custom CSS -->
+	<link href="../static/dist/css/style.min.css" rel="stylesheet" />
+	<!-- This Page CSS -->
+	<link rel="stylesheet" type="text/css" href="../static/assets/extra-libs/prism/prism.css" />
+	<style>
+		.content {
+		  max-width: 500px;
+		  margin: auto;
+		}
+		.form-group.m-0{
+			color: white;
+			
+		}
+		
+	</style>
+	   <?xml version="1.0" encoding="UTF-8"?>
+	   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- SEO Meta Tags -->
+    <meta name="description" content="MTs Al Huda Reban adalah Madrasah Tsanawiyah yang berlokasi di Reban, Kabupaten Batang, Jawa Tengah. Kami berkomitmen memberikan pendidikan Islam berkualitas dan membentuk generasi yang berakhlak mulia dan berprestasi.">
+    <meta property="og:title" content="MTs Al Huda Reban">
+    <meta property="og:description" content="MTs Al Huda Reban adalah Madrasah Tsanawiyah yang berlokasi di Reban, Kabupaten Batang, Jawa Tengah. Kami berkomitmen memberikan pendidikan Islam berkualitas dan membentuk generasi yang berakhlak mulia dan berprestasi.">
+    <meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg">
+    <meta property="og:url" content="https://mtsalhudareban.sch.id/">
+    <!-- JSON-LD Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "MTs Al Huda Reban",
+      "url": "https://mtsalhudareban.sch.id/",
+      "logo": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+62XXXXXXXXXXX",
+        "contactType": "administration",
+        "areaServed": "ID",
+        "availableLanguage": "id"
+      },
+      "sameAs": [
+        "https://www.facebook.com/mtsalhudareban",
+        "https://www.instagram.com/mtsalhudareban"
+      ]
+    }
+    </script>
+</head>
+<body class="my-login-page content bg-info" >
+	<div class="bg"></div>
+	{% if error %}
+	{{ error }}	
+	{% endif %}
+	<section class="h-100 ">
+		<div class="container h-100 ">
+			{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<div style="
+				position: fixed;
+				top: 0;
+				right: 0;
+				z-index: 9999;" 
+				class="mt-3 mr-2 alert alert-success alert-dismissible bg-success text-white border-0 fade show"
+				role="alert">
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				{{ messages[0] }}
+			</div>
+					
+			{% endif %}
+			{% endwith %}
+			
+			<div class="row justify-content-md-center h-100">
+				<div class="card-wrapper">
+					<div class="card fat">
+						<div class="card-body ">
+							<div style="display: flex; justify-content: center; align-items: center; margin-bottom:20px">
+								<img src="/static/image/Logo MTs Al Huda Reban.webp" style="height:80px;" />
+							</div>
+							<h4 class="card-title text-center">LOGIN</h4>
+                            <p id="msg" style="color:red">username / password salah</p>			
+							<form >
+								<div class="form-group">
+									<label for="username">Username</label>
+									<input id="username" type="text" class="form-control" name="username" value=""
+										required autofocus>
+								</div>
+								<div class="form-group">
+									<label for="password">Password
+									</label>
+									<input id="password" type="password" class="form-control" name="password" required onkeydown="if(event.key==='Enter'){event.preventDefault(); kirim();}">
+									
+								</div>
+								<br>
+								<div class="form-group m-0">
+									<button type="button" id="login" class="btn  btn-block" style="background-color:#3692FF; color:#fff">
+										Login
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+	</script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+	</script>
+    <script src="../static/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="../static/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- apps -->
+    <script src="../static/dist/js/app.min.js"></script>
+    <script src="../static/dist/js/app.init.stylish.js"></script>
+
+    <script>
+    // Pada sisi klien
+    // Simpan token JWT di Local Storage setelah berhasil login
+    document.getElementById("msg").style.display = "none";
+    function saveTokenToLocalStorage(token) {
+        localStorage.setItem('jwt_token', token);
+    }
+	function kirim() {
+    $.ajax({
+        url: '/proses_login',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        }),
+        success: function(response) {
+            if (!response.success) {
+                document.getElementById("msg").innerHTML = response.message;
+                document.getElementById("msg").style.display = "block";
+            } else {
+                saveTokenToLocalStorage(response.token);
+                window.location.href = '/admin/dashboard';
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Terjadi kesalahan saat mengirim permintaan:", error);
+            alert("Server error atau jaringan bermasalah.");
+        }
+    });
+
+    }
+    document.getElementById("login").addEventListener("click", kirim);
+    </script>
+</body>
+
+</html>
+{% endif %}

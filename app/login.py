@@ -1,64 +1,31 @@
-from . import app, db, bcrypt, jwt, User, Role, mail, s
-import uuid
-from flask import request, render_template, redirect, url_for, jsonify, session,render_template_string,  flash
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
-from flask_mail import Mail, Message
-from datetime import datetime, timedelta
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-# hashed_password = bcrypt.generate_password_hash('admin123').decode('utf-8')
-# print(str(uuid.uuid4()))
-# print(hashed_password)
-# hashed_passwordd = bcrypt.generate_password_hash('guru123').decode('utf-8')
-# print(str(uuid.uuid4()))
-# print(hashed_passwordd)
-# hashed_passworddd = bcrypt.generate_password_hash('123').decode('utf-8')
-# print(str(uuid.uuid4()))
-# print(hashed_password) 
+from . import app, bcrypt, jwt, User
+from flask import request, render_template, redirect, url_for, jsonify, session, flash
+from flask_jwt_extended import create_access_token, unset_jwt_cookies
 @app.route('/')
 def homepahe():
     return redirect(url_for('login'))
     #return render_template('index.html')
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login')
 def login():
-    if request.method == 'POST':
-        username = request.json.get('username')
-        password = request.json.get('password')
-        user = User.query.filter_by(username=username).first()
+    return render_template('admin/admin.html')
 
-        if not user:
-            return jsonify({'error': 'Username salah'}), 401
+@app.route('/proses_login', methods=['POST'])
+def proses_login():
+    username = request.json['username']
+    password = request.json['password']
 
-        if bcrypt.check_password_hash(user.password, password):
-            access_token = jwt.encode({
-                'username': username,
-                'role': user.roles[0].name,
-                'email': user.email,
-                'exp': datetime.utcnow() + timedelta(hours=24)
-            }, app.config['SECRET_KEY'], algorithm='HS256')
+    user = User.query.filter_by(username=username).first()
 
-            session['jwt_token'] = access_token
-            session['username'] = username
-            session['email'] = user.email
-            if user.roles:
-                session['role'] = user.roles[0].name
-            else:
-                session['role'] = None
-            if user.roles[0].name == 'guru':
-                session['nip'] = user.nip
-            elif user.roles[0].name == 'murid':
-                session['nis'] = user.nis
-            else:
-                session['role'] = 'admin'
+    if not user:
+        return jsonify(success=False, message="Username salah")
 
-            return jsonify({'token': access_token})
-        else:
-            return jsonify({'error': 'Password salah'}), 402
+    if bcrypt.check_password_hash(user.password_bcrypt, password):
+        access_token = create_access_token(identity=username)
+        session['jwt_token'] = access_token
+        session['username'] = username
+        return jsonify(success=True, token=access_token)
     else:
-        msg = request.args.get('msg')
-        return render_template('login.html', msg=msg)
-
-    
+        return jsonify(success=False, message="Password salah")
 
 # Endpoint yang memerlukan autentikasi
 @app.route('/keluar')
@@ -70,178 +37,43 @@ def keluar():
     session.pop('username', None)
     flash('Sukses Logout')
     return redirect(url_for('login'))
-
-@app.route('/register', methods=['POST'])
-def register_():
-        # Tidak perlu jwt_required()
-        username = request.json.get('username')
-        password = request.json.get('password')
-        re_password = request.json.get('re_password')
-        email = request.json.get('email')
-        nama_lengkap = request.json.get('nama_lengkap')
-
-        if not username or not password or not email or not nama_lengkap:
-            return jsonify({"msg": "Username , password , email, nama lengkap wajib diisi"}), 400
-        if re_password != password:
-            return jsonify({"msg": "Password tidak sama"}), 400
-
-        if User.query.filter_by(username=username).first():
-            return jsonify({"msg": "Username sudah digunakan"}), 400
-
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        user = User(username=username, password=hashed_password, email=email, active=True )
-        db.session.add(user)
-        db.session.commit()
-
-        # Tambahkan role 'murid' ke user
-        murid_role = Role.query.filter_by(name='murid').first()
-        if murid_role:
-            user.roles.append(murid_role)
-            db.session.commit()
-        else:
-            raise Exception("Role 'murid' belum ada di tabel role. Pastikan sudah dibuat.")
-        try:
-            token = s.dumps(email, salt='email-confirm')
-
-            conf_email_url = url_for('confirm_email', token=token, _external=True)
-            email_body = render_template_string('''
-                Hello {{ username }},
-                
-                Anda menerima email ini, karena kami memerlukan verifikasi email untuk akun Anda agar aktif dan dapat digunakan.
-                
-                Silakan klik tautan di bawah ini untuk verifikasi email Anda. Tautan ini akan kedaluwarsa dalam 1 jam.
-                
-                confirm your email: {{ conf_email_url }}
-                
-                hubungi dukungan jika Anda memiliki pertanyaan.
-                
-                Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
-                
-                Salam Hangat,
-                
-                Admin
-            ''', username=username,  conf_email_url=conf_email_url)
-
-            msg = Message('Confirmasi Email Anda',
-                        sender='masteraldi2809@gmail.com', recipients=[email])
-
-            msg.body = email_body
-            mail.send(msg)
-            return jsonify({"msg": "Register Berhasil"}), 200
-        except Exception as e:
-            return jsonify({'error': f"Database error: {str(e)}"}), 500
-
-
-@app.route('/confirm_email/<token>', methods=['GET', 'POST'])
-def confirm_email(token):
-    try:
-        email = s.loads(token, salt='email-confirm', max_age=3600)
-    except SignatureExpired:
-        return jsonify({"msg": "Token telah kedaluwarsa"}), 400
-    except BadSignature:
-        return jsonify({"msg": "Token tidak valid"}), 400
     
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
 
-    user.active = True
-    db.session.commit()
+@jwt.expired_token_loader
+def expired_token_callback():
+    return redirect(url_for('login'))
 
-    return '''
-    <!doctype html>
-    <html lang="en">
-    <head><meta charset="utf-8"><title>Email Verify</title></head>
-    <body><h1>Email Telah Terverifikasi </h1></body>
-    </html>
-    '''
-#### Verif Email
+# @app.route('/bikin_akun', methods=['GET', 'POST'])
+# def register():
+#     if request.method == 'POST':
+#         # Tidak perlu jwt_required()
 
-@app.route("/verif_email", methods=["POST"])
-def verif_email():
-    data = request.get_json()
-    email = data.get("email")
-    if not email:
-        return jsonify({"msg": "Email harus diisi"})
+#         username = request.form.get('username')
+#         password = request.form.get('password')
 
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"msg": "Email tidak ditemukan"})
+#         if not username or not password:
+#             return jsonify({"msg": "Username dan password wajib diisi"}), 400
 
-    if user.verify_email:
-        return jsonify({"msg": "user sudah terverifikasi"})
+#         if User.query.filter_by(username=username).first():
+#             return jsonify({"msg": "Username sudah digunakan"}), 400
 
-    token = s.dumps(email, salt='email-confirm')
-    conf_email_url = url_for('confirm_email', token=token, _external=True)
+#         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    email_body = render_template_string('''
-        Hello {{ username }},
-        Anda menerima email ini untuk verifikasi.
-        Klik tautan berikut: {{ conf_email_url }}
-        Berlaku 1 jam.
-    ''', username=user.username, conf_email_url=conf_email_url)
+#         user = User(username=username, password=hashed_password, active=True)
+#         db.session.add(user)
+#         db.session.commit()
 
-    msg = Message('Konfirmasi Email Anda', sender='masteraldi2809@gmail.com', recipients=[email])
-    msg.body = email_body
-    mail.send(msg)
+#         return jsonify({"msg": "Akun berhasil dibuat"}), 201
 
-    return jsonify({"msg": "Silahkan cek email anda."})
+#     # Jika GET request, tampilkan form HTML atau pesan
+#     return render_template('admin/register.html')
 
-#### Forgot Password
-@app.route("/forgotpassword", methods=["POST"])
-def forgot_password():
-    data = request.get_json()
-    email = data.get("email")
-    if not email:
-        return jsonify({"msg": "Email harus diisi"})
+#         # Logout setelah registrasi berhasil
+#         response = jsonify({'message': 'Logout berhasil'})
+#         unset_jwt_cookies(response)
+#         session.pop('jwt_token', None)
+#         session.pop('username', None)
+#         flash('Sukses Logout')
+#         return redirect(url_for('login', msg='Registration Successful'))
 
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"msg": "Email tidak ditemukan"})
-
-    token = s.dumps(email, salt='reset-password')
-    from_param = request.args.get('from')
-
-    if "forgot_password.html" in (from_param or ""):
-        mod = from_param.replace('forgot_password.html', '')
-        reset_password_url = mod + "/reset_password.html?token=" + token
-    else:
-        reset_password_url = url_for('reset_password', token=token, _external=True)
-
-    email_body = render_template_string('''
-        Hello {{ user.name }},
-        Reset password Anda: {{ reset_password_url }}
-        Berlaku 1 jam.
-    ''', user=user, reset_password_url=reset_password_url)
-
-    msg = Message('Reset Kata Sandi Anda', sender='masteraldi2809@gmail.com', recipients=[email])
-    msg.body = email_body
-    mail.send(msg)
-
-    return jsonify({"msg": "Email untuk mereset kata sandi telah dikirim."})
-
-#### Reset Password
-@app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    if request.method == 'POST':
-        try:
-            email = s.loads(token, salt='reset-password', max_age=3600)
-        except SignatureExpired:
-            return jsonify({"msg": "Token telah kedaluwarsa"}), 400
-        except BadSignature:
-            return jsonify({"msg": "Token tidak valid"}), 400
-
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            return jsonify({"msg": "User not found"}), 404
-
-        data = request.get_json()
-        password = data.get('password')
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user.password = hashed_password
-        db.session.commit()
-
-        return jsonify({"msg": "Sukses"})
-
-    return render_template("reset_password.html", token=token)
+#     return render_template('admin/register.html')

@@ -4,8 +4,6 @@ from flask_mail import Message
 from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
 import jwt, re, datetime, os, json, ast, uuid
-from bson.objectid import ObjectId
-from collections import defaultdict
 
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
