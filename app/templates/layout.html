@@ -34,6 +34,7 @@
         width: auto ; /* Keep the image responsive */
         height: 50px;    /* Maintain aspect ratio */
       }
+
     </style>
     
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -50,32 +51,48 @@
     <!-- jQuery UI -->
     <script src="/static/assets/extra-libs/taskboard/js/jquery-ui.min.js" ></script>
     <!-- SEO Meta Tags -->
-    <meta name="description" content="MTs Al Huda Reban adalah Madrasah Tsanawiyah yang berlokasi di Reban, Kabupaten Batang, Jawa Tengah. Kami berkomitmen memberikan pendidikan Islam berkualitas dan membentuk generasi yang berakhlak mulia dan berprestasi.">
-    <meta property="og:title" content="MTs Al Huda Reban">
-    <meta property="og:description" content="MTs Al Huda Reban adalah Madrasah Tsanawiyah yang berlokasi di Reban, Kabupaten Batang, Jawa Tengah. Kami berkomitmen memberikan pendidikan Islam berkualitas dan membentuk generasi yang berakhlak mulia dan berprestasi.">
-    <meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg">
-    <meta property="og:url" content="https://mtsalhudareban.sch.id/">
-    <!-- JSON-LD Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "EducationalOrganization",
-      "name": "MTs Al Huda Reban",
-      "url": "https://mtsalhudareban.sch.id/",
-      "logo": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+62XXXXXXXXXXX",
-        "contactType": "administration",
-        "areaServed": "ID",
-        "availableLanguage": "id"
-      },
-      "sameAs": [
-        "https://www.facebook.com/mtsalhudareban",
-        "https://www.instagram.com/mtsalhudareban"
-      ]
-    }
-    </script>
+    
+<meta name="description" content="MTs Al Huda Reban (NPSN 20364561) adalah MTs swasta di Padomasan, Reban, Batang. Berdiri sejak 2 Juni 1983, terakreditasi B, beralamat di Jl. Raya Padomasan No.17.">
+<meta property="og:title" content="MTs Al Huda Reban">
+<meta property="og:description" content="MTs Al Huda Reban adalah MTs swasta di Reban, Batang – akreditasi B, berdiri 1983.">
+<meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg">
+<meta property="og:url" content="https://mtsalhudareban.blogspot.com/">
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "MTs Al Huda Reban",
+  "npsn": "20364561",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Jl. Raya Padomasan No. 17",
+    "addressLocality": "Padomasan",
+    "addressRegion": "Reban",
+    "addressCountry": "ID",
+    "postalCode": "51273"
+  },
+  "url": "https://mtsalhudareban.blogspot.com/",
+  "logo": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg",
+  "foundingDate": "1983-06-02",
+  "legalName": "MTs Al Huda Reban",
+  "department": {
+    "@type": "EducationalOrganization",
+    "name": "Madrasah Tsanawiyah",
+    "accreditation": "B"
+  },
+  "founder": {
+    "@type": "Organization",
+    "name": "Kementerian Agama Republik Indonesia"
+  },
+  "sameAs": [
+	"https://www.facebook.com/mtsalhudareban",
+    "https://www.instagram.com/mtsalhuda_reban"
+  ]
+}
+</script>
+
 
   
     <!-- App Scripts -->
@@ -187,7 +204,60 @@
       </header>
       {% include "include/sidebar2.html" %}
       <div class="page-wrapper">
+	  
+    <div class="flash-message-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+    
+      <script>
+        // Auto-hide alert after 4 seconds
+        setTimeout(() => {
+          document.querySelectorAll('.alert').forEach(alert => {
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+            setTimeout(() => alert.remove(), 500); // remove after fade out
+          });
+        }, 4000);
+      </script>
+      
         {% block content %}{% endblock content %}  
+		
+    <!-- Modal Tambah -->
+<div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahTagihanLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-lg">
+    <div class="modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="tambahTagihanLabel">Tambah {{title_data}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form id="tambahTagihanForm">
+            {% block form_tambah %}
+            {% endblock %}
+
+          <!-- Modal Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="button" id="tombolSubmit" class="btn btn-primary">Simpan </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
       </div>
       <footer class="footer text-center" id='copyright'>
       </footer>
@@ -223,100 +293,14 @@
     <script>
     var tahunSaatIni=(new Date).getFullYear();document.getElementById("copyright").innerHTML=tahunSaatIni+" © All Rights Reserved";
     </script>
-  </body>
-</html>
-{% else %}
-<!-- Jika jwt_token tidak ada -->
-<script>
-    window.location.href = "/";
-</script>
-{% endif %}
-<body>
-    <div class="flash-message-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-      </div>
-    
-      <script>
-        // Auto-hide alert after 4 seconds
-        setTimeout(() => {
-          document.querySelectorAll('.alert').forEach(alert => {
-            alert.classList.remove('show');
-            alert.classList.add('fade');
-            setTimeout(() => alert.remove(), 500); // remove after fade out
-          });
-        }, 4000);
-      </script>
-      
-    <header>
-        <div class="d-flex">
-        <div class="menu-container">
-        <button class="logout-button" onclick="location.href='/'">Menu</button>
-        {% if btn_tambah %}
-		<button type="button"style="width: 150px !important;" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
-		  Tambah Data
-		</button>
-        {% endif %}
-        </div>
-        <div class="logout-container">
-        <button class="logout-button" onclick="handleLogout()">Logout</button>
-        </div>
-        </div>
-        <h1>{{ title }} MTs Al Huda Reban</h1>
-        <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
-        
-    </header>
-
-    <div class="body-container">
-        <div class="container">
-            {% block content %}
-            {% endblock %}
-        </div>
-    </div>
-        
-
-    <!-- Modal Tambah -->
-<div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahTagihanLabel" aria-hidden="true">
-  <div class="modal-dialog  modal-lg">
-    <div class="modal-content">
-      
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="tambahTagihanLabel">Tambah {{title_data}}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="modal-body">
-        <form id="tambahTagihanForm">
-            {% block form_tambah %}
-            {% endblock %}
-
-          <!-- Modal Footer -->
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="button" id="tombolSubmit" class="btn btn-primary">Simpan </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+	
 
 <script>
 function openEditModal(id_semester) {
-document.getElementById('editModal-' + id_semester).style.display = 'block';
+$('#editModal-' + id_semester).modal('show');
 }
 function closeEditModal(id_semester) {
-document.getElementById('editModal-' + id_semester).style.display = 'none';
+$('#editModal-' + id_semester).modal('hide');
 }
 
 // AJAX for Delete Semester (DELETE)
@@ -390,6 +374,11 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
     });
 });
 </script>
-<script src="/static/script_footer.js"></script>
-</body>
+  </body>
 </html>
+{% else %}
+<!-- Jika jwt_token tidak ada -->
+<script>
+    window.location.href = "/";
+</script>
+{% endif %}

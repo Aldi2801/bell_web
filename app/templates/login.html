@@ -1,257 +1,193 @@
+{% if session.jwt_token %}
+	<!-- Jika jwt_token ada -->
+	<script>
+		window.location.href = "/admin/dashboard";
+	</script>
+{% else %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        /* Styling halaman login sesuai dengan tema dashboard */
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background: linear-gradient(to right, #fbc2eb, #a6c1ee);
-            animation: fadeIn 1.5s ease-out;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            border-radius: 15px;
-            background-color: #ffffff;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            animation: slideIn 0.8s ease-out;
-        }
-        
-        .container h2 {
-            color: #41729f;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            animation: fadeIn 1.2s ease-out;
-        }
-        
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom:10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            box-sizing: border-box; /* Tambahkan box-sizing */
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            font-size: 1rem;
-            transition: box-shadow 0.3s, transform 0.2s;
-        }
-        
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: scale(1.02);
-        }
-        
-        button {
-            margin-top:5px;
-            width: 100%;
-            padding: 12px;
-            background-color: #41729f;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 1.4s ease-out;
-        }
-        
-        button:hover {
-            background-color: #2980b9;
-            transform: scale(1.05);
-        }
-        
-        p {
-            font-size: 0.9rem;
-            color: #41729f;
-            margin-top: 15px;
-            animation: fadeIn 1.6s ease-out;
-        }
-        
-        p a {
-            color: #2980b9;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        p a:hover {
-            text-decoration: underline;
-        }
-        /* Styling loader */
-        button .loader{
-            border: 4px solid #f3f3f3;   /* Warna latar lingkaran */
-            border-top: 4px solid #3498db; /* Warna bagian yang bergerak */
-            border-radius: 50%;
-            width: 12px;
-            height: 12px;
-            animation: spin 1s linear infinite;
-            margin: 1px auto;
-        }
+	<meta charset="utf-8">
+	<title>Login</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="../static/css/login.css">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../static/image/Logo MTs Al Huda Reban.webp" />
+	<!-- Custom CSS -->
+	<link href="../static/dist/css/style.min.css" rel="stylesheet" />
+	<!-- This Page CSS -->
+	<link rel="stylesheet" type="text/css" href="../static/assets/extra-libs/prism/prism.css" />
+	<style>
+		body{
+		background-image : url('/static/image/Screenshot 2025-06-19 150320.png')
+		}
+		.content {
+		  max-width: 500px;
+		  margin: auto;
+		}
+		.form-group.m-0{
+			color: white;
+			
+		}
+		
+	</style>
+	   <?xml version="1.0" encoding="UTF-8"?>
+	   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- SEO Meta Tags -->
+   
+<meta name="description" content="MTs Al Huda Reban (NPSN 20364561) adalah MTs swasta di Padomasan, Reban, Batang. Berdiri sejak 2 Juni 1983, terakreditasi B, beralamat di Jl. Raya Padomasan No.17.">
+<meta property="og:title" content="MTs Al Huda Reban">
+<meta property="og:description" content="MTs Al Huda Reban adalah MTs swasta di Reban, Batang – akreditasi B, berdiri 1983.">
+<meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg">
+<meta property="og:url" content="https://mtsalhudareban.blogspot.com/">
 
-        /* Animasi putaran */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-#errorMsg {
-    color: red;
-    font-weight: bold;
-    margin-top: 10px;
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "MTs Al Huda Reban",
+  "npsn": "20364561",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Jl. Raya Padomasan No. 17",
+    "addressLocality": "Padomasan",
+    "addressRegion": "Reban",
+    "addressCountry": "ID",
+    "postalCode": "51273"
+  },
+  "url": "https://mtsalhudareban.blogspot.com/",
+  "logo": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg",
+  "foundingDate": "1983-06-02",
+  "legalName": "MTs Al Huda Reban",
+  "department": {
+    "@type": "EducationalOrganization",
+    "name": "Madrasah Tsanawiyah",
+    "accreditation": "B"
+  },
+  "founder": {
+    "@type": "Organization",
+    "name": "Kementerian Agama Republik Indonesia"
+  },
+  "sameAs": [
+	"https://www.facebook.com/mtsalhudareban",
+    "https://www.instagram.com/mtsalhuda_reban"
+  ]
 }
+</script>
 
-    </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+<body class="my-login-page content bg-info" >
+	<div class="bg"></div>
+	{% if error %}
+	{{ error }}	
+	{% endif %}
+	<section class="h-100 ">
+		<div class="container h-100 ">
+			{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<div style="
+				position: fixed;
+				top: 0;
+				right: 0;
+				z-index: 9999;" 
+				class="mt-3 mr-2 alert alert-success alert-dismissible bg-success text-white border-0 fade show"
+				role="alert">
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				{{ messages[0] }}
+			</div>
+					
+			{% endif %}
+			{% endwith %}
+			
+			<div class="row justify-content-md-center h-100">
+				<div class="card-wrapper">
+					<div class="card fat">
+						<div class="card-body ">
+							<div style="display: flex; justify-content: center; align-items: center; margin-bottom:20px">
+								<img src="/static/image/Logo MTs Al Huda Reban.webp" style="height:80px;" />
+							</div>
+							<h4 class="card-title text-center">LOGIN</h4>
+                            <p id="msg" style="color:red">username / password salah</p>			
+							<form >
+								<div class="form-group">
+									<label for="username">Username</label>
+									<input id="username" type="text" class="form-control" name="username" value=""
+										required autofocus>
+								</div>
+								<div class="form-group">
+									<label for="password">Password
+									</label>
+									<input id="password" type="password" class="form-control" name="password" required onkeydown="if(event.key==='Enter'){event.preventDefault(); kirim();}">
+									
+								</div>
+								<br>
+								<div class="form-group m-0">
+									<button type="button" id="login" class="btn  btn-block" style="background-color:#3692FF; color:#fff">
+										Login
+									</button>
+								</div>
+								<div class="form-group m-0">
+									<button type="button" id="reset_password_admin" class="btn  btn-block" style="background-color:#3692FF; color:#fff">
+										Reset Password Admin
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+	</script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+	</script>
+    <script src="../static/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="../static/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- apps -->
+    <script src="../static/dist/js/app.min.js"></script>
+    <script src="../static/dist/js/app.init.stylish.js"></script>
 
-<body>
-    <div class="container">
-	<div id="errorMsg" style="color:red; margin-top:10px;"></div>
-
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li style="color: green;">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
-    {% if msg %}
-        <p style="color: blue;">{{ msg }}</p>
-    {% endif %}
-        <h2>Login</h2>
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button id="submit" type="submit">Login</button>
-        </form></div>
-
-    <!-- JavaScript untuk menangani login dan redirect -->
     <script>
-    // Fungsi untuk verifikasi token dan navigasi halaman
-    async function verifyToken() {
-        // Ambil token dari localStorage
-        const token = localStorage.getItem('authToken');
-
-        // Jika tidak ada token, alihkan ke login
-        if (!token) {
-            return;
-        }
-
-        try {
-            // Kirim permintaan verifikasi token
-            const response = await fetch('/verify-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token  // Sertakan token dalam header
-                }
-            });
-
-            // Parsing hasil JSON dari respon
-            const result = await response.json();
-
-            // Jika token valid, simpan username dan valid ke localStorage
-            if (result.valid) {
-                localStorage.setItem('username', result.username);
-                localStorage.setItem('role', result.role);
-                localStorage.setItem('tokenValid', 'true');
-                console.log('Token valid. Username:', result.username);
-
-                // Lanjut ke halaman yang diinginkan setelah verifikasi berhasil
-                window.location.href = "/dashboard"; // Ganti dengan halaman tujuan
-            } else {
-                // Jika token invalid, arahkan ke login
-                localStorage.removeItem('authToken');
-            }
-        } catch (error) {
-            console.error('Error verifying token:', error);
-            // Arahkan ke login jika terjadi error
-        }
+    // Pada sisi klien
+    // Simpan token JWT di Local Storage setelah berhasil login
+    document.getElementById("msg").style.display = "none";
+    function saveTokenToLocalStorage(token) {
+        localStorage.setItem('jwt_token', token);
     }
-
-// Panggil fungsi verifikasi saat halaman dimuat
-document.addEventListener("DOMContentLoaded", verifyToken);
-
-       document.getElementById("loginForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    document.getElementById("submit").disabled = true;
-    document.getElementById("submit").innerHTML = '<div class="loader" id="loader"></div>';
-    document.getElementById("errorMsg").innerText = ""; // Reset pesan error
-
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
+	function kirim() {
     $.ajax({
-        url: '/login',
-        type: 'POST',
+        url: '/proses_login',
+        method: 'POST',
         contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify({ username, password }),
-        success: function (response) {
-            const token = response.token;
-            if (token) {
-                localStorage.setItem('authToken', token);
-                window.location.href = "/dashboard";
+        data: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        }),
+        success: function(response) {
+            if (!response.success) {
+                document.getElementById("msg").innerHTML = response.message;
+                document.getElementById("msg").style.display = "block";
+            } else {
+                saveTokenToLocalStorage(response.token);
+                window.location.href = '/admin/dashboard';
             }
-            document.getElementById("submit").disabled = false;
-            document.getElementById("submit").innerHTML = "Login";
         },
-        error: function (xhr) {
-            document.getElementById("submit").disabled = false;
-            document.getElementById("submit").innerHTML = "Login";
-
-            let errorTxt = "Terjadi kesalahan.";
-            if (xhr.responseJSON && xhr.responseJSON.error) {
-                errorTxt = xhr.responseJSON.error;
-            }
-
-            document.getElementById("errorMsg").innerText = errorTxt;
+        error: function(xhr, status, error) {
+            console.error("Terjadi kesalahan saat mengirim permintaan:", error);
+            alert("Server error atau jaringan bermasalah.");
         }
     });
-});
 
+    }
+    document.getElementById("login").addEventListener("click", kirim);
     </script>
 </body>
 
 </html>
+{% endif %}

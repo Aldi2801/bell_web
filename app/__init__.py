@@ -46,14 +46,14 @@ bcrypt = Bcrypt(app)
 
 # Define the 'user_roles' class before 'User' class
 class UserRoles(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('role.id'))
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id', ondelete='CASCADE'))
 
 class Role(db.Model, RoleMixin):
-    id = db.Column(db.Integer(), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True)
-    
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
@@ -63,19 +63,15 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), unique=True, nullable=False)
     active = db.Column(db.Boolean, default=True)
 
-    roles = db.relationship('Role', secondary='user_roles', 
+    roles = db.relationship('Role', secondary='user_roles',
                             primaryjoin='User.id == UserRoles.user_id',
                             secondaryjoin='Role.id == UserRoles.role_id',
-                            backref=db.backref('users', lazy='dynamic'))
+                            backref=db.backref('users', lazy='dynamic'),
+                            passive_deletes=True)
 
-    siswa = db.relationship("Siswa", back_populates="user", uselist=False)  # <-- Tambahkan ini
+    siswa = db.relationship("Siswa", back_populates="user", uselist=False, passive_deletes=True)
+    tagihan = db.relationship("Tagihan", backref="user", passive_deletes=True)
 
-class Berita(db.Model):
-    id_berita = db.Column(db.Integer, primary_key=True)
-    judul = db.Column(db.String(35), nullable=False)
-    isi = db.Column(db.String(255), nullable=False)
-    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=True)
-    guru = db.relationship('Guru', backref='berita', lazy=True)
 class Gender(db.Model):
     id_gender = db.Column(db.CHAR(1), primary_key=True)
     gender = db.Column(db.String(9), nullable=False)
@@ -90,88 +86,81 @@ class Guru(db.Model):
     no_hp = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(30), nullable=False)
     spesialisasi = db.Column(db.String(20))
-    id_gender = db.Column(db.CHAR(1), db.ForeignKey('gender.id_gender'), nullable=False)
-    id_status = db.Column(db.CHAR(1), db.ForeignKey('status.id_status'), nullable=False)
+    id_gender = db.Column(db.CHAR(1), db.ForeignKey('gender.id_gender', ondelete='CASCADE'), nullable=False)
+    id_status = db.Column(db.CHAR(1), db.ForeignKey('status.id_status', ondelete='CASCADE'), nullable=False)
 
-    gender_rel = db.relationship("Gender", backref="guru_list")
-    status_rel = db.relationship("Status", backref="guru_list")
+    gender_rel = db.relationship("Gender", backref="guru_list", passive_deletes=True)
+    status_rel = db.relationship("Status", backref="guru_list", passive_deletes=True)
+    berita = db.relationship("Berita", backref="guru", passive_deletes=True)
+    pembagian_list = db.relationship("PembagianKelas", backref="guru_rel", passive_deletes=True)
 
-    user = db.relationship(
-        "User",
-        primaryjoin="foreign(User.nip) == Guru.nip",
-        uselist=False,
-        viewonly=True
-    )
-    
-class Kbm(db.Model):
-    id_kbm = db.Column(db.Integer, primary_key=True)
-    tanggal = db.Column(db.Date, nullable=False)
-    materi = db.Column(db.String(35), nullable=False)
-    sub_materi = db.Column(db.String(100))
-    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu'), nullable=False)
+    user = db.relationship("User", primaryjoin="foreign(User.nip) == Guru.nip", uselist=False, viewonly=True)
 
-class AmpuMapel(db.Model):
-    __tablename__ = 'ampu_mapel'
-    id_ampu = db.Column(db.Integer, primary_key=True)
-    tanggal = db.Column(db.Date)
-    id_semester = db.Column(db.CHAR(1), db.ForeignKey('semester.id_semester'), nullable=False)
-    id_mapel = db.Column(db.CHAR(3), db.ForeignKey('mapel.id_mapel'), nullable=False)
-    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
-    id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
-    id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian'))
+class Berita(db.Model):
+    id_berita = db.Column(db.Integer, primary_key=True)
+    judul = db.Column(db.String(35), nullable=False)
+    isi = db.Column(db.String(255), nullable=False)
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='SET NULL'), nullable=True)
 
-    # <<< ini yang ditambahkan:
-    mapel_rel      = db.relationship("Mapel",          backref="ampu_mapel_list")
-    pembagian_rel  = db.relationship("PembagianKelas", backref="ampu_mapel", uselist=False,
-                                     foreign_keys=[id_pembagian])
-    semester_rel   = db.relationship("Semester")
-    tahun_akademik_rel = db.relationship("TahunAkademik")
-    
+class Mapel(db.Model):
+    id_mapel = db.Column(db.CHAR(3), primary_key=True)
+    nama_mapel = db.Column(db.String(35), nullable=False)
 
-class PembagianKelas(db.Model):
-    __tablename__ = 'pembagian_kelas'
-    id_pembagian = db.Column(db.Integer, primary_key=True)
-    tanggal       = db.Column(db.Date)
-    nis          = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
-    id_kelas     = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas'), nullable=False)
-    id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik'), nullable=False)
-    nip = db.Column(db.String(25), db.ForeignKey('guru.nip'), nullable=False)
+class Semester(db.Model):
+    id_semester = db.Column(db.CHAR(1), primary_key=True)
+    semester = db.Column(db.String(6), nullable=False)
 
-    # <<< ini yang ditambahkan:
-    kelas_rel = db.relationship("Kelas", backref="pembagian_list")
-    siswa_rel = db.relationship("Siswa", backref="pembagian_list")
-    ida_rel = db.relationship("TahunAkademik", backref="pembagian_list")
-    guru_rel = db.relationship("Guru", backref="pembagian_list")
-    
-class Kehadiran(db.Model):
-    id_kehadiran = db.Column(db.Integer, primary_key=True)
-    id_keterangan = db.Column(db.CHAR(1), db.ForeignKey('keterangan.id_keterangan'), nullable=False)
-    id_kbm = db.Column(db.Integer, db.ForeignKey('kbm.id_kbm'), nullable=False)
-    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=False)
+class TahunAkademik(db.Model):
+    id_tahun_akademik = db.Column(db.String(4), primary_key=True)
+    tahun_akademik = db.Column(db.String(9), nullable=False)
+    mulai = db.Column(db.Date, nullable=False)
+    sampai = db.Column(db.Date, nullable=False)
+
+class Status(db.Model):
+    id_status = db.Column(db.CHAR(1), primary_key=True)
+    status = db.Column(db.String(20), nullable=False)
 
 class Kelas(db.Model):
     id_kelas = db.Column(db.String(6), primary_key=True)
     nama_kelas = db.Column(db.String(15), nullable=False)
     tingkat = db.Column(db.CHAR(1), nullable=False)
 
+class AmpuMapel(db.Model):
+    id_ampu = db.Column(db.Integer, primary_key=True)
+    tanggal = db.Column(db.Date)
+    id_semester = db.Column(db.CHAR(1), db.ForeignKey('semester.id_semester', ondelete='CASCADE'), nullable=False)
+    id_mapel = db.Column(db.CHAR(3), db.ForeignKey('mapel.id_mapel', ondelete='CASCADE'), nullable=False)
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=False)
+    id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=False)
+    id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian', ondelete='SET NULL'))
+
+    mapel_rel = db.relationship("Mapel", backref="ampu_mapel_list", passive_deletes=True)
+    semester_rel = db.relationship("Semester", backref="ampu_mapel", passive_deletes=True)
+    tahun_akademik_rel = db.relationship("TahunAkademik", backref="ampu_mapel", passive_deletes=True)
+    pembagian_rel = db.relationship("PembagianKelas", backref="ampu_mapel", passive_deletes=True, uselist=False)
+
+class Kbm(db.Model):
+    id_kbm = db.Column(db.Integer, primary_key=True)
+    tanggal = db.Column(db.Date, nullable=False)
+    materi = db.Column(db.String(35), nullable=False)
+    sub_materi = db.Column(db.String(100))
+    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='CASCADE'), nullable=False)
+
 class Keterangan(db.Model):
     id_keterangan = db.Column(db.CHAR(1), primary_key=True)
     keterangan = db.Column(db.String(5), nullable=False)
 
-class Mapel(db.Model):
-    id_mapel = db.Column(db.CHAR(3), primary_key=True)
-    nama_mapel = db.Column(db.String(35), nullable=False)
-
-
-class Semester(db.Model):
-    id_semester = db.Column(db.CHAR(1), primary_key=True)
-    semester = db.Column(db.String(6), nullable=False)
+class Kehadiran(db.Model):
+    id_kehadiran = db.Column(db.Integer, primary_key=True)
+    id_keterangan = db.Column(db.CHAR(1), db.ForeignKey('keterangan.id_keterangan', ondelete='CASCADE'), nullable=False)
+    id_kbm = db.Column(db.Integer, db.ForeignKey('kbm.id_kbm', ondelete='CASCADE'), nullable=False)
+    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=False)
 
 class Siswa(db.Model):
     nis = db.Column(db.Integer, primary_key=True)
     nisn = db.Column(db.String(10))
     nama = db.Column(db.String(50), nullable=False)
-    id_gender = db.Column(db.CHAR(1), db.ForeignKey('gender.id_gender'), nullable=False)
+    id_gender = db.Column(db.CHAR(1), db.ForeignKey('gender.id_gender', ondelete='CASCADE'), nullable=False)
     tempat_lahir = db.Column(db.String(20), nullable=False)
     tanggal_lahir = db.Column(db.Date, nullable=False)
     alamat = db.Column(db.String(125), nullable=False)
@@ -181,30 +170,28 @@ class Siswa(db.Model):
     penghasilan_ayah = db.Column(db.Integer, nullable=False)
     penghasilan_ibu = db.Column(db.Integer, nullable=False)
     asal_sekolah = db.Column(db.String(30), nullable=False)
-    id_status = db.Column(db.CHAR(1), db.ForeignKey('status.id_status'), nullable=False)
+    id_status = db.Column(db.CHAR(1), db.ForeignKey('status.id_status', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), unique=True, nullable=True)
 
-    # New FK ke User
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=True)
+    gender_rel = db.relationship("Gender", backref="siswa_list", passive_deletes=True)
+    status_rel = db.relationship("Status", backref="siswa_list", passive_deletes=True)
+    user = db.relationship("User", back_populates="siswa", passive_deletes=True)
 
-    # Relasi
-    gender_rel = db.relationship("Gender", backref="siswa_list")
-    status_rel = db.relationship("Status", backref="siswa_list")
-    user = db.relationship("User", back_populates="siswa")
+class PembagianKelas(db.Model):
+    id_pembagian = db.Column(db.Integer, primary_key=True)
+    tanggal = db.Column(db.Date)
+    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=False)
+    id_kelas = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas', ondelete='CASCADE'), nullable=False)
+    id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=False)
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=False)
 
-
-class Status(db.Model):
-    id_status = db.Column(db.CHAR(1), primary_key=True)
-    status = db.Column(db.String(20), nullable=False)
-
-class TahunAkademik(db.Model):
-    id_tahun_akademik = db.Column(db.String(4), primary_key=True)
-    tahun_akademik = db.Column(db.String(9), nullable=False)
-    mulai = db.Column(db.Date, nullable=False)
-    sampai = db.Column(db.Date, nullable=False)
+    kelas_rel = db.relationship("Kelas", backref="pembagian_list", passive_deletes=True)
+    siswa_rel = db.relationship("Siswa", backref="pembagian_list", passive_deletes=True)
+    ida_rel = db.relationship("TahunAkademik", backref="pembagian_list", passive_deletes=True)
 
 class Tagihan(db.Model):
     id_tagihan = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     semester = db.Column(db.String(10))
     tahun_ajaran = db.Column(db.String(10))
     deskripsi = db.Column(db.String(255))
@@ -214,11 +201,9 @@ class Tagihan(db.Model):
 class Transaksi(db.Model):
     id_transaksi = db.Column(db.Integer, primary_key=True)
     kode_order = db.Column(db.String(100), unique=True, nullable=False)
-    id_tagihan = db.Column(db.Integer, db.ForeignKey('tagihan.id_tagihan'), nullable=True)    
-    # Tetap pakai salinan email
+    id_tagihan = db.Column(db.Integer, db.ForeignKey('tagihan.id_tagihan', ondelete='SET NULL'), nullable=True)
+    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='SET NULL'), nullable=True)
     email = db.Column(db.String(120), nullable=False)
-    # Optional relasi ke siswa (jika perlu tracing)
-    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis'), nullable=True)
     total = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), default="pending")
     fraud_status = db.Column(db.String(50), nullable=True)
@@ -231,6 +216,7 @@ class JadwalPelajaran(db.Model):
     time = db.Column(db.String(15), nullable=False)
     period = db.Column(db.Integer, nullable=False)
     subject = db.Column(db.Text, nullable=False)
+
 
 # seeder
 # seeder_siswa.py

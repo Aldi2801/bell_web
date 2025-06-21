@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
+
 {% block form_tambah %}
+
 <div class="row">
     <div class="col-md-6 mb-3">
         <input type="number" class="form-control" name="nis" placeholder="NIS" required>
@@ -57,15 +59,45 @@
         </select>
     </div>
 </div>
+
 {% endblock %}
-
-
 {% block content %}
-<h2>Data Siswa</h2>
+
+<div class="page-titles">
+  <div class="row">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 d-flex align-items-center">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="link">
+              <i class="ri-home-3-line fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
+        </ol>
+      </nav>
+      <h1 class="mb-0 fw-bold">Data {{title}}</h1>
+    </div>
+	{% if btn_tambah %}
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
+		  <i class="ri-add-line me-1"></i> Tambah Data
+		</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+<!-- templates/crud/semester.html -->
+<h4>Data Semester</h4>
 <div class="table-responsive">
-<table id="myTable" class="table table-bordered">
-        <thead>
-                <tr>
+<table id="myTable" class="table table-stripped" >
+    <thead>
+        <tr>
                         <th>NIS</th>
                         <th>NISN</th>
                         <th>Nama</th>
@@ -82,10 +114,10 @@
                         <th>Asal Sekolah</th>
                         <th>Status</th>
                         <th>Aksi</th>
-                </tr>
-        </thead>
-        <tbody>
-                {% for s in siswa_list %}
+        </tr>
+    </thead>
+    <tbody>
+           {% for s in siswa_list %}
                 <tr>
                         <td>{{ s.nis }}</td>
                         <td>{{ s.nisn }}</td>
@@ -103,8 +135,8 @@
                         <td>{{ s.asal_sekolah }}</td>
                         <td>{{ s.status_rel.status }}</td>
                         <td>
-                                <button type="button" class="btn btn-warning btn-sm" onclick="openEdit('{{ s.nis }}')">Edit</button>
-                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.nis }}')">Hapus</button>
+                                <button type="button" class="btn btn-warning " onclick="openEdit('{{ s.nis }}')">Edit</button>
+                                <button type="button" class="btn btn-danger" onclick="deleteData('{{ s.nis }}')">Hapus</button>
                         </td>
                 </tr>
                 <!-- Modal Edit -->
@@ -244,9 +276,15 @@
 				  </div>
 				</div>
                 {% endfor %}
-        </tbody>
-	</table>
-</div>
+		
+			</tbody>
+		</table>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
 <script>
  $('#myTable').DataTable();
 // AJAX for Edit Siswa (PUT)
@@ -293,7 +331,7 @@ document.getElementById("editForm-{{ s.nis }}").addEventListener("submit", funct
                 if (xhr.responseJSON?.msg) errorTxt = xhr.responseJSON.msg;
                 alert(`Edit failed: ${errorTxt}`);
             }
-        });
+        }); 
     });
 {% endfor %}
 </script>

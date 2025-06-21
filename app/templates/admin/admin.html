@@ -1,7 +1,7 @@
 {% if session.jwt_token %}
 	<!-- Jika jwt_token ada -->
 	<script>
-		window.location.href = "/admin/dashboard";
+		window.location.href = "/dashboard";
 	</script>
 {% else %}
 <!DOCTYPE html>
@@ -18,6 +18,9 @@
 	<!-- This Page CSS -->
 	<link rel="stylesheet" type="text/css" href="../static/assets/extra-libs/prism/prism.css" />
 	<style>
+		body{
+		background-image : url('/static/image/Screenshot 2025-06-19 150320.png')
+		}
 		.content {
 		  max-width: 500px;
 		  margin: auto;
@@ -31,32 +34,48 @@
 	   <?xml version="1.0" encoding="UTF-8"?>
 	   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- SEO Meta Tags -->
-    <meta name="description" content="MTs Al Huda Reban adalah Madrasah Tsanawiyah yang berlokasi di Reban, Kabupaten Batang, Jawa Tengah. Kami berkomitmen memberikan pendidikan Islam berkualitas dan membentuk generasi yang berakhlak mulia dan berprestasi.">
-    <meta property="og:title" content="MTs Al Huda Reban">
-    <meta property="og:description" content="MTs Al Huda Reban adalah Madrasah Tsanawiyah yang berlokasi di Reban, Kabupaten Batang, Jawa Tengah. Kami berkomitmen memberikan pendidikan Islam berkualitas dan membentuk generasi yang berakhlak mulia dan berprestasi.">
-    <meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg">
-    <meta property="og:url" content="https://mtsalhudareban.sch.id/">
-    <!-- JSON-LD Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "EducationalOrganization",
-      "name": "MTs Al Huda Reban",
-      "url": "https://mtsalhudareban.sch.id/",
-      "logo": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+62XXXXXXXXXXX",
-        "contactType": "administration",
-        "areaServed": "ID",
-        "availableLanguage": "id"
-      },
-      "sameAs": [
-        "https://www.facebook.com/mtsalhudareban",
-        "https://www.instagram.com/mtsalhudareban"
-      ]
-    }
-    </script>
+   
+<meta name="description" content="MTs Al Huda Reban (NPSN 20364561) adalah MTs swasta di Padomasan, Reban, Batang. Berdiri sejak 2 Juni 1983, terakreditasi B, beralamat di Jl. Raya Padomasan No.17.">
+<meta property="og:title" content="MTs Al Huda Reban">
+<meta property="og:description" content="MTs Al Huda Reban adalah MTs swasta di Reban, Batang – akreditasi B, berdiri 1983.">
+<meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg">
+<meta property="og:url" content="https://mtsalhudareban.blogspot.com/">
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "MTs Al Huda Reban",
+  "npsn": "20364561",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Jl. Raya Padomasan No. 17",
+    "addressLocality": "Padomasan",
+    "addressRegion": "Reban",
+    "addressCountry": "ID",
+    "postalCode": "51273"
+  },
+  "url": "https://mtsalhudareban.blogspot.com/",
+  "logo": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgQiBuvkfDZt_mbS5XyiKWtuXPxHvwjgaVVjfWCWzKkZche76KZxPIwh5d1Kb_2jwxeqiei_UK5ucjj1dDUNLm0k6VBtZIp9dcxJfe-aVvltPb24iLqFPLAfFJQ0OCpkTc/s220/Logo+MTs+Al+Huda+Reban.jpg",
+  "foundingDate": "1983-06-02",
+  "legalName": "MTs Al Huda Reban",
+  "department": {
+    "@type": "EducationalOrganization",
+    "name": "Madrasah Tsanawiyah",
+    "accreditation": "B"
+  },
+  "founder": {
+    "@type": "Organization",
+    "name": "Kementerian Agama Republik Indonesia"
+  },
+  "sameAs": [
+	"https://www.facebook.com/mtsalhudareban",
+    "https://www.instagram.com/mtsalhuda_reban"
+  ]
+}
+</script>
+
 </head>
 <body class="my-login-page content bg-info" >
 	<div class="bg"></div>
@@ -151,7 +170,7 @@
                 document.getElementById("msg").style.display = "block";
             } else {
                 saveTokenToLocalStorage(response.token);
-                window.location.href = '/admin/dashboard';
+                window.location.href = '/dashboard';
             }
         },
         error: function(xhr, status, error) {

@@ -19,10 +19,22 @@ def proses_login():
     if not user:
         return jsonify(success=False, message="Username salah")
 
-    if bcrypt.check_password_hash(user.password_bcrypt, password):
+    if bcrypt.check_password_hash(user.password, password):
         access_token = create_access_token(identity=username)
         session['jwt_token'] = access_token
         session['username'] = username
+        session['email'] = user.email
+        if user.roles:
+            session['role'] = user.roles[0].name
+        else:
+            session['role'] = None
+        if user.roles[0].name == 'guru':
+            session['nip'] = user.nip
+        elif user.roles[0].name == 'murid':
+            session['nis'] = user.nis
+        else:
+            session['role'] = 'admin'
+
         return jsonify(success=True, token=access_token)
     else:
         return jsonify(success=False, message="Password salah")

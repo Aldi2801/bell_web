@@ -7,7 +7,7 @@
         <li class="sidebar-item">
           <a
             class="sidebar-link waves-effect waves-dark sidebar-link"
-            href="/admin/dashboard"
+            href="/dashboard"
             aria-expanded="false"
             ><i class="me-2 mdi mdi-view-dashboard"></i
             ><span class="hide-menu">Dashboard</span></a
@@ -48,86 +48,68 @@
             </li>
           </ul>
         </li>  -->
+		
+                {% if session['role'] == 'admin' %}
         <li class="sidebar-item">
-          <a
-            class="sidebar-link waves-effect waves-dark sidebar-link"
-            href="/admin/penerimaan"
-            aria-expanded="false"
-            ><i class="me-2 ri-money-dollar-circle-line"></i
-            ><span class="hide-menu"> Penerimaan</span></a
-          >
+                <a class="sidebar-link" href="/admin/semester"><i class="fas fa-calendar mr-2 "></i><span class="hide-menu"> Semester</span></a>
         </li>
         <li class="sidebar-item">
-          <a
-            class="sidebar-link waves-effect waves-dark sidebar-link"
-            href="/admin/penyimpanan"
-            aria-expanded="false"
-            ><i class="me-2 mdi mdi-view-carousel"></i
-            ><span class="hide-menu"> Penyimpanan</span></a
-          >
+                <a class="sidebar-link" href="/admin/kelas"><i class="fas fa-school mr-2 "></i><span class="hide-menu"> Kelas</span></a>
         </li>
         <li class="sidebar-item">
-          <a
-            class="sidebar-link waves-effect waves-dark sidebar-link"
-            href="/admin/pengeluaran"
-            aria-expanded="false"
-            ><i class="me-2 ri-money-dollar-circle-line"></i
-            ><span class="hide-menu"> Pengeluaran</span></a
-          >
+                <a class="sidebar-link" href="/admin/siswa"><i class="fas fa-users mr-2 "></i><span class="hide-menu"> Siswa</span></a>
         </li>
         <li class="sidebar-item">
-          <a href="/admin/keuangan" class="sidebar-link"
-            ><i class="me-2 mdi mdi-file-chart"></i
-            ><span class="hide-menu"> Keuangan</span></a
-          >
         </li>
         <li class="sidebar-item">
-          <a
-            class="sidebar-link waves-effect waves-dark sidebar-link"
-            href="/admin/administrasi"
-            aria-expanded="false"
-            ><i class="me-2 mdi mdi-file-document"></i
-            ><span class="hide-menu"> Administrasi</span></a
-          >
+                <a class="sidebar-link" href="/admin/pembagian_kelas"><i class="fas fa-random mr-2 "></i><span class="hide-menu"> Pembagian Kelas</span></a>
         </li>
         <li class="sidebar-item">
-          <a
-            class="sidebar-link waves-effect waves-dark sidebar-link"
-            href="/admin/performa_sales"
-            aria-expanded="false"
-            ><i class="me-2 mdi mdi-chart-line"></i
-            ><span class="hide-menu"> Performa Sales</span></a
-          >
+                <a class="sidebar-link" href="/admin/ampu_mapel"><i class="fas fa-book-reader mr-2 "></i><span class="hide-menu"> Ampu Mapel</span></a>
         </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/manage_jadwal"><i class="fas fa-calendar-alt mr-2 "></i><span class="hide-menu"> Jadwal</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/register_guru"><i class="fas fa-user-plus mr-2 "></i><span class="hide-menu"> Tambah Guru</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/menu_pembayaran"><i class="fas fa-cash-register mr-2 "></i><span class="hide-menu"> Tambah Pembayaran</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/kbm/list" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i><span class="hide-menu"> Manage Kehadiran</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i><span class="hide-menu"> Manage Pengumuman</span></a>
+        </li>
+                {% elif session['role'] == 'guru' %}
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/kbm/list" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i><span class="hide-menu"> Input KBM</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/manage_jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Jadwal</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i><span class="hide-menu"> Manage Pengumuman</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/menu_pembayaran"><i class="fas fa-file-alt mr-2"></i><span class="hide-menu"> Lihat Pembayaran Murid</span></a>
+        </li>
+                {% elif session['role'] == 'murid' %}
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/murid/kehadiran" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i><span class="hide-menu"> Kehadiran</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Jadwal</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/pengumuman"><i class="fas fa-file-alt mr-2"></i><span class="hide-menu"> Pengumuman</span></a>
+        </li>
+        <li class="sidebar-item">
+                <a class="sidebar-link" href="/menu_pembayaran"><i class="fas fa-cash-register mr-2 "></i><span class="hide-menu"> Pembayaran</span></a>
+        </li>
+                {%  endif %}
         
-        <li class="nav-small-cap">
-          <i class="nav-small-line"></i>
-          <span class="hide-menu">Lain Lain</span>
-        </li>
-        <li class="sidebar-item">
-          <a href="/admin/barang" class="sidebar-link">
-            <i class="me-2 mdi mdi-package-variant-closed"></i>
-            <span class="hide-menu"> Barang </span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/admin/pabrik" class="sidebar-link">
-            <i class="me-2 mdi mdi-factory"></i>
-            <span class="hide-menu"> Pabrik atau Principle/Supplier </span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/admin/sales" class="sidebar-link">
-            <i class="me-2 mdi mdi-account-multiple"></i>
-            <span class="hide-menu"> Sales </span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a href="/admin/target_sales" class="sidebar-link">
-            <i class="me-2 mdi mdi-account"></i>
-            <span class="hide-menu"> Target Sales </span>
-          </a>
-        </li>
       </ul>
     </nav>
     <!-- End Sidebar navigation -->
