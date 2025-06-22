@@ -1,9 +1,11 @@
-from . import app, bcrypt, User
+from . import app, bcrypt, User, mail,db
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 from datetime import datetime, timedelta
 import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
+from itsdangerous import URLSafeTimedSerializer
+import secrets
 @app.route('/')
 def homepahe():
     return redirect(url_for('login'))
@@ -47,6 +49,49 @@ def proses_login():
         return jsonify(success=True, token=access_token)
     else:
         return jsonify(success=False, message="Password salah")
+@app.route('/reset_password_admin', methods=['GET'])
+def reset_pswd_admin():
+    email = request.args.get('email')
+
+    admin = Admin.query.filter_by(email=email).first()
+    if not admin:
+        return jsonify(success=False, message="Email tidak ditemukan"), 404
+
+    # Buat token dengan email
+    token = serializer.dumps(email, salt='reset-password')
+
+    # Kirim link via email
+    reset_link = url_for('reset_password_form', token=token, _external=True)
+
+    msg = Message("Reset Password Admin",
+                  sender=app.config['MAIL_USERNAME'],
+                  recipients=[email])
+    msg.body = f"Klik link untuk reset password:\n{reset_link}"
+    mail.send(msg)
+
+    return jsonify(success=True, message="Link reset password dikirim ke email")
+
+@app.route('/reset_admin_form', methods=['POST'])
+def reset_password_form():
+    data = request.json
+    token = data.get('token')
+    new_password = data.get('new_password')
+
+    admin = Admin.query.filter_by(reset_token=token).first()
+    if not admin:
+        return jsonify(success=False, message="Token tidak valid"), 400
+
+    if datetime.utcnow() > admin.token_expiry:
+        return jsonify(success=False, message="Token kadaluarsa"), 400
+
+    from werkzeug.security import generate_password_hash
+    admin.password = generate_password_hash(new_password)
+    admin.reset_token = None
+    admin.token_expiry = None
+    db.session.commit()
+
+    return jsonify(success=True, message="Password berhasil diubah")
+
 
 # Endpoint yang memerlukan autentikasi
 @app.route('/keluar')

@@ -12,7 +12,9 @@ def view_register():
 def view_register_guru():
     data_guru = Guru.query.all()
     data_fix = []
-
+    btn_tambah = True
+    title = "Manage Guru"
+    title_data = "Tambah Guru"
     for i in data_guru:
         user = i.user  # ambil user yang sesuai nip
         data_fix.append({
@@ -29,7 +31,7 @@ def view_register_guru():
             'gender': i.gender_rel.gender if i.gender_rel else '-',
             'status': i.status_rel.status if i.status_rel else '-'
         })
-    return render_template("admin/tambah_guru.html",guru=data_fix)
+    return render_template("admin/tambah_guru.html",guru=data_fix, btn_tambah=btn_tambah, title=title, title_data=title_data   )
 
 def find_current_period(sesi_list, current_time):
     for sesi in sesi_list:

@@ -1,245 +1,101 @@
 {% extends "layout.html" %}
 
-<!DOCTYPE html>
-<html lang="id">
+{% block form_tambah %}
+<div class="col-md-12">
+          <input type="text" class="form-control" name="nip" placeholder="NIP" required>
+        </div>
+        <div class="col-md-12">
+          <input type="text" class="form-control" name="username" placeholder="Username" required>
+        </div>
+        <div class="col-md-12">
+          <input type="text" class="form-control" name="nama_lengkap" placeholder="Nama Lengkap" required>
+        </div>
+        <div class="col-md-12">
+          <input type="text" class="form-control" name="inisial" placeholder="Inisial">
+        </div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Pelajaran MTs Al Huda Reban</title>
-    <!-- Tambahkan link CSS DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <!-- Tambahkan link jQuery dan DataTables JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <div class="col-md-12">
+          <input type="text" class="form-control" name="tempat_lahir" placeholder="Tempat Lahir" required>
+        </div>
+        <div class="col-md-12">
+          <input type="date" class="form-control" name="tanggal_lahir" required>
+        </div>
+        <div class="col-md-12">
+          <input type="text" class="form-control" name="alamat" placeholder="Alamat" required>
+        </div>
 
-    <style>
-         /* Styling Umum */
-        
-        .parent {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to right, #a6c1ee, #fbc2eb);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .containerr {
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            opacity: 0;
-            transform: translateY(-30px);
-            animation: fadeInSlide 1s forwards;
-            animation-delay: 0.5s;
-        }
-        
-        h2 {
-            font-size: 2rem;
-            color: #34495e;
-            margin-bottom: 20px;
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 1rem;
-            box-sizing: border-box; /* Tambahkan box-sizing */
-        }
-        
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #3498db;
-        }
-        
-        p {
-            font-size: 1rem;
-            color: #2c3e50;
-        }
-        
-        a {
-            color: #2980b9;
-            text-decoration: none;
-        }
-        
-        a:hover {
-            text-decoration: underline;
-        }
-        /* Keyframes for Fade In and Slide */
-        
-        @keyframes fadeInSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        /* Responsiveness */
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            h2 {
-                font-size: 1.5rem;
-            }
-            input[type="text"],
-            input[type="email"],
-            input[type="password"],
-            button {
-                padding: 10px;
-                font-size: 1rem;
-            }
-        }
-                /* Styling loader */
-        button .loader{
-            border: 4px solid #f3f3f3;   /* Warna latar lingkaran */
-            border-top: 4px solid #3498db; /* Warna bagian yang bergerak */
-            border-radius: 50%;
-            width: 12px;
-            height: 12px;
-            animation: spin 1s linear infinite;
-            margin: 1px auto;
-        }
+        <div class="col-md-12">
+          <input type="text" class="form-control" name="no_hp" placeholder="Nomor HP" required>
+        </div>
+        <div class="col-md-12">
+          <input type="email" class="form-control" name="email" placeholder="Email" required>
+        </div>
+        <div class="col-md-12">
+          <input type="text" class="form-control" name="spesialisasi" placeholder="Spesialisasi">
+        </div>
 
-        /* Animasi putaran */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .table-responsive thead th {
-    background-color: #c12fdbdb !important;
-    color: white !important;
-    text-align: center;
-}
-  .flash-message-container {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-            background: linear-gradient(to right, #a6c1ee, #fbc2eb);
-    z-index: 1050;
-    width: 100%;
-    max-width: 500px;
-    padding: 0 15px;
-  }
+        <div class="col-md-12">
+          <select class="form-select" name="id_gender" required>
+            <option value="" selected disabled>Pilih Gender</option>
+            <option value="L">Laki-laki</option>
+            <option value="P">Perempuan</option>
+          </select>
+        </div>
 
-  .alert {
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 1rem;
-    font-weight: 500;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    animation: fadeInDown 0.5s ease;
-    position: relative;
-  }
+        <div class="col-md-12">
+          <select class="form-select" name="id_status" required>
+            <option value="" selected disabled>Pilih Status</option>
+            <option value="1">Aktif</option>
+            <option value="2">Non-Aktif</option>
+          </select>
+        </div>
 
-  .btn-close {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    border: none;
-    background: transparent;
-    font-size: 1.2rem;
-    cursor: pointer;
-  }
+        <div class="col-md-12">
+          <input type="password" class="form-control" name="password" placeholder="Password" required>
+        </div>
 
-  /* Animasi fade in */
-  @keyframes fadeInDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  #tambahModal {
-  animation: fadeIn 0.3s ease-in-out;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translate(-50%, -40%); }
-  to { opacity: 1; transform: translate(-50%, -50%); }
-}
+        <div class="col-md-12">
+          <input type="password" class="form-control" name="re-password" placeholder="Ulangi Password" required>
+        </div>
+{% endblock %}
+{% block content %}
 
-</style>
-
-        <link rel="stylesheet" href="/static/style_base.css">
-
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</head>
-
-
-<body>
-  <div class="flash-message-container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+<div class="page-titles">
+  <div class="row">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 d-flex align-items-center">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="link">
+              <i class="ri-home-3-line fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
+        </ol>
+      </nav>
+      <h1 class="mb-0 fw-bold">Data {{title}}</h1>
+    </div>
+	{% if btn_tambah %}
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
+		  <i class="ri-add-line me-1"></i> Tambah Data
+		</button>
+    </div>
+    {% endif %}
   </div>
-
-  <script>
-    // Auto-hide alert after 4 seconds
-    setTimeout(() => {
-      document.querySelectorAll('.alert').forEach(alert => {
-        alert.classList.remove('show');
-        alert.classList.add('fade');
-        setTimeout(() => alert.remove(), 500); // remove after fade out
-      });
-    }, 4000);
-  </script>
-    <header>
-        <div class="d-flex">
-        <div class="menu-container">
-        <a class="logout-button" href='/'>Menu</a>
-        <button style="width: 150px !important;" class="logout-button" onclick="openTambahModal()">Tambah Data</button>
-        </div>
-        <div class="logout-container">
-        <a class="logout-button" onclick="handleLogout()">Logout</a>
-        </div>
-        </div>
-        <h1>Tambah Guru MTs Al Huda Reban</h1>
-    </header>
-    <div class="container mt-3">
-<div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
-    <table id="myTable" class="table table-striped table-bordered">
-        <thead style="background-color: #6e0082db; color: white; position: sticky; top: 0; z-index: 1;">
-            <th>No</th>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+<!-- templates/crud/Guru.html -->
+<h4>Data Guru</h4>
+<div class="table-responsive">
+<table id="myTable" class="table table-stripped" >
+    <thead>
+        <tr>            
+        <th>No</th>
             <th>Username</th>
             <th>nip</th>
             <th>inisial</th>
@@ -255,301 +111,133 @@
             {%if session['role'] == 'admin' %}
             <th>Aksi</th>
             {% endif %}
-        </thead>
-        <tbody>
-            {% if guru: %}
-            {% for i in guru %}
-            <tr>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in guru %}
+        <tr>
             <td>{{loop.index}}</td>
-            <td>{{i.username}}</td>
-            <td>{{i.nip}}</td>
-            <td>{{i.inisial}}</td>
-            <td>{{i.nama}}</td>
-            <td>{{i.tempat_lahir}}</td>
-            <td>{{i.tanggal_lahir}}</td>
-            <td>{{i.alamat}}</td>
-            <td>{{i.no_hp}}</td>
-            <td>{{i.email}}</td>
-            <td>{{i.spesialisasi}}</td>
-            <td>{{i.gender}}</td>
-            <td>{{i.status}}</td>
+            <td>{{s.username}}</td>
+            <td>{{s.nip}}</td>
+            <td>{{s.inisial}}</td>
+            <td>{{s.nama}}</td>
+            <td>{{s.tempat_lahir}}</td>
+            <td>{{s.tanggal_lahir}}</td>
+            <td>{{s.alamat}}</td>
+            <td>{{s.no_hp}}</td>
+            <td>{{s.email}}</td>
+            <td>{{s.spesialisasi}}</td>
+            <td>{{s.gender}}</td>
+            <td>{{s.status}}</td>
             {%if session['role'] == 'admin' %}
             <td>
-    <button class="btn btn-sm btn-primary" onclick="openEditModal('{{ i.nip }}')">Edit</button>
+    <button class="btn btn-warning" onclick="openEditModal('{{ s.nip }}')">Edit</button>
     <hr>
-    <form method="POST" action="/hapus_guru/{{ i.nip }}" onsubmit="return confirm('Yakin ingin menghapus data guru ini?')">
-        <button class="btn btn-sm btn-danger" type="submit">Hapus</button>
+    <form method="POST" action="/hapus_guru/{{ s.nip }}" onsubmit="return confirm('Yakin ingin menghapus data guru ini?')">
+        <button class="btn btn-danger" type="submit">Hapus</button>
+        </td>
+        {% endif %}
     </form>
-</td>
+   </tr>
+		<!-- Modal Edit -->
+		<div class="modal fade" id="editModal-{{ s.nip }}" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
+		  <div class="modal-dialog  modal-lg"> 
+			<div class="modal-content">
+			  
+			  <!-- Modal Header -->
+			  <div class="modal-header">
+				<h5 class="modal-title" id="editLabel">Edit {{title_data}}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+			  </div>
 
-            {% endif %}
-                </tr>
-            {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
-</div>
-</div>
-<!-- Modal Edit -->
-<div id="editModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); z-index:999; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); max-width:500px; width:100%;">
-    <h3 style="color: black !important;;">Edit Data Guru</h3>
-    <form id="editGuruForm" method="POST" action="/edit_guru">
+			  <!-- Modal Body -->
+			  <div class="modal-body">
+				<form id="editForm-{{ s.nip }}">
         <input type="hidden" name="nip" id="edit_nip">
-        <label>Username:</label>
-        <input type="text" name="username" id="edit_username" required><br>
-        <input type="hidden" name="email" id="edit_email" required><br>
-        <input type="hidden" name="nip" id="edit_nip" required><br>
-        <label>Password Baru (opsional):</label>
-        <input type="password" name="password"><br>
-        <label>Role:</label>
+         <input type="hidden" name="email" id="edit_email" required>
+        <input type="hidden" name="nip" id="edit_nip" required>
+       
+        <label>Username:</label><br>
+        <input class="form-control" type="text" name="username" id="edit_username" required><br>
+        <label>Password Baru (opsional):</label><br>
+        <input class="form-control" type="password" name="password"><br>
+        <label>Role:</label><br>
         <select class="form-select form-control" name="role" id="edit_role" required>
             <option value="guru">Guru</option>
             <option value="admin">Admin</option>
         </select><br><br>
-        <button type="submit" class="btn btn-success mb-3">Simpan</button>
-        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
-    </form>
-</div>
-
-    <!-- Modal Tambah -->
-<div id="tambahModal" style="
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 999;
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    max-width: 1000px;
-    width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
-    flex-direction: column;
-">
-  <!-- Header (Optional) -->
-  <div style="padding: 20px; height: 30px !important; border-bottom: 1px solid #ddd;">
-    <h4 class="text-center mb-3">Tambah Guru</h4>
-  </div>
-
-  <!-- Scrollable Content -->
-  <div style="padding: 20px; overflow-y: auto; flex: 1;">
-    <form id="daftarForm">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="nip" placeholder="NIP" required>
-        </div>
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="username" placeholder="Username" required>
-        </div>
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="nama_lengkap" placeholder="Nama Lengkap" required>
-        </div>
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="inisial" placeholder="Inisial">
-        </div>
-
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="tempat_lahir" placeholder="Tempat Lahir" required>
-        </div>
-        <div class="col-md-4">
-          <input type="date" class="form-control" name="tanggal_lahir" required>
-        </div>
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="alamat" placeholder="Alamat" required>
-        </div>
-
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="no_hp" placeholder="Nomor HP" required>
-        </div>
-        <div class="col-md-4">
-          <input type="email" class="form-control" name="email" placeholder="Email" required>
-        </div>
-        <div class="col-md-4">
-          <input type="text" class="form-control" name="spesialisasi" placeholder="Spesialisasi">
-        </div>
-
-        <div class="col-md-4">
-          <select class="form-select" name="id_gender" required>
-            <option value="" selected disabled>Pilih Gender</option>
-            <option value="L">Laki-laki</option>
-            <option value="P">Perempuan</option>
-          </select>
-        </div>
-
-        <div class="col-md-4">
-          <select class="form-select" name="id_status" required>
-            <option value="" selected disabled>Pilih Status</option>
-            <option value="1">Aktif</option>
-            <option value="2">Non-Aktif</option>
-          </select>
-        </div>
-
-        <div class="col-md-4">
-          <input type="password" class="form-control" name="password" placeholder="Password" required>
-        </div>
-
-        <div class="col-md-4">
-          <input type="password" class="form-control" name="re-password" placeholder="Ulangi Password" required>
-        </div>
-
-      </div>
-    </form>
-  </div>
-
-  <!-- Footer dengan tombol -->
-  <div style="padding: 15px; border-top: 1px solid #ddd; text-align: right;">
-    <button type="submit" id="tomboldaftar" class="btn btn-primary" style="margin-bottom: 15px !important;" form="daftarForm">Daftar</button>
-    <button type="button" class="btn btn-secondary" onclick="closeTambahModal()">Batal</button>
-  </div>
-</div>
-
+        
+						<input type="hidden" name="nip_old" value="{{ s.nip }}">
+						<label>nip: </label><input type="text" name="nip" value="{{ s.nip }}" class="form-control mb-3">
+						<label>Nama guru:</label> <input type="text" name="nama_guru" value="{{ s.guru }}" class="form-control mb-3" required>
+						
+				  <div class="modal-footer"><button type="submit" id="tombol-edit-{{ s.nip }}" class="btn btn-success">Simpan</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+				  </div>
+				  
+				</form>
+			  </div>
+			</div>
+		  </div>
+		</div>
+				{% endfor %}
+			</tbody>
+		</table>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
 <script>
  $('#myTable').DataTable();
  </script>
 <script>
-function openEditModal(nip) {
-  fetch(`/get_guru/${nip}`)
-  .then(response => {
-      if (!response.ok) {
-          throw new Error("Gagal mengambil data guru");
-      }
-      return response.json();
-  })
-  .then(data => {
-      document.getElementById('edit_nip').value = data.nip;
-      document.getElementById('edit_username').value = data.username;
-      document.getElementById('edit_role').value = data.role;
-      document.getElementById('edit_email').value = data.email;
-      document.getElementById('editModal').style.display = 'block';
-  })
-  .catch(error => {
-      alert(error.message);
-  });
+// AJAX for Edit guru (PUT)
+{% for s in guru %}
+document.getElementById("editForm-{{ s.nip }}").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value.trim();
+    });
+    const tombol = document.getElementById("tombol-edit-{{ s.nip }}");
+    tombol.disabled = true;
+    tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+    const baseUrl = window.location.origin + window.location.pathname;
+    $.ajax({
+        url: baseUrl + '/edit/{{ s.nip }}',
+        type: 'PUT',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(data),		
+		xhrFields: {
+			withCredentials: true
+		},
+        success: function (response) {
+            tombol.innerHTML = "Simpan";
+            tombol.disabled = false;
+            alert(response.msg || "Berhasil update guru");
+            window.location.reload();
+        },
+        error: function (xhr, status, error) {
+            tombol.innerHTML = "Simpan";
+            tombol.disabled = false;
+            var errorTxt = "Server Error";
+            if (xhr.responseJSON && xhr.responseJSON.error){
+                errorTxt = xhr.responseJSON.error;
+            }
+            if (xhr.responseJSON && xhr.responseJSON.msg){
+                errorTxt = xhr.responseJSON.msg;
+            }
+            alert(`Edit failed: ${errorTxt}`);
+        }
+    });
+});
+{% endfor %}
 
-}
-
-function closeEditModal() {
-    document.getElementById('editModal').style.display = 'none';
-}
-function openTambahModal(nip) {
-    document.getElementById('tambahModal').style.display = 'block';
-}
-function closeTambahModal() {
-    document.getElementById('tambahModal').style.display = 'none';
-}
 </script>
-
-    <script>
-        async function verifyToken() {
-        // Ambil token dari localStorage
-        const token = localStorage.getItem('authToken');
-
-        // Jika tidak ada token, alihkan ke login
-        if (!token) {
-            return;
-        }
-
-        try {
-            // Kirim permintaan verifikasi token
-            const response = await fetch('/verify-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token  // Sertakan token dalam header
-                }
-            });
-
-            // Parsing hasil JSON dari respon
-            const result = await response.json();
-
-            // Jika token valid, simpan username dan valid ke localStorage
-            if (result.valid) {
-                localStorage.setItem('username', result.username);
-                localStorage.setItem('role', result.role);
-                localStorage.setItem('tokenValid', 'true');
-                console.log('Token valid. Username:', result.username);
-
-                // Lanjut ke halaman yang diinginkan setelah verifikasi berhasil
-                window.location.href = "/dashboard"; // Ganti dengan halaman tujuan
-            } else {
-                // Jika token invalid, arahkan ke login
-                localStorage.removeItem('authToken');
-            }
-        } catch (error) {
-            console.error('Error verifying token:', error);
-            // Arahkan ke login jika terjadi error
-        }
-    }
-        document.getElementById("tomboldaftar").addEventListener("click", function(event) {
-            event.preventDefault(); // Prevent form from submitting traditionally
-             const form = document.getElementById("daftarForm");
-            const formData = new FormData(form);
-            const data = {};
-
-            formData.forEach((value, key) => {
-                data[key] = value.trim();
-            });
-
-            // Validasi dasar
-            if (!data.username || !data.password || !data["re-password"]) {
-                alert("Harap isi semua kolom wajib.");
-                return;
-            }
-
-            if (data.password !== data["re-password"]) {
-                alert("Password dan ulangi password tidak cocok.");
-                return;
-            }
-            document.getElementById("tomboldaftar").disabled = true;
-            document.getElementById("tomboldaftar").innerHTML = '<div class="loader" id="loader"></div>';
-            // Ambil URL dasar tanpa parameter
-            const baseUrl = window.location.origin + window.location.pathname;
-            console.log(baseUrl);
-             $.ajax({
-                    url: '/tambah_guru?from="'+baseUrl+'"', // Pastikan endpoint /register sesuai dengan API server
-                    type: 'POST',
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    data: JSON.stringify(data),
-                    success: function (response) {
-                        const token = response.msg;
-                        if (token) {
-                        // Redirect to the dashboard if credentials are correct
-                        document.getElementById("tomboldaftar").innerHTML = "Daftar";
-                        alert(response.msg);
-                        window.location.href = "/login"; // Redirect to login
-                        document.getElementById("tomboldaftar").disabled = false;
-                        } else {
-                            // Show an error message 
-                            document.getElementById("tomboldaftar").disabled = false;
-                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
-                            console.log(response)
-                            const error = response.error;
-                            alert(error);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                            document.getElementById("tomboldaftar").disabled = false;
-                            document.getElementById("tomboldaftar").innerHTML = "Daftar";
-                            console.log(status)
-                            var errorTxt = "Server Error";
-                            if (xhr.responseJSON.error){
-                                errorTxt = xhr.responseJSON.error;
-                            }
-                            if (xhr.responseJSON.msg){
-                                errorTxt = xhr.responseJSON.msg;
-                            }
-                            alert(`Submit failed: ${errorTxt}`);
-                        }
-                });
-           
-        });
-    </script>
     
-    <script src="/static/script_footer.js"></script>
-</body>
-
-</html>
+{% endblock %}
