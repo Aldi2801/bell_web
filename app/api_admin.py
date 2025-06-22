@@ -22,6 +22,7 @@ from flask import flash, redirect
 # Import dari aplikasi lokal
 from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
 
+
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
     try:
@@ -139,6 +140,9 @@ def get_guru(nip):
     data_guru = Guru.query.filter_by(nip=nip).first()
     user = User.query.filter_by(nip=nip).first()
     role = user.roles[0].name if user and user.roles else 'guru'
+    if not data_guru or not user:
+        return jsonify({'error': 'Guru tidak ditemukan'}), 404
+
     return jsonify({
         'nip': nip,
         'email': data_guru.email,

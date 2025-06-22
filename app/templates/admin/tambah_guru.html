@@ -1,3 +1,5 @@
+{% extends "layout.html" %}
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -409,16 +411,24 @@
  </script>
 <script>
 function openEditModal(nip) {
-    fetch(`/get_guru/${nip}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('edit_nip').value = data.nip;
-            document.getElementById('edit_username').value = data.username;
-            document.getElementById('edit_role').value = data.role;
-            document.getElementById('edit_email').value = data.email;
-            document.getElementById('edit_nip').value = data.nip;
-            document.getElementById('editModal').style.display = 'block';
-        });
+  fetch(`/get_guru/${nip}`)
+  .then(response => {
+      if (!response.ok) {
+          throw new Error("Gagal mengambil data guru");
+      }
+      return response.json();
+  })
+  .then(data => {
+      document.getElementById('edit_nip').value = data.nip;
+      document.getElementById('edit_username').value = data.username;
+      document.getElementById('edit_role').value = data.role;
+      document.getElementById('edit_email').value = data.email;
+      document.getElementById('editModal').style.display = 'block';
+  })
+  .catch(error => {
+      alert(error.message);
+  });
+
 }
 
 function closeEditModal() {

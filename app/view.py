@@ -3,6 +3,7 @@ from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, re, datetime, os, json, ast, uuid
 from datetime import datetime
 from sqlalchemy import case
+from collections import defaultdict
 
 @app.route('/register')
 def view_register():
@@ -28,7 +29,7 @@ def view_register_guru():
             'gender': i.gender_rel.gender if i.gender_rel else '-',
             'status': i.status_rel.status if i.status_rel else '-'
         })
-    return render_template("register_guru.html",guru=data_fix)
+    return render_template("admin/tambah_guru.html",guru=data_fix)
 
 def find_current_period(sesi_list, current_time):
     for sesi in sesi_list:
@@ -46,6 +47,7 @@ def dashboard():
     role = session.get('role')
     user = User.query.filter_by(username=session.get('username')).first()
     print(session.get('username'))
+    print(session.get('role'))
     print(user)
 
     profil = {}
@@ -146,7 +148,7 @@ def view_jadwal():
     ]
     print(kelas_dict)
 
-    return render_template("jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict)
+    return render_template("murid/jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict)
 
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():

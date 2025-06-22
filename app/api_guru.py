@@ -4,6 +4,7 @@ from flask_mail import Message
 from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
 import jwt, re, datetime, os, json, ast, uuid
+from collections import defaultdict
 
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
@@ -51,7 +52,7 @@ def view_manage_jadwal():
     kelas_dict = [{"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas} for k in data_kelas]
 
     return render_template(
-        "manage_jadwal.html",
+        "guru/manage_jadwal.html",
         schedule=formatted_schedule,
         kode_guru=formatted_teacher_map["kodeGuru"],
         kode_mapel=formatted_teacher_map["kodeMapel"],
@@ -131,15 +132,6 @@ def edit_test_attendance(id):
         return jsonify({"error": "No document updated"}), 404
 
     return jsonify({"message": "Attendance updated successfully"}), 200
-
-@app.route('/hapus_kehadiran_ujian/<id>', methods=['DELETE'])
-def delete_test_attendance(id):
-    result = db.test_attendance.delete_one({"_id": ObjectId(id)})
-
-    if result.deleted_count == 0:
-        return jsonify({"error": "No document found to delete"}), 404
-
-    return jsonify({"message": "Attendance deleted successfully"}), 200
 
 # Endpoint untuk menyimpan data guru
 @app.route('/tambah_guru', methods=['POST'])

@@ -1,6 +1,9 @@
-from . import app, bcrypt, jwt, User
+from . import app, bcrypt, User
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
+from datetime import datetime, timedelta
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 @app.route('/')
 def homepahe():
     return redirect(url_for('login'))
@@ -20,7 +23,13 @@ def proses_login():
         return jsonify(success=False, message="Username salah")
 
     if bcrypt.check_password_hash(user.password, password):
-        access_token = create_access_token(identity=username)
+        payload = {
+            'username': username,
+            'role': user.roles[0].name if user.roles else None,
+            'email' : user.email,
+            'exp': datetime.utcnow() + timedelta(hours=24)
+        }
+        access_token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
         session['jwt_token'] = access_token
         session['username'] = username
         session['email'] = user.email
@@ -51,9 +60,28 @@ def keluar():
     return redirect(url_for('login'))
     
 
-@jwt.expired_token_loader
-def expired_token_callback():
-    return redirect(url_for('login'))
+@app.before_request
+def global_jwt_check():
+    # Lewatkan route tertentu seperti login, register, static, dll.
+    allowed_routes = ['login', 'static', 'proses_login', 'register']
+    if request.endpoint in allowed_routes or request.endpoint is None:
+        return  # skip checking
+
+    token = session.get('jwt_token') or request.headers.get('Authorization')
+
+    if not token:
+        return redirect(url_for('login'))
+
+    try:
+        decoded = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        # Simpan user info jika perlu
+        request.user = decoded
+    except ExpiredSignatureError:
+        session.clear()  # hapus sesi
+        return redirect(url_for('login'))
+    except InvalidTokenError:
+        session.clear()
+        return redirect(url_for('login'))
 
 # @app.route('/bikin_akun', methods=['GET', 'POST'])
 # def register():
