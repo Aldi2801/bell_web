@@ -292,7 +292,6 @@ def tambah_tagihan():
     if session.get('role') == 'murid':
         abort(403)
     nis = request.json.get('nis')
-    if nis == 'semua_siswa':
     if 'role' not in session or session['role'] == 'murid':
         return jsonify({'error': 'Akses ditolak'}), 403
 
@@ -311,12 +310,8 @@ def tambah_tagihan():
                 user_id = user.id,
                 tahun_ajaran=request.json.get('tahun_ajaran'),
                 deskripsi=request.json.get('deskripsi'),
-                total=request.json.get('total')
-                user_email=siswa.email,
-                semester=data.get('semester'),
-                tahun_ajaran=data.get('tahun_ajaran'),
-                deskripsi=data.get('deskripsi'),
-                total=data.get('total')
+                total=request.json.get('total'),
+                user_email=siswa.email
             )
             db.session.add(tagihan)
         db.session.commit()
@@ -328,12 +323,8 @@ def tambah_tagihan():
             user_id = user.id,
             tahun_ajaran=request.json.get('tahun_ajaran'),
             deskripsi=request.json.get('deskripsi'),
-            total=request.json.get('total')
+            total=request.json.get('total'),
             user_email=email_target,
-            semester=data.get('semester'),
-            tahun_ajaran=data.get('tahun_ajaran'),
-            deskripsi=data.get('deskripsi'),
-            total=data.get('total')
         )
         db.session.add(tagihan)
         db.session.commit()
