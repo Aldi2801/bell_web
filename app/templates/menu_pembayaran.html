@@ -35,6 +35,36 @@
       </div>
 {% endblock %}
 {% block content %}
+<div class="page-titles">
+  <div class="row">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 d-flex align-items-center">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="link">
+              <i class="ri-home-3-line fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
+        </ol>
+      </nav>
+      <h1 class="mb-0 fw-bold">Data {{title}}</h1>
+    </div>
+	{% if btn_tambah %}
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
+		  <i class="ri-add-line me-1"></i> Tambah Data
+		</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+        <h2>Menu Pembayaran</h2>
 <div class="table-responsive">
   <table id="myTable" class="table table-bordered table-striped mt-4 container-table">
             <thead class="table-dark">
@@ -114,14 +144,18 @@
     </div>
   </div>
 </div>
-
+</div> 
+</div>
+</div>
+</div>
+</div>
 <script>
  $('#myTable').DataTable();
  </script>
 <script>
 // Persingkat kodingan JS tagihan (fungsional tetap sama)
 
-const getToken = () => localStorage.getItem('authToken');
+const getToken = () => localStorage.getItem('jwt_token');
 const alertIfNoToken = () => { if (!getToken()) return alert('Anda perlu login terlebih dahulu.'), true; };
 const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': getToken() });
 
@@ -246,7 +280,7 @@ window.bayar = async function(amount, id) {
     } catch (e) {
         console.error(e);
         alert('Terjadi kesalahan saat memproses pembayaran.');
-    }
+    }tambah
 };
 
 document.addEventListener('DOMContentLoaded', fetchMenuPembayaran);

@@ -1,5 +1,5 @@
 from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role, Tagihan, Transaksi
-from flask import flash, redirect, request, jsonify, url_for, render_template, render_template_string,session
+from flask import flash, redirect, request, jsonify, url_for, render_template, render_template_string,session, abort
 from flask_mail import Message
 from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
@@ -59,79 +59,6 @@ def view_manage_jadwal():
         users=users,
         kelas=kelas_dict
     )
-
-# Endpoint untuk menyimpan data kehadiran
-@app.route('/tambah_kehadiran', methods=['POST'])
-def save_attendance():
-    data = request.json
-    if not all(key in data for key in ("studentName", "class", "date", "status")):
-        return jsonify({"error": "Invalid data"}), 400
-    
-    db.attendance.insert_one(data)
-    return jsonify({"message": "Attendance saved successfully"}), 201
-
-@app.route('/edit_kehadiran/<id>', methods=['PUT'])
-def edit_attendance(id):
-    data = request.json
-    if not all(key in data for key in ("studentName", "class", "date", "status")):
-        return jsonify({"error": "Invalid data"}), 400
-
-    result = db.attendance.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": {
-            "studentName": data["studentName"],
-            "class": data["class"],
-            "date": data["date"],
-            "status": data["status"]
-        }}
-    )
-
-    if result.modified_count == 0:
-        return jsonify({"error": "No document updated"}), 404
-
-    return jsonify({"message": "Attendance updated successfully"}), 200
-
-@app.route('/hapus_kehadiran/<id>', methods=['DELETE'])
-def delete_attendance(id):
-    result = db.attendance.delete_one({"_id": ObjectId(id)})
-
-    if result.deleted_count == 0:
-        return jsonify({"error": "No document found to delete"}), 404
-
-    return jsonify({"message": "Attendance deleted successfully"}), 200
-
-# Endpoint untuk menyimpan data kehadiran Ujian
-@app.route('/tambah_kehadiran_ujian', methods=['POST'])
-def save_test_attendance():
-    data = request.json
-    if not all(key in data for key in ("testName","subject","studentName", "class", "date", "status")):
-        return jsonify({"error": "Invalid data"}), 400
-    
-    db.test_attendance.insert_one(data)
-    return jsonify({"message": "Attendance saved successfully"}), 201
-
-@app.route('/edit_kehadiran_ujian/<id>', methods=['PUT'])
-def edit_test_attendance(id):
-    data = request.json
-    if not all(key in data for key in ("testName","subject","studentName", "class", "date", "status")):
-        return jsonify({"error": "Invalid data"}), 400
-
-    result = db.test_attendance.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": {
-            "testName":data["testName"],
-            "subject":data["subject"],
-            "studentName": data["studentName"],
-            "class": data["class"],
-            "date": data["date"],
-            "status": data["status"]
-        }}
-    )
-
-    if result.modified_count == 0:
-        return jsonify({"error": "No document updated"}), 404
-
-    return jsonify({"message": "Attendance updated successfully"}), 200
 
 # Endpoint untuk menyimpan data guru
 @app.route('/tambah_guru', methods=['POST'])
@@ -232,39 +159,6 @@ def save_test_guru():
     
     db.test_attendance.insert_one(data)
     return jsonify({"message": "Attendance saved successfully"}), 201
-
-@app.route('/edit_guru_ujian/<id>', methods=['PUT'])
-def edit_test_guru(id):
-    data = request.json
-    if not all(key in data for key in ("testName","subject","studentName", "class", "date", "status")):
-        return jsonify({"error": "Invalid data"}), 400
-
-    result = db.test_attendance.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": {
-            "testName":data["testName"],
-            "subject":data["subject"],
-            "studentName": data["studentName"],
-            "class": data["class"],
-            "date": data["date"],
-            "status": data["status"]
-        }}
-    )
-
-    if result.modified_count == 0:
-        return jsonify({"error": "No document updated"}), 404
-
-    return jsonify({"message": "Attendance updated successfully"}), 200
-
-@app.route('/hapus_guru_ujian/<id>', methods=['DELETE'])
-def delete_test_guru(id):
-    result = db.test_attendance.delete_one({"_id": ObjectId(id)})
-
-    if result.deleted_count == 0:
-        return jsonify({"error": "No document found to delete"}), 404
-
-    return jsonify({"message": "Attendance deleted successfully"}), 200
-
 
 @app.route('/tambah_ubah_jadwal', methods=['POST'])
 def tambah_ubah_jadwal():
@@ -391,35 +285,39 @@ def bayar_offline():
 
     db.session.commit()
     return jsonify(success=True)
-
 @app.route('/menu_pembayaran/tambah', methods=['POST'])
 def tambah_tagihan():
-    if session.get('role') == 'murid':
-        abort(403)
-    if request.json.get('user_email') == 'semua_siswa':
+    if 'role' not in session or session['role'] == 'murid':
+        return jsonify({'error': 'Akses ditolak'}), 403
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Format request tidak valid'}), 400
+
+    email_target = data.get('user_email')
+    if email_target == 'semua_siswa':
         siswa_list = Siswa.query.all()
         for siswa in siswa_list:
             tagihan = Tagihan(
                 user_email=siswa.email,
-                semester=request.json.get('semester'),
-                tahun_ajaran=request.json.get('tahun_ajaran'),
-                deskripsi=request.json.get('deskripsi'),
-                total=request.json.get('total')
+                semester=data.get('semester'),
+                tahun_ajaran=data.get('tahun_ajaran'),
+                deskripsi=data.get('deskripsi'),
+                total=data.get('total')
             )
             db.session.add(tagihan)
         db.session.commit()
         return jsonify({'msg': 'Tagihan berhasil ditambahkan ke semua siswa'})
     else:
         tagihan = Tagihan(
-            user_email=request.json.get('user_email'),
-            semester=request.json.get('semester'),
-            tahun_ajaran=request.json.get('tahun_ajaran'),
-            deskripsi=request.json.get('deskripsi'),
-            total=request.json.get('total')
+            user_email=email_target,
+            semester=data.get('semester'),
+            tahun_ajaran=data.get('tahun_ajaran'),
+            deskripsi=data.get('deskripsi'),
+            total=data.get('total')
         )
         db.session.add(tagihan)
         db.session.commit()
-        flash('Tagihan berhasil ditambahkan')
         return jsonify({'msg': 'Tagihan berhasil ditambahkan'})
 @app.route('/get_tagihan/<int:id_tagihan>', methods=['GET'])
 def get_tagihan(id_tagihan):
