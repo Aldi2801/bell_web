@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 16, 2025 at 07:46 AM
+-- Generation Time: Jun 17, 2025 at 05:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -11,20 +11,14 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-SET FOREIGN_KEY_CHECKS=0;
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ihij`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `ampu_mapel`
+-- Database: `bell_web_sistem`
 --
 
 --
@@ -183,24 +177,12 @@ INSERT INTO `ampu_mapel` (`id_ampu`, `tanggal`, `id_semester`, `id_mapel`, `nip`
 (149, '2023-07-01', '2', 'IPA', '198208202020042002', '4', 124),
 (150, '2021-07-01', '2', 'ENG', '198304072020042005', '3', 48);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `berita`
---
-
 --
 -- Dumping data for table `berita`
 --
 
 INSERT INTO `berita` (`id_berita`, `judul`, `isi`, `nip`) VALUES
 (1, 'pengumuan pembagian kelas', 'seluruh orang tua diharapkan mengantar anaknya sampe kedepan sekolah jangan telat ada apeldsgre', '198005122020041001');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `gender`
---
 
 --
 -- Dumping data for table `gender`
@@ -209,12 +191,6 @@ INSERT INTO `berita` (`id_berita`, `judul`, `isi`, `nip`) VALUES
 INSERT INTO `gender` (`id_gender`, `gender`) VALUES
 ('L', 'laki-laki'),
 ('P', 'perempuan');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `guru`
---
 
 --
 -- Dumping data for table `guru`
@@ -229,12 +205,6 @@ INSERT INTO `guru` (`nip`, `inisial`, `nama`, `tempat_lahir`, `tanggal_lahir`, `
 ('198502152020042003', 'TEP', 'Titik Eko Purwati, S.Pd', 'Slawi', '1985-02-15', 'Jl. Melati No. 5, Slawi', '081234567803', 'titikeko@example.com', 'B. Indonesia', 'P', '1'),
 ('198606052020041007', 'NAR', 'Nur Arifin, S.Pd.I', 'Tegal', '1986-06-05', 'Jl. Sawo No. 11, Tegal', '081234567807', 'nurarifin@example.com', 'PAI', 'L', '1'),
 ('199012302020042008', 'RA', 'Riski Arofiyah, S.Pd', 'Brebes', '1990-12-30', 'Jl. Semangka No. 12, Brebes', '081234567808', 'riskiarofiyah@example.com', 'IPA', 'P', '1');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `jadwal_pelajaran`
---
 
 --
 -- Dumping data for table `jadwal_pelajaran`
@@ -276,12 +246,6 @@ INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`)
 (33, 'Sabtu', '07.40 - 08.20', 2, '[\'BI-TEP\', \'MTK-ULN\', \'IPS-RA\', \'IPA-HRW\', \'IPA-BYT\', \'BI-TEP\', \'ENG-PRN\', \'IPA-BYT\']'),
 (34, 'Sabtu', '08.20 - 09.00', 3, '[\'IPA-TEP\', \'IPS-PRN\', \'MTK-HRW\', \'IPA-ULN\', \'BI-JMR\', \'IPS-BYT\', \'IPS-RA\', \'IPA-BYT\']'),
 (35, 'Sabtu', '09.00 - 09.40', 4, '[\'IPS-JMR\', \'ENG-TEP\', \'IPS-NAR\', \'BI-HRW\', \'IPA-TEP\', \'IPS-JMR\', \'MTK-JMR\', \'IPA-JMR\']');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `kbm`
---
 
 --
 -- Dumping data for table `kbm`
@@ -738,12 +702,6 @@ INSERT INTO `kbm` (`id_kbm`, `tanggal`, `materi`, `sub_materi`, `id_ampu`) VALUE
 (448, '2021-07-01', 'Materi ENG 1', 'Sub Materi ENG 1', 150),
 (449, '2021-07-08', 'Materi ENG 2', 'Sub Materi ENG 2', 150),
 (450, '2021-07-15', 'Materi ENG 3', 'Sub Materi ENG 3', 150);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `kehadiran`
---
 
 --
 -- Dumping data for table `kehadiran`
@@ -1651,12 +1609,6 @@ INSERT INTO `kehadiran` (`id_kehadiran`, `id_keterangan`, `id_kbm`, `nis`) VALUE
 (899, '1', 450, 20032),
 (900, '2', 450, 20035);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `kelas`
---
-
 --
 -- Dumping data for table `kelas`
 --
@@ -1671,12 +1623,6 @@ INSERT INTO `kelas` (`id_kelas`, `nama_kelas`, `tingkat`) VALUES
 ('9a', '9A', '9'),
 ('9b', '9B', '9');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `keterangan`
---
-
 --
 -- Dumping data for table `keterangan`
 --
@@ -1686,12 +1632,6 @@ INSERT INTO `keterangan` (`id_keterangan`, `keterangan`) VALUES
 ('1', 'hadir'),
 ('2', 'izin'),
 ('3', 'sakit');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `mapel`
---
 
 --
 -- Dumping data for table `mapel`
@@ -1703,12 +1643,6 @@ INSERT INTO `mapel` (`id_mapel`, `nama_mapel`) VALUES
 ('IPA', 'Ilmu Pengetahuan Alam'),
 ('IPS', 'Ilmu Pengetuhan Sosial'),
 ('MTK', 'Matematika');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `pembagian_kelas`
---
 
 --
 -- Dumping data for table `pembagian_kelas`
@@ -1866,12 +1800,6 @@ INSERT INTO `pembagian_kelas` (`id_pembagian`, `tanggal`, `nis`, `id_kelas`, `id
 (150, '2021-07-01', 20050, '9a', '3', '197901172020041006'),
 (151, '2025-06-06', 20002, '8a', '3', '198502152020042003');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `role`
---
-
 --
 -- Dumping data for table `role`
 --
@@ -1881,12 +1809,6 @@ INSERT INTO `role` (`id`, `name`) VALUES
 (2, 'guru'),
 (3, 'murid');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `semester`
---
-
 --
 -- Dumping data for table `semester`
 --
@@ -1895,73 +1817,61 @@ INSERT INTO `semester` (`id_semester`, `semester`) VALUES
 ('0', 'genap'),
 ('1', 'ganjil');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `siswa`
---
-
 --
 -- Dumping data for table `siswa`
 --
 
-INSERT INTO `siswa` (`nis`, `nisn`, `nama`, `id_gender`, `tempat_lahir`, `tanggal_lahir`, `alamat`, `no_hp`, `email`, `nama_ayah`, `nama_ibu`, `penghasilan_ayah`, `penghasilan_ibu`, `asal_sekolah`, `id_status`) VALUES
-(20001, '99000001', 'Salman Alfaridzi', 'L', 'Tegal', '2004-05-02', 'balamoa', '08997635673', 'man@gmail.com', 'jokowi', 'kartini', 5000000, 5000000, 'sd balamoa 2', '0'),
-(20002, '99000002', 'Ulya Kuswandari', 'L', 'Sorong', '2010-05-04', 'Gg. Monginsidi No. 707, Kupang, BB 73648', '083534174743', 'ulyakuswandarispt0@mail.com', 'Raihan', 'Tari', 5349707, 5567012, 'SDN 46 Tebingtinggi', '1'),
-(20003, '99000003', 'Rina Tampubolon', 'P', 'Pagaralam', '2009-04-07', 'Gg. Raya Ujungberung No. 702, Langsa, YO 86622', '081751969992', 'rinatampubolon1@mail.com', 'Rafi', 'Uli', 3903607, 3624521, 'SDN 11 Kota Administrasi Jakar', '1'),
-(20004, '99000004', 'Kanda Pradana', 'L', 'Pekanbaru', '2009-07-23', 'Jl. Otto Iskandardinata No. 64, Jayapura, Nusa Tenggara Barat 24069', '086137536812', 'kandapradana2@mail.com', 'Wira', 'Winda', 3022701, 4820059, 'SDN 43 Kota Administrasi Jakar', '1'),
-(20005, '99000005', 'Edison Gunawan', 'P', 'Tegal', '2009-08-10', 'Jl. Ahmad Yani No. 8, Magelang, KI 93406', '083919082822', 'edisongunawan3@mail.com', 'Ikin', 'Farhunnisa', 6848812, 4659764, 'SDN 50 Tarakan', '1'),
-(20006, '99000006', 'Chelsea Prayoga', 'L', 'Cirebon', '2009-01-29', 'Gang S. Parman No. 12, Pangkalpinang, JI 39077', '088020423937', 'chelseaprayoga4@mail.com', 'Marsito', 'Paris', 4297256, 4545479, 'SDN 7 Makassar', '1'),
-(20007, '99000007', 'Wage Prasetyo', 'P', 'Bitung', '2008-07-24', 'Jalan Rajawali Timur No. 6, Tangerang, SB 09260', '084806497890', 'wageprasetyost5@mail.com', 'Garan', 'Jessica', 4155649, 4722682, 'SDN 32 Yogyakarta', '1'),
-(20008, '99000008', 'Lantar Saputra', 'L', 'Ambon', '2010-07-03', 'Gang Pacuan Kuda No. 27, Pangkalpinang, DI Yogyakarta 80001', '085431568664', 'lantarsaputramkom6@mail.com', 'Kemba', 'Eka', 5406403, 2407788, 'SDN 34 Singkawang', '1'),
-(20009, '99000009', 'Usman Nuraini', 'P', 'Kota Administrasi Ja', '2009-09-25', 'Gang BKR No. 5, Semarang, Nusa Tenggara Timur 35573', '084492532959', 'usmannuraini7@mail.com', 'Marsito', 'Lala', 6785452, 3920845, 'SDN 28 Padang Sidempuan', '1'),
-(20010, '99000010', 'Jagapati Agustina', 'L', 'Binjai', '2010-06-17', 'Jalan Medokan Ayu No. 7, Sibolga, Sumatera Selatan 37647', '083527763960', 'jagapatiagustinamfarm8@mail.co', 'Arta', 'Uli', 6918907, 5166908, 'SDN 35 Tegal', '1'),
-(20011, '99000011', 'Cinta Kuswandari', 'P', 'Mataram', '2009-05-28', 'Jl. Rajawali Timur No. 453, Sibolga, Bali 24175', '088089610534', 'cintakuswandari9@mail.com', 'Dimaz', 'Zalindra', 6569985, 4664886, 'SDN 19 Pekanbaru', '1'),
-(20012, '99000012', 'Kartika Riyanti', 'L', 'Denpasar', '2009-09-27', 'Gg. Cikutra Timur No. 062, Bau-Bau, DI Yogyakarta 45334', '084536944192', 'kartikariyanti10@mail.com', 'Cengkir', 'Kasiyah', 4990166, 5038262, 'SDN 21 Sorong', '1'),
-(20013, '99000013', 'Raisa Widodo', 'P', 'Tangerang Selatan', '2010-08-15', 'Gang Cempaka No. 30, Solok, PA 37783', '081396397510', 'raisawidodo11@mail.com', 'Pangeran', 'Yunita', 4705423, 3508738, 'SDN 22 Banjarbaru', '1'),
-(20014, '99000014', 'Galuh Situmorang', 'L', 'Semarang', '2010-10-26', 'Jl. Sentot Alibasa No. 2, Kota Administrasi Jakarta Timur, Nusa Tenggara Barat 01193', '082545816729', 'galuhsitumorang12@mail.com', 'Embuh', 'Samiah', 3449626, 3052411, 'SDN 26 Padang', '1'),
-(20015, '99000015', 'Martana Saragih', 'P', 'Tebingtinggi', '2010-07-26', 'Gg. Surapati No. 98, Sukabumi, AC 29998', '088936399887', 'martanasaragih13@mail.com', 'Eman', 'Lala', 3966083, 3473204, 'SDN 31 Manado', '1'),
-(20016, '99000016', 'Rangga Winarsih', 'L', 'Meulaboh', '2009-01-17', 'Gg. Dipatiukur No. 39, Bandar Lampung, JK 19942', '084529282125', 'ranggawinarsih14@mail.com', 'Galih', 'Patricia', 6837478, 2691268, 'SDN 3 Probolinggo', '1'),
-(20017, '99000017', 'Zizi Mulyani', 'P', 'Pangkalpinang', '2011-04-24', 'Gang Moch. Ramdan No. 46, Palopo, Banten 52629', '081214313519', 'gzizimulyanimti15@mail.com', 'Kardi', 'Yuni', 4206936, 2350061, 'SDN 10 Sabang', '1'),
-(20018, '99000018', 'Laksana Pradana', 'L', 'Magelang', '2010-08-25', 'Jalan Gegerkalong Hilir No. 9, Langsa, Kalimantan Selatan 92221', '086693897872', 'laksanapradana16@mail.com', 'Salman', 'Victoria', 5416154, 2789512, 'SDN 48 Semarang', '1'),
-(20019, '99000019', 'Latif Aniani', 'P', 'Kupang', '2010-08-19', 'Gg. Ahmad Dahlan No. 274, Tebingtinggi, KI 10573', '083307566250', 'khlatifaniani17@mail.com', 'Hartaka', 'Tania', 5005931, 2123075, 'SDN 18 Palopo', '1'),
-(20020, '99000020', 'Kezia Wibisono', 'L', 'Bandung', '2008-08-19', 'Jl. Cihampelas No. 979, Pasuruan, Jawa Tengah 81784', '084814416361', 'keziawibisono18@mail.com', 'Bagya', 'Nabila', 5756761, 5657136, 'SDN 26 Prabumulih', '1'),
-(20021, '99000021', 'Vanesa Kusumo', 'P', 'Sorong', '2008-10-30', 'Gg. Asia Afrika No. 26, Denpasar, Banten 49195', '084275504352', 'vanesakusumospsi19@mail.com', 'Opan', 'Kamila', 3917432, 2806700, 'SDN 37 Yogyakarta', '1'),
-(20022, '99000022', 'Harsaya Marpaung', 'L', 'Balikpapan', '2009-04-16', 'Gang Veteran No. 310, Kotamobagu, Maluku Utara 66223', '088140977757', 'harsayamarpaung20@mail.com', 'Hasim', 'Tami', 3603660, 5251578, 'SDN 8 Binjai', '1'),
-(20023, '99000023', 'Prayoga Winarno', 'P', 'Kota Administrasi Ja', '2010-07-11', 'Gg. Rawamangun No. 47, Banjarmasin, Gorontalo 35373', '082313505300', 'prayogawinarnosfarm21@mail.com', 'Latif', 'Salimah', 6077157, 2268842, 'SDN 42 Balikpapan', '1'),
-(20024, '99000024', 'Safina Gunawan', 'L', 'Salatiga', '2009-10-23', 'Gg. Surapati No. 920, Bau-Bau, NT 48810', '084045189223', 'drssafinagunawan22@mail.com', 'Jagapati', 'Vera', 5088211, 3613787, 'SDN 13 Tangerang', '1'),
-(20025, '99000025', 'Kartika Puspasari', 'P', 'Bima', '2009-12-29', 'Gg. Dipenogoro No. 78, Kota Administrasi Jakarta Barat, BB 88025', '088201317217', 'kartikapuspasari23@mail.com', 'Rahman', 'Raina', 5459873, 3163849, 'SDN 18 Kotamobagu', '1'),
-(20026, '99000026', 'Garang Winarno', 'L', 'Pagaralam', '2009-05-06', 'Gang Asia Afrika No. 436, Bekasi, SU 63708', '084797990718', 'garangwinarno24@mail.com', 'Margana', 'Diana', 6161251, 4852569, 'SDN 27 Depok', '1'),
-(20027, '99000027', 'Tasnim Iswahyudi', 'P', 'Tangerang', '2009-04-29', 'Jl. M.H Thamrin No. 35, Bukittinggi, Jawa Tengah 81492', '088616112822', 'tasnimiswahyudi25@mail.com', 'Darman', 'Maimunah', 4428355, 5684865, 'SDN 25 Langsa', '1'),
-(20028, '99000028', 'Mariadi Kusumo', 'L', 'Tegal', '2008-09-09', 'Jl. Ciumbuleuit No. 1, Palopo, Sumatera Selatan 09139', '085585272500', 'mariadikusumo26@mail.com', 'Bagya', 'Gina', 5671742, 5070841, 'SDN 17 Kota Administrasi Jakar', '1'),
-(20029, '99000029', 'Puput Jailani', 'P', 'Bandung', '2010-07-28', 'Jl. Ciumbuleuit No. 81, Kendari, Sulawesi Selatan 01776', '081953570877', 'drspuputjailani27@mail.com', 'Lasmono', 'Vera', 6185623, 3210179, 'SDN 10 Kota Administrasi Jakar', '1'),
-(20030, '99000030', 'Cemani Natsir', 'L', 'Madiun', '2011-02-15', 'Gang Suniaraja No. 043, Solok, Sumatera Barat 49118', '083764336462', 'cemaninatsir28@mail.com', 'Adikara', 'Latika', 4349769, 3973582, 'SDN 24 Bima', '1'),
-(20031, '99000031', 'Maida Narpati', 'P', 'Batu', '2009-04-22', 'Gang KH Amin Jasuta No. 341, Bandar Lampung, BA 55988', '083728872294', 'maidanarpati29@mail.com', 'Cahya', 'Sakura', 5867907, 3099792, 'SDN 36 Kediri', '1'),
-(20032, '99000032', 'Vinsen Waluyo', 'L', 'Pagaralam', '2010-05-23', 'Jl. Kutai No. 5, Cimahi, BB 87970', '084027781699', 'vinsenwaluyo30@mail.com', 'Jagapati', 'Maida', 3160534, 2673410, 'SDN 41 Blitar', '1'),
-(20033, '99000033', 'Jessica Narpati', 'P', 'Lubuklinggau', '2008-10-01', 'Jalan M.T Haryono No. 19, Purwokerto, YO 89753', '086160290319', 'cutjessicanarpatisip31@mail.co', 'Taswir', 'Vicky', 3513305, 3657289, 'SDN 26 Serang', '1'),
-(20034, '99000034', 'Harto Mangunsong', 'L', 'Bandung', '2011-04-01', 'Jl. M.T Haryono No. 651, Ambon, SR 51360', '084502261055', 'hartomangunsong32@mail.com', 'Satya', 'Ika', 4635896, 5513288, 'SDN 5 Padang Sidempuan', '1'),
-(20035, '99000035', 'Yani Hartati', 'P', 'Sawahlunto', '2009-10-01', 'Jl. K.H. Wahid Hasyim No. 59, Cimahi, Jawa Timur 64646', '087099346431', 'yanihartati33@mail.com', 'Caket', 'Titin', 3524314, 2928113, 'SDN 7 Bogor', '1'),
-(20036, '99000036', 'Zizi Sirait', 'L', 'Bukittinggi', '2010-09-21', 'Jalan Jakarta No. 67, Gorontalo, JB 23386', '084366672746', 'zizisirait34@mail.com', 'Estiawan', 'Iriana', 6417459, 2536301, 'SDN 20 Tangerang', '1'),
-(20037, '99000037', 'Sutan Lukita Dongoran', 'P', 'Samarinda', '2010-12-17', 'Gang Rungkut Industri No. 4, Bitung, Aceh 11987', '083662321406', 'sutanlukitadongoran35@mail.com', 'Irsad', 'Victoria', 5768375, 5754281, 'SDN 2 Tangerang Selatan', '1'),
-(20038, '99000038', 'Harja Simanjuntak', 'L', 'Malang', '2009-12-12', 'Jalan Suryakencana No. 8, Bandar Lampung, ST 34605', '086216392279', 'harjasimanjuntak36@mail.com', 'Mujur', 'Gasti', 6454944, 2947373, 'SDN 23 Palopo', '1'),
-(20039, '99000039', 'Hartana Wahyuni', 'P', 'Kendari', '2009-09-09', 'Jl. Medokan Ayu No. 4, Lhokseumawe, LA 31380', '085799067527', 'hartanawahyuni37@mail.com', 'Dimas', 'Samiah', 5928103, 3324317, 'SDN 13 Pasuruan', '1'),
-(20040, '99000040', 'Cindy Anggriawan', 'L', 'Surakarta', '2008-08-04', 'Gang Raya Setiabudhi No. 6, Surakarta, JA 27887', '088805777574', 'cindyanggriawan38@mail.com', 'Balidin', 'Yulia', 5101001, 4202127, 'SDN 10 Kota Administrasi Jakar', '1'),
-(20041, '99000041', 'Patricia Prayoga', 'P', 'Tangerang', '2008-06-20', 'Gg. Ir. H. Djuanda No. 03, Sawahlunto, JK 21119', '083206630419', 'patriciaprayoga39@mail.com', 'Kasusra', 'Eva', 6698862, 4788482, 'SDN 45 Palopo', '1'),
-(20042, '99000042', 'Carla Irawan', 'L', 'Metro', '2008-12-31', 'Gg. Rajiman No. 6, Depok, NB 90732', '088404643169', 'carlairawan40@mail.com', 'Koko', 'Chelsea', 3006879, 5830031, 'SDN 25 Lubuklinggau', '1'),
-(20043, '99000043', 'Gina Hutapea', 'P', 'Madiun', '2009-05-18', 'Gang Rajiman No. 066, Gorontalo, KS 57742', '089197887393', 'ginahutapea41@mail.com', 'Kajen', 'Ghaliyati', 4113120, 5555686, 'SDN 41 Samarinda', '1'),
-(20044, '99000044', 'Ulva Wasita', 'L', 'Gorontalo', '2010-09-07', 'Jalan Kebonjati No. 891, Surabaya, DI Yogyakarta 56943', '089085211229', 'ulvawasita42@mail.com', 'Caraka', 'Cici', 5086070, 5086056, 'SDN 24 Denpasar', '1'),
-(20045, '99000045', 'Suci Rajata', 'P', 'Metro', '2009-05-02', 'Jalan Raya Setiabudhi No. 23, Bandar Lampung, Sulawesi Selatan 37463', '081883952468', 'sucirajatamak43@mail.com', 'Cemani', 'Diah', 4788210, 3675811, 'SDN 3 Pariaman', '1'),
-(20046, '99000046', 'Tri Sirait ', 'L', 'Madiun', '2008-11-21', 'Gang Jamika No. 5, Tidore Kepulauan, Kalimantan Utara 69645', '083629339450', 'trisiraitse44@mail.com', 'Manah', 'Jamalia', 3791988, 4871070, 'SDN 30 Ternate', '1'),
-(20047, '99000047', 'Hari Mandala', 'P', 'Sabang', '2009-05-24', 'Gg. Ronggowarsito No. 50, Kota Administrasi Jakarta Timur, Jawa Tengah 97130', '089463858417', 'rharimandala45@mail.com', 'Taufan', 'Nabila', 6249401, 3514094, 'SDN 40 Tasikmalaya', '1'),
-(20048, '99000048', 'Puti Wulan Kuswoyo', 'L', 'Yogyakarta', '2009-07-28', 'Jalan HOS. Cokroaminoto No. 8, Palu, YO 82011', '088480156629', 'putiwulankuswoyosei46@mail.com', 'Tirtayasa', 'Kayla', 6878563, 5807993, 'SDN 49 Jayapura', '1'),
-(20049, '99000049', 'Upik Sihotang', 'P', 'Meulaboh', '2009-06-22', 'Gang Kendalsari No. 119, Tanjungbalai, JK 61131', '083979617784', 'upiksihotang47@mail.com', 'Bajragin', 'Salwa', 3515438, 5753624, 'SDN 43 Metro', '1'),
-(20050, '99000050', 'Ayu Purnawati', 'L', 'Padangpanjang', '2009-07-14', 'Jalan Ciumbuleuit No. 2, Batam, KS 56258', '086540159636', 'irayupurnawati48@mail.com', 'Niyaga', 'Ratna', 3015723, 4656067, 'SDN 24 Jambi', '1');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `status`
---
+INSERT INTO `siswa` (`nis`, `nisn`, `nama`, `id_gender`, `tempat_lahir`, `tanggal_lahir`, `alamat`, `no_hp`, `nama_ayah`, `nama_ibu`, `penghasilan_ayah`, `penghasilan_ibu`, `asal_sekolah`, `id_status`) VALUES
+(20001, '99000001', 'Salman Alfaridzi', 'L', 'Tegal', '2004-05-02', 'balamoa', '08997635673', 'jokowi', 'kartini', 5000000, 5000000, 'sd balamoa 2', '0'),
+(20002, '99000002', 'Ulya Kuswandari', 'L', 'Sorong', '2010-05-04', 'Gg. Monginsidi No. 707, Kupang, BB 73648', '083534174743', 'Raihan', 'Tari', 5349707, 5567012, 'SDN 46 Tebingtinggi', '1'),
+(20003, '99000003', 'Rina Tampubolon', 'P', 'Pagaralam', '2009-04-07', 'Gg. Raya Ujungberung No. 702, Langsa, YO 86622', '081751969992', 'Rafi', 'Uli', 3903607, 3624521, 'SDN 11 Kota Administrasi Jakar', '1'),
+(20004, '99000004', 'Kanda Pradana', 'L', 'Pekanbaru', '2009-07-23', 'Jl. Otto Iskandardinata No. 64, Jayapura, Nusa Tenggara Barat 24069', '086137536812', 'Wira', 'Winda', 3022701, 4820059, 'SDN 43 Kota Administrasi Jakar', '1'),
+(20005, '99000005', 'Edison Gunawan', 'P', 'Tegal', '2009-08-10', 'Jl. Ahmad Yani No. 8, Magelang, KI 93406', '083919082822', 'Ikin', 'Farhunnisa', 6848812, 4659764, 'SDN 50 Tarakan', '1'),
+(20006, '99000006', 'Chelsea Prayoga', 'L', 'Cirebon', '2009-01-29', 'Gang S. Parman No. 12, Pangkalpinang, JI 39077', '088020423937', 'Marsito', 'Paris', 4297256, 4545479, 'SDN 7 Makassar', '1'),
+(20007, '99000007', 'Wage Prasetyo', 'P', 'Bitung', '2008-07-24', 'Jalan Rajawali Timur No. 6, Tangerang, SB 09260', '084806497890', 'Garan', 'Jessica', 4155649, 4722682, 'SDN 32 Yogyakarta', '1'),
+(20008, '99000008', 'Lantar Saputra', 'L', 'Ambon', '2010-07-03', 'Gang Pacuan Kuda No. 27, Pangkalpinang, DI Yogyakarta 80001', '085431568664', 'Kemba', 'Eka', 5406403, 2407788, 'SDN 34 Singkawang', '1'),
+(20009, '99000009', 'Usman Nuraini', 'P', 'Kota Administrasi Ja', '2009-09-25', 'Gang BKR No. 5, Semarang, Nusa Tenggara Timur 35573', '084492532959', 'Marsito', 'Lala', 6785452, 3920845, 'SDN 28 Padang Sidempuan', '1'),
+(20010, '99000010', 'Jagapati Agustina', 'L', 'Binjai', '2010-06-17', 'Jalan Medokan Ayu No. 7, Sibolga, Sumatera Selatan 37647', '083527763960', 'Arta', 'Uli', 6918907, 5166908, 'SDN 35 Tegal', '1'),
+(20011, '99000011', 'Cinta Kuswandari', 'P', 'Mataram', '2009-05-28', 'Jl. Rajawali Timur No. 453, Sibolga, Bali 24175', '088089610534', 'Dimaz', 'Zalindra', 6569985, 4664886, 'SDN 19 Pekanbaru', '1'),
+(20012, '99000012', 'Kartika Riyanti', 'L', 'Denpasar', '2009-09-27', 'Gg. Cikutra Timur No. 062, Bau-Bau, DI Yogyakarta 45334', '084536944192', 'Cengkir', 'Kasiyah', 4990166, 5038262, 'SDN 21 Sorong', '1'),
+(20013, '99000013', 'Raisa Widodo', 'P', 'Tangerang Selatan', '2010-08-15', 'Gang Cempaka No. 30, Solok, PA 37783', '081396397510', 'Pangeran', 'Yunita', 4705423, 3508738, 'SDN 22 Banjarbaru', '1'),
+(20014, '99000014', 'Galuh Situmorang', 'L', 'Semarang', '2010-10-26', 'Jl. Sentot Alibasa No. 2, Kota Administrasi Jakarta Timur, Nusa Tenggara Barat 01193', '082545816729', 'Embuh', 'Samiah', 3449626, 3052411, 'SDN 26 Padang', '1'),
+(20015, '99000015', 'Martana Saragih', 'P', 'Tebingtinggi', '2010-07-26', 'Gg. Surapati No. 98, Sukabumi, AC 29998', '088936399887', 'Eman', 'Lala', 3966083, 3473204, 'SDN 31 Manado', '1'),
+(20016, '99000016', 'Rangga Winarsih', 'L', 'Meulaboh', '2009-01-17', 'Gg. Dipatiukur No. 39, Bandar Lampung, JK 19942', '084529282125', 'Galih', 'Patricia', 6837478, 2691268, 'SDN 3 Probolinggo', '1'),
+(20017, '99000017', 'Zizi Mulyani', 'P', 'Pangkalpinang', '2011-04-24', 'Gang Moch. Ramdan No. 46, Palopo, Banten 52629', '081214313519', 'Kardi', 'Yuni', 4206936, 2350061, 'SDN 10 Sabang', '1'),
+(20018, '99000018', 'Laksana Pradana', 'L', 'Magelang', '2010-08-25', 'Jalan Gegerkalong Hilir No. 9, Langsa, Kalimantan Selatan 92221', '086693897872', 'Salman', 'Victoria', 5416154, 2789512, 'SDN 48 Semarang', '1'),
+(20019, '99000019', 'Latif Aniani', 'P', 'Kupang', '2010-08-19', 'Gg. Ahmad Dahlan No. 274, Tebingtinggi, KI 10573', '083307566250', 'Hartaka', 'Tania', 5005931, 2123075, 'SDN 18 Palopo', '1'),
+(20020, '99000020', 'Kezia Wibisono', 'L', 'Bandung', '2008-08-19', 'Jl. Cihampelas No. 979, Pasuruan, Jawa Tengah 81784', '084814416361', 'Bagya', 'Nabila', 5756761, 5657136, 'SDN 26 Prabumulih', '1'),
+(20021, '99000021', 'Vanesa Kusumo', 'P', 'Sorong', '2008-10-30', 'Gg. Asia Afrika No. 26, Denpasar, Banten 49195', '084275504352', 'Opan', 'Kamila', 3917432, 2806700, 'SDN 37 Yogyakarta', '1'),
+(20022, '99000022', 'Harsaya Marpaung', 'L', 'Balikpapan', '2009-04-16', 'Gang Veteran No. 310, Kotamobagu, Maluku Utara 66223', '088140977757', 'Hasim', 'Tami', 3603660, 5251578, 'SDN 8 Binjai', '1'),
+(20023, '99000023', 'Prayoga Winarno', 'P', 'Kota Administrasi Ja', '2010-07-11', 'Gg. Rawamangun No. 47, Banjarmasin, Gorontalo 35373', '082313505300', 'Latif', 'Salimah', 6077157, 2268842, 'SDN 42 Balikpapan', '1'),
+(20024, '99000024', 'Safina Gunawan', 'L', 'Salatiga', '2009-10-23', 'Gg. Surapati No. 920, Bau-Bau, NT 48810', '084045189223', 'Jagapati', 'Vera', 5088211, 3613787, 'SDN 13 Tangerang', '1'),
+(20025, '99000025', 'Kartika Puspasari', 'P', 'Bima', '2009-12-29', 'Gg. Dipenogoro No. 78, Kota Administrasi Jakarta Barat, BB 88025', '088201317217', 'Rahman', 'Raina', 5459873, 3163849, 'SDN 18 Kotamobagu', '1'),
+(20026, '99000026', 'Garang Winarno', 'L', 'Pagaralam', '2009-05-06', 'Gang Asia Afrika No. 436, Bekasi, SU 63708', '084797990718', 'Margana', 'Diana', 6161251, 4852569, 'SDN 27 Depok', '1'),
+(20027, '99000027', 'Tasnim Iswahyudi', 'P', 'Tangerang', '2009-04-29', 'Jl. M.H Thamrin No. 35, Bukittinggi, Jawa Tengah 81492', '088616112822', 'Darman', 'Maimunah', 4428355, 5684865, 'SDN 25 Langsa', '1'),
+(20028, '99000028', 'Mariadi Kusumo', 'L', 'Tegal', '2008-09-09', 'Jl. Ciumbuleuit No. 1, Palopo, Sumatera Selatan 09139', '085585272500', 'Bagya', 'Gina', 5671742, 5070841, 'SDN 17 Kota Administrasi Jakar', '1'),
+(20029, '99000029', 'Puput Jailani', 'P', 'Bandung', '2010-07-28', 'Jl. Ciumbuleuit No. 81, Kendari, Sulawesi Selatan 01776', '081953570877', 'Lasmono', 'Vera', 6185623, 3210179, 'SDN 10 Kota Administrasi Jakar', '1'),
+(20030, '99000030', 'Cemani Natsir', 'L', 'Madiun', '2011-02-15', 'Gang Suniaraja No. 043, Solok, Sumatera Barat 49118', '083764336462', 'Adikara', 'Latika', 4349769, 3973582, 'SDN 24 Bima', '1'),
+(20031, '99000031', 'Maida Narpati', 'P', 'Batu', '2009-04-22', 'Gang KH Amin Jasuta No. 341, Bandar Lampung, BA 55988', '083728872294', 'Cahya', 'Sakura', 5867907, 3099792, 'SDN 36 Kediri', '1'),
+(20032, '99000032', 'Vinsen Waluyo', 'L', 'Pagaralam', '2010-05-23', 'Jl. Kutai No. 5, Cimahi, BB 87970', '084027781699', 'Jagapati', 'Maida', 3160534, 2673410, 'SDN 41 Blitar', '1'),
+(20033, '99000033', 'Jessica Narpati', 'P', 'Lubuklinggau', '2008-10-01', 'Jalan M.T Haryono No. 19, Purwokerto, YO 89753', '086160290319', 'Taswir', 'Vicky', 3513305, 3657289, 'SDN 26 Serang', '1'),
+(20034, '99000034', 'Harto Mangunsong', 'L', 'Bandung', '2011-04-01', 'Jl. M.T Haryono No. 651, Ambon, SR 51360', '084502261055', 'Satya', 'Ika', 4635896, 5513288, 'SDN 5 Padang Sidempuan', '1'),
+(20035, '99000035', 'Yani Hartati', 'P', 'Sawahlunto', '2009-10-01', 'Jl. K.H. Wahid Hasyim No. 59, Cimahi, Jawa Timur 64646', '087099346431', 'Caket', 'Titin', 3524314, 2928113, 'SDN 7 Bogor', '1'),
+(20036, '99000036', 'Zizi Sirait', 'L', 'Bukittinggi', '2010-09-21', 'Jalan Jakarta No. 67, Gorontalo, JB 23386', '084366672746', 'Estiawan', 'Iriana', 6417459, 2536301, 'SDN 20 Tangerang', '1'),
+(20037, '99000037', 'Sutan Lukita Dongoran', 'P', 'Samarinda', '2010-12-17', 'Gang Rungkut Industri No. 4, Bitung, Aceh 11987', '083662321406', 'Irsad', 'Victoria', 5768375, 5754281, 'SDN 2 Tangerang Selatan', '1'),
+(20038, '99000038', 'Harja Simanjuntak', 'L', 'Malang', '2009-12-12', 'Jalan Suryakencana No. 8, Bandar Lampung, ST 34605', '086216392279', 'Mujur', 'Gasti', 6454944, 2947373, 'SDN 23 Palopo', '1'),
+(20039, '99000039', 'Hartana Wahyuni', 'P', 'Kendari', '2009-09-09', 'Jl. Medokan Ayu No. 4, Lhokseumawe, LA 31380', '085799067527', 'Dimas', 'Samiah', 5928103, 3324317, 'SDN 13 Pasuruan', '1'),
+(20040, '99000040', 'Cindy Anggriawan', 'L', 'Surakarta', '2008-08-04', 'Gang Raya Setiabudhi No. 6, Surakarta, JA 27887', '088805777574', 'Balidin', 'Yulia', 5101001, 4202127, 'SDN 10 Kota Administrasi Jakar', '1'),
+(20041, '99000041', 'Patricia Prayoga', 'P', 'Tangerang', '2008-06-20', 'Gg. Ir. H. Djuanda No. 03, Sawahlunto, JK 21119', '083206630419', 'Kasusra', 'Eva', 6698862, 4788482, 'SDN 45 Palopo', '1'),
+(20042, '99000042', 'Carla Irawan', 'L', 'Metro', '2008-12-31', 'Gg. Rajiman No. 6, Depok, NB 90732', '088404643169', 'Koko', 'Chelsea', 3006879, 5830031, 'SDN 25 Lubuklinggau', '1'),
+(20043, '99000043', 'Gina Hutapea', 'P', 'Madiun', '2009-05-18', 'Gang Rajiman No. 066, Gorontalo, KS 57742', '089197887393', 'Kajen', 'Ghaliyati', 4113120, 5555686, 'SDN 41 Samarinda', '1'),
+(20044, '99000044', 'Ulva Wasita', 'L', 'Gorontalo', '2010-09-07', 'Jalan Kebonjati No. 891, Surabaya, DI Yogyakarta 56943', '089085211229', 'Caraka', 'Cici', 5086070, 5086056, 'SDN 24 Denpasar', '1'),
+(20045, '99000045', 'Suci Rajata', 'P', 'Metro', '2009-05-02', 'Jalan Raya Setiabudhi No. 23, Bandar Lampung, Sulawesi Selatan 37463', '081883952468', 'Cemani', 'Diah', 4788210, 3675811, 'SDN 3 Pariaman', '1'),
+(20046, '99000046', 'Tri Sirait ', 'L', 'Madiun', '2008-11-21', 'Gang Jamika No. 5, Tidore Kepulauan, Kalimantan Utara 69645', '083629339450', 'Manah', 'Jamalia', 3791988, 4871070, 'SDN 30 Ternate', '1'),
+(20047, '99000047', 'Hari Mandala', 'P', 'Sabang', '2009-05-24', 'Gg. Ronggowarsito No. 50, Kota Administrasi Jakarta Timur, Jawa Tengah 97130', '089463858417', 'Taufan', 'Nabila', 6249401, 3514094, 'SDN 40 Tasikmalaya', '1'),
+(20048, '99000048', 'Puti Wulan Kuswoyo', 'L', 'Yogyakarta', '2009-07-28', 'Jalan HOS. Cokroaminoto No. 8, Palu, YO 82011', '088480156629', 'Tirtayasa', 'Kayla', 6878563, 5807993, 'SDN 49 Jayapura', '1'),
+(20049, '99000049', 'Upik Sihotang', 'P', 'Meulaboh', '2009-06-22', 'Gang Kendalsari No. 119, Tanjungbalai, JK 61131', '083979617784', 'Bajragin', 'Salwa', 3515438, 5753624, 'SDN 43 Metro', '1'),
+(20050, '99000050', 'Ayu Purnawati', 'L', 'Padangpanjang', '2009-07-14', 'Jalan Ciumbuleuit No. 2, Batam, KS 56258', '086540159636', 'Niyaga', 'Ratna', 3015723, 4656067, 'SDN 24 Jambi', '1');
 
 --
 -- Dumping data for table `status`
@@ -1971,125 +1881,113 @@ INSERT INTO `status` (`id_status`, `status`) VALUES
 ('0', 'tidak aktif '),
 ('1', 'aktif');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `tagihan`
--
-
 --
 -- Dumping data for table `tagihan`
 --
 
-INSERT INTO `tagihan` (`id_tagihan`, `user_email`, `semester`, `tahun_ajaran`, `deskripsi`, `total`, `created_at`) VALUES
-(1, 'man@gmail.com', 'Genap', '2022/2023', 'pembayaran kemah', 100000, NULL),
-(5, 'man@gmail.com', 'Ganjil', '2023/2024', 'Uang Ujian 2024/2025 Ganjil', 1, '2025-06-12 15:10:13'),
-(6, 'ulyakuswandarispt0@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 9, '2025-06-12 15:10:13'),
-(7, 'ulyakuswandarispt0@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(8, 'rinatampubolon1@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(9, 'rinatampubolon1@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(10, 'kandapradana2@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(11, 'kandapradana2@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(12, 'edisongunawan3@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(13, 'edisongunawan3@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(14, 'chelseaprayoga4@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(15, 'chelseaprayoga4@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(16, 'wageprasetyost5@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(17, 'wageprasetyost5@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(18, 'lantarsaputramkom6@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(19, 'lantarsaputramkom6@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(20, 'usmannuraini7@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(21, 'usmannuraini7@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(22, 'jagapatiagustinamfarm8@mail.co', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(23, 'jagapatiagustinamfarm8@mail.co', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(24, 'cintakuswandari9@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(25, 'cintakuswandari9@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(26, 'kartikariyanti10@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(27, 'kartikariyanti10@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(28, 'raisawidodo11@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(29, 'raisawidodo11@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(30, 'galuhsitumorang12@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(31, 'galuhsitumorang12@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(32, 'martanasaragih13@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(33, 'martanasaragih13@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(34, 'ranggawinarsih14@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(35, 'ranggawinarsih14@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(36, 'gzizimulyanimti15@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(37, 'gzizimulyanimti15@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(38, 'laksanapradana16@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(39, 'laksanapradana16@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(40, 'khlatifaniani17@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(41, 'khlatifaniani17@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(42, 'keziawibisono18@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(43, 'keziawibisono18@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(44, 'vanesakusumospsi19@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
-(45, 'vanesakusumospsi19@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
-(46, 'harsayamarpaung20@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(47, 'harsayamarpaung20@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(48, 'prayogawinarnosfarm21@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(49, 'prayogawinarnosfarm21@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(50, 'drssafinagunawan22@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(51, 'drssafinagunawan22@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(52, 'kartikapuspasari23@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(53, 'kartikapuspasari23@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(54, 'garangwinarno24@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(55, 'garangwinarno24@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(56, 'tasnimiswahyudi25@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(57, 'tasnimiswahyudi25@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(58, 'mariadikusumo26@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(59, 'mariadikusumo26@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(60, 'drspuputjailani27@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(61, 'drspuputjailani27@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(62, 'cemaninatsir28@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(63, 'cemaninatsir28@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(64, 'maidanarpati29@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(65, 'maidanarpati29@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(66, 'vinsenwaluyo30@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(67, 'vinsenwaluyo30@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(68, 'cutjessicanarpatisip31@mail.co', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(69, 'cutjessicanarpatisip31@mail.co', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(70, 'hartomangunsong32@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(71, 'hartomangunsong32@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(72, 'yanihartati33@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(73, 'yanihartati33@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(74, 'zizisirait34@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(75, 'zizisirait34@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(76, 'sutanlukitadongoran35@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(77, 'sutanlukitadongoran35@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(78, 'harjasimanjuntak36@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(79, 'harjasimanjuntak36@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(80, 'hartanawahyuni37@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(81, 'hartanawahyuni37@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(82, 'cindyanggriawan38@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(83, 'cindyanggriawan38@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(84, 'patriciaprayoga39@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(85, 'patriciaprayoga39@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(86, 'carlairawan40@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(87, 'carlairawan40@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(88, 'ginahutapea41@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(89, 'ginahutapea41@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(90, 'ulvawasita42@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(91, 'ulvawasita42@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(92, 'sucirajatamak43@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(93, 'sucirajatamak43@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(94, 'trisiraitse44@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(95, 'trisiraitse44@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(96, 'rharimandala45@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(97, 'rharimandala45@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(98, 'putiwulankuswoyosei46@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(99, 'putiwulankuswoyosei46@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(100, 'upiksihotang47@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(101, 'upiksihotang47@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(102, 'irayupurnawati48@mail.com', 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
-(103, 'irayupurnawati48@mail.com', 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
-(104, 'kandapradana2@mail.com', 'Genap', '2021/2022', 'samkldw', 1000, '2025-06-14 17:24:18');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `tahun_akademik`
---
-
+INSERT INTO `tagihan` (`id_tagihan`, `semester`, `tahun_ajaran`, `deskripsi`, `total`, `created_at`) VALUES
+(1, 'Genap', '2022/2023', 'pembayaran kemah', 100000, ''),
+(5, 'Ganjil', '2023/2024', 'Uang Ujian 2024/2025 Ganjil', 1, '2025-06-12 15:10:13'),
+(6, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 9, '2025-06-12 15:10:13'),
+(7, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(8, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(9, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(10, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(11, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(12, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(13, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(14, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(15, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(16, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(17, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(18, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(19, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(20, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(21, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(22, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(23, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(24, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(25, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(26, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(27, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(28, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(29, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(30, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(31, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(32, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(33, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(34, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(35, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(36, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(37, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(38, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(39, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(40, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(41, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(42, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(43, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(44, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:13'),
+(45, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:13'),
+(46, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(47, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(48, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(49, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(50, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(51, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(52, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(53, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(54, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(55, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(56, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(57, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(58, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(59, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(60, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(61, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(62, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(63, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(64, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(65, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(66, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(67, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(68, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(69, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(70, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(71, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(72, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(73, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(74, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(75, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(76, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(77, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(78, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(79, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(80, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(81, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(82, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(83, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(84, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(85, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(86, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(87, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(88, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(89, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(90, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(91, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(92, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(93, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(94, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(95, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(96, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(97, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(98, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(99, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(100, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(101, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(102, 'Ganjil', '2024/2025', 'SPP Bulanan - Juni 2024/2025 Ganjil', 10000, '2025-06-12 15:10:14'),
+(103, 'Ganjil', '2024/2025', 'Uang Ujian 2024/2025 Ganjil', 1000000, '2025-06-12 15:10:14'),
+(104, 'Genap', '2021/2022', 'samkldw', 1000, '2025-06-14 17:24:18');
 --
 -- Dumping data for table `tahun_akademik`
 --
@@ -2102,12 +2000,6 @@ INSERT INTO `tahun_akademik` (`id_tahun_akademik`, `tahun_akademik`, `mulai`, `s
 ('5', '2023/2024', '2023-07-01', '2024-06-30'),
 ('6', '2024/2025', '2024-07-01', '2025-06-30');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `transaksi`
---
-
 --
 -- Dumping data for table `transaksi`
 --
@@ -2115,12 +2007,6 @@ INSERT INTO `tahun_akademik` (`id_tahun_akademik`, `tahun_akademik`, `mulai`, `s
 INSERT INTO `transaksi` (`id_transaksi`, `kode_order`, `id_tagihan`, `email`, `total`, `status`, `fraud_status`, `created_at`, `updated_at`) VALUES
 (1, 'Bla-123', 1, 'man@gmail.com', 100000, 'settlement', '0', NULL, NULL),
 (2, 'offline_jamar', 6, 'ulyakuswandarispt0@mail.com', 9, 'settlement', NULL, '2025-06-15 16:17:40', '2025-06-15 09:17:40');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user`
---
 
 --
 -- Dumping data for table `user`
@@ -2187,12 +2073,6 @@ INSERT INTO `user` (`id`, `username`, `password`, `nis`, `nip`, `email`, `active
 (58, 'Nur', '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '198606052020041007', 'nurarifin@example.com', 1),
 (59, 'Riski', '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '199012302020042008', 'riskiarofiyah@example.com', 1);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `user_roles`
---
-
 --
 -- Dumping data for table `user_roles`
 --
@@ -2258,234 +2138,7 @@ INSERT INTO `user_roles` (`id`, `user_id`, `role_id`) VALUES
 (58, 58, 2),
 (59, 59, 2);
 
---
--- Indexes for dumped tables
---
 
---
--- Indexes for table `ampu_mapel`
---
-ALTER TABLE `ampu_mapel`
-  ADD PRIMARY KEY (`id_ampu`),
-  ADD KEY `id_semester` (`id_semester`),
-  ADD KEY `id_mapel` (`id_mapel`),
-  ADD KEY `nip` (`nip`),
-  ADD KEY `id_tahun_akademik` (`id_tahun_akademik`),
-  ADD KEY `id_pembagian` (`id_pembagian`);
-
---
--- Indexes for table `berita`
---
-ALTER TABLE `berita`
-  ADD PRIMARY KEY (`id_berita`),
-  ADD KEY `nip` (`nip`);
-
---
--- Indexes for table `gender`
---
-ALTER TABLE `gender`
-  ADD PRIMARY KEY (`id_gender`);
-
---
--- Indexes for table `guru`
---
-ALTER TABLE `guru`
-  ADD PRIMARY KEY (`nip`),
-  ADD KEY `id_gender` (`id_gender`),
-  ADD KEY `id_status` (`id_status`);
-
---
--- Indexes for table `jadwal_pelajaran`
---
-ALTER TABLE `jadwal_pelajaran`
-  ADD PRIMARY KEY (`id_jadwal`);
-
---
--- Indexes for table `kbm`
---
-ALTER TABLE `kbm`
-  ADD PRIMARY KEY (`id_kbm`),
-  ADD KEY `id_ampu` (`id_ampu`);
-
---
--- Indexes for table `kehadiran`
---
-ALTER TABLE `kehadiran`
-  ADD PRIMARY KEY (`id_kehadiran`),
-  ADD KEY `id_keterangan` (`id_keterangan`),
-  ADD KEY `id_kbm` (`id_kbm`),
-  ADD KEY `nis` (`nis`);
-
---
--- Indexes for table `kelas`
---
-ALTER TABLE `kelas`
-  ADD PRIMARY KEY (`id_kelas`);
-
---
--- Indexes for table `keterangan`
---
-ALTER TABLE `keterangan`
-  ADD PRIMARY KEY (`id_keterangan`);
-
---
--- Indexes for table `mapel`
---
-ALTER TABLE `mapel`
-  ADD PRIMARY KEY (`id_mapel`);
-
---
--- Indexes for table `pembagian_kelas`
---
-ALTER TABLE `pembagian_kelas`
-  ADD PRIMARY KEY (`id_pembagian`),
-  ADD KEY `nis` (`nis`),
-  ADD KEY `id_kelas` (`id_kelas`),
-  ADD KEY `id_tahun_akademik` (`id_tahun_akademik`),
-  ADD KEY `nip` (`nip`);
-
---
--- Indexes for table `role`
---
-ALTER TABLE `role`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
-
---
--- Indexes for table `semester`
---
-ALTER TABLE `semester`
-  ADD PRIMARY KEY (`id_semester`);
-
---
--- Indexes for table `siswa`
---
-ALTER TABLE `siswa`
-  ADD PRIMARY KEY (`nis`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `id_gender` (`id_gender`),
-  ADD KEY `id_status` (`id_status`);
-
---
--- Indexes for table `status`
---
-ALTER TABLE `status`
-  ADD PRIMARY KEY (`id_status`);
-
---
--- Indexes for table `tagihan`
---
-ALTER TABLE `tagihan`
-  ADD PRIMARY KEY (`id_tagihan`);
-
---
--- Indexes for table `tahun_akademik`
---
-ALTER TABLE `tahun_akademik`
-  ADD PRIMARY KEY (`id_tahun_akademik`);
-
---
--- Indexes for table `transaksi`
---
-ALTER TABLE `transaksi`
-  ADD PRIMARY KEY (`id_transaksi`),
-  ADD UNIQUE KEY `kode_order` (`kode_order`),
-  ADD KEY `id_tagihan` (`id_tagihan`),
-  ADD KEY `email` (`email`);
-
---
--- Indexes for table `user`
---
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- Indexes for table `user_roles`
---
-ALTER TABLE `user_roles`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `role_id` (`role_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `ampu_mapel`
---
-ALTER TABLE `ampu_mapel`
-  MODIFY `id_ampu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
-
---
--- AUTO_INCREMENT for table `berita`
---
-ALTER TABLE `berita`
-  MODIFY `id_berita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `jadwal_pelajaran`
---
-ALTER TABLE `jadwal_pelajaran`
-  MODIFY `id_jadwal` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
-
---
--- AUTO_INCREMENT for table `kbm`
---
-ALTER TABLE `kbm`
-  MODIFY `id_kbm` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=451;
-
---
--- AUTO_INCREMENT for table `kehadiran`
---
-ALTER TABLE `kehadiran`
-  MODIFY `id_kehadiran` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=901;
-
---
--- AUTO_INCREMENT for table `pembagian_kelas`
---
-ALTER TABLE `pembagian_kelas`
-  MODIFY `id_pembagian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=152;
-
---
--- AUTO_INCREMENT for table `role`
---
-ALTER TABLE `role`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `siswa`
---
-ALTER TABLE `siswa`
-  MODIFY `nis` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20051;
-
---
--- AUTO_INCREMENT for table `tagihan`
---
-ALTER TABLE `tagihan`
-  MODIFY `id_tagihan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
-
---
--- AUTO_INCREMENT for table `transaksi`
---
-ALTER TABLE `transaksi`
-  MODIFY `id_transaksi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `user`
---
-ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
-
---
--- AUTO_INCREMENT for table `user_roles`
---
-ALTER TABLE `user_roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
-
-SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

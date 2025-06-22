@@ -5,6 +5,7 @@ from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
 import jwt, re, datetime, os, json, ast, uuid
 from collections import defaultdict
+from sqlalchemy.orm import joinedload
 
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
@@ -304,12 +305,13 @@ def list_kbm():
     if session['role'] == 'guru':
         guru = Guru.query.filter_by(nip=session['nip']).first()
         ampu_list = AmpuMapel.query.filter_by(nip=guru.nip).all()
+        return render_template("list_ampu.html", ampu_list=ampu_list)
     elif session['role'] == 'admin':
-        guru = Guru.query.all()
         ampu_list = AmpuMapel.query.all()
+        return render_template("admin/list_ampu_admin.html", ampu_list=ampu_list)
     else:
         return redirect(url_for('login'))
-    return render_template("list_ampu.html", ampu_list=ampu_list)
+
 @app.route("/kbm/input/<int:id_ampu>", methods=["GET", "POST"])
 def input_kbm(id_ampu):
     if request.method == "POST":
@@ -376,12 +378,12 @@ def bayar_offline():
     if not id_tagihan or not total:
         return jsonify(success=False, message="Data tidak lengkap")
 
-    tagihan = Tagihan.query.get(id_tagihan)
+    tagihan = Tagihan.query.options(joinedload(Tagihan.user)).filter_by(id_tagihan=id_tagihan).first()
     kode_order = f"offline_{user}"
     transaksi = Transaksi(
         id_tagihan=id_tagihan,
         kode_order=kode_order,
-        email= tagihan.user_email,
+        email= tagihan.user.email,
         total=total,
         fraud_status = 0,
         status="settlement",
@@ -396,12 +398,15 @@ def bayar_offline():
 def tambah_tagihan():
     if session.get('role') == 'murid':
         abort(403)
-    if request.json.get('user_email') == 'semua_siswa':
+    nis = request.json.get('nis')
+    if nis == 'semua_siswa':
         siswa_list = Siswa.query.all()
         for siswa in siswa_list:
+            user = User.query.filter_by(nis=siswa.nis).first()
+           
             tagihan = Tagihan(
-                user_email=siswa.email,
                 semester=request.json.get('semester'),
+                user_id = user.id,
                 tahun_ajaran=request.json.get('tahun_ajaran'),
                 deskripsi=request.json.get('deskripsi'),
                 total=request.json.get('total')
@@ -410,9 +415,10 @@ def tambah_tagihan():
         db.session.commit()
         return jsonify({'msg': 'Tagihan berhasil ditambahkan ke semua siswa'})
     else:
+        user = User.query.filter_by(nis=nis).first()
         tagihan = Tagihan(
-            user_email=request.json.get('user_email'),
             semester=request.json.get('semester'),
+            user_id = user.id,
             tahun_ajaran=request.json.get('tahun_ajaran'),
             deskripsi=request.json.get('deskripsi'),
             total=request.json.get('total')
@@ -423,7 +429,7 @@ def tambah_tagihan():
         return jsonify({'msg': 'Tagihan berhasil ditambahkan'})
 @app.route('/get_tagihan/<int:id_tagihan>', methods=['GET'])
 def get_tagihan(id_tagihan):
-    tagihan = Tagihan.query.filter_by(id_tagihan=id_tagihan).first()
+    tagihan = Tagihan.query.options(joinedload(Tagihan.user)).filter_by(id_tagihan=id_tagihan).first()
     if not tagihan:
         return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
 
@@ -438,7 +444,7 @@ def get_tagihan(id_tagihan):
     print(status)
     return jsonify({
         'id_tagihan': tagihan.id_tagihan,
-        'user_email': tagihan.user_email,
+        'user_email': tagihan.user.email,
         'semester': tagihan.semester,
         'tahun_ajaran': tagihan.tahun_ajaran,
         'deskripsi': tagihan.deskripsi,
@@ -456,7 +462,6 @@ def edit_tagihan(id_tagihan):
     if not tagihan:
         return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
 
-    tagihan.user_email = request.json.get('user_email')
     tagihan.semester = request.json.get('semester')
     tagihan.tahun_ajaran = request.json.get('tahun_ajaran')
     tagihan.deskripsi = request.json.get('deskripsi')

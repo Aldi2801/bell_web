@@ -2,8 +2,8 @@ from requests import session
 from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi, AmpuMapel, Kehadiran, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
 from flask import render_template, request, jsonify, session, redirect
 import jwt
+from datetime import datetime
 
-from sqlalchemy import and_
 from sqlalchemy import and_
 
 @app.route('/get_menu_pembayaran')
@@ -19,10 +19,11 @@ def get_menu_pembayaran():
 
         semester, tahun_ajaran = get_semester_and_year()
         print(user_email)
+        nis = session.get('nis')
         # Ambil semua tagihan
         if role == 'murid':
             all_tagihan = Tagihan.query.filter_by(
-                user_email=user_email,
+                user_id=session['id'],
             ).all()
 
             paid_transactions = Transaksi.query.filter(
@@ -43,28 +44,47 @@ def get_menu_pembayaran():
         # Untuk caching data siswa (khusus admin/guru)
         siswa_map = {}
 
-        def get_siswa_data(email):
-            if email in siswa_map:
-                return siswa_map[email]
-            siswa = Siswa.query.filter_by(email=email).first()
-            if not siswa:
-                siswa_map[email] = None
+        from datetime import datetime
+
+        # Cache untuk siswa, gunakan dictionary
+        siswa_map = {}
+
+        def get_siswa_data(user_id):
+            user = User.query.filter_by(id=user_id).first()
+            if not user or not user.nis:
                 return None
 
-            pembagian = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
+            # Cek cache dulu berdasarkan NIS
+            nis = user.nis
+            if nis in siswa_map:
+                return siswa_map[nis]
+
+            siswa = Siswa.query.filter_by(nis=nis).first()
+            if not siswa:
+                siswa_map[nis] = None
+                return None
+
+            pembagian = PembagianKelas.query \
+                .filter_by(nis=siswa.nis) \
+                .order_by(PembagianKelas.tanggal.desc()) \
+                .first()
+
             kelas_nama = pembagian.kelas_rel.nama_kelas if pembagian and pembagian.kelas_rel else 'Belum dibagi'
+
             data = {
                 'nama': siswa.nama,
                 'kelas': kelas_nama
             }
-            siswa_map[email] = data
+
+            siswa_map[nis] = data
             return data
+
 
         # Bangun response
         result_tagihan = []
         for t in all_tagihan:
             status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
-            siswa_info = get_siswa_data(t.user_email) if role != 'murid' else None
+            siswa_info = get_siswa_data(t.user_id) if role != 'murid' else None
 
             result = {
                 'id_tagihan': t.id_tagihan,
@@ -72,8 +92,13 @@ def get_menu_pembayaran():
                 'total': t.total,
                 'semester': t.semester,
                 'tahun_ajaran': t.tahun_ajaran,
-                'created_at': t.created_at.isoformat() if t.created_at else None,
-                'status': status
+                'created_at': (
+                    t.created_at.isoformat() 
+                    if isinstance(t.created_at, datetime) else 
+                    None
+                ),
+                'status': status,
+                'siswa': siswa_info  # tambahkan ini jika ingin tampilkan info siswa
             }
 
             if siswa_info:

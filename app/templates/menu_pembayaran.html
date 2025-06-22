@@ -10,10 +10,10 @@
       </div>
       <div class="mb-3">
         <label>Pilih Siswa:</label>
-        <select class="form-control"  name="user_email" class="form-control form-search" id="tambah_user_email" required>
+        <select class="form-control"  name="nis" class="form-control form-search" id="tambah_nis" required>
           <option value="semua_siswa">Semua Siswa</option>
           {% for i in siswa %}
-          <option value="{{i.email}}">{{i.nama}}</option>
+          <option value="{{i.nis}}">{{i.nama}}</option>
           {% endfor %}
         </select>
       </div>
@@ -81,10 +81,10 @@
         </div>
         <div class="mb-3">
             <label>Pilih Siswa:</label>
-            <select class="form-control" name="user_email" class="form-control form-search" id="edit_user_email" required>
+            <select class="form-control" name="nis" class="form-control form-search" id="edit_nis" required>
                 <option value="semua_siswa">Semua Siswa</option>
                 {% for i in siswa %}
-                <option value="{{i.email}}">{{i.nama}}</option>
+                <option value="{{i.nis}}">{{i.nama}}</option>
                 {% endfor %}
             </select>
         </div>
@@ -115,9 +115,6 @@
   </div>
 </div>
 
-<script>
- $('#myTable').DataTable();
- </script>
 <script>
 // Persingkat kodingan JS tagihan (fungsional tetap sama)
 
@@ -180,7 +177,7 @@ window.editTagihan = async id => {
     try {
         const res = await fetch(`/get_tagihan/${id}`, { headers: headers() });
         const d = await res.json();
-        ['id_tagihan', 'semester', 'user_email', 'tahun_ajaran', 'deskripsi','total'].forEach(f =>
+        ['id_tagihan', 'semester', 'nis', 'tahun_ajaran', 'deskripsi','total'].forEach(f =>
             document.getElementById("edit_" + f).value = d[f]);
 			
         // ✅ Hanya buka modal kalau data berhasil diambil

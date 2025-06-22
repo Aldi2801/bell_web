@@ -144,7 +144,7 @@ class Kbm(db.Model):
     tanggal = db.Column(db.Date, nullable=True)
     materi = db.Column(db.String(35), nullable=True)
     sub_materi = db.Column(db.String(100))
-    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='CASCADE'), nullable=True)
+    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu'), nullable=False)
 
 class Keterangan(db.Model):
     id_keterangan = db.Column(db.CHAR(1), primary_key=True)

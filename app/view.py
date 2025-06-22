@@ -8,7 +8,7 @@ from collections import defaultdict
 @app.route('/register')
 def view_register():
     return render_template("register.html")
-@app.route('/register_guru')
+@app.route('/tambah_guru')
 def view_register_guru():
     data_guru = Guru.query.all()
     data_fix = []
