@@ -84,16 +84,13 @@
         </li>
                 {% elif session['role'] == 'guru' %}
         <li class="sidebar-item">
-                <a class="sidebar-link" href="/kbm/list" id="link-kehadiran"><i class="fas fa-user-check mr-2"></i><span class="hide-menu"> Input KBM</span></a>
+                <a class="sidebar-link" href="/kbm/list" id="link-kehadiran"><i class="fas fa-users mr-2"></i><span class="hide-menu"> Input KBM</span></a>
         </li>
         <li class="sidebar-item">
                 <a class="sidebar-link" href="/manage_jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Jadwal</span></a>
         </li>
         <li class="sidebar-item">
-                <a class="sidebar-link" href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i><span class="hide-menu"> Manage Pengumuman</span></a>
-        </li>
-        <li class="sidebar-item">
-                <a class="sidebar-link" href="/menu_pembayaran"><i class="fas fa-file-alt mr-2"></i><span class="hide-menu"> Lihat Pembayaran Murid</span></a>
+                <a class="sidebar-link" href="/manage_pengumuman"><i class="fas fa-file-alt mr-2"></i><span class="hide-menu"> Lihat Pengumuman</span></a>
         </li>
                 {% elif session['role'] == 'murid' %}
         <li class="sidebar-item">

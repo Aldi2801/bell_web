@@ -1,7 +1,7 @@
 from flask import Flask,jsonify,request,session,render_template,g,send_from_directory,abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_mail import Mail
+from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin
 from flask_bcrypt import Bcrypt
@@ -35,6 +35,16 @@ app.config.update(
 )
 jwt = JWTManager(app)
 mail = Mail(app)
+mail.init_app(app)
+try:
+    msg = Message("Subjek", sender='tawonngantup@gmail.com', recipients=["tawonngantup@gmail.com"])
+    msg.body = "Isi email"
+    mail.send(msg)  # ✅ hanya kalau 'mail' masih objek Mail
+    mail.send('hallo')
+    print("Email terkirim")
+except Exception as e:
+    print("Gagal mengirim email:", e)
+
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
 ALLOWED_EXTENSIONS = {'xlsx'}
 
@@ -134,6 +144,7 @@ class AmpuMapel(db.Model):
     id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
     id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian', ondelete='SET NULL'))
 
+    guru_rel = db.relationship("Guru", backref="ampu_mapel_list", passive_deletes=True)
     mapel_rel = db.relationship("Mapel", backref="ampu_mapel_list", passive_deletes=True)
     semester_rel = db.relationship("Semester", backref="ampu_mapel", passive_deletes=True)
     tahun_akademik_rel = db.relationship("TahunAkademik", backref="ampu_mapel", passive_deletes=True)
@@ -217,6 +228,16 @@ class JadwalPelajaran(db.Model):
     period = db.Column(db.Integer, nullable=True)
     subject = db.Column(db.Text, nullable=True)
 
+class Penilaian(db.Model):
+    id_penilaian = db.Column(db.Integer, primary_key=True)
+    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=False)
+    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='CASCADE'), nullable=False)
+    jenis_penilaian = db.Column(db.String(20), nullable=False)  # Contoh: 'UH', 'UTS', 'UAS', 'Tugas'
+    nilai = db.Column(db.Float, nullable=False)
+    tanggal = db.Column(db.Date, default=datetime.utcnow)
+
+    siswa_rel = db.relationship("Siswa", backref="penilaian_list", passive_deletes=True)
+    ampu_rel = db.relationship("AmpuMapel", backref="penilaian_list", passive_deletes=True)
 
 # seeder
 # seeder_siswa.py

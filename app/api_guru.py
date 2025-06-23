@@ -1,4 +1,4 @@
-from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role, Tagihan, Transaksi
+from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role, Tagihan, Transaksi, Semester, TahunAkademik
 from flask import flash, redirect, request, jsonify, url_for, render_template, render_template_string,session, abort
 from flask_mail import Message
 from sqlalchemy import case
@@ -194,29 +194,64 @@ def tambah_ubah_jadwal():
 
     db.session.commit()
     return jsonify({'status': 'success', 'message': msg})
+
 @app.route("/kbm/list")
 def list_kbm():
-    if session['role'] == 'guru':
-        guru = Guru.query.filter_by(nip=session['nip']).first()
-        ampu_list = AmpuMapel.query.filter_by(nip=guru.nip).all()
-        return render_template("list_ampu.html", ampu_list=ampu_list)
-    elif session['role'] == 'admin':
-        ampu_list = AmpuMapel.query.all()
-        return render_template("admin/list_ampu_admin.html", ampu_list=ampu_list)
-    else:
+    if 'role' not in session or session['role'] != 'guru':
         return redirect(url_for('login'))
 
-@app.route("/kbm/input/<int:id_ampu>", methods=["GET", "POST"])
-def input_kbm(id_ampu):
-    if request.method == "POST":
-        materi = request.form["materi"]
-        tanggal = request.form["tanggal"]
-        kbm_baru = Kbm(tanggal=tanggal, materi=materi, id_ampu=id_ampu)
-        db.session.add(kbm_baru)
+    guru = Guru.query.filter_by(nip=session['nip']).first()
+
+
+    # Ambil data untuk tampilan
+    data_ampu = AmpuMapel.query.filter_by(nip=guru.nip).all()
+    daftar_mapel = Mapel.query.all()
+    daftar_semester = Semester.query.all()
+    daftar_tahun = TahunAkademik.query.all()
+    daftar_pembagian = PembagianKelas.query.filter_by(nip=guru.nip).all()
+
+    return render_template("guru/list_ampu.html",
+                           title="Pelajaran Diampu",
+                           btn_tambah=True,
+                           data_ampu=data_ampu,
+                           daftar_mapel=daftar_mapel,
+                           daftar_semester=daftar_semester,
+                           daftar_tahun=daftar_tahun,
+                           daftar_pembagian=daftar_pembagian)
+
+@app.route("/kbm/list/tambah", methods=["POST"])
+def kbm_tambah():
+     # Tambah data baru
+        new_ampu = AmpuMapel(
+            nip=guru.nip,
+            id_mapel=request.form['id_mapel'],
+            id_pembagian=request.form['id_pembagian'],
+            id_semester=request.form['id_semester'],
+            id_tahun_akademik=request.form['id_tahun_akademik'],
+            tanggal=datetime.utcnow()  # meskipun tidak ditampilkan
+        )
+        db.session.add(new_ampu)
         db.session.commit()
-        return redirect(f"/kbm/{id_ampu}/daftar")
-    
-    return render_template("form_input_kbm.html", id_ampu=id_ampu)
+        flash("Data pelajaran berhasil ditambahkan", "success")
+        return redirect(url_for('list_kbm'))
+@app.route("/kbm/edit/<int:id>", methods=["PUT"])
+def edit_ampu(id):
+        ampu = AmpuMapel.query.get_or_404(id)
+        ampu.id_mapel = request.form['id_mapel']
+        ampu.id_pembagian = request.form['id_pembagian']
+        ampu.id_semester = request.form['id_semester']
+        ampu.id_tahun_akademik = request.form['id_tahun_akademik']
+        db.session.commit()
+        flash("Data berhasil diupdate", "success")
+        return redirect(url_for('list_kbm'))
+@app.route("/kbm/hapus/<int:id>", methods=["DELETE"])
+def hapus_ampu(id):
+    ampu = AmpuMapel.query.get_or_404(id)
+    db.session.delete(ampu)
+    db.session.commit()
+    flash("Data berhasil dihapus", "success")
+    return redirect(url_for('list_kbm'))
+
 @app.route("/kbm/<int:id_ampu>/daftar")
 def daftar_kbm(id_ampu):
     daftar = Kbm.query.filter_by(id_ampu=id_ampu).all()
@@ -385,3 +420,53 @@ def hapus_tagihan(id_tagihan):
     db.session.commit()
     flash('Tagihan berhasil dihapus')
     return jsonify({'msg': 'Tagihan berhasil dihapus'})
+
+@app.route('/guru/penilaian')
+def penilaian_list():
+    print(session.get('role'))
+    if session.get('role') != 'admin':
+        abort(403)
+    penilaian = Penilaian.query.all()
+    btn_tambah = True
+    title = "nilai siswa"
+    title_data = "nilai siswa"
+    return render_template('guru/penilaian.html', penilaian=penilaian, btn_tambah=btn_tambah, title=title, title_data = title_data)
+
+@app.route('/guru/penilaian/tambah', methods=['POST'])
+def tambah_penilaian():
+    print(session.get('role'))
+    if session.get('role') != 'admin':
+        abort(403)
+    penilaian = Penilaian(
+            id_penilaian=request.json.get('id_penilaian'),
+            penilaian=request.json.get('nama_penilaian')
+    )
+    db.session.add(penilaian)
+    db.session.commit()
+    flash('penilaian berhasil ditambahkan')
+    return jsonify({'msg':'penilaian berhasil ditambahkan'})
+
+@app.route('/guru/penilaian/edit/<id_penilaian_old>', methods=['PUT'])
+def edit_penilaian(id_penilaian_old):
+    if session.get('role') != 'admin':
+        abort(403)
+    penilaian = Penilaian.query.filter_by(id_penilaian=id_penilaian_old).first()
+    if not penilaian:
+        return jsonify({'error': 'penilaian tidak ditemukan'}), 404
+    penilaian.id_penilaian = request.json.get('id_penilaian')
+    penilaian.penilaian = request.json.get('nama_penilaian')
+    db.session.commit()
+    flash('penilaian berhasil diperbarui')
+    return jsonify({'msg': 'penilaian berhasil diperbarui'})
+
+@app.route('/guru/penilaian/hapus/<id_penilaian>', methods=['DELETE'])
+def hapus_penilaian(id_penilaian):
+    if session.get('role') != 'admin':
+        abort(403)
+    penilaian = penilaian.query.filter_by(id_penilaian=id_penilaian).first()
+    if not penilaian:
+        return jsonify({'error': 'penilaian tidak ditemukan'}), 404
+    db.session.delete(penilaian)
+    db.session.commit()
+    flash('penilaian berhasil dihapus')
+    return jsonify({'msg': 'penilaian berhasil dihapus'})

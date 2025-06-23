@@ -1,8 +1,9 @@
-from . import app, bcrypt, User, mail,db
+from . import app, bcrypt, User,Role,UserRoles, mail,db
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 from datetime import datetime, timedelta
 import jwt
+from flask_mail import Message
 from jwt import ExpiredSignatureError, InvalidTokenError
 from itsdangerous import URLSafeTimedSerializer
 import secrets
@@ -50,19 +51,22 @@ def proses_login():
     else:
         return jsonify(success=False, message="Password salah")
 @app.route('/reset_password_admin', methods=['GET'])
-def reset_pswd_admin():
-    email = request.args.get('email')
+def reset_password_admin():
+    admin = User.query.join(UserRoles).join(Role).filter(Role.name == 'admin').first()
+    if admin:
+        print(admin.email)
 
-    admin = Admin.query.filter_by(email=email).first()
+    email = admin.email
     if not admin:
         return jsonify(success=False, message="Email tidak ditemukan"), 404
 
     # Buat token dengan email
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     token = serializer.dumps(email, salt='reset-password')
 
     # Kirim link via email
     reset_link = url_for('reset_password_form', token=token, _external=True)
-
+    print(reset_link)
     msg = Message("Reset Password Admin",
                   sender=app.config['MAIL_USERNAME'],
                   recipients=[email])
@@ -70,19 +74,26 @@ def reset_pswd_admin():
     mail.send(msg)
 
     return jsonify(success=True, message="Link reset password dikirim ke email")
+@app.route('/reset_password/<token>', methods=['GET'])
+def reset_password_form(token):
+    admin = Admin.query.filter_by(reset_token=token).first()
 
+    if not admin or datetime.utcnow() > admin.token_expiry:
+        return "<h3>Token tidak valid atau kadaluarsa</h3>"
+
+    # Tampilkan HTML form
+    return render_template('render_password_admin.html',token=token)
 @app.route('/reset_admin_form', methods=['POST'])
-def reset_password_form():
-    data = request.json
-    token = data.get('token')
-    new_password = data.get('new_password')
+def reset_password_submit():
+    token = request.form.get('token')
+    new_password = request.form.get('new_password')
 
     admin = Admin.query.filter_by(reset_token=token).first()
     if not admin:
-        return jsonify(success=False, message="Token tidak valid"), 400
+        return "Token tidak valid", 400
 
     if datetime.utcnow() > admin.token_expiry:
-        return jsonify(success=False, message="Token kadaluarsa"), 400
+        return "Token kadaluarsa", 400
 
     from werkzeug.security import generate_password_hash
     admin.password = generate_password_hash(new_password)
@@ -90,7 +101,7 @@ def reset_password_form():
     admin.token_expiry = None
     db.session.commit()
 
-    return jsonify(success=True, message="Password berhasil diubah")
+    return "<h3>Password berhasil diubah. Silakan </h3><a href='/'>login kembali</a>."
 
 
 # Endpoint yang memerlukan autentikasi
@@ -108,7 +119,7 @@ def keluar():
 @app.before_request
 def global_jwt_check():
     # Lewatkan route tertentu seperti login, register, static, dll.
-    allowed_routes = ['login', 'static', 'proses_login', 'register']
+    allowed_routes = ['login', 'static', 'proses_login', 'register','reset_password_admin','reset_password_form','reset_password_submit']
     if request.endpoint in allowed_routes or request.endpoint is None:
         return  # skip checking
 
