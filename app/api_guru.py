@@ -1,4 +1,4 @@
-from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role, Tagihan, Transaksi, Semester, TahunAkademik
+from . import AmpuMapel, Kehadiran, Keterangan, PembagianKelas, Penilaian, app, db, is_valid_email, bcrypt, Kbm, mail, s, User, Kelas, Siswa, Guru, Mapel, JadwalPelajaran, Role, Tagihan, Transaksi, Semester, TahunAkademik
 from flask import flash, redirect, request, jsonify, url_for, render_template, render_template_string,session, abort
 from flask_mail import Message
 from sqlalchemy import case
@@ -58,11 +58,12 @@ def view_manage_jadwal():
         kode_guru=formatted_teacher_map["kodeGuru"],
         kode_mapel=formatted_teacher_map["kodeMapel"],
         users=users,
-        kelas=kelas_dict
+        kelas=kelas_dict,
+        
     )
 
 # Endpoint untuk menyimpan data guru
-@app.route('/tambah_guru', methods=['POST'])
+@app.route('/tambah_guru/tambah', methods=['POST'])
 def save_guru():
     data = request.get_json()
 
@@ -118,35 +119,36 @@ def save_guru():
         user.roles.append(new_role)
         
     try:
-        token = s.dumps(email, salt='email-confirm')
-        conf_email_url = url_for('confirm_email', token=token, _external=True)
-        email_body = render_template_string('''
-            Hello {{ username }},
+        # token = s.dumps(email, salt='email-confirm')
+        # conf_email_url = url_for('confirm_email', token=token, _external=True)
+        # email_body = render_template_string('''
+        #     Hello {{ username }},
             
-            Anda menerima email ini, karena kami memerlukan verifikasi email untuk akun Anda agar aktif dan dapat digunakan.
+        #     Anda menerima email ini, karena kami memerlukan verifikasi email untuk akun Anda agar aktif dan dapat digunakan.
             
-            Silakan klik tautan di bawah ini untuk verifikasi email Anda. Tautan ini akan kedaluwarsa dalam 1 jam.
+        #     Silakan klik tautan di bawah ini untuk verifikasi email Anda. Tautan ini akan kedaluwarsa dalam 1 jam.
             
-            confirm your email: {{ conf_email_url }}
+        #     confirm your email: {{ conf_email_url }}
             
-            hubungi dukungan jika Anda memiliki pertanyaan.
+        #     hubungi dukungan jika Anda memiliki pertanyaan.
             
-            Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
+        #     Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
             
-            Salam Hangat,
+        #     Salam Hangat,
             
-            Admin
-        ''', username=username,  conf_email_url=conf_email_url)
+        #     Admin
+        # ''', username=username,  conf_email_url=conf_email_url)
 
-        msg = Message('Confirmasi Email Anda',
-                    sender='masteraldi2809@gmail.com', recipients=[email])
+        # msg = Message('Confirmasi Email Anda',
+        #             sender='masteraldi2809@gmail.com', recipients=[email])
 
-        msg.body = email_body
-        mail.send(msg)
+        # msg.body = email_body
+        # mail.send(msg)
         db.session.add(user)
         db.session.add(new_guru)
         db.session.commit()
-        return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201
+        return jsonify({'msg': 'User registered successfully'}), 201
+        #return jsonify({'msg': 'User registered successfully, Please check your email for validation'}), 201
     except Exception as e:
         return jsonify({'error': f"Database error: {str(e)}"}), 500
 
@@ -424,18 +426,20 @@ def hapus_tagihan(id_tagihan):
 @app.route('/guru/penilaian')
 def penilaian_list():
     print(session.get('role'))
-    if session.get('role') != 'admin':
+    if session.get('role') != 'guru':
         abort(403)
     penilaian = Penilaian.query.all()
+    data_siswa = Siswa.query.all()
+    data_ampu = AmpuMapel.query.filter_by(nip=session['nip']).all()
     btn_tambah = True
-    title = "nilai siswa"
-    title_data = "nilai siswa"
-    return render_template('guru/penilaian.html', penilaian=penilaian, btn_tambah=btn_tambah, title=title, title_data = title_data)
+    title = "Nilai Siswa"
+    title_data = "Nilai Siswa"
+    return render_template('guru/penilaian.html', penilaian=penilaian,data_siswa=data_siswa,data_ampu=data_ampu, btn_tambah=btn_tambah, title=title, title_data = title_data)
 
 @app.route('/guru/penilaian/tambah', methods=['POST'])
 def tambah_penilaian():
     print(session.get('role'))
-    if session.get('role') != 'admin':
+    if session.get('role') != 'guru':
         abort(403)
     penilaian = Penilaian(
             id_penilaian=request.json.get('id_penilaian'),
@@ -448,7 +452,7 @@ def tambah_penilaian():
 
 @app.route('/guru/penilaian/edit/<id_penilaian_old>', methods=['PUT'])
 def edit_penilaian(id_penilaian_old):
-    if session.get('role') != 'admin':
+    if session.get('role') != 'guru':
         abort(403)
     penilaian = Penilaian.query.filter_by(id_penilaian=id_penilaian_old).first()
     if not penilaian:
@@ -461,7 +465,7 @@ def edit_penilaian(id_penilaian_old):
 
 @app.route('/guru/penilaian/hapus/<id_penilaian>', methods=['DELETE'])
 def hapus_penilaian(id_penilaian):
-    if session.get('role') != 'admin':
+    if session.get('role') != 'guru':
         abort(403)
     penilaian = penilaian.query.filter_by(id_penilaian=id_penilaian).first()
     if not penilaian:

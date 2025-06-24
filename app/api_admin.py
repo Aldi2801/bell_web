@@ -20,7 +20,7 @@ from flask_jwt_extended import jwt_required
 from num2words import num2words
 from flask import flash, redirect
 # Import dari aplikasi lokal
-from . import AmpuMapel, Kelas, Mapel, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
+from . import AmpuMapel, Kelas, Mapel,EvaluasiGuru, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
 
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
@@ -431,7 +431,10 @@ def hapus_semester(id_semester):
 
 @app.route('/manage_pengumuman')
 def view_manage_pengumuman():
-    berita = Berita.query.all()
+    if session['role'] == 'guru':
+        berita = Berita.query.filter_by(pengumuman_untuk='guru').all()
+    else:
+        berita = Berita.query.all()
     guru = Guru.query.all()  # ambil semua guru
     btn_tambah = True
     title = "Manage Berita"
@@ -447,6 +450,7 @@ def tambah_pengumuman():
             judul = request.json.get('judul'),
             isi   = request.json.get('isi'),
             nip   = request.json.get('nip'),
+            pengumuman_untuk   = request.json.get('pengumuman_untuk'),
     )
     db.session.add(berita)
     db.session.commit()
@@ -463,6 +467,7 @@ def edit_pengumuman(id_pengumuman_old):
     berita.judul = request.json.get('judul')
     berita.isi   = request.json.get('isi')
     berita.nip   = request.json.get('nip')
+    berita.pengumuman_untuk   = request.json.get('pengumuman_untuk')
     db.session.commit()
     flash('berita berhasil diperbarui')
     return jsonify({'msg': 'berita berhasil diperbarui'})
@@ -566,3 +571,69 @@ def hapus_admin_siswa(nis):
     db.session.commit()
     flash('Siswa berhasil dihapus')
     return jsonify({'msg': 'Siswa berhasil dihapus'})
+# === LIST EVALUASI GURU ===
+@app.route('/admin/evaluasi_guru')
+def evaluasi_guru_list():
+    if session.get('role') == 'guru':
+        abort(403)
+    evaluasi_list = EvaluasiGuru.query.all()
+    title = "Manage Evaluasi Guru"
+    title_data = "Evaluasi Guru"
+    return render_template('admin/evaluasi_guru.html', evaluasi_list=evaluasi_list, title=title, title_data=title_data)
+
+# === TAMBAH EVALUASI GURU ===
+@app.route('/admin/evaluasi_guru/tambah', methods=['POST'])
+def tambah_evaluasi_guru():
+    if session.get('role') == 'guru':
+        abort(403)
+    
+    evaluasi = EvaluasiGuru(
+        nip=request.json.get('nip'),
+        id_ampu=request.json.get('id_ampu'),
+        evaluator_id=request.json.get('evaluator_id'),
+        evaluator_role=request.json.get('evaluator_role'),
+        aspek=request.json.get('aspek'),
+        skor=request.json.get('skor'),
+        komentar=request.json.get('komentar')
+    )
+    db.session.add(evaluasi)
+    db.session.commit()
+    flash('Evaluasi berhasil ditambahkan')
+    return jsonify({'msg': 'Evaluasi berhasil ditambahkan'})
+
+# === EDIT EVALUASI GURU ===
+@app.route('/admin/evaluasi_guru/edit/<int:id>', methods=['PUT'])
+def edit_evaluasi_guru(id):
+    if session.get('role') != 'admin':
+        abort(403)
+    
+    evaluasi = EvaluasiGuru.query.get(id)
+    if not evaluasi:
+        return jsonify({'error': 'Evaluasi tidak ditemukan'}), 404
+
+    evaluasi.nip = request.json.get('nip')
+    evaluasi.id_ampu = request.json.get('id_ampu')
+    evaluasi.evaluator_id = request.json.get('evaluator_id')
+    evaluasi.evaluator_role = request.json.get('evaluator_role')
+    evaluasi.aspek = request.json.get('aspek')
+    evaluasi.skor = request.json.get('skor')
+    evaluasi.komentar = request.json.get('komentar')
+    db.session.commit()
+    flash('Evaluasi berhasil diperbarui')
+    return jsonify({'msg': 'Evaluasi berhasil diperbarui'})
+
+# === HAPUS EVALUASI GURU ===
+@app.route('/admin/evaluasi_guru/hapus/<int:id>', methods=['DELETE'])
+def hapus_evaluasi_guru(id):
+    if session.get('role') != 'admin':
+        abort(403)
+    
+    evaluasi = EvaluasiGuru.query.get(id)
+    if not evaluasi:
+        return jsonify({'error': 'Evaluasi tidak ditemukan'}), 404
+    
+    db.session.delete(evaluasi)
+    db.session.commit()
+    flash('Evaluasi berhasil dihapus')
+    return jsonify({'msg': 'Evaluasi berhasil dihapus'})
+

@@ -166,7 +166,7 @@ const getToken = () => localStorage.getItem('jwt_token');
 const alertIfNoToken = () => { if (!getToken()) return alert('Anda perlu login terlebih dahulu.'), true; };
 const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': getToken() });
 
-const handleResponse = async (res, successMsg, failMsg) => {
+const handleResponses = async (res, successMsg, failMsg) => {
     const data = await res.json();
     if (data.success) {
         alert(successMsg);
@@ -184,7 +184,6 @@ async function fetchMenuPembayaran() {
         $('#myTable').DataTable();
     } catch (err) {
         console.error(err);
-        alert('Terjadi kesalahan saat mengambil data tagihan.');
     }
 }
 document.getElementById("editTagihanForm").addEventListener("submit", async e => {
@@ -233,10 +232,12 @@ window.editTagihan = async id => {
 function populateTagihanTable(tagihan) {
     const container = document.getElementById('tagihan-container');
     container.innerHTML = tagihan.length ? '' : '<tr><td colspan="8">Tidak ada tagihan yang ditemukan.</td></tr>';
-
+    if (!tagihan.length) return;
+    else{
     tagihan.forEach((item, i) => {
         const row = document.createElement('tr');
         const lunas = item.status === 'Belum Lunas';
+        console.log(item)
         row.innerHTML = `
             <td>${i + 1}</td>
             {% if session['role'] != 'murid' %}
@@ -264,14 +265,16 @@ function populateTagihanTable(tagihan) {
 				{% endif %}
             </td>`;
         container.appendChild(row);
+    
     });
+    }
 }
 
 function bayar_offline(total, id) {
     if (alertIfNoToken()) return;
     if (!confirm("Yakin ingin menandai sebagai 'Offline Paid'?")) return;
     fetch('/bayar_offline', { method: 'POST', headers: headers(), body: JSON.stringify({ id_tagihan: id, total }) })
-        .then(res => handleResponse(res, 'Pembayaran offline berhasil.', 'Gagal memproses pembayaran offline: '))
+        .then(res => handleResponses(res, 'Pembayaran offline berhasil.', 'Gagal memproses pembayaran offline: '))
         .catch(() => alert('Terjadi kesalahan saat memproses pembayaran offline.'));
 }
 

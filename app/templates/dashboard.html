@@ -1,5 +1,6 @@
 {% extends 'include/include.html' %} 
 {% block head %}
+    <title>Dashboard - {{ profil.role }}</title>
  <link
       rel="stylesheet"
       href="../../static/assets/libs/apexcharts/dist/apexcharts.css"
@@ -18,7 +19,8 @@
 {% block content %}
  
 <div class="container-fluid">
-  <div class="row">
+{% if session['role'] == 'admin' %}
+<div class="row">
    
     <div class="col-lg-6 col-md-6">
       <div class="card">
@@ -164,6 +166,62 @@
         </div>
       </div>
   </div>
+  {% else %}
+{% if berita %}
+<!-- Modal -->
+<div class="modal fade" id="beritaModal" tabindex="-1" aria-labelledby="beritaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="beritaModalLabel">{{ berita.judul }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ berita.isi }}</p>
+        <small class="text-muted">Dibuat pada: {{ berita.tanggal_dibuat.strftime('%d %B %Y') }}</small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script untuk auto-show modal -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var beritaModal = new bootstrap.Modal(document.getElementById('beritaModal'));
+    beritaModal.show();
+  });
+</script>
+{% endif %}
+        <h1 class="mb-4">Selamat datang, {{ profil.nama if profil.nama else profil.username }}!</h1>
+        <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
+  <div class="row">
+   
+    <div class="col-lg-12 col-md-12">
+
+      <div class="card">
+            <div class="card-header bg-primary text-white">
+                Informasi Profil - {{ profil.role }}
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for key, value in profil.items() %}
+                        {% if key != 'role' %}
+                            <li class="list-group-item d-flex justify-content-start align-items-center">
+                                <strong>{{ key.replace('_', ' ').title() }} = </strong>
+                                <span> {{ value }}</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+ </div> </div>
+ </div>
+        </div>
+  </div>
+  {% endif %}
 <!--This page JavaScript -->
     <script src="../../static/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
     <!-- Chart JS -->

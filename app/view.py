@@ -1,7 +1,7 @@
 from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, re, datetime, os, json, ast, uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import case
 from collections import defaultdict
 
@@ -51,9 +51,12 @@ def dashboard():
     print(session.get('username'))
     print(session.get('role'))
     print(user)
-
+    # Ambil berita terbaru < 14 hari
+    batas_waktu = datetime.utcnow() - timedelta(days=14)
+  
     profil = {}
     if role == 'admin':
+        berita_terbaru =''
         profil = {
             'username': user.username,
             'email': user.email,
@@ -61,6 +64,8 @@ def dashboard():
         }
 
     elif role == 'guru':
+        berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'guru').order_by(Berita.tanggal_dibuat.desc()).first()
+
         guru = Guru.query.filter_by(nip=user.nip).first()
         profil = {
             'nama': guru.nama,
@@ -77,6 +82,8 @@ def dashboard():
         }
 
     elif role == 'murid':
+        berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'murid').order_by(Berita.tanggal_dibuat.desc()).first()
+
         siswa = Siswa.query.filter_by(nis=user.nis).first()
         kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
         profil = {
@@ -91,8 +98,8 @@ def dashboard():
             'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
             'role': 'Murid'
         }
-
-    return render_template('dashboard.html', profil=profil)
+    
+    return render_template('dashboard.html', profil=profil, berita=berita_terbaru)
 
 @app.route('/daftar_hadir_ujian')
 def view_daftar_hadir_ujian():
@@ -150,7 +157,11 @@ def view_jadwal():
     ]
     print(kelas_dict)
 
-    return render_template("murid/jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict)
+    return render_template("murid/jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict,
+                           
+    btn_tambah = False,
+    title = "Jadwal Pelajaran",
+    title_data = "Jadwal Pelajaran")
 
 @app.route('/manage_kehadiran')
 def view_manage_kehadiran():

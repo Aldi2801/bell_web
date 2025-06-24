@@ -2,11 +2,15 @@ from . import app, bcrypt, User,Role,UserRoles, mail,db
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 from datetime import datetime, timedelta
-import jwt
+
 from flask_mail import Message
+import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
 from itsdangerous import URLSafeTimedSerializer
 import secrets
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from datetime import datetime
+
 @app.route('/')
 def homepahe():
     return redirect(url_for('login'))
@@ -35,6 +39,7 @@ def proses_login():
         access_token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
         session['jwt_token'] = access_token
         session['username'] = username
+        session['id'] = user.id
         session['email'] = user.email
         if user.roles:
             session['role'] = user.roles[0].name
@@ -50,59 +55,65 @@ def proses_login():
         return jsonify(success=True, token=access_token)
     else:
         return jsonify(success=False, message="Password salah")
+
 @app.route('/reset_password_admin', methods=['GET'])
 def reset_password_admin():
     admin = User.query.join(UserRoles).join(Role).filter(Role.name == 'admin').first()
-    if admin:
-        print(admin.email)
+    if not admin:
+        return jsonify(success=False, message="Tidak ada admin ditemukan"), 404
 
     email = admin.email
-    if not admin:
-        return jsonify(success=False, message="Email tidak ditemukan"), 404
-
-    # Buat token dengan email
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    token = serializer.dumps(email, salt='reset-password')
+    token = serializer.dumps(email, salt='reset-password') # 1 jam
 
-    # Kirim link via email
     reset_link = url_for('reset_password_form', token=token, _external=True)
-    print(reset_link)
-    msg = Message("Reset Password Admin",
-                  sender=app.config['MAIL_USERNAME'],
-                  recipients=[email])
-    msg.body = f"Klik link untuk reset password:\n{reset_link}"
-    mail.send(msg)
+    print(f"🔗 Reset link: {reset_link}")
 
-    return jsonify(success=True, message="Link reset password dikirim ke email")
+    try:
+        msg = Message("Reset Password Admin",
+                      sender=app.config['MAIL_USERNAME'],
+                      recipients=[email])
+        msg.body = f"Klik link untuk reset password:\n{reset_link} \n link expired dalam 1 jam"
+        mail.send(msg)
+    except Exception as e:
+        print(f"❌ Error mengirim email: {e}")
+        return jsonify(success=False, message="Gagal mengirim email"), 500
+    flash("Link reset password dikirim ke email", "success")
+    return redirect(url_for('login'))
+
 @app.route('/reset_password/<token>', methods=['GET'])
 def reset_password_form(token):
-    admin = Admin.query.filter_by(reset_token=token).first()
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt='reset-password', max_age=3600)  # 1 jam
+    except SignatureExpired:
+        return "<h3>Token sudah kadaluarsa</h3>", 400
+    except BadSignature:
+        return "<h3>Token tidak valid</h3>", 400
 
-    if not admin or datetime.utcnow() > admin.token_expiry:
-        return "<h3>Token tidak valid atau kadaluarsa</h3>"
+    return render_template('reset_password_admin.html', token=token)
 
-    # Tampilkan HTML form
-    return render_template('render_password_admin.html',token=token)
 @app.route('/reset_admin_form', methods=['POST'])
 def reset_password_submit():
     token = request.form.get('token')
     new_password = request.form.get('new_password')
 
-    admin = Admin.query.filter_by(reset_token=token).first()
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt='reset-password', max_age=3600)
+    except SignatureExpired:
+        return "<h3>Token sudah kadaluarsa</h3>", 400
+    except BadSignature:
+        return "<h3>Token tidak valid</h3>", 400
+
+    admin = User.query.filter_by(email=email).first()
     if not admin:
-        return "Token tidak valid", 400
+        return "<h3>User tidak ditemukan</h3>", 404
 
-    if datetime.utcnow() > admin.token_expiry:
-        return "Token kadaluarsa", 400
-
-    from werkzeug.security import generate_password_hash
-    admin.password = generate_password_hash(new_password)
-    admin.reset_token = None
-    admin.token_expiry = None
+    admin.password = bcrypt.generate_password_hash(new_password).decode('utf-8')
     db.session.commit()
 
     return "<h3>Password berhasil diubah. Silakan </h3><a href='/'>login kembali</a>."
-
 
 # Endpoint yang memerlukan autentikasi
 @app.route('/keluar')

@@ -1,33 +1,120 @@
-<!DOCTYPE html>
-<html lang="id">
+{% extends "layout.html" %}
+{% block head %}
+<style>
+    /* Layout dasar */
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Pelajaran MTs Al Huda Reban</title>
-    
-    <!-- Tambahkan link CSS DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <!-- Tambahkan link jQuery dan DataTables JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="/static/style_base.css">
-</head>
+    .container-table {
+        width: 90%;
+        margin: 30px auto;
+        border-collapse: collapse;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
 
-<body>
-    <header>
-        <div class="d-flex">
-        <div class="menu-container">
-        <button class="logout-button" onclick="location.href='/'">Menu</button>
-        </div>
-        <div class="logout-container">
-        <button class="logout-button" onclick="handleLogout()">Logout</button>
-        </div>
-        </div>
-        <h1>Jadwal Pelajaran MTs Al Huda Reban</h1>
-        <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
-    </header>
+    .container-keterangan {
+        width: 90%;
+        margin: 30px auto;
+        transform: translateY(-30px);
+    }
 
+    /* Tabel */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+    }
+
+    th, td {
+        padding: 15px;
+        border: 1px solid #ddd;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    th {
+        background-color: #2980b9;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f4f4f4;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #ecf0f1;
+    }
+
+    tr:hover {
+        background-color: #dfe6e9;
+    }
+
+    /* Responsif tabel */
+    @media (max-width: 768px) {
+        .container-table, .container-keterangan {
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        body {
+            width: 768px;
+            background: linear-gradient(to top, #a6c1ee, #fbc2eb);
+        }
+    }
+
+    /* Judul Keterangan */
+    h2 {
+        text-align: center;
+        color: #4a90e2;
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+
+    ul {
+        padding-left: 20px;
+    }
+
+    ul li {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-titles">
+  <div class="row">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 d-flex align-items-center">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="link">
+              <i class="ri-home-3-line fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
+        </ol>
+      </nav>
+      <h1 class="mb-0 fw-bold">Data {{title}}</h1>
+    </div>
+	{% if btn_tambah %}
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
+		  <i class="ri-add-line me-1"></i> Tambah Data
+		</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+        <h2>Jadwal Pelajaran</h2>
+<div class="table-responsive mb-5">
     <table class="container-table" id="scheduleTable">
         <thead>
             <tr>
@@ -42,10 +129,10 @@
         <tbody>
         </tbody>
     </table>
+    </div>
     <div class="container-keterangan" id="container-keterangan">
     
     </div>
-<script src="/static/script_footer.js"></script>
 <script>
     const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
     const schedule = {{ schedule | tojson | safe }};
@@ -127,7 +214,4 @@ schedule.forEach(day => {
     renderList("Kode Mapel", kode_mapel);
     renderList("List Guru", kode_guru);
 </script>
-
-</body>
-
-</html>
+{% endblock %}

@@ -33,10 +33,12 @@
                     <td>{{ ampu.jam_mulai }}</td>
                     <td>{{ ampu.jam_selesai }}</td>
                     <td>{{ ampu.ruangan }}</td>
-                    <td>
+                    <td >
+                    <div class="d-flex gap-2">
                         <!-- Aksi bisa diarahkan ke form kehadiran -->
                         <a href="{{ url_for('lihat_kehadiran', ampu_id=ampu.id) }}" class="btn btn-sm btn-info">Lihat</a>
                         <a href="{{ url_for('input_kehadiran', ampu_id=ampu.id) }}" class="btn btn-sm btn-success">Input</a>
+                    </div>
                     </td>
                 </tr>
                 {% else %}

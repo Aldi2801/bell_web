@@ -1,6 +1,5 @@
-from requests import session
-from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi, AmpuMapel, Kehadiran, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
-from flask import render_template, request, jsonify, session, redirect
+from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
+from flask import render_template, request, jsonify, session, redirect, abort
 import jwt
 from datetime import datetime
 
@@ -17,9 +16,7 @@ def get_menu_pembayaran():
         user_email = decoded_token['email']
         role = decoded_token['role']
 
-        semester, tahun_ajaran = get_semester_and_year()
         print(user_email)
-        nis = session.get('nis')
         # Ambil semua tagihan
         if role == 'murid':
             all_tagihan = Tagihan.query.filter_by(
@@ -40,11 +37,6 @@ def get_menu_pembayaran():
 
         # Buat set id_tagihan yang sudah lunas
         paid_tagihan_ids = {tr.id_tagihan for tr in paid_transactions if tr.id_tagihan is not None}
-
-        # Untuk caching data siswa (khusus admin/guru)
-        siswa_map = {}
-
-        from datetime import datetime
 
         # Cache untuk siswa, gunakan dictionary
         siswa_map = {}
@@ -77,6 +69,7 @@ def get_menu_pembayaran():
             }
 
             siswa_map[nis] = data
+            print(siswa_map)
             return data
 
 
@@ -107,7 +100,10 @@ def get_menu_pembayaran():
 
             result_tagihan.append(result)
         print(result_tagihan)
-        return jsonify(result_tagihan)
+        if result_tagihan ==[]:
+            return jsonify({"message": "Data tagihan tidak ditemukan"})
+        else:
+            return jsonify(result_tagihan)
 
     except jwt.ExpiredSignatureError:
         return jsonify({'valid': False, 'message': 'Token expired'}), 401
@@ -163,7 +159,11 @@ def view_kehadiran():
                 'keterangan': k.keterangan
             })
     print(result)
-    return render_template("kehadiran.html",kehadiran_list= kehadiran_list, siswa=data_siswa, kelas=data_kelas, kbm=data_kbm)
+    data_siswa = Siswa.query.filter_by(user_id=session['id'])
+    return render_template("kehadiran.html",kehadiran_list= kehadiran_list, siswa=data_siswa, kelas=data_kelas, kbm=data_kbm,
+    btn_tambah = True,
+    title = "Manage Berita",
+    title_data = "Berita / Pengumuman")
 
 @app.route('/murid/kehadiran')
 def kehadiran():
@@ -195,7 +195,11 @@ def kehadiran():
         .all()
     )
 
-    return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran, nama_lengkap=nama_lengkap)
+    return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran, nama_lengkap=nama_lengkap,
+                           
+    btn_tambah = False,
+    title = "Kehadiran",
+    title_data = "Kehadiran")
 
 @app.route('/pengumuman')
 def view_pengumuman():
@@ -205,3 +209,14 @@ def view_pengumuman():
     title = "Pengumuman"
     title_data = "Pengumuman"
     return render_template('murid/berita.html', berita=berita, guru=guru,btn_tambah=btn_tambah,title=title,title_data=title_data)
+
+@app.route('/murid/penilaian')
+def penilaian_murid():
+    print(session.get('role'))
+    if session.get('role') != 'murid':
+        abort(403)
+    penilaian = Penilaian.query.all()
+    btn_tambah = False
+    title = "Nilai Anda"
+    title_data = "Nilai Anda"
+    return render_template('murid/penilaian.html', penilaian=penilaian, btn_tambah=btn_tambah, title=title, title_data = title_data)

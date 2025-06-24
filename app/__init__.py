@@ -36,15 +36,6 @@ app.config.update(
 jwt = JWTManager(app)
 mail = Mail(app)
 mail.init_app(app)
-try:
-    msg = Message("Subjek", sender='tawonngantup@gmail.com', recipients=["tawonngantup@gmail.com"])
-    msg.body = "Isi email"
-    mail.send(msg)  # ✅ hanya kalau 'mail' masih objek Mail
-    mail.send('hallo')
-    print("Email terkirim")
-except Exception as e:
-    print("Gagal mengirim email:", e)
-
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
 ALLOWED_EXTENSIONS = {'xlsx'}
 
@@ -72,7 +63,7 @@ class User(db.Model, UserMixin):
     nip = db.Column(db.String(25), nullable=True)
     email = db.Column(db.String(255), unique=True, nullable=True)
     active = db.Column(db.Boolean, default=True)
-
+    reset_token = db.Column(db.String(255), nullable=True)
     roles = db.relationship('Role', secondary='user_roles',
                             primaryjoin='User.id == UserRoles.user_id',
                             secondaryjoin='Role.id == UserRoles.role_id',
@@ -111,7 +102,9 @@ class Berita(db.Model):
     judul = db.Column(db.String(35), nullable=True)
     isi = db.Column(db.String(255), nullable=True)
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='SET NULL'), nullable=True)
-
+    tanggal_dibuat = db.Column(db.DateTime, default=datetime.utcnow)
+    pengumuman_untuk = db.Column(db.String(10), nullable=True)  # 'murid' atau 'guru'
+    
 class Mapel(db.Model):
     id_mapel = db.Column(db.CHAR(3), primary_key=True)
     nama_mapel = db.Column(db.String(35), nullable=True)
@@ -239,135 +232,26 @@ class Penilaian(db.Model):
     siswa_rel = db.relationship("Siswa", backref="penilaian_list", passive_deletes=True)
     ampu_rel = db.relationship("AmpuMapel", backref="penilaian_list", passive_deletes=True)
 
-# seeder
-# seeder_siswa.py
-from datetime import datetime
+class EvaluasiGuru(db.Model):
+    __tablename__ = 'evaluasi_guru'
 
-# seeder guru 
-from datetime import date
-def import_data_guru():
-    guru_list = [
-        {
-            "nama": "H. Jamar, S.Pd.I",
-            "inisial": "JMR",
-            "tempat_lahir": "Tegal",
-            "tanggal_lahir": date(1980, 5, 12),
-            "alamat": "Jl. Merdeka No. 1, Tegal",
-            "no_hp": "081234567801",
-            "email": "jamar@example.com",
-            "spesialisasi": "PAI",
-            "id_gender": "L",
-            "id_status": "1"
-        },
-        {
-            "nama": "H. Hurwiyati, S.Pd",
-            "inisial": "HRW",
-            "tempat_lahir": "Brebes",
-            "tanggal_lahir": date(1982, 8, 20),
-            "alamat": "Jl. Mawar No. 3, Brebes",
-            "no_hp": "081234567802",
-            "email": "hurwiyati@example.com",
-            "spesialisasi": "PKn",
-            "id_gender": "P",
-            "id_status": "1"
-        },
-        {
-            "nama": "Titik Eko Purwati, S.Pd",
-            "inisial": "TEP",
-            "tempat_lahir": "Slawi",
-            "tanggal_lahir": date(1985, 2, 15),
-            "alamat": "Jl. Melati No. 5, Slawi",
-            "no_hp": "081234567803",
-            "email": "titikeko@example.com",
-            "spesialisasi": "B. Indonesia",
-            "id_gender": "P",
-            "id_status": "1"
-        },
-        {
-            "nama": "Biyanto, S.Pd",
-            "inisial": "BYT",
-            "tempat_lahir": "Tegal",
-            "tanggal_lahir": date(1984, 11, 10),
-            "alamat": "Jl. Kenanga No. 7, Tegal",
-            "no_hp": "081234567804",
-            "email": "biyanto@example.com",
-            "spesialisasi": "Matematika",
-            "id_gender": "L",
-            "id_status": "1"
-        },
-        {
-            "nama": "Ulinnuha S.Pd.I",
-            "inisial": "ULN",
-            "tempat_lahir": "Brebes",
-            "tanggal_lahir": date(1983, 4, 7),
-            "alamat": "Jl. Anggrek No. 9, Brebes",
-            "no_hp": "081234567805",
-            "email": "ulinnuha@example.com",
-            "spesialisasi": "PAI",
-            "id_gender": "P",
-            "id_status": "1"
-        },
-        {
-            "nama": "Purnadi, S.Pd.S",
-            "inisial": "PRN",
-            "tempat_lahir": "Slawi",
-            "tanggal_lahir": date(1979, 1, 27),
-            "alamat": "Jl. Flamboyan No. 10, Slawi",
-            "no_hp": "081234567806",
-            "email": "purnadi@example.com",
-            "spesialisasi": "Penjas",
-            "id_gender": "L",
-            "id_status": "1"
-        },
-        {
-            "nama": "Nur Arifin, S.Pd.I",
-            "inisial": "NAR",
-            "tempat_lahir": "Tegal",
-            "tanggal_lahir": date(1986, 6, 5),
-            "alamat": "Jl. Sawo No. 11, Tegal",
-            "no_hp": "081234567807",
-            "email": "nurarifin@example.com",
-            "spesialisasi": "PAI",
-            "id_gender": "L",
-            "id_status": "1"
-        },
-        {
-            "nama": "Riski Arofiyah, S.Pd",
-            "inisial": "RA",
-            "tempat_lahir": "Brebes",
-            "tanggal_lahir": date(1990, 12, 30),
-            "alamat": "Jl. Semangka No. 12, Brebes",
-            "no_hp": "081234567808",
-            "email": "riskiarofiyah@example.com",
-            "spesialisasi": "IPA",
-            "id_gender": "P",
-            "id_status": "1"
-        },
-    ]
+    id = db.Column(db.Integer, primary_key=True)
+    nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=False)
+    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='SET NULL'), nullable=True)
 
-    # Simpan ke DB
-    generated = 0
-    for data in guru_list:
-        existing = Guru.query.filter_by(email=data["email"]).first()
-        if existing:
-            continue
-        new_guru = Guru(
-            inisial=data["inisial"],
-            nama=data["nama"],
-            tempat_lahir=data["tempat_lahir"],
-            tanggal_lahir=data["tanggal_lahir"],
-            alamat=data["alamat"],
-            no_hp=data["no_hp"],
-            email=data["email"],
-            spesialisasi=data["spesialisasi"],
-            id_gender=data["id_gender"],
-            id_status=data["id_status"]
-        )
-        db.session.add(new_guru)
-        generated += 1
+    evaluator_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+    evaluator_role = db.Column(db.String(10), nullable=False)  # 'murid', 'admin', 'guru'
 
-    db.session.commit()
-    print(f"{generated} data guru berhasil ditambahkan.")
+    aspek = db.Column(db.String(50), nullable=False)
+    skor = db.Column(db.Integer, nullable=False)
+    komentar = db.Column(db.Text, nullable=True)
+    tanggal = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relasi
+    guru = db.relationship("Guru", backref="evaluasi_list", passive_deletes=True)
+    ampu = db.relationship("AmpuMapel", backref="evaluasi_list", passive_deletes=True)
+    evaluator = db.relationship("User", backref="evaluasi_dibuat", passive_deletes=True)
+
 
 # allow CORS biar api yang dibuat bisa dipake website lain
 from flask_cors import CORS
@@ -426,6 +310,12 @@ def get_semester_and_year():
         tahun_ajaran = f"{year}/{year+1}"
     return semester, tahun_ajaran
 
+def is_valid_email(email):
+    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
+    return re.match(regex, email)
+
+from . import api_admin, login, midtrans, view, api_guru, api_murid
+
 # @app.before_request
 # def create_automatic_bills():
     # semester, tahun_ajaran = get_semester_and_year()
@@ -482,8 +372,3 @@ def get_semester_and_year():
 
     # db.session.commit()
 
-def is_valid_email(email):
-    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
-    return re.match(regex, email)
-
-from . import api_admin, login, midtrans, view, api_guru, api_murid

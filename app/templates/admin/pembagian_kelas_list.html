@@ -104,10 +104,12 @@
             <td>{{ s.ida_rel.tahun_akademik}}</td>
             <td>{{ s.nip }}</td>
             <td>{{ s.guru_rel.nama}}</td>
-            <td>
+            <td >
+            <div class="d-flex gap-2">
                 <!-- Tombol aksi -->
-                <button type="button" class="btn btn-warning " onclick="openEditModal('{{ s.id_pembagian }}')">Edit</button>
-                <button type="button" class="btn btn-danger" onclick="deleteData('{{ s.id_pembagian }}')">Hapus</button>
+                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_pembagian }}')">Edit</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.id_pembagian }}')">Hapus</button>
+            </div>
             </td>
         </tr>
 		<!-- Modal Tambah -->

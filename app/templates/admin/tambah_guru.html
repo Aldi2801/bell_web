@@ -130,11 +130,13 @@
             <td>{{s.gender}}</td>
             <td>{{s.status}}</td>
             {%if session['role'] == 'admin' %}
-            <td>
+            <td >
+            <div class="d-flex gap-2">
     <button class="btn btn-warning" onclick="openEditModal('{{ s.nip }}')">Edit</button>
-    <hr>
+   
     <form method="POST" action="/hapus_guru/{{ s.nip }}" onsubmit="return confirm('Yakin ingin menghapus data guru ini?')">
         <button class="btn btn-danger" type="submit">Hapus</button>
+        </div>
         </td>
         {% endif %}
     </form>

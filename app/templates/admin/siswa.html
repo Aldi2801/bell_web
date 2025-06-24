@@ -134,9 +134,11 @@
                         <td>{{ s.penghasilan_ibu }}</td>
                         <td>{{ s.asal_sekolah }}</td>
                         <td>{{ s.status_rel.status }}</td>
-                        <td>
-                                <button type="button" class="btn btn-warning " onclick="openEdit('{{ s.nis }}')">Edit</button>
-                                <button type="button" class="btn btn-danger" onclick="deleteData('{{ s.nis }}')">Hapus</button>
+                        <td >
+                        <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-warning btn-sm" onclick="openEdit('{{ s.nis }}')">Edit</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.nis }}')">Hapus</button>
+                        </div>
                         </td>
                 </tr>
                 <!-- Modal Edit -->
