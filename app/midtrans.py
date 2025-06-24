@@ -4,7 +4,7 @@ import os, uuid, base64, json, requests
 from dotenv import load_dotenv
 import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
-from . import app, jwt, db, Tagihan, Transaksi , Siswa, TahunAkademik
+from . import app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User
 print(os.getenv('ENV') )
 if os.getenv('ENV') == 'production':
     url = "https://app.midtrans.com/snap/v1/transactions"
@@ -21,7 +21,8 @@ def create_transaction():
         if token:
             decoded_token = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             email = decoded_token.get('email', 'anonymous@mail.co')
-            data_siswa = Siswa.query.filter_by(email=email).first()
+            data_user = User.query.filter_by(email=email).first()
+            data_siswa = Siswa.query.filter_by(user_id=data_user.id).first()
             full_name = data_siswa.nama
             if not full_name:
                 return jsonify({'valid': False, 'message': 'Full name missing in token'}), 400
