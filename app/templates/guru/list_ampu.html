@@ -13,8 +13,8 @@
 <div class="col-md-12 mb-3">
   <label for="id_pembagian">Kelas</label>
   <select name="id_pembagian" class="form-control" required>
-    {% for p in daftar_pembagian %}
-    <option value="{{ p.id_pembagian }}">{{ p.kelas_rel.nama_kelas }}</option>
+    {% for k in daftar_kelas %}
+    <option value="{{ k.id_kelas }}">{{ k.nama_kelas }}</option>
     {% endfor %}
   </select>
 </div>

@@ -268,6 +268,7 @@ def list_kbm():
     data_ampu = AmpuMapel.query.filter_by(nip=guru.nip).all()
     daftar_mapel = Mapel.query.all()
     daftar_semester = Semester.query.all()
+    daftar_kelas = Kelas.query.all()
     daftar_tahun = TahunAkademik.query.all()
     daftar_pembagian = PembagianKelas.query.filter_by(nip=guru.nip).all()
     print(data_ampu)
@@ -277,6 +278,7 @@ def list_kbm():
                            data_ampu=data_ampu,
                            daftar_mapel=daftar_mapel,
                            daftar_semester=daftar_semester,
+                           daftar_kelas=daftar_kelas,
                            daftar_tahun=daftar_tahun,
                            daftar_pembagian=daftar_pembagian)
 
@@ -284,28 +286,28 @@ def list_kbm():
 def kbm_tambah():
      # Tambah data baru
         new_ampu = AmpuMapel(
-            nip=guru.nip,
-            id_mapel=request.form['id_mapel'],
-            id_pembagian=request.form['id_pembagian'],
-            id_semester=request.form['id_semester'],
-            id_tahun_akademik=request.form['id_tahun_akademik'],
+            nip=session.get('nip',''),
+            id_mapel=request.json.get('id_mapel'),
+            id_pembagian=request.json.get('id_pembagian'),
+            id_semester=request.json.get('id_semester'),
+            id_tahun_akademik=request.json.get('id_tahun_akademik'),
             tanggal=datetime.utcnow()  # meskipun tidak ditampilkan
         )
         db.session.add(new_ampu)
         db.session.commit()
         flash("Data pelajaran berhasil ditambahkan", "success")
         return redirect(url_for('list_kbm'))
-@app.route("/kbm/edit/<int:id>", methods=["PUT"])
+@app.route("/kbm/list/edit/<int:id>", methods=["PUT"])
 def edit_ampu(id):
         ampu = AmpuMapel.query.get_or_404(id)
-        ampu.id_mapel = request.form['id_mapel']
-        ampu.id_pembagian = request.form['id_pembagian']
-        ampu.id_semester = request.form['id_semester']
-        ampu.id_tahun_akademik = request.form['id_tahun_akademik']
+        ampu.id_mapel = request.json.get('id_mapel')
+        ampu.id_pembagian = request.json.get('id_pembagian')
+        ampu.id_semester = request.json.get('id_semester')
+        ampu.id_tahun_akademik = request.json.get('id_tahun_akademik')
         db.session.commit()
         flash("Data berhasil diupdate", "success")
         return redirect(url_for('list_kbm'))
-@app.route("/kbm/hapus/<int:id>", methods=["DELETE"])
+@app.route("/kbm/list/hapus/<int:id>", methods=["DELETE"])
 def hapus_ampu(id):
     ampu = AmpuMapel.query.get_or_404(id)
     db.session.delete(ampu)
@@ -493,7 +495,60 @@ def penilaian_list():
     btn_tambah = True
     title = "Nilai Siswa"
     title_data = "Nilai Siswa"
-    return render_template('guru/penilaian.html', penilaian=penilaian,data_siswa=data_siswa,data_ampu=data_ampu, btn_tambah=btn_tambah, title=title, title_data = title_data)
+
+    tahun = request.args.get('tahun', type=int)
+    bulan = request.args.get('bulan', type=int)
+    tanggal = request.args.get('tanggal', type=int)
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    
+    # Mulai query dari Penilaian
+    query = Penilaian.query
+
+    # Filter berdasarkan tanggal jika ada
+    if tahun:
+        query = query.filter(extract('year', Penilaian.tanggal) == tahun)
+    if bulan:
+        query = query.filter(extract('month', Penilaian.tanggal) == bulan)
+    if tanggal:
+        query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
+
+    # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
+    query = query.order_by(Penilaian.id_penilaian.desc())
+
+    # Pagination
+    paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+    print(query.all())
+    info_list = paginated_data.items
+    # Cek total data dulu
+    total_records = query.count()
+    total_pages = (total_records + per_page - 1) // per_page
+
+    # Jika halaman diminta melebihi total halaman, reset ke 1
+    if page > total_pages:
+        page = 1
+
+    has_next = paginated_data.has_next
+    has_prev = paginated_data.has_prev
+    page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
+    print(info_list)
+    return render_template(
+        'guru/penilaian.html',
+        penilaian=info_list,
+        btn_tambah=btn_tambah,
+        data_siswa=data_siswa,
+        data_ampu=data_ampu,
+        title=title,
+        title_data=title_data,
+        page=page,
+        per_page=per_page,
+        total_pages=total_pages,
+        total_records=total_records,
+        has_next=has_next,
+        has_prev=has_prev,
+        page_range=page_range
+    )
+
 @app.route('/guru/penilaian/tambah', methods=['POST'])
 def tambah_penilaian():
     if session.get('role') != 'guru':

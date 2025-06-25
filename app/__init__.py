@@ -15,7 +15,7 @@ upload_folder = os.path.join(project_directory, 'static', 'image')
 upload_nota = os.path.join(project_directory, 'static', 'nota')
 app.config['UPLOAD_FOLDER'] = upload_folder 
 app.config['UPLOAD_NOTA'] = upload_nota
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sist'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sistem'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
@@ -180,7 +180,7 @@ class Siswa(db.Model):
     gender_rel = db.relationship("Gender", backref="siswa_list", passive_deletes=True)
     status_rel = db.relationship("Status", backref="siswa_list", passive_deletes=True)
     user = db.relationship("User", back_populates="siswa", passive_deletes=True)
-
+    pembagian_rel = db.relationship("PembagianKelas", back_populates="siswa_rel", passive_deletes=True)
 class PembagianKelas(db.Model):
     id_pembagian = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date)
@@ -190,7 +190,7 @@ class PembagianKelas(db.Model):
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=True)
 
     kelas_rel = db.relationship("Kelas", backref="pembagian_list", passive_deletes=True)
-    siswa_rel = db.relationship("Siswa", backref="pembagian_list", passive_deletes=True)
+    siswa_rel = db.relationship("Siswa", back_populates="pembagian_rel", passive_deletes=True)
     ida_rel = db.relationship("TahunAkademik", backref="pembagian_list", passive_deletes=True)
 
 class Tagihan(db.Model):

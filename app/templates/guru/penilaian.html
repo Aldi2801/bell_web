@@ -2,8 +2,8 @@
 
 {% block form_tambah %}
 <div class="col-md-12 mb-3">
-  <label for="nis" class="form-label">Siswa</label>
-    <select class="form-select" name="nis" id="nis" required>
+  <label for="nis" class="form-label">Siswa</label><br>
+    <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
       <option value="" disabled selected>Pilih Siswa</option>
       {% for siswa in data_siswa %}
         <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
@@ -12,8 +12,8 @@
 </div>
 
 <div class="col-md-12 mb-3">
-  <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label>
-  <select class="form-select" name="id_ampu" id="id_ampu" required>
+  <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label><br>
+  <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
       <option value="" disabled selected>Pilih Ampu Mapel</option>
       {% for ampu in data_ampu %}
           <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
@@ -30,14 +30,21 @@
     <option value="UAS">UAS</option>
   </select>
 </div>
-
 <div class="col-md-12 mb-3">
-  <input type="number" step="0.01" class="form-control" name="nilai" placeholder="Nilai" required>
+  <input type="text"
+       pattern="^100$|^[1-9]?[0-9]{1,3}$"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if (parseInt(this.value) > 100) this.value = '100';"
+       title="Masukkan angka antara 0 sampai 100"
+         class="form-control"
+         name="nilai"
+         placeholder="Nilai"
+         required>
 </div>
 
 <div class="col-md-12 mb-3">
   <input type="date" class="form-control" name="tanggal" required>
 </div>
+
 {% endblock %}
 
 {% block content %}
@@ -69,12 +76,14 @@
         <div class="card-body">
           <h4>Data Penilaian</h4>
           <div class="table-responsive">
-            <table id="myTable" class="table table-striped">
+            <table id="" class="table table-striped">
               <thead>
                 <tr>
                   <th>NIS</th>
                   <th>Nama Siswa</th>
-                  <th>ID Ampu</th>
+                  <th>Kelas</th>
+                  <th>Mapel</th>
+                  <th>Guru Pengampu Mapel</th>
                   <th>Jenis Penilaian</th>
                   <th>Nilai</th>
                   <th>Tanggal</th>
@@ -86,7 +95,9 @@
                 <tr>
                   <td>{{ p.nis }}</td>
                   <td>{{ p.siswa_rel.nama }}</td>
-                  <td>{{ p.id_ampu }}</td>
+                  <td>{{ p.siswa_rel.pembagian_rel[-1].kelas_rel.nama_kelas if p.siswa_rel.pembagian_rel else '' }}</td>
+                  <td>{{ p.ampu_rel.mapel_rel.nama_mapel }}</td>
+                  <td>{{ p.ampu_rel.guru_rel.nama }}</td>
                   <td>{{ p.jenis_penilaian }}</td>
                   <td>{{ p.nilai }}</td>
                   <td>{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}</td>
@@ -107,17 +118,56 @@
                       <div class="modal-body">
                         <form id="editForm-{{ p.id_penilaian }}">
                           <input type="hidden" name="id_penilaian" value="{{ p.id_penilaian }}">
-                          <label>NIS:</label>
-                          <input type="number" name="nis" value="{{ p.nis }}" class="form-control mb-3" required>
-                          <label>ID Ampu:</label>
-                          <input type="number" name="id_ampu" value="{{ p.id_ampu }}" class="form-control mb-3" required>
-                          <label>Jenis Penilaian:</label>
-                          <input type="text" name="jenis_penilaian" value="{{ p.jenis_penilaian }}" class="form-control mb-3" required>
-                          <label>Nilai:</label>
-                          <input type="number" step="0.01" name="nilai" value="{{ p.nilai }}" class="form-control mb-3" required>
+                          <div class="col-md-12 mb-3">
+  <label for="nis" class="form-label">Siswa</label><br>
+    <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
+      <option value="" disabled selected>Pilih Siswa</option>
+      {% for siswa in data_siswa %}
+        <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
+      {% endfor %}
+    </select>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label><br>
+  <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
+      <option value="" disabled selected>Pilih Ampu Mapel</option>
+      {% for ampu in data_ampu %}
+          <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
+      {% endfor %}
+  </select>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label>Jenis Penilaian:</label>
+  <select name="jenis_penilaian" class="form-control" required>
+    <option value="">Pilih Jenis Penilaian</option>
+    <option value="UH" {% if p.jenis_penilaian == 'UH' %} selected {% endif %}">UH</option>
+    <option value="Tugas" {% if p.jenis_penilaian == 'Tugas' %} selected {% endif %}>Tugas</option>
+    <option value="UTS" {% if p.jenis_penilaian == 'UTS' %} selected {% endif %}>UTS</option>
+    <option value="UAS" {% if p.jenis_penilaian == 'UAS' %} selected {% endif %}>UAS</option>
+  </select>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label>Nilai:</label>
+  <div class="col-md-12 mb-3">
+  <input type="text"
+       pattern="^100$|^[1-9]?[0-9]{1,3}$"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if (parseInt(this.value) > 100) this.value = '100';"
+         title="Masukkan angka 1 sampai 3 digit (0-100)"
+         class="form-control"
+         name="nilai"
+         placeholder="Nilai"
+         value="{{ p.nilai }}" 
+         required>
+</div>
+</div>
+
+<div class="col-md-12 mb-3">
                           <label>Tanggal:</label>
-                          <input type="date" name="tanggal" value="{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}" class="form-control mb-3" required>
-                          <div class="modal-footer">
+  <input type="date" class="form-control" name="tanggal" value="{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}" required>
+</div>                    <div class="modal-footer">
                             <button type="submit" id="tombol-edit-{{ p.id_penilaian }}" class="btn btn-success">Simpan</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                           </div>
@@ -129,6 +179,67 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <strong>Halaman {{ page }} dari {{ total_pages }}</strong> — Total Data: {{ total_records }}
+            </div>
+            <nav aria-label="Page navigation">
+              <ul class="pagination mb-0">
+
+                <!-- Tombol pertama -->
+                {% if page > 1 %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page=1&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">&laquo; First</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&laquo; First</span></li>
+                {% endif %}
+
+                <!-- Tombol sebelumnya -->
+                {% if has_prev %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page - 1 }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+
+                <!-- Nomor halaman -->
+                {% for p in page_range %}
+                  {% if p == page %}
+                    <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                  {% else %}
+                    <li class="page-item">
+                      <a class="page-link" href="?page={{ p }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">{{ p }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+
+                <!-- Tombol selanjutnya -->
+                {% if has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page + 1 }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+
+                <!-- Tombol terakhir -->
+                {% if page < total_pages %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ total_pages }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">Last &raquo;</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">Last &raquo;</span></li>
+                {% endif %}
+
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
@@ -146,6 +257,7 @@
     const formData = new FormData(form);
     const data = {};
     formData.forEach((value, key) => { data[key] = value.trim(); });
+    const nilai = parseInt(data['nilai']);
 
     const tombol = document.getElementById("tombol-edit-{{ p.id_penilaian }}");
     tombol.disabled = true;
@@ -176,4 +288,16 @@
   });
   {% endfor %}
 </script>
+
+    <script src="/static/assets/libs/select2/dist/js/select2.full.min.js"></script>
+    <script src="/static/assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="/static/dist/js/pages/forms/select2/select2.init.js"></script>
+    <script> 
+   $(document).ready(function () {
+  $('.select2tambah').select2({
+    dropdownParent: $('#tambahModal')  // atau ganti dengan id modal sesuai kebutuhan
+  });
+});
+
+    </script>
 {% endblock %}

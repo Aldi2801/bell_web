@@ -2,7 +2,7 @@ from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transa
 from flask import render_template, request, jsonify, session, redirect, abort
 import jwt
 from datetime import datetime
-
+from sqlalchemy import extract
 from sqlalchemy import and_
 
 @app.route('/get_menu_pembayaran')
@@ -212,11 +212,64 @@ def view_pengumuman():
 
 @app.route('/murid/penilaian')
 def penilaian_murid():
-    print(session.get('role'))
     if session.get('role') != 'murid':
         abort(403)
-    penilaian = Penilaian.query.all()
+
     btn_tambah = False
     title = "Nilai Anda"
     title_data = "Nilai Anda"
-    return render_template('murid/penilaian.html', penilaian=penilaian, btn_tambah=btn_tambah, title=title, title_data = title_data)
+
+    tahun = request.args.get('tahun', type=int)
+    bulan = request.args.get('bulan', type=int)
+    tanggal = request.args.get('tanggal', type=int)
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    siswa_now = int(session.get('nis', 0))
+
+    print(siswa_now)
+    # Mulai query dari Penilaian
+    query = Penilaian.query
+
+    # Filter berdasarkan tanggal jika ada
+    if tahun:
+        query = query.filter(extract('year', Penilaian.tanggal) == tahun)
+    if bulan:
+        query = query.filter(extract('month', Penilaian.tanggal) == bulan)
+    if tanggal:
+        query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
+    if siswa_now:
+        query = query.filter(Penilaian.nis == siswa_now)
+
+    # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
+    query = query.order_by(Penilaian.id_penilaian.desc())
+
+    # Pagination
+    paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+    print(query.all())
+    info_list = paginated_data.items
+    # Cek total data dulu
+    total_records = query.count()
+    total_pages = (total_records + per_page - 1) // per_page
+
+    # Jika halaman diminta melebihi total halaman, reset ke 1
+    if page > total_pages:
+        page = 1
+
+    has_next = paginated_data.has_next
+    has_prev = paginated_data.has_prev
+    page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
+    print(info_list)
+    return render_template(
+        'murid/penilaian.html',
+        penilaian=info_list,
+        btn_tambah=btn_tambah,
+        title=title,
+        title_data=title_data,
+        page=page,
+        per_page=per_page,
+        total_pages=total_pages,
+        total_records=total_records,
+        has_next=has_next,
+        has_prev=has_prev,
+        page_range=page_range
+    )
