@@ -234,26 +234,26 @@
         {% block content %}{% endblock content %}  
 		
     <!-- Modal Tambah -->
-<div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahTagihanLabel" aria-hidden="true">
+<div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">
   <div class="modal-dialog  modal-lg">
     <div class="modal-content">
       
       <!-- Modal Header -->
       <div class="modal-header">
-        <h5 class="modal-title" id="tambahTagihanLabel">Tambah {{title_data}}</h5>
+        <h5 class="modal-title" id="tambahModalLabel">Tambah {{title_data}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
       </div>
 
       <!-- Modal Body -->
       <div class="modal-body">
-        <form id="tambahTagihanForm">
+        <form id="tambahModalForm">
             {% block form_tambah %}
             {% endblock %}
 
           <!-- Modal Footer -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="button" id="tombolSubmit" class="btn btn-primary">Simpan </button>
+            <button type="submit" id="tombolSubmit" class="btn btn-primary">Simpan </button>
           </div>
         </form>
       </div>
@@ -298,19 +298,19 @@
 	
 
 <script>
-function openEditModal(id_semester) {
-$('#editModal-' + id_semester).modal('show');
+function openEditModal(id) {
+$('#editModal-' + id).modal('show');
 }
-function closeEditModal(id_semester) {
-$('#editModal-' + id_semester).modal('hide');
+function closeEditModal(id) {
+$('#editModal-' + id).modal('hide');
 }
 
 // AJAX for Delete Semester (DELETE)
-function deleteData(id_semester) {
+function deleteData(id) {
     if (!confirm('Yakin?')) return;
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-        url: baseUrl + '/hapus/' + id_semester,
+        url: baseUrl + '/hapus/' + id,
         type: 'DELETE',
         contentType: 'application/json',
         dataType: 'json',
@@ -318,7 +318,7 @@ function deleteData(id_semester) {
 			withCredentials: true
 		},
         success: function (response) {
-            alert(response.msg || "Berhasil hapus semester");
+            alert(response.msg || "Data Berhasil dihapus");
             window.location.reload();
         },
         error: function (xhr, status, error) {
@@ -336,15 +336,43 @@ function deleteData(id_semester) {
 
 // AJAX for Tambah Semester (POST)
 document.getElementById("tombolSubmit").addEventListener("click", function(event) {
-    event.preventDefault(); // Prevent form from submitting traditionally
-    const form = document.getElementById("tambahTagihanForm");
+    event.preventDefault(); // Prevent default form submit
+    const form = document.getElementById("tambahModalForm");
     const formData = new FormData(form);
     const data = {};
+    let isValid = true;
+    let firstInvalid = null;
+
+    // Cek tiap elemen yang required
+    [...form.elements].forEach(input => {
+        if (input.hasAttribute("required")) {
+            const value = input.value.trim();
+            if (!value) {
+                isValid = false;
+                firstInvalid = firstInvalid || input;
+                input.classList.add("is-invalid");
+            } else {
+                input.classList.remove("is-invalid");
+            }
+        }
+    });
+
+    // Jika tidak valid, kasih alert dan fokus ke input pertama yang kosong
+    if (!isValid) {
+        alert("Harap lengkapi semua field yang wajib diisi.");
+        firstInvalid && firstInvalid.focus();
+        return;
+    }
+
+    // Ambil data dari FormData ke objek JS
     formData.forEach((value, key) => {
         data[key] = value.trim();
     });
+
+    // Ubah tampilan tombol jadi loading
     document.getElementById("tombolSubmit").disabled = true;
     document.getElementById("tombolSubmit").innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
         url: baseUrl + '/tambah',
@@ -352,9 +380,9 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
         contentType: 'application/json',
         dataType: 'json',
         data: JSON.stringify(data),		
-		xhrFields: {
-			withCredentials: true
-		},
+        xhrFields: {
+            withCredentials: true
+        },
         success: function (response) {
             document.getElementById("tombolSubmit").innerHTML = "Submit";
             document.getElementById("tombolSubmit").disabled = false;
@@ -375,6 +403,7 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
         }
     });
 });
+
 </script>
   </body>
 </html>

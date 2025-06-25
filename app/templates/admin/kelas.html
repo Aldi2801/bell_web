@@ -2,19 +2,23 @@
 
 {% block form_tambah %}
 <div class="col-md-12 mb-3">
-  <input type="text" class="form-control" name="id_kelas" placeholder="id kelas (2 digit angka / huruf)" 
+  <label for="id_kelas">ID Kelas</label>
+  <input type="text" class="form-control" name="id_kelas" id="id_kelas" placeholder="id kelas (2 digit angka / huruf)" 
     required pattern="[A-Za-z0-9]{2}" maxlength="2" title="Masukkan 2 digit angka atau huruf saja">
 </div><br>
 
-  <div class="col-md-12 mb-3">
-    <input type="text" class="form-control" name="nama_kelas" placeholder="nama kelas" required>
-  </div><br>
+<div class="col-md-12 mb-3">
+  <label for="nama_kelas">Nama Kelas</label>
+  <input type="text" class="form-control" name="nama_kelas" id="nama_kelas" placeholder="nama kelas" required>
+</div><br>
 
-  <div class="col-md-12 mb-3">
-    <input type="text" class="form-control" name="tingkat" placeholder="Tingkat" required
-	pattern="[0-9]{2}" maxlength="2" >
-  </div>
+<div class="col-md-12 mb-3">
+  <label for="tingkat">Tingkat</label>
+  <input type="text" class="form-control" name="tingkat" id="tingkat" placeholder="Tingkat" required
+    pattern="[0-9]{2}" maxlength="2">
+</div>
 {% endblock %}
+
 {% block content %}
 
 <div class="page-titles">
@@ -76,25 +80,38 @@
     <div class="modal-content">
       
       <!-- Modal Header -->
-      <div class="modal-header">
+        <div class="modal-header">
         <h5 class="modal-title" id="editLabel">Edit {{title_data}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
+        </div>
 
       <!-- Modal Body -->
-      <div class="modal-body">
-        <form id="editForm-{{ s.id_kelas }}">
-               <input type="hidden" name="id_kelas_old" value="{{ s.id_kelas }}">
-                <label>id_kelas: </label><input type="text" name="id_kelas" value="{{ s.id_kelas }}" class="form-control mb-3">
-                <label>Nama kelas:</label> <input type="text" name="nama_kelas" value="{{ s.nama_kelas }}" class="form-control mb-3" required>
-                <label>Tingkat:</label> <input type="text" name="tingkat" value="{{ s.tingkat }}" class="form-control mb-3" required>
-                
-          <div class="modal-footer"><button type="submit" id="tombol-edit-{{ s.id_kelas }}" class="btn btn-success">Simpan</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            </div>
-          
-        </form>
-      </div>
+		<div class="modal-body">
+		  <form id="editForm-{{ s.id_kelas }}">
+			<input type="hidden" name="id_kelas_old" value="{{ s.id_kelas }}">
+
+			<div class="mb-3">
+			  <label for="edit_id_kelas_{{ s.id_kelas }}">ID Kelas</label>
+			  <input type="text" name="id_kelas" id="edit_id_kelas_{{ s.id_kelas }}" value="{{ s.id_kelas }}" class="form-control">
+			</div>
+
+			<div class="mb-3">
+			  <label for="edit_nama_kelas_{{ s.id_kelas }}">Nama Kelas</label>
+			  <input type="text" name="nama_kelas" id="edit_nama_kelas_{{ s.id_kelas }}" value="{{ s.nama_kelas }}" class="form-control" required>
+			</div>
+
+			<div class="mb-3">
+			  <label for="edit_tingkat_{{ s.id_kelas }}">Tingkat</label>
+			  <input type="text" name="tingkat" id="edit_tingkat_{{ s.id_kelas }}" value="{{ s.tingkat }}" class="form-control" required>
+			</div>
+
+			<div class="modal-footer">
+			  <button type="submit" id="tombol-edit-{{ s.id_kelas }}" class="btn btn-success">Simpan</button>
+			  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+			</div>
+		  </form>
+		</div>
+
     </div>
   </div>
 </div>

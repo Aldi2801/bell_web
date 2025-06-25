@@ -2,11 +2,11 @@
 {% extends "layout.html" %}
 
 {% block form_tambah %}
-    <div class="col-md-4">
+    <div class="col-md-12">
         <label for="tanggal" class="form-label">Tanggal</label>
         <input type="date" class="form-control" name="tanggal" id="tanggal" required>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-12">
         <label for="nis" class="form-label">Siswa</label>
         <select class="form-select" name="nis" id="nis" required>
             <option value="" disabled selected>Pilih Siswa</option>
@@ -15,7 +15,7 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-12">
         <label for="id_kelas" class="form-label">Kelas</label>
         <select class="form-select" name="id_kelas" id="id_kelas" required>
             <option value="" disabled selected>Pilih Kelas</option>
@@ -24,7 +24,7 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-12">
         <label for="id_tahun_akademik" class="form-label">Tahun Akademik</label>
         <select class="form-select" name="id_tahun_akademik" id="id_tahun_akademik" required>
             <option value="" disabled selected>Pilih Tahun Akademik</option>
@@ -33,7 +33,7 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-12">
         <label for="nip" class="form-label">NIP Guru</label>
         <select class="form-select" name="nip" id="nip" required>
             <option value="" disabled selected>Pilih Guru</option>

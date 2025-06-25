@@ -2,14 +2,14 @@
 
 {% block form_tambah %}
 <div class="col-md-12 mb-3">
-  <label for="id_semester">ID Semester</label>
-  <input type="text" class="form-control" name="id_semester" id="id_semester" placeholder="id semester (1 digit angka / huruf)" 
-    required pattern="[A-Za-z0-9]{1}" maxlength="1" title="Masukkan 1 digit angka atau huruf saja">
+  <label for="id_mapel">Inisial Mapel</label>
+  <input type="text" class="form-control" name="id_mapel" id="id_mapel" required placeholder="inisial mapel (3 digit angka / huruf)" 
+    required pattern="[A-Za-z0-9]{3}" maxlength="3" title="Masukkan 3 digit angka atau huruf saja">
 </div><br>
 
 <div class="col-md-12 mb-3">
-  <label for="nama_semester">Nama Semester</label>
-  <input type="text" class="form-control" name="nama_semester" id="nama_semester" placeholder="nama semester" required>
+  <label for="nama_mapel">Nama Mapel</label>
+  <input type="text" class="form-control" name="nama_mapel" id="nama_mapel" placeholder="nama mapel" required>
 </div>
 {% endblock %}
 
@@ -44,29 +44,29 @@
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-<!-- templates/crud/semester.html -->
-<h4>Data Semester</h4>
+<!-- templates/crud/mapel.html -->
+<h4>Data Mapel</h4>
 <div class="table-responsive">
 <table id="myTable" class="table table-stripped" >
     <thead>
         <tr>
-            <th>ID Semester</th>
-            <th>Nama Semester</th>
+            <th>ID Mapel</th>
+            <th>Nama Mapel</th>
             <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        {% for s in semester %}
+        {% for s in mapel %}
         <tr>
-            <td>{{ s.id_semester }} </td>
-            <td>{{ s.semester }}</td>
+            <td>{{ s.id_mapel }} </td>
+            <td>{{ s.nama_mapel }}</td>
             <td>
-                <button type="button" class="btn btn-warning" onclick="openEditModal('{{ s.id_semester }}')">Edit</button>
-                <button type="button" class="btn btn-danger" onclick="deleteData('{{ s.id_semester }}')">Hapus</button>
+                <button type="button" class="btn btn-warning" onclick="openEditModal('{{ s.id_mapel }}')">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="deleteData('{{ s.id_mapel }}')">Hapus</button>
             </td>
         </tr>
 		<!-- Modal Edit -->
-		<div class="modal fade" id="editModal-{{ s.id_semester }}" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
+		<div class="modal fade" id="editModal-{{ s.id_mapel }}" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
 		  <div class="modal-dialog  modal-lg"> 
 			<div class="modal-content">
 			  
@@ -78,21 +78,22 @@
 
 			<!-- Modal Body -->
 			<div class="modal-body">
-			  <form id="editForm-{{ s.id_semester }}">
-				<input type="hidden" name="id_semester_old" value="{{ s.id_semester }}">
+			  <form id="editForm-{{ s.id_mapel }}">
+				<input type="hidden" name="id_mapel_old" value="{{ s.id_mapel }}">
 
 				<div class="mb-3">
-				  <label for="edit_id_semester_{{ s.id_semester }}">ID Semester</label>
-				  <input type="text" name="id_semester" id="edit_id_semester_{{ s.id_semester }}" value="{{ s.id_semester }}" class="form-control">
+				  <label for="edit_id_mapel_{{ s.id_mapel }}">Inisial Mapel</label>
+				  <input type="text" name="id_mapel" id="edit_id_mapel_{{ s.id_mapel }}" required value="{{ s.id_mapel }}" class="form-control" placeholder="inisial mapel (3 digit angka / huruf)" 
+    required pattern="[A-Za-z0-9]{3}" maxlength="3" title="Masukkan 3 digit angka atau huruf saja">
 				</div>
 
 				<div class="mb-3">
-				  <label for="edit_nama_semester_{{ s.id_semester }}">Nama Semester</label>
-				  <input type="text" name="nama_semester" id="edit_nama_semester_{{ s.id_semester }}" value="{{ s.semester }}" class="form-control" required>
+				  <label for="edit_nama_mapel_{{ s.id_mapel }}">Nama Mapel</label>
+				  <input type="text" name="nama_mapel" id="edit_nama_mapel_{{ s.id_mapel }}" value="{{ s.nama_mapel }}" class="form-control" required>
 				</div>
 
 				<div class="modal-footer">
-				  <button type="submit" id="tombol-edit-{{ s.id_semester }}" class="btn btn-success">Simpan</button>
+				  <button type="submit" id="tombol-edit-{{ s.id_mapel }}" class="btn btn-success">Simpan</button>
 				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
 				</div>
 			  </form>
@@ -114,46 +115,22 @@
  $('#myTable').DataTable();
  </script>
 <script>
-// AJAX for Edit Semester (PUT)
-{% for s in semester %}
-document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit", function(event) {
+// AJAX for Edit mapel (PUT)
+{% for s in mapel %}
+document.getElementById("editForm-{{ s.id_mapel }}").addEventListener("submit", function(event) {
     event.preventDefault();
     const form = this;
     const formData = new FormData(form);
     const data = {};
-    let isValid = true;
-    let firstInvalid = null;
-
-    // Cek tiap elemen yang required
-    [...form.elements].forEach(input => {
-        if (input.hasAttribute("required")) {
-            const value = input.value.trim();
-            if (!value) {
-                isValid = false;
-                firstInvalid = firstInvalid || input;
-                input.classList.add("is-invalid");
-            } else {
-                input.classList.remove("is-invalid");
-            }
-        }
-    });
-
-    // Jika tidak valid, kasih alert dan fokus ke input pertama yang kosong
-    if (!isValid) {
-        alert("Harap lengkapi semua field yang wajib diisi.");
-        firstInvalid && firstInvalid.focus();
-        return;
-    }
-
     formData.forEach((value, key) => {
         data[key] = value.trim();
     });
-    const tombol = document.getElementById("tombol-edit-{{ s.id_semester }}");
+    const tombol = document.getElementById("tombol-edit-{{ s.id_mapel }}");
     tombol.disabled = true;
     tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-        url: baseUrl + '/edit/{{ s.id_semester }}',
+        url: baseUrl + '/edit/{{ s.id_mapel }}',
         type: 'PUT',
         contentType: 'application/json',
         dataType: 'json',
@@ -164,7 +141,7 @@ document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit
         success: function (response) {
             tombol.innerHTML = "Simpan";
             tombol.disabled = false;
-            alert(response.msg || "Berhasil update semester");
+            alert(response.msg || "Berhasil update Mapel");
             window.location.reload();
         },
         error: function (xhr, status, error) {

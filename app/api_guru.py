@@ -152,6 +152,63 @@ def save_guru():
     except Exception as e:
         return jsonify({'error': f"Database error: {str(e)}"}), 500
 
+@app.route('/tambah_guru/edit/<nip>', methods=['PUT'])
+def edit_guru(nip):
+    nip_baru = request.json.get('nip')
+    username = request.json.get('username')
+    email = request.json.get('email')
+    nip = request.json.get('nip')
+    password = request.json.get('password','')
+    role = request.json.get('role')
+
+    user = User.query.filter_by(nip=nip).first()
+    # Cek jika username/email yang baru mau diganti ke milik orang lain
+    if User.query.filter(User.username == username, User.id != user.id).first():
+            flash('Username sudah digunakan oleh user lain', 'danger')
+            return jsonify({'msg': 'Username sudah digunakan oleh user lain'}), 400
+    if User.query.filter(User.email == email, User.id != user.id).first():
+            flash('Email sudah digunakan oleh user lain', 'danger')
+            return jsonify({'msg': 'Email sudah digunakan oleh user lain'}), 400
+
+    user.username = username
+    user.email = email
+    if password != '':
+            user.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    db.session.commit()
+    
+    # Simpan data terbaru
+    guru = Guru.query.filter_by(nip=nip).first()
+    guru.nama= request.json.get('nama_lengkap')
+    guru.email=email
+    guru.nip = nip_baru
+    guru.inisial = request.json.get('inisial')
+    guru.tempat_lahir = request.json.get('tempat_lahir')
+    guru.tanggal_lahir = request.json.get('tanggal_lahir')
+    guru.alamat = request.json.get('alamat')
+    guru.no_hp = request.json.get('no_hp')
+    guru.spesialisasi = request.json.get('spesialisasi')
+    guru.id_gender = request.json.get('id_gender')
+    guru.id_status = request.json.get('id_status')
+        
+    db.session.commit()
+    
+    flash('Data guru berhasil diperbarui', 'success')
+
+    return jsonify({'msg': 'Data guru berhasil diperbarui'})
+
+@app.route('/tambah_guru/hapus/<nip>', methods=['DELETE'])
+def hapus_guru(nip):
+    user = User.query.filter_by(nip=nip).first()
+    data_guru = Guru.query.filter_by(nip=nip).first()
+    if user:
+        db.session.delete(user)
+    if data_guru:
+        db.session.delete(data_guru)
+    db.session.commit()
+    flash('Data guru berhasil dihapus', 'success')
+    return jsonify({'msg': 'Data guru berhasil dihapus'})
+
 
 # Endpoint untuk menyimpan data guru Ujian
 @app.route('/tambah_guru_ujian', methods=['POST'])
