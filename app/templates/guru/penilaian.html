@@ -5,7 +5,7 @@
   <label for="nis" class="form-label">Siswa</label>
     <select class="form-select" name="nis" id="nis" required>
       <option value="" disabled selected>Pilih Siswa</option>
-      {% for siswa in siswa %}
+      {% for siswa in data_siswa %}
         <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
       {% endfor %}
     </select>
@@ -15,8 +15,8 @@
   <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label>
   <select class="form-select" name="id_ampu" id="id_ampu" required>
       <option value="" disabled selected>Pilih Ampu Mapel</option>
-      {% for ampu in ampu %}
-          <option value="{{ ampu.id }}">{{ ampu.mapel }} - {{ ampu.guru }} - {{ ampu.semester }}</option>
+      {% for ampu in data_ampu %}
+          <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
       {% endfor %}
   </select>
 </div>

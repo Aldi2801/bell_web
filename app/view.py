@@ -1,8 +1,8 @@
-from . import app, bcrypt, db, User, Berita, Kelas, Kbm, Siswa, Guru, Mapel, JadwalPelajaran, PembagianKelas, Siswa
+from . import app, bcrypt, db, User, Berita, Kelas,TahunAkademik, Kbm, Siswa, Guru, Mapel,Penilaian, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, re, datetime, os, json, ast, uuid
 from datetime import datetime, timedelta
-from sqlalchemy import case
+from sqlalchemy import func, extract, case
 from collections import defaultdict
 
 @app.route('/register')
@@ -62,6 +62,69 @@ def dashboard():
             'email': user.email,
             'role': 'Admin'
         }
+        # Jumlah data
+        jumlah_siswa = db.session.query(Siswa).count()
+        jumlah_guru = db.session.query(Guru).count()
+        jumlah_kelas = db.session.query(Kelas).count()
+        # Ambil tahun akademik terbaru berdasarkan tanggal mulai
+        tahun_terbaru = db.session.query(TahunAkademik).order_by(TahunAkademik.mulai.desc()).first()
+
+        if tahun_terbaru:
+            # Hitung jumlah siswa dalam setiap kelas untuk tahun akademik terbaru
+            kelas_counts = (
+                db.session.query(PembagianKelas.id_kelas, db.func.count(PembagianKelas.nis))
+                .filter(PembagianKelas.id_tahun_akademik == tahun_terbaru.id_tahun_akademik)
+                .group_by(PembagianKelas.id_kelas)
+                .all()
+            )
+
+            if kelas_counts:
+                total_siswa = sum([jml for _, jml in kelas_counts])
+                jumlah_kelas_terbaru = len(kelas_counts)
+                rata_siswa_per_kelas = round(total_siswa / jumlah_kelas_terbaru, 2)
+            else:
+                rata_siswa_per_kelas = 0
+        else:
+            rata_siswa_per_kelas = 0
+
+        # Jadwal KBM hari ini
+        hari_ini = datetime.now().strftime('%A')  # 'Monday', 'Tuesday', etc
+        jadwal_hari_ini = JadwalPelajaran.query.filter_by(day=hari_ini).all()
+
+        # Siswa terbaru (berdasarkan ID User karena ada relasi user_id)
+        siswa_terbaru = db.session.query(Siswa).join(User).order_by(User.id.desc()).limit(10).all()
+
+        # Rata-rata nilai penilaian per bulan (12 bulan terakhir)
+        chart_bulan = []
+        chart_rata = []
+        now = datetime.now()
+
+        for i in range(11, -1, -1):
+            target_date = now.replace(day=1) - timedelta(days=30*i)
+            bulan = target_date.strftime('%b %Y')
+            avg_nilai = db.session.query(func.avg(Penilaian.nilai)).filter(
+                extract('month', Penilaian.tanggal) == target_date.month,
+                extract('year', Penilaian.tanggal) == target_date.year
+            ).scalar()
+
+            chart_bulan.append(bulan)
+            chart_rata.append(round(avg_nilai, 2) if avg_nilai else 0)
+        print(chart_bulan)
+        print(chart_rata)
+        chart_data={
+                'bulan': chart_bulan,
+                'rata_rata': chart_rata
+            }
+        return render_template('dashboard.html', 
+            jumlah_siswa=jumlah_siswa,
+            jumlah_guru=jumlah_guru,
+            jumlah_kelas=jumlah_kelas,
+            rata_siswa_per_kelas=rata_siswa_per_kelas,
+            jadwal_hari_ini=jadwal_hari_ini,
+            siswa_terbaru=siswa_terbaru,
+            chart_data=chart_data,
+            profil=profil, berita=berita_terbaru
+        )
 
     elif role == 'guru':
         berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'guru').order_by(Berita.tanggal_dibuat.desc()).first()

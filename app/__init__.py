@@ -15,7 +15,7 @@ upload_folder = os.path.join(project_directory, 'static', 'image')
 upload_nota = os.path.join(project_directory, 'static', 'nota')
 app.config['UPLOAD_FOLDER'] = upload_folder 
 app.config['UPLOAD_NOTA'] = upload_nota
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sistem'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sist'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'

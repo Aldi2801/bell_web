@@ -59,6 +59,9 @@ def view_manage_jadwal():
         kode_mapel=formatted_teacher_map["kodeMapel"],
         users=users,
         kelas=kelas_dict,
+        btn_tambah=False,
+        title='Jadwal',
+        title_data='Jadwal'
         
     )
 
@@ -261,14 +264,13 @@ def list_kbm():
 
     guru = Guru.query.filter_by(nip=session['nip']).first()
 
-
     # Ambil data untuk tampilan
     data_ampu = AmpuMapel.query.filter_by(nip=guru.nip).all()
     daftar_mapel = Mapel.query.all()
     daftar_semester = Semester.query.all()
     daftar_tahun = TahunAkademik.query.all()
     daftar_pembagian = PembagianKelas.query.filter_by(nip=guru.nip).all()
-
+    print(data_ampu)
     return render_template("guru/list_ampu.html",
                            title="Pelajaran Diampu",
                            btn_tambah=True,
@@ -492,39 +494,55 @@ def penilaian_list():
     title = "Nilai Siswa"
     title_data = "Nilai Siswa"
     return render_template('guru/penilaian.html', penilaian=penilaian,data_siswa=data_siswa,data_ampu=data_ampu, btn_tambah=btn_tambah, title=title, title_data = title_data)
-
 @app.route('/guru/penilaian/tambah', methods=['POST'])
 def tambah_penilaian():
-    print(session.get('role'))
     if session.get('role') != 'guru':
         abort(403)
-    penilaian = Penilaian(
-            id_penilaian=request.json.get('id_penilaian'),
-            penilaian=request.json.get('nama_penilaian')
-    )
-    db.session.add(penilaian)
-    db.session.commit()
-    flash('penilaian berhasil ditambahkan')
-    return jsonify({'msg':'penilaian berhasil ditambahkan'})
 
-@app.route('/guru/penilaian/edit/<id_penilaian_old>', methods=['PUT'])
+    try:
+        penilaian = Penilaian(
+            nis=request.json.get('nis'),
+            id_ampu=request.json.get('id_ampu'),
+            jenis_penilaian=request.json.get('jenis_penilaian'),
+            nilai=request.json.get('nilai'),
+            tanggal=request.json.get('tanggal')  # Harus dalam format 'YYYY-MM-DD'
+        )
+        db.session.add(penilaian)
+        db.session.commit()
+        flash('Penilaian berhasil ditambahkan')
+        return jsonify({'msg': 'Penilaian berhasil ditambahkan'}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/guru/penilaian/edit/<int:id_penilaian_old>', methods=['PUT'])
 def edit_penilaian(id_penilaian_old):
     if session.get('role') != 'guru':
         abort(403)
-    penilaian = Penilaian.query.filter_by(id_penilaian=id_penilaian_old).first()
+
+    penilaian = Penilaian.query.get(id_penilaian_old)
     if not penilaian:
-        return jsonify({'error': 'penilaian tidak ditemukan'}), 404
-    penilaian.id_penilaian = request.json.get('id_penilaian')
-    penilaian.penilaian = request.json.get('nama_penilaian')
-    db.session.commit()
-    flash('penilaian berhasil diperbarui')
-    return jsonify({'msg': 'penilaian berhasil diperbarui'})
+        return jsonify({'error': 'Penilaian tidak ditemukan'}), 404
+
+    try:
+        penilaian.nis = request.json.get('nis', penilaian.nis)
+        penilaian.id_ampu = request.json.get('id_ampu', penilaian.id_ampu)
+        penilaian.jenis_penilaian = request.json.get('jenis_penilaian', penilaian.jenis_penilaian)
+        penilaian.nilai = request.json.get('nilai', penilaian.nilai)
+        penilaian.tanggal = request.json.get('tanggal', penilaian.tanggal)  # Format: 'YYYY-MM-DD'
+
+        db.session.commit()
+        flash('Penilaian berhasil diperbarui')
+        return jsonify({'msg': 'Penilaian berhasil diperbarui'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
 
 @app.route('/guru/penilaian/hapus/<id_penilaian>', methods=['DELETE'])
 def hapus_penilaian(id_penilaian):
     if session.get('role') != 'guru':
         abort(403)
-    penilaian = penilaian.query.filter_by(id_penilaian=id_penilaian).first()
+    penilaian = Penilaian.query.filter_by(id_penilaian=id_penilaian).first()
     if not penilaian:
         return jsonify({'error': 'penilaian tidak ditemukan'}), 404
     db.session.delete(penilaian)
