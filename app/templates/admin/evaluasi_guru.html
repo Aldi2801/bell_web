@@ -40,7 +40,7 @@
   <label>Role Penilai</label>
   <select class="form-control" name="evaluator_role" required>
     <option value="murid">Murid</option>
-    <option value="admin">Admin</option>
+    <option value="admin" selected>Admin</option>
   </select>
 </div>
 {% endblock %}
@@ -82,14 +82,14 @@
 <table id="myTable" class="table table-stripped" >
     <thead>
         <tr>
-      <th>Guru</th>
-      <th>Mapel</th>
-      <th>Aspek</th>
-      <th>Skor</th>
-      <th>Komentar</th>
-      <th>Penilai</th>
-      <th>Tanggal</th>
-      <th>Aksi</th>
+		  <th>Guru</th>
+		  <th>Mapel</th>
+		  <th>Aspek</th>
+		  <th>Skor</th>
+		  <th>Komentar</th>
+		  <th>Penilai</th>
+		  <th>Tanggal</th>
+		  <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
@@ -121,18 +121,29 @@
 			  <!-- Modal Body -->
 			  <div class="modal-body">
 				<form id="editForm-{{ e.id }}">
-          <input type="hidden" name="id" value="{{ e.id }}">
-          <label>Aspek:</label>
-          <input type="text" name="aspek" value="{{ e.aspek }}" class="form-control mb-3" required>
-          <label>Skor:</label>
-          <input type="text" name="skor" value="{{ e.skor }}"pattern="[0-9]{3}" maxlength="3" class="form-control mb-3" required>
-          <label>Komentar:</label>
-          <textarea name="komentar" class="form-control mb-3">{{ e.komentar }}</textarea>
-          <div class="modal-footer">
-            <button type="submit" id="tombol-edit-{{ e.id }}" class="btn btn-success">Simpan</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          </div>
-        </form>
+				  <input type="hidden" name="id" value="{{ e.id }}">
+
+				  <label>Aspek:</label>
+				  <input type="text" name="aspek" value="{{ e.aspek }}" class="form-control mb-3" required>
+
+				  <label>Skor (1-100):</label>
+				  <input type="number" name="skor" value="{{ e.skor }}" min="1" max="100" class="form-control mb-3" required>
+
+				  <label>Komentar:</label>
+				  <textarea name="komentar" class="form-control mb-3">{{ e.komentar }}</textarea>
+
+				  <!-- Hidden Fields (dibutuhkan di backend) -->
+				  <input type="hidden" name="nip" value="{{ e.nip }}">
+				  <input type="hidden" name="id_ampu" value="{{ e.id_ampu }}">
+				  <input type="hidden" name="evaluator_id" value="{{ e.evaluator_id }}">
+				  <input type="hidden" name="evaluator_role" value="{{ e.evaluator_role }}">
+
+				  <div class="modal-footer">
+					<button type="submit" id="tombol-edit-{{ e.id }}" class="btn btn-success">Simpan</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+				  </div>
+				</form>
+
 			  </div>
 			</div>
 		  </div>
@@ -148,53 +159,47 @@
 		</div>
 <script>
  $('#myTable').DataTable();
- </script>
-<script>
-// AJAX for Edit Evaluasi (PUT)
+ 
 {% for e in evaluasi %}
 document.getElementById("editForm-{{ e.id }}").addEventListener("submit", function(event) {
     event.preventDefault();
     const form = this;
     const formData = new FormData(form);
     const data = {};
+
+    // Ambil dan trim semua input
     formData.forEach((value, key) => {
         data[key] = value.trim();
     });
+
+    // Konversi skor jadi number
+    data["skor"] = parseInt(data["skor"]);
+
     const tombol = document.getElementById("tombol-edit-{{ e.id }}");
     tombol.disabled = true;
     tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
         url: baseUrl + '/edit/{{ e.id }}',
         type: 'PUT',
         contentType: 'application/json',
         dataType: 'json',
-        data: JSON.stringify(data),		
-		xhrFields: {
-			withCredentials: true
-		},
+        data: JSON.stringify(data),
         success: function (response) {
             tombol.innerHTML = "Simpan";
             tombol.disabled = false;
-            alert(response.msg || "Berhasil update semester");
+            alert(response.msg || "Berhasil update evaluasi");
             window.location.reload();
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             tombol.innerHTML = "Simpan";
             tombol.disabled = false;
-            var errorTxt = "Server Error";
-            if (xhr.responseJSON && xhr.responseJSON.error){
-                errorTxt = xhr.responseJSON.error;
-            }
-            if (xhr.responseJSON && xhr.responseJSON.msg){
-                errorTxt = xhr.responseJSON.msg;
-            }
-            alert(`Edit failed: ${errorTxt}`);
+            alert(`Edit gagal: ${xhr.responseJSON?.msg || xhr.responseJSON?.error || "Server Error"}`);
         }
     });
 });
 {% endfor %}
-
 </script>
     
 {% endblock %}

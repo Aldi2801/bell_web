@@ -568,18 +568,33 @@ def tambah_evaluasi_guru():
 def edit_evaluasi_guru(id):
     if session.get('role') != 'admin':
         abort(403)
-    
-    evaluasi = EvaluasiGuru.query.get(id)
-    if not evaluasi:
-        return jsonify({'error': 'Evaluasi tidak ditemukan'}), 404
 
-    evaluasi.nip = request.json.get('nip')
-    evaluasi.id_ampu = request.json.get('id_ampu')
-    evaluasi.evaluator_id = request.json.get('evaluator_id')
-    evaluasi.evaluator_role = request.json.get('evaluator_role')
-    evaluasi.aspek = request.json.get('aspek')
-    evaluasi.skor = request.json.get('skor')
-    evaluasi.komentar = request.json.get('komentar')
+    evaluasi = EvaluasiGuru.query.get_or_404(id)
+    data = request.get_json()
+
+    # Validasi wajib isi
+    if not data.get('aspek') or data.get('skor') is None:
+        return jsonify({'error': 'Aspek dan skor wajib diisi'}), 400
+
+    try:
+        skor = int(data['skor'])
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Skor harus berupa angka'}), 400
+
+    if not 1 <= skor <= 100:
+        return jsonify({'error': 'Skor harus antara 1 sampai 100'}), 400
+
+    # Update field
+    evaluasi.aspek = data['aspek']
+    evaluasi.skor = skor
+    evaluasi.komentar = data.get('komentar')
+
+    # Optional fields: cuma update jika ada
+    evaluasi.nip = data.get('nip', evaluasi.nip)
+    evaluasi.id_ampu = data.get('id_ampu', evaluasi.id_ampu)
+    evaluasi.evaluator_id = data.get('evaluator_id', evaluasi.evaluator_id)
+    evaluasi.evaluator_role = data.get('evaluator_role', evaluasi.evaluator_role)
+
     db.session.commit()
     flash('Evaluasi berhasil diperbarui')
     return jsonify({'msg': 'Evaluasi berhasil diperbarui'})
