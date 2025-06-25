@@ -535,10 +535,13 @@ def evaluasi_guru_list():
     if session.get('role') == 'guru':
         btn_tambah = False
     evaluasi_list = EvaluasiGuru.query.all()
+    guru = Guru.query.all()
+    users = User.query.all()
+    ampu = AmpuMapel.query.all()
     title = "Manage Evaluasi Guru"
     title_data = "Evaluasi Guru"
     btn_tambah = True
-    return render_template('admin/evaluasi_guru.html', btn_tambah=btn_tambah, evaluasi_list=evaluasi_list, title=title, title_data=title_data)
+    return render_template('admin/evaluasi_guru.html', ampu=ampu, guru=guru,users=users, btn_tambah=btn_tambah, evaluasi=evaluasi_list, title=title, title_data=title_data)
 
 # === TAMBAH EVALUASI GURU ===
 @app.route('/evaluasi_guru/tambah', methods=['POST'])
