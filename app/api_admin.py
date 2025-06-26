@@ -21,8 +21,12 @@ from flask_jwt_extended import jwt_required
 from num2words import num2words
 from flask import flash, redirect, url_for
 # Import dari aplikasi lokal
-from . import AmpuMapel,Kelas, Mapel,EvaluasiGuru, UserRoles,Role, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
-
+from . import AmpuMapel,Kelas, Mapel,EvaluasiGuru,Kbm, UserRoles,Role,Keterangan, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
+from sqlalchemy import and_
+import jwt, re, datetime, os, json, ast, uuid
+from datetime import datetime, timedelta
+from sqlalchemy import func, extract, case
+from collections import defaultdict
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
@@ -236,13 +240,109 @@ def hapus_pembagian_kelas(id_pembagian):
 def ampu_mapel_list():
     if session.get('role') != 'admin':
         abort(403)
-    data = AmpuMapel.query.all()
-    
-    btn_tambah = True
-    title = "Manage Ampu Mapel"
-    title_data = "Ampu Mapel"
-    return render_template('admin/ampu_mapel_list.html', ampu_mapel = data,btn_tambah=btn_tambah, title=title, title_data = title_data)
 
+    guru = Guru.query.all()
+
+    # Ambil data untuk tampilan
+    data_ampu = AmpuMapel.query.all()
+    daftar_mapel = Mapel.query.all()
+    daftar_semester = Semester.query.all()
+    daftar_kelas = Kelas.query.all()
+    daftar_tahun = TahunAkademik.query.all()
+    daftar_pembagian = PembagianKelas.query.all()
+    print(data_ampu)
+    
+    tahun = request.args.get('tahun', type=int)
+    bulan = request.args.get('bulan', type=int)
+    tanggal = request.args.get('tanggal', type=int)
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    # Mulai query dari AmpuMapel
+    query = AmpuMapel.query
+
+    # Filter berdasarkan tanggal jika ada
+    if tahun:
+        query = query.filter(extract('year', AmpuMapel.tanggal) == tahun)
+    if bulan:
+        query = query.filter(extract('month', AmpuMapel.tanggal) == bulan)
+    if tanggal:
+        query = query.filter(extract('day', AmpuMapel.tanggal) == tanggal)
+
+    # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
+    # Jangan urutkan pakai kolom dari table lain
+    query = query.order_by(AmpuMapel.id_ampu.desc())
+
+
+    # Pagination
+    paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+    print(query.all())
+    info_list = paginated_data.items
+    # Cek total data dulu
+    total_records = query.count()
+    total_pages = (total_records + per_page - 1) // per_page
+
+    # Jika halaman diminta melebihi total halaman, reset ke 1
+    if page > total_pages:
+        page = 1
+
+    has_next = paginated_data.has_next
+    has_prev = paginated_data.has_prev
+    data_kbm = Kbm.query.all()
+    page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
+    keterangan = Keterangan.query.order_by(
+        case(
+            (Keterangan.id_keterangan == 1, 0),
+            else_=1
+        )
+    ).all()
+
+    # Serialize ke dict
+    result = []
+    for k in keterangan:
+        result.append({
+            "id_keterangan": k.id_keterangan,
+            "keterangan": k.keterangan
+        })
+
+    print(info_list)
+    print(data_kbm)
+    # Ambil semua data pendukung untuk dropdown/filter
+    data_guru = Guru.query.all()
+    data_kelas = Kelas.query.all()
+    data_mapel = Mapel.query.all()
+
+    # Ambil tahun unik dari tanggal ampu_mapel
+    tahun_query = (
+        db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
+        .group_by(extract('year', AmpuMapel.tanggal))
+        .order_by(extract('year', AmpuMapel.tanggal).desc())
+        .all()
+    )
+
+    # Buat list tahun dari hasil query
+    tahun_list = [int(row.tahun) for row in tahun_query if row.tahun is not None]
+    return render_template("admin/ampu_mapel_list.html",
+                            title="Pelajaran Diampu",
+                            btn_tambah=True,
+                            thn=tahun_list,
+                            data_guru = data_guru,
+                            data_kelas = data_kelas,
+                            data_mapel = data_mapel,
+                            data_ampu=info_list,
+                            data_kbm=data_kbm,
+                            keterangan=result,
+                            daftar_mapel=daftar_mapel,
+                            daftar_semester=daftar_semester,
+                            daftar_kelas=daftar_kelas,
+                            daftar_tahun=daftar_tahun,
+                            daftar_pembagian=daftar_pembagian,
+                            page=page,
+                            per_page=per_page,
+                            total_pages=total_pages,
+                            total_records=total_records,
+                            has_next=has_next,
+                            has_prev=has_prev,
+                            page_range=page_range)
 @app.route('/admin/kelas')
 def kelas_list():
     if session.get('role') != 'admin':
@@ -464,8 +564,8 @@ def tambah_admin_siswa():
         no_hp=data.get('no_hp'),
         nama_ayah=data.get('nama_ayah'),
         nama_ibu=data.get('nama_ibu'),
-        penghasilan_ayah=int(data.get('penghasilan_ayah')),
-        penghasilan_ibu=int(data.get('penghasilan_ibu')),
+        penghasilan_ayah=data.get('penghasilan_ayah'),
+        penghasilan_ibu=data.get('penghasilan_ibu'),
         asal_sekolah=data.get('asal_sekolah'),
         id_status=data.get('id_status'),
         user_id=user.id,  # Ensure user.id is available

@@ -1,0 +1,69 @@
+@startuml
+actor User
+participant Browser as B
+participant "Flask App" as F
+database DB
+
+== LIST KBM ==
+User -> B: GET /kbm/list
+B -> F: Fetch Guru by session
+F -> DB: query Guru, AmpuMapel, Mapel, Kelas, TahunAkademik
+F -> B: Render list_ampu.html with pagination
+
+== TAMBAH KBM ==
+User -> B: POST /kbm/list/tambah
+B -> F: Parse JSON(id_mapel, id_pembagian, ...)
+F -> DB: INSERT new AmpuMapel
+F -> B: JSON({msg: OK})
+
+== EDIT KBM ==
+User -> B: PUT /kbm/list/edit/<id>
+B -> F: Parse JSON
+F -> DB: UPDATE AmpuMapel
+F -> B: JSON({msg: OK})
+
+== HAPUS KBM ==
+User -> B: DELETE /kbm/list/hapus/<id>
+B -> F: Fetch AmpuMapel
+F -> DB: DELETE all Kbm then DELETE AmpuMapel
+F -> B: JSON({msg: OK})
+
+== KEHADIRAN ==
+User -> B: GET /kehadiran/form/<id_kbm>
+B -> F: Fetch Kbm & Siswa
+F -> DB: query Kehadiran
+F -> B: Render form_kehadiran.html
+
+User -> B: POST /kehadiran/simpan
+B -> F: Parse kehadiran[nis]=id_keterangan
+F -> DB: INSERT Kehadiran
+F -> B: Redirect to form_kehadiran
+
+== TAGIHAN ==
+User -> B: POST /menu_pembayaran/tambah
+B -> F: Parse JSON(email_target, total, ... )
+F -> DB: INSERT Tagihan(s) for all siswa or specific siswa
+F -> B: JSON({msg: OK})
+
+User -> B: GET /get_tagihan/<id_tagihan>
+B -> F: Fetch Tagihan & Transaksi
+F -> DB: query Tagihan, Transaksi
+F -> B: JSON({status: Lunas/Belum Lunas})
+
+User -> B: PUT /menu_pembayaran/edit/<id_tagihan>
+B -> F: Parse JSON
+F -> DB: UPDATE Tagihan
+F -> B: JSON({msg: OK})
+
+User -> B: DELETE /menu_pembayaran/hapus/<id_tagihan>
+B -> F: Fetch Tagihan
+F -> DB: DELETE Tagihan
+F -> B: JSON({msg: OK})
+
+== BAYAR OFFLINE ==
+User -> B: POST /bayar_offline
+B -> F: Parse JSON(id_tagihan,total)
+F -> DB: INSERT Transaksi(status=settlement)
+F -> B: JSON({success: true})
+
+@enduml

@@ -334,7 +334,7 @@ def get_semester_and_year():
     return semester, tahun_ajaran, mulai, selesai
 
 def is_valid_email(email):
-    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
+    regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(regex, email)
 
 @app.before_request

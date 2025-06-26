@@ -1,0 +1,45 @@
+@startuml
+actor Guru
+participant Browser as B
+participant "Flask App" as F
+database DB
+
+== LIST PENILAIAN ==
+Guru -> B: GET /guru/penilaian
+B -> F: Get session role & nip
+F -> DB: Fetch Guru by nip
+F -> DB: Fetch Siswa, AmpuMapel, Kelas, Mapel
+F -> DB: Fetch Penilaian (with optional filters)
+F -> B: Render guru/penilaian.html
+
+== TAMBAH PENILAIAN ==
+Guru -> B: POST /guru/penilaian/tambah (JSON)
+B -> F: Parse JSON(nis,id_ampu,jenis,nilai,tanggal)
+F -> DB: INSERT Penilaian
+F -> B: JSON({msg: OK})
+
+== EDIT PENILAIAN ==
+Guru -> B: PUT /guru/penilaian/edit/<id>
+B -> F: Parse JSON
+F -> DB: UPDATE Penilaian by id
+F -> B: JSON({msg: OK})
+
+== HAPUS PENILAIAN ==
+Guru -> B: DELETE /guru/penilaian/hapus/<id>
+B -> F: Fetch & DELETE Penilaian
+F -> DB: Commit
+F -> B: JSON({msg: OK})
+
+== LIST KEHADIRAN SISWA ==
+Guru -> B: GET /api/kehadiran/siswa?id_ampu=X
+B -> F: Fetch AmpuMapel.id_tahun_akademik
+F -> DB: JOIN Siswa/PembagianKelas/Kelas/Kehadiran
+F -> B: JSON(list siswa + id_keterangan)
+
+== SIMPAN KEHADIRAN SISWA ==
+Guru -> B: POST /guru/kehadiran/tambah (form data)
+B -> F: Parse form
+F -> DB: INSERT Kbm(tanggal,materi='Kehadiran')
+F -> DB: Loop insert Kehadiran(nis,id_keterangan,id_kbm)
+F -> B: HTTP 200 OK
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+actor User
+participant "Browser/Frontend" as B
+participant "Flask App" as F
+database DB
+participant MidtransAPI as Midtrans
+
+== CREATE TRANSACTION ==
+User -> B: POST /create-transaction (token, amount)
+B -> F: Parse token & request
+F -> DB: Get User by email
+F -> DB: Get Siswa by user_id
+F -> DB: (Optional) Insert Tagihan if guest
+F -> F: Prepare payload & headers
+F -> Midtrans: POST /snap/v1/transactions
+Midtrans --> F: JSON {redirect_url}
+F -> DB: INSERT Transaksi(status=pending)
+F -> B: JSON {redirect_url}
+
+== MIDTRANS WEBHOOK ==
+Midtrans -> F: POST /midtrans-webhook {order_id, status, fraud_status}
+F -> DB: Get Transaksi by order_id
+F -> DB: UPDATE Transaksi(status, fraud_status)
+F -> Midtrans: 200 OK
+@enduml

@@ -86,12 +86,12 @@
 <table id="myTable" class="table table-stripped" >
     <thead>
         <tr>
-		  <th>Guru</th>
+		  <th width="60">Guru</th>
 		  <th>Mapel</th>
 		  <th>Aspek</th>
 		  <th>Skor</th>
 		  <th>Komentar</th>
-		  <th>Penilai</th>
+		  <th width="100">Penilai</th>
 		  <th>Tanggal</th>
 		  <th>Aksi</th>
         </tr>
@@ -104,7 +104,7 @@
 		  <td>{{ e.aspek }}</td>
 		  <td>{{ e.skor }}</td>
 		  <td>{{ e.komentar or '-' }}</td>
-		  <td>{{ e.evaluator.nama }}  ({{ e.evaluator_role }})</td>
+		  <td>{{ e.evaluator.nis }} | {{ e.evaluator.siswa.nama }}  ({{ e.evaluator_role }})</td>
 		  <td>{{ e.tanggal.strftime("%d-%m-%Y %H:%M") }}</td>
 		  <td>
 			<button type="button" class="btn btn-danger" onclick="deleteData('{{ e.id }}')">Hapus</button>

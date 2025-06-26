@@ -1,0 +1,64 @@
+@startuml
+actor User
+participant "Browser\n(User)" as B
+participant "Flask App" as F
+database "MySQL\n(Database)" as DB
+participant "Mail Server" as Mail
+
+== Login Flow ==
+User -> B: GET /login
+B -> F: GET /login
+F -> B: Return admin.html
+
+User -> B: POST /proses_login (username,password)
+B -> F: POST /proses_login
+F -> DB: User.query.filter_by(username)
+DB --> F: User object
+F -> F: bcrypt.check_password_hash(...)
+alt valid password
+    F -> F: jwt.encode(payload)
+    F -> B: Return JSON { success: true, token: JWT }
+    F -> B: session['jwt_token']=token
+else invalid password
+    F -> B: Return JSON { success:false, message }
+end
+
+== Reset Password Flow ==
+User -> B: GET /reset_password_admin
+B -> F: GET /reset_password_admin
+F -> DB: Get admin User (Role='admin')
+F -> F: Generate reset_token
+F -> Mail: Send reset_link to email
+F -> B: Return redirect to login + flash
+
+User -> B: GET reset_password/<token>
+B -> F: GET reset_password/<token>
+F -> F: URLSafeTimedSerializer.loads(token)
+F -> B: Show reset_password_admin.html
+
+User -> B: POST /reset_admin_form(new_password)
+B -> F: POST /reset_admin_form
+F -> F: Check token
+F -> DB: Find User admin by email
+F -> DB: Save hashed new password
+F -> B: Show success message
+
+== Logout ==
+User -> B: GET /keluar
+B -> F: GET /keluar
+F -> F: session.pop('jwt_token')
+F -> B: Redirect to /login
+
+== Request to other routes ==
+User -> B: GET /some_protected_route
+B -> F: GET /some_protected_route
+F -> F: before_request global_jwt_check()
+F -> F: Get token from session
+F -> F: jwt.decode(token)
+alt valid token
+    F -> F: Continue to view
+else invalid/expired
+    F -> B: Redirect to /login
+end
+
+@enduml

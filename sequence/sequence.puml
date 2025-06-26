@@ -1,0 +1,32 @@
+@startuml
+actor User
+participant "Flask App" as App
+participant "before_request" as Hook
+participant "Controller\n(Routes)" as Ctrl
+database "MySQL\n(DB)" as DB
+participant "Mail Server" as Mail
+
+User -> App: HTTP GET /sitemap.xml
+App -> Hook: before_request()
+Hook -> DB: TahunAkademik.query.filter_by(...)
+DB --> Hook: return data / None
+Hook -> DB: INSERT TahunAkademik (if none)
+Hook --> App: next()
+App -> Ctrl: sitemap()
+Ctrl --> App: send sitemap.xml file
+App --> User: Response 200 OK
+
+== Error route example ==
+User -> App: HTTP GET /invalid
+App -> Ctrl: invalid()
+Ctrl -> App: abort(404)
+App -> Controller: page_not_found()
+Controller --> User: return 404.html
+
+== Email example ==
+User -> App: HTTP POST /send_email
+App -> Ctrl: send_email()
+Ctrl -> Mail: Mail.send(...)
+Mail --> Ctrl: success
+Ctrl --> User: JSON {"status": "sent"}
+@enduml

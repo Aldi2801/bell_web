@@ -1,7 +1,14 @@
-from . import app, bcrypt, User,Role,UserRoles, mail,db
+from . import app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,TahunAkademik, EvaluasiGuru, Kbm, Siswa, Guru, Mapel,Penilaian, JadwalPelajaran, PembagianKelas, Siswa
+
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 from datetime import datetime, timedelta
+
+import jwt, re, datetime, os, json, ast, uuid
+
+from datetime import datetime, timedelta
+from sqlalchemy import func, extract, case
+from collections import defaultdict
 
 from flask_mail import Message
 import jwt
@@ -149,6 +156,159 @@ def global_jwt_check():
     except InvalidTokenError:
         session.clear()
         return redirect(url_for('login'))
+
+@app.route('/dashboard')
+def dashboard():
+    role = session.get('role')
+    user = User.query.filter_by(username=session.get('username')).first()
+    print(session.get('username'))
+    print(session.get('role'))
+    print(user)
+    # Ambil berita terbaru < 14 hari
+    batas_waktu = datetime.utcnow() - timedelta(days=14)
+  
+    profil = {}
+    evaluasi = False
+    berita_terbaru = None
+    if role == 'admin':
+        data_guru = Guru.query.all()
+        profil = {
+            'username': user.username,
+            'email': user.email,
+            'role': 'Admin'
+        }
+        berita_terbaru = None
+        # Jumlah data
+        jumlah_siswa = db.session.query(Siswa).count()
+        jumlah_guru = db.session.query(Guru).count()
+        jumlah_kelas = db.session.query(Kelas).count()
+        # Ambil tahun akademik terbaru berdasarkan tanggal mulai
+        tahun_terbaru = db.session.query(TahunAkademik).order_by(TahunAkademik.mulai.desc()).first()
+
+        if tahun_terbaru:
+            # Hitung jumlah siswa dalam setiap kelas untuk tahun akademik terbaru
+            kelas_counts = (
+                db.session.query(PembagianKelas.id_kelas, db.func.count(PembagianKelas.nis))
+                .filter(PembagianKelas.id_tahun_akademik == tahun_terbaru.id_tahun_akademik)
+                .group_by(PembagianKelas.id_kelas)
+                .all()
+            )
+
+            if kelas_counts:
+                total_siswa = sum([jml for _, jml in kelas_counts])
+                jumlah_kelas_terbaru = len(kelas_counts)
+                rata_siswa_per_kelas = round(total_siswa / jumlah_kelas_terbaru, 2)
+            else:
+                rata_siswa_per_kelas = 0
+        else:
+            rata_siswa_per_kelas = 0
+
+        # Jadwal KBM hari ini
+        hari_ini = datetime.now().strftime('%A')  # 'Monday', 'Tuesday', etc
+        jadwal_hari_ini = JadwalPelajaran.query.filter_by(day=hari_ini).all()
+
+        # Siswa terbaru (berdasarkan ID User karena ada relasi user_id)
+        siswa_terbaru = db.session.query(Siswa).join(User).order_by(User.id.desc()).limit(10).all()
+
+        # Rata-rata nilai penilaian per bulan (12 bulan terakhir)
+        chart_bulan = []
+        chart_rata = []
+        now = datetime.now()
+        
+        data_guru = Guru.query.all()
+        for i in range(11, -1, -1):
+            target_date = now.replace(day=1) - timedelta(days=30*i)
+            bulan = target_date.strftime('%b %Y')
+            avg_nilai = db.session.query(func.avg(Penilaian.nilai)).filter(
+                extract('month', Penilaian.tanggal) == target_date.month,
+                extract('year', Penilaian.tanggal) == target_date.year
+            ).scalar()
+
+            chart_bulan.append(bulan)
+            chart_rata.append(round(avg_nilai, 2) if avg_nilai else 0)
+        print(chart_bulan)
+        print(chart_rata)
+        chart_data={
+                'bulan': chart_bulan,
+                'rata_rata': chart_rata
+            }
+        return render_template('dashboard.html',
+            
+        data_guru = data_guru,
+            evaluasi=evaluasi,
+            jumlah_siswa=jumlah_siswa,
+            jumlah_guru=jumlah_guru,
+            jumlah_kelas=jumlah_kelas,
+            rata_siswa_per_kelas=rata_siswa_per_kelas,
+            jadwal_hari_ini=jadwal_hari_ini,
+            siswa_terbaru=siswa_terbaru,
+            chart_data=chart_data,
+            profil=profil, berita=berita_terbaru
+        )
+
+    elif role == 'guru':
+        berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'guru').order_by(Berita.tanggal_dibuat.desc()).first()
+
+        guru = Guru.query.filter_by(nip=user.nip).first()
+
+        profil = {
+            'nama': guru.nama,
+            'nip': guru.nip,
+            'tempat_lahir': guru.tempat_lahir,
+            'tanggal_lahir': guru.tanggal_lahir,
+            'alamat': guru.alamat,
+            'no_hp': guru.no_hp,
+            'email': guru.email,
+            'gender': guru.gender_rel.gender,
+            'status': guru.status_rel.status,
+            'spesialisasi': guru.spesialisasi,
+            'role': 'Guru'
+        }
+        data_guru = Guru.query.all()
+
+    elif role == 'murid':
+        berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'murid').order_by(Berita.tanggal_dibuat.desc()).first()
+        
+        # 1. Ambil tahun akademik dan semester aktif
+        tahun_aktif = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).first()
+
+        if tahun_aktif:
+            tanggal_awal = tahun_aktif.mulai
+            tanggal_akhir = tahun_aktif.sampai
+        else:
+            tanggal_awal = tanggal_akhir = datetime.utcnow()  # fallback kalau gak ada
+
+        # 2. Cek apakah ada evaluasi guru untuk siswa ini di semester ini
+        
+        evaluasi_exist = EvaluasiGuru.query.filter(
+        EvaluasiGuru.evaluator_id == session['id'],
+        EvaluasiGuru.tanggal >= tanggal_awal,
+        EvaluasiGuru.tanggal <= tanggal_akhir
+        ).first()
+        print(session['id'])
+        print(evaluasi_exist)
+        # 3. Set flag evaluasi
+        evaluasi = False if evaluasi_exist else True
+        print(evaluasi)
+        data_guru = Guru.query.all()
+        siswa = Siswa.query.filter_by(nis=user.nis).first()
+        kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
+        profil = {
+            'nama': siswa.nama,
+            'nis': siswa.nis,
+            'tempat_lahir': siswa.tempat_lahir,
+            'tanggal_lahir': siswa.tanggal_lahir,
+            'alamat': siswa.alamat,
+            'no_hp': siswa.no_hp,
+            'email': session.get('email',''),
+            'gender': siswa.gender_rel.gender,
+            'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
+            'role': 'Murid'
+        }
+    
+    return render_template('dashboard.html',
+        data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
+
 
 # @app.route('/bikin_akun', methods=['GET', 'POST'])
 # def register():

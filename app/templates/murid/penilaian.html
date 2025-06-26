@@ -66,6 +66,107 @@
   <div class="row">
     <div class="col-12">
       <div class="card">
+        <div class="border-bottom title-part-padding">
+          <h4>Filter:</h4>
+            <div class="row col-12"> 
+               <!-- Siswa -->
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="guru_data" name="nip">
+                    <option value="" selected>Semua Guru</option>
+                    {% for s in data_guru %}
+                    <option value="{{ s.nip }}">{{ s.nama }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <!-- Kelas -->
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="kelas_data" name="id_kelas">
+                    <option value="" selected>Semua Kelas</option>
+                    {% for k in data_kelas %}
+                    <option value="{{ k.id_kelas }}">{{ k.nama_kelas }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <!-- Mapel -->
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="mapel_data" name="id_mapel">
+                    <option value="" selected>Semua Mapel</option>
+                    {% for m in data_mapel %}
+                    <option value="{{ m.id_mapel }}">{{ m.nama_mapel }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <!-- Jenis Penilaian -->
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="jenis_data" name="jenis">
+                    <option value="" selected>Semua Jenis</option>
+                    <option value="UH">UH</option>
+                    <option value="TUGAS">TUGAS</option>
+                    <option value="UTS">UTS</option>
+                    <option value="UAS">UAS</option>
+                  </select>
+                </div>
+              </div>
+
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2" 
+              style="width: 100%; height: 36px" id="tahun_data" name="tahun">
+                <option value="" {% if not request.args.get('tahun') %}selected{% endif %}>Semua Tahun</option>
+              {% for i in tahun %}
+                <option value="{{ i }}" {% if request.args.get('tahun') == i|string %}selected{% endif %}>{{ i }}</option>
+              {% endfor %}
+              </select>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2" 
+              style="width: 100%; height: 36px" id="bulan_data" name="bulan">
+                <option  value="" selected>Semua Bulan</option>
+                {% for i in [{"value":"1","nama_bulan":"Januari"},{"value":"2","nama_bulan":"Februari"},{"value":"3","nama_bulan":"Maret"},
+                {"value":"4","nama_bulan":"April"},{"value":"5","nama_bulan":"Mei"},{"value":"6","nama_bulan":"Juni"},{"value":"7","nama_bulan":"Juli"},
+                {"value":"8","nama_bulan":"Agustus"},{"value":"9","nama_bulan":"September"},{"value":"10","nama_bulan":"Oktober"},
+                {"value":"11","nama_bulan":"November"},{"value":"12","nama_bulan":"Desember"}] %}
+                <option value="{{ i.value }}">{{ i.nama_bulan }}</option>
+                {% endfor %}
+              </select>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2 " 
+              style="width: 100%; height: 36px" id="tanggal_data" name="tanggal">
+                <option value="" selected>Semua Tanggal</option>
+                {% for i in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16",
+                "17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"] %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
+              </div>
+            </div>
+            
+            <div class="col-sm-3">
+            <div class="mb-3">
+              <button class="btn btn-info" onclick="run()">Submit</button>
+            </div>
+            </div>
+          </div>
+        </div>
         <div class="card-body">
           <h4>Data Penilaian</h4>
           <div class="table-responsive">
@@ -208,8 +309,10 @@
 </div>
 
 <script>
-  $('#myTable').DataTable();
-
+  $('#myTable').DataTable({
+  paging: false, // atau pagination: false juga bisa
+   info: false
+});
   {% for p in penilaian %}
   document.getElementById("editForm-{{ p.id_penilaian }}").addEventListener("submit", function(event) {
     event.preventDefault();
@@ -252,7 +355,6 @@ function run() {
     const tahun = document.getElementById('tahun_data').value;
     const bulan = document.getElementById('bulan_data').value;
     const tanggal = document.getElementById('tanggal_data').value;
-    const nis = document.getElementById('siswa_data').value;
     const nip = document.getElementById('guru_data').value;
     const id_kelas = document.getElementById('kelas_data').value;
     const id_mapel = document.getElementById('mapel_data').value;
@@ -263,11 +365,10 @@ function run() {
     if (tahun) queryParams.append("tahun", tahun);
     if (bulan) queryParams.append("bulan", bulan);
     if (tanggal) queryParams.append("tanggal", tanggal);
-    if (nis) queryParams.append("nis", nis);
     if (nip) queryParams.append("nip", nip);
     if (id_kelas) queryParams.append("id_kelas", id_kelas);
     if (id_mapel) queryParams.append("id_mapel", id_mapel);
-    if (jenis) queryParams.append("jenis", jenis);
+    if (jenis) queryParams.append("jenis_penilaian", jenis);
 
     // Redirect with query parameters
     window.location.href = `?${queryParams.toString()}`;

@@ -1,190 +1,237 @@
-
 {% extends "layout.html" %}
 
 {% block form_tambah %}
 <div class="col-md-12 mb-3">
-    <input type="date" class="form-control" name="tanggal" placeholder="Tanggal" required>
-</div><br>
-
-<div class="col-md-12 mb-3">
-    <input type="text" class="form-control" name="id_semester" placeholder="ID Semester (1 digit)" required pattern="[A-Za-z0-9]{1}" maxlength="1">
-</div><br>
-<div class="col-md-12 mb-3">
-    <input type="text" class="form-control" name="id_mapel" placeholder="ID Mapel (3 digit)" required pattern="[A-Za-z0-9]{3}" maxlength="3">
-</div><br>
-
-<div class="col-md-12 mb-3">
-    <input type="text" class="form-control" name="nip" placeholder="NIP Guru" required maxlength="25">
-</div><br>
-
-<div class="col-md-12 mb-3">
-    <input type="text" class="form-control" name="id_tahun_akademik" placeholder="ID Tahun Akademik (4 digit)" required pattern="[A-Za-z0-9]{4}" maxlength="4">
-</div><br>
-
-<div class="col-md-12 mb-3">
-    <input type="number" class="form-control" name="id_pembagian" placeholder="ID Pembagian Kelas">
+  <label for="nip">Pilih Guru</label>
+  <select name="nip" class="form-control" required>
+    {% for g in data_guru %}
+    <option value="{{ g.nip }}">{{ g.nama }}</option>
+    {% endfor %}
+  </select>
 </div>
+<div class="col-md-12 mb-3">
+  <label for="id_mapel">Mata Pelajaran</label>
+  <select name="id_mapel" class="form-control" required>
+    {% for m in daftar_mapel %}
+    <option value="{{ m.id_mapel }}">{{ m.nama_mapel }}</option>
+    {% endfor %}
+  </select>
+</div>
+<div class="col-md-12 mb-3">
+  <label for="id_mapel">Materi</label>
+  <input name="materi" class="form-control" required>
+</div>
+<div class="col-md-12 mb-3">
+  <label for="id_mapel">Sub materi (optional)</label>
+  <input name="sub_materi" class="form-control" >
+</div>
+<div class="col-md-12 mb-3">
+  <label for="id_kelas">Kelas</label>
+  <select name="id_kelas" class="form-control" required>
+    {% for k in daftar_kelas %}
+    <option value="{{ k.id_kelas }}">{{ k.nama_kelas }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="id_semester">Semester</label>
+  <select name="id_semester" class="form-control" required>
+    {% for s in daftar_semester %}
+    <option value="{{ s.id_semester }}">{{ s.semester }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="id_tahun_akademik">Tahun Akademik</label>
+  <select name="id_tahun_akademik" class="form-control" required>
+    {% for t in daftar_tahun %}
+    <option value="{{ t.id_tahun_akademik }}">{{ t.tahun_akademik }}</option>
+    {% endfor %}
+  </select>
+</div>
+
 {% endblock %}
 
 {% block content %}
-
 <div class="page-titles">
   <div class="row">
     <div class="col-lg-8 col-md-6 col-12 align-self-center">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0 d-flex align-items-center">
-          <li class="breadcrumb-item">
-            <a href="index.html" class="link">
-              <i class="ri-home-3-line fs-5"></i>
-            </a>
-          </li>
+          <li class="breadcrumb-item"><a href="/" class="link"><i class="ri-home-3-line fs-5"></i></a></li>
           <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
         </ol>
       </nav>
       <h1 class="mb-0 fw-bold">Data {{title}}</h1>
     </div>
-	{% if btn_tambah %}
+    {% if btn_tambah %}
     <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
-		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
-		  <i class="ri-add-line me-1"></i> Tambah Data
-		</button>
+      <button type="button" class="btn btn-info d-flex align-items-center ms-2" data-bs-toggle="modal" data-bs-target="#tambahModal">
+        <i class="ri-add-line me-1"></i> Tambah Data
+      </button>
     </div>
     {% endif %}
   </div>
 </div>
+
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-<!-- templates/crud/semester.html -->
-<h4>Data Semester</h4>
-<div class="table-responsive">
-<table id="myTable" class="table table-stripped" >
-    <thead>
-        <tr>
-             <th>ID Ampu</th>
-                        <th>Tanggal</th>
-                        <th>ID Semester</th>
-                        <th>ID Mapel</th>
-                        <th>NIP</th>
-                        <th>ID Tahun Akademik</th>
-                        <th>ID Pembagian</th>
-                        <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-         {% for s in ampu_mapel %}
+          <h4>Daftar Pelajaran</h4>
+          <div class="table-responsive">
+            <table id="myTable" class="table table-striped">
+              <thead>
                 <tr>
-                        <td>{{ s.id_ampu }}</td>
-                        <td>{{ s.tanggal }}</td>
-                        <td>{{ s.id_semester }}</td>
-                        <td>{{ s.id_mapel }}</td>
-                        <td>{{ s.nip }}</td>
-                        <td>{{ s.id_tahun_akademik }}</td>
-                        <td>{{ s.id_pembagian }}</td>
-                        <td class="d-flex gap-2">
-                                <button type="button" class="btn btn-warning " onclick="openEditModal('{{ s.id_ampu }}')">Edit</button>
-                                <button type="button" class="btn btn-danger " onclick="deleteData('{{ s.id_ampu }}')">Hapus</button>
-                        </td>
+                  <th>No</th>
+                  <th>Nama Guru</th>
+                  <th>Mata Pelajaran</th>
+                  <th>Semester</th>
+                  <th>Tahun Akademik</th>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
                 </tr>
-		<!-- Modal Tambah -->
-		<div class="modal fade" id="editModal-{{ s.id_ampu }}" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
-		  <div class="modal-dialog  modal-lg"> 
-			<div class="modal-content">
-			  
-			  <!-- Modal Header -->
-			  <div class="modal-header">
-				<h5 class="modal-title" id="editLabel">Edit {{title_data}}</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-			  </div>
+              </thead>
+              <tbody>
+                {% for a in data_ampu %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>{{ a.guru_rel.nama }}</td>
+                  <td>{{ a.mapel_rel.nama_mapel }}</td>
+                  <td>{{ a.semester_rel.semester }}</td>
+                  <td>{{ a.tahun_akademik_rel.tahun_akademik }}</td>
+                  <td>{{ a.tanggal }}</td>
+                  <td>
+                      <button type="button" class="btn btn-success" onclick="openKehadiranModal('{{ a.id_ampu }}')">Kehadiran</button>
+                      <button type="button" class="btn btn-danger" onclick="deleteData('{{ a.id_ampu }}')">Hapus</button>
+                  </td>
+                </tr>
+                <!-- Modal Edit -->
+                <div class="modal fade" id="editModal-{{ a.id_ampu }}" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
+                  <div class="modal-dialog  modal-lg"> 
+                  <div class="modal-content">
+                    
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="editLabel">Edit {{title_data}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    </div>
 
-			  <!-- Modal Body -->
-			  <div class="modal-body">
-				<form id="editForm-{{ s.id_ampu }}">
-						 <input type="hidden" name="id_ampu" value="{{ s.id_ampu }}">
-                                <label>Tanggal:</label>
-                                <input type="date" name="tanggal" value="{{ s.tanggal }}" class="form-control mb-3" required>
-                                <label>ID Semester:</label>
-                                <input type="text" name="id_semester" value="{{ s.id_semester }}" class="form-control mb-3" required maxlength="1">
-                                <label>ID Mapel:</label>
-                                <input type="text" name="id_mapel" value="{{ s.id_mapel }}" class="form-control mb-3" required maxlength="3">
-                                <label>NIP:</label>
-                                <input type="text" name="nip" value="{{ s.nip }}" class="form-control mb-3" required maxlength="25">
-                                <label>ID Tahun Akademik:</label>
-                                <input type="text" name="id_tahun_akademik" value="{{ s.id_tahun_akademik }}" class="form-control mb-3" required maxlength="4">
-                                <label>ID Pembagian:</label>
-                                <input type="number" name="id_pembagian" value="{{ s.id_pembagian }}" class="form-control mb-3">
-                                <button type="submit" id="tombol-edit-{{ s.id_ampu }}" class="btn btn-success mb-3">Simpan</button>
-                                <button type="button" class="btn btn-secondary" onclick="closeEditModal('{{ s.id_ampu }}')">Batal</button>
-                       	
-				  <div class="modal-footer"><button type="submit" id="tombol-edit-{{ s.id_ampu }}" class="btn btn-success">Simpan</button>
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-				  </div>
-				  
-				</form>
-			  </div>
-			</div>
-		  </div>
-		</div>
-				{% endfor %}
-			</tbody>
-		</table>
-		</div>
-		</div>
-		</div>
-		</div>
-		</div>
-		</div>
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                    <form id="editForm-{{ a.id_ampu }}">
+                        <input type="hidden" name="id_semester_old" value="{{ a.id_ampu }}">
+                        <label>id_semester: </label><input type="text" name="id_semester" value="{{ a.id_ampu }}" class="form-control mb-3">
+                        <label>Nama Semester:</label> <input type="text" name="nama_semester" value="{{ a.id_ampu }}" class="form-control mb-3" required>
+                        
+                      <div class="modal-footer"><button type="submit" id="tombol-edit-{{ a.id_ampu }}" class="btn btn-success">Simpan</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                      </div>
+                      
+                    </form>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal Kehadiran -->
+<div class="modal fade" id="kehadiranModal" tabindex="-1" aria-labelledby="kehadiranLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"> 
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="kehadiranLabel">Kehadiran Siswa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="kehadiranForm">
+          <input type="hidden" name="id_ampu" id="idAmpuInput">
+          <div class="table-responsive">
+            <table id="kehadiranTable" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Siswa</th>
+                  <th>Kelas</th>
+                  <th>Kehadiran</th>
+                </tr>
+              </thead>
+              <tbody id="kehadiranTbody">
+                <!-- baris akan diisi via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
- $('#myTable').DataTable();
- </script>
-<script>
-// AJAX for Edit Semester (PUT)
-{% for s in semester %}
-document.getElementById("editForm-{{ s.id_ampu }}").addEventListener("submit", function(event) {
-    event.preventDefault();
-    const form = this;
-    const formData = new FormData(form);
-    const data = {};
-    formData.forEach((value, key) => {
-        data[key] = value.trim();
-    });
-    const tombol = document.getElementById("tombol-edit-{{ s.id_ampu }}");
-    tombol.disabled = true;
-    tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
-    const baseUrl = window.location.origin + window.location.pathname;
-    $.ajax({
-        url: baseUrl + '/edit/{{ s.id_ampu }}',
-        type: 'PUT',
-        contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify(data),		
-		xhrFields: {
-			withCredentials: true
-		},
-        success: function (response) {
-            tombol.innerHTML = "Simpan";
-            tombol.disabled = false;
-            alert(response.msg || "Berhasil update semester");
-            window.location.reload();
-        },
-        error: function (xhr, status, error) {
-            tombol.innerHTML = "Simpan";
-            tombol.disabled = false;
-            var errorTxt = "Server Error";
-            if (xhr.responseJSON && xhr.responseJSON.error){
-                errorTxt = xhr.responseJSON.error;
-            }
-            if (xhr.responseJSON && xhr.responseJSON.msg){
-                errorTxt = xhr.responseJSON.msg;
-            }
-            alert(`Edit failed: ${errorTxt}`);
-        }
-    });
+$('#myTable').DataTable();
+$('#kehadiranModal').on('shown.bs.modal', function () {
+  if (!$.fn.DataTable.isDataTable('#kehadiranTable')) {
+    $('#kehadiranTable').DataTable();
+  }
 });
-{% endfor %}
 
 </script>
-    
+<script>
+function openKehadiranModal(id_ampu) {
+  const keteranganList = {{ keterangan | tojson  }};
+
+  $('#idAmpuInput').val(id_ampu);
+  $('#kehadiranLabel').text('Kehadiran - ID: ' + id_ampu);
+  const tbody = $('#kehadiranTbody').empty();
+
+  $.getJSON(`/api/kehadiran/siswa?id_ampu=${id_ampu}`, function(data) {
+    data.forEach((s, i) => {
+      const options = keteranganList.map(k => `
+        <option value="${k.id_keterangan}" ${s.id_keterangan == k.id_keterangan ? 'selected' : ''}>${k.keterangan}</option>
+      `).join('');
+
+      tbody.append(`
+        <tr>
+          <td>${i+1}</td>
+          <td>${s.nama}</td>
+          <td>${s.nama_kelas}</td>
+          <td>
+            <select name="status[${s.nis}]" disabled class="form-select">
+              ${options}
+            </select>
+          </td>
+        </tr>
+      `);
+    });
+
+    $('#kehadiranModal').modal('show');
+  });
+}
+
+
+  $('#kehadiranForm').on('submit', function(e){
+    e.preventDefault();
+    const data = $(this).serialize();
+    $.post('/guru/kehadiran/tambah', data)
+      .done(() => {
+        alert('Kehadiran tersimpan!');
+        $('#kehadiranModal').modal('hide');
+      })
+      .fail(() => alert('Gagal simpan kehadiran'));
+  });
+</script>
+
 {% endblock %}

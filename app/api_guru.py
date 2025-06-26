@@ -68,6 +68,42 @@ def view_manage_jadwal():
         
     )
 
+@app.route('/tambah_guru')
+def view_register_guru():
+    data_guru = Guru.query.all()
+    data_fix = []
+    btn_tambah = True
+    title = "Manage Guru"
+    title_data = "Tambah Guru"
+    for i in data_guru:
+        user = i.user  # ambil user yang sesuai nip
+        data_fix.append({
+            'username': user.username if user else '-',
+            'nip': i.nip,
+            'inisial': i.inisial,
+            'nama': i.nama,
+            'tempat_lahir': i.tempat_lahir,
+            'tanggal_lahir': i.tanggal_lahir.strftime('%Y-%m-%d'),
+            'alamat': i.alamat,
+            'no_hp': i.no_hp,
+            'email': i.email,
+            'spesialisasi': i.spesialisasi,
+            'gender': i.gender_rel.gender if i.gender_rel else '-',
+            'status': i.status_rel.status if i.status_rel else '-'
+        })
+    return render_template("admin/tambah_guru.html",guru=data_fix, btn_tambah=btn_tambah, title=title, title_data=title_data   )
+
+def find_current_period(sesi_list, current_time):
+    for sesi in sesi_list:
+        jam_mulai, jam_selesai = sesi["jam"].split(" - ")
+        start = datetime.strptime(jam_mulai, "%H.%M").time()
+        end = datetime.strptime(jam_selesai, "%H.%M").time()
+        if start <= current_time <= end:
+            return sesi
+    return None
+from flask_login import current_user
+from flask import render_template, session
+
 # Endpoint untuk menyimpan data guru
 @app.route('/tambah_guru/tambah', methods=['POST'])
 def save_guru():
@@ -83,7 +119,7 @@ def save_guru():
 
     if not username or not email or not password or not re_password:
         return jsonify({"msg": "All fields are required"}), 400
-
+    print(email)
     if not is_valid_email(email):
         return jsonify({"msg": "Invalid email format"}), 400
 

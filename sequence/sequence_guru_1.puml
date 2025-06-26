@@ -1,0 +1,62 @@
+@startuml
+actor User
+participant Browser as B
+participant "Flask App" as F
+database DB
+
+== MANAGE JADWAL ==
+User -> B: GET /manage_jadwal
+B -> F: Fetch JadwalPelajaran
+F -> DB: query JadwalPelajaran
+F -> B: Render manage_jadwal.html
+
+User -> B: POST /tambah_ubah_jadwal
+B -> F: Parse JSON(day, time, period, subject)
+F -> DB: Check existing JadwalPelajaran(day, period)
+alt Jadwal exists
+  F -> DB: UPDATE JadwalPelajaran
+else Jadwal not exists
+  F -> DB: INSERT JadwalPelajaran
+end
+F -> B: JSON({status: success})
+
+== MANAGE GURU ==
+User -> B: GET /tambah_guru
+B -> F: Fetch Guru
+F -> DB: query Guru
+F -> B: Render tambah_guru.html
+
+User -> B: POST /tambah_guru/tambah
+B -> F: Parse JSON
+F -> DB: Check existing username & email
+F -> DB: INSERT User, INSERT Guru
+F -> B: JSON({msg: registered successfully})
+
+User -> B: PUT /tambah_guru/edit/{nip}
+B -> F: Parse JSON
+F -> DB: UPDATE User, UPDATE Guru
+F -> B: JSON({msg: updated successfully})
+
+User -> B: DELETE /tambah_guru/hapus/{nip}
+B -> F: DELETE User & Guru
+F -> DB: DELETE User & Guru
+F -> B: JSON({msg: deleted successfully})
+
+== JADWAL PELAJARAN ==
+User -> B: GET /manage_jadwal
+B -> F: query JadwalPelajaran order by day & period
+F -> DB: query Guru & Mapel
+F -> B: Render manage_jadwal.html
+
+== TAMBAH UBAH JADWAL ==
+User -> B: POST /tambah_ubah_jadwal
+B -> F: Parse JSON
+F -> DB: Check existing & INSERT or UPDATE JadwalPelajaran
+F -> B: JSON({status: success})
+
+== GURU UJIAN ==
+User -> B: POST /tambah_guru_ujian
+B -> F: Parse JSON
+F -> DB: INSERT test_attendance
+F -> B: JSON({message: saved successfully})
+@enduml

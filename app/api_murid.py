@@ -1,9 +1,11 @@
-from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan,TahunAkademik, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
+from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan,TahunAkademik, JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
 from flask import render_template, request, jsonify, session, redirect, abort
-import jwt
-from datetime import datetime
-from sqlalchemy import extract
 from sqlalchemy import and_
+import jwt, re, datetime, os, json, ast, uuid
+from datetime import datetime, timedelta
+from sqlalchemy import func, extract, case
+from collections import defaultdict
+from itsdangerous import BadSignature, SignatureExpired
 
 @app.route('/get_menu_pembayaran')
 def get_menu_pembayaran():
@@ -185,6 +187,61 @@ def kehadiran():
                            btn_tambah = False,
                            title = "Kehadiran",
                            title_data = "Kehadiran")
+@app.route('/jadwal')
+def view_jadwal():    
+    formatted_teacher_map = {}
+    data_guru = Guru.query.order_by(Guru.nama.asc()).all() # Urutkan berdasarkan nama ASC
+    formatted_teacher_map["kodeGuru"] = [
+        { k.inisial : k.nama}
+        for k in data_guru
+    ]
+    data_mapel = Mapel.query.order_by(Mapel.nama_mapel.asc()).all() # Urutkan berdasarkan nama ASC
+    formatted_teacher_map["kodeMapel"] = [
+        { k.id_mapel : k.nama_mapel}
+        for k in data_mapel
+    ]
+    # Format data jadwal
+    # Urutan hari
+    hari_order = case(
+        (JadwalPelajaran.day == 'Senin', 1),
+        (JadwalPelajaran.day == 'Selasa', 2),
+        (JadwalPelajaran.day == 'Rabu', 3),
+        (JadwalPelajaran.day == 'Kamis', 4),
+        (JadwalPelajaran.day == 'Jumat', 5),
+        (JadwalPelajaran.day == 'Sabtu', 6),
+        (JadwalPelajaran.day == 'Minggu', 7),
+        else_=8
+    )
+
+    # Ambil semua jadwal dalam 1 query
+    results = JadwalPelajaran.query.order_by(hari_order, JadwalPelajaran.period).all()
+
+    # Buat struktur data jadwal terformat
+    grouped_schedule = defaultdict(list)
+    for r in results:
+        grouped_schedule[r.day].append({
+            "time": r.time,
+            "period": r.period,
+            "subjects": ast.literal_eval(r.subject) if isinstance(r.subject, str) else r.subject
+        })
+
+    formatted_schedule = [
+        {"day": day, "sessions": grouped_schedule[day]}
+        for day in sorted(grouped_schedule, key=lambda d: ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'].index(d))
+    ]
+    users = Siswa.query.all()
+    data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all() # Urutkan berdasarkan nama ASC
+    kelas_dict = [
+        {"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas}
+        for k in data_kelas
+    ]
+    print(kelas_dict)
+
+    return render_template("murid/jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict,
+                           
+    btn_tambah = False,
+    title = "Jadwal Pelajaran",
+    title_data = "Jadwal Pelajaran")
 
 @app.route('/pengumuman')
 def view_pengumuman():
@@ -203,6 +260,13 @@ def penilaian_murid():
     title = "Nilai Anda"
     title_data = "Nilai Anda"
 
+    # Ambil filter query
+    nip = request.args.get('nip')
+    id_kelas = request.args.get('id_kelas')
+    id_mapel = request.args.get('id_mapel')
+    jenis_penilaian = request.args.get('jenis_penilaian')
+    print(id_mapel)
+    print(nip)
     tahun = request.args.get('tahun', type=int)
     bulan = request.args.get('bulan', type=int)
     tanggal = request.args.get('tanggal', type=int)
@@ -223,6 +287,19 @@ def penilaian_murid():
         query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
     if siswa_now:
         query = query.filter(Penilaian.nis == siswa_now)
+    if nip:
+        query = query.filter(AmpuMapel.nip == nip)
+    if id_mapel:
+        query = query.filter(AmpuMapel.id_mapel == id_mapel)
+    if jenis_penilaian:
+        query = query.filter(Penilaian.jenis_penilaian == jenis_penilaian)
+    if id_kelas:
+        subq = (
+            db.session.query(PembagianKelas.nis)
+            .filter(PembagianKelas.id_kelas == id_kelas)
+            .subquery()
+        )
+        query = query.filter(Penilaian.nis.in_(subq))
 
     # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
     query = query.order_by(Penilaian.id_penilaian.desc())
@@ -243,9 +320,31 @@ def penilaian_murid():
     has_prev = paginated_data.has_prev
     page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
     print(info_list)
+     # Ambil tahun unik dari tanggal AmpuMapel
+    data_siswa = Siswa.query.all()
+    data_ampu = AmpuMapel.query.filter_by(nip=nip).all()
+    data_guru = Guru.query.all()
+    data_kelas = Kelas.query.all()
+    data_mapel = Mapel.query.all()
+    tahun_query = (
+        db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
+        .filter(Penilaian.nis == siswa_now)
+        .group_by(extract('year', AmpuMapel.tanggal))
+        .order_by(extract('year', AmpuMapel.tanggal).desc())
+        .all()
+    )
+    thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
+
+    print(thn)
     return render_template(
         'murid/penilaian.html',
         penilaian=info_list,
+        tahun=thn,
+        data_guru=data_guru,
+        data_kelas=data_kelas,
+        data_mapel=data_mapel,
+        data_siswa=data_siswa,
+        data_ampu=data_ampu,
         btn_tambah=btn_tambah,
         title=title,
         title_data=title_data,

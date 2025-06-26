@@ -1,0 +1,90 @@
+@startuml
+actor User
+participant Browser as B
+participant "Flask App" as F
+database DB
+
+== PENGUMUMAN (Berita) ==
+User -> B: GET /manage_pengumuman
+B -> F: Fetch berita sesuai role
+F -> DB: query Berita
+F -> B: Render berita.html
+
+User -> B: POST /manage_pengumuman/tambah
+B -> F: Tambah berita
+F -> DB: INSERT Berita
+F -> B: JSON({msg: berhasil})
+
+User -> B: PUT /manage_pengumuman/edit/{id}
+B -> F: Edit berita
+F -> DB: UPDATE Berita
+F -> B: JSON({msg: berhasil})
+
+User -> B: DELETE /manage_pengumuman/hapus/{id}
+B -> F: Hapus berita
+F -> DB: DELETE Berita
+F -> B: JSON({msg: berhasil})
+
+== SISWA ==
+User -> B: GET /admin/siswa
+B -> F: Fetch Siswa, Gender, Status
+F -> DB: query Siswa, Gender, Status
+F -> B: Render siswa.html
+
+User -> B: POST /admin/siswa/tambah
+B -> F: Create User + Siswa
+F -> DB: INSERT User, INSERT Siswa
+F -> B: JSON({msg: berhasil})
+
+User -> B: PUT /admin/siswa/edit/{nis}
+B -> F: Edit Siswa & User
+F -> DB: UPDATE Siswa, UPDATE User
+F -> B: JSON({msg: berhasil})
+
+User -> B: DELETE /admin/siswa/hapus/{nis}
+B -> F: Hapus Siswa
+F -> DB: DELETE Siswa
+F -> B: JSON({msg: berhasil})
+
+== EVALUASI GURU ==
+User -> B: GET /evaluasi_guru
+B -> F: Fetch EvaluasiGuru
+F -> DB: query EvaluasiGuru
+F -> B: Render evaluasi_guru.html
+
+User -> B: POST /evaluasi_guru/tambah
+B -> F: Tambah EvaluasiGuru
+F -> DB: INSERT EvaluasiGuru
+F -> B: JSON({msg: berhasil})
+
+User -> B: PUT /evaluasi_guru/edit/{id}
+B -> F: Edit EvaluasiGuru
+F -> DB: UPDATE EvaluasiGuru
+F -> B: JSON({msg: berhasil})
+
+User -> B: DELETE /evaluasi_guru/hapus/{id}
+B -> F: Hapus EvaluasiGuru
+F -> DB: DELETE EvaluasiGuru
+F -> B: JSON({msg: berhasil})
+
+== MAPEL ==
+User -> B: GET /admin/mapel
+B -> F: Fetch Mapel
+F -> DB: query Mapel
+F -> B: Render mapel.html
+
+User -> B: POST /admin/mapel/tambah
+B -> F: Tambah Mapel
+F -> DB: INSERT Mapel
+F -> B: JSON({msg: berhasil})
+
+User -> B: PUT /admin/mapel/edit/{id}
+B -> F: Edit Mapel
+F -> DB: UPDATE Mapel
+F -> B: JSON({msg: berhasil})
+
+User -> B: DELETE /admin/mapel/hapus/{id}
+B -> F: Hapus Mapel
+F -> DB: DELETE Mapel
+F -> B: JSON({msg: berhasil})
+@enduml
