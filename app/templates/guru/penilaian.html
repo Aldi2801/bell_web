@@ -73,17 +73,120 @@
   <div class="row">
     <div class="col-12">
       <div class="card">
+        <div class="border-bottom title-part-padding">
+          <h4>Filter:</h4>
+          
+            <div class="row col-12"> 
+               <!-- Siswa -->
+    <div class="col-sm-3">
+      <div class="mb-3">
+        <select class="form-select select2 " 
+              style="width: 100%; height: 36px" id="siswa_data" name="nis">
+          <option value="" selected>Semua Siswa</option>
+          {% for s in data_siswa %}
+          <option value="{{ s.nis }}">{{ s.nama }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Kelas -->
+    <div class="col-sm-3">
+      <div class="mb-3">
+        <select class="form-select select2 " 
+              style="width: 100%; height: 36px"id="kelas_data" name="id_kelas">
+          <option value="" selected>Semua Kelas</option>
+          {% for k in data_kelas %}
+          <option value="{{ k.id_kelas }}">{{ k.nama_kelas }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Mapel -->
+    <div class="col-sm-3">
+      <div class="mb-3">
+        <select class="form-select select2 " 
+              style="width: 100%; height: 36px" id="mapel_data" name="id_mapel">
+          <option value="" selected>Semua Mapel</option>
+          {% for m in data_mapel %}
+          <option value="{{ m.id_mapel }}">{{ m.nama_mapel }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Jenis Penilaian -->
+    <div class="col-sm-3">
+      <div class="mb-3">
+        <select class="form-select select2 " 
+              style="width: 100%; height: 36px" id="jenis_data" name="jenis">
+          <option value="" selected>Semua Jenis</option>
+          <option value="UH">UH</option>
+          <option value="TUGAS">TUGAS</option>
+          <option value="UTS">UTS</option>
+          <option value="UAS">UAS</option>
+        </select>
+      </div>
+    </div>
+
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2" 
+              style="width: 100%; height: 36px" id="tahun_data" name="tahun">
+             <option value="" {% if not request.args.get('tahun') %}selected{% endif %}>Semua Tahun</option>
+  {% for i in tahun %}
+    <option value="{{ i }}" {% if request.args.get('tahun') == i|string %}selected{% endif %}>{{ i }}</option>
+  {% endfor %}
+  </select>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2" 
+              style="width: 100%; height: 36px" id="bulan_data" name="bulan">
+                <option  value="" selected>Semua Bulan</option>
+                {% for i in [{"value":"1","nama_bulan":"Januari"},{"value":"2","nama_bulan":"Februari"},{"value":"3","nama_bulan":"Maret"},
+                {"value":"4","nama_bulan":"April"},{"value":"5","nama_bulan":"Mei"},{"value":"6","nama_bulan":"Juni"},{"value":"7","nama_bulan":"Juli"},
+                {"value":"8","nama_bulan":"Agustus"},{"value":"9","nama_bulan":"September"},{"value":"10","nama_bulan":"Oktober"},
+                {"value":"11","nama_bulan":"November"},{"value":"12","nama_bulan":"Desember"}] %}
+                <option value="{{ i.value }}">{{ i.nama_bulan }}</option>
+                {% endfor %}
+              </select>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2 " 
+              style="width: 100%; height: 36px" id="tanggal_data" name="tanggal">
+                <option value="" selected>Semua Tanggal</option>
+                {% for i in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16",
+                "17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"] %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
+              </div>
+            </div>
+            
+            <div class="col-sm-3">
+            <div class="mb-3">
+              <button class="btn btn-info" onclick="run()">Submit</button>
+            </div>
+            </div>
+          </div>
+        </div>
         <div class="card-body">
           <h4>Data Penilaian</h4>
           <div class="table-responsive">
-            <table id="" class="table table-striped">
+            <table id="myTable" class="table table-striped">
               <thead>
                 <tr>
+                  <th>No </th>
                   <th>NIS</th>
                   <th>Nama Siswa</th>
                   <th>Kelas</th>
                   <th>Mapel</th>
-                  <th>Guru Pengampu Mapel</th>
+                  <th>Guru</th>
                   <th>Jenis Penilaian</th>
                   <th>Nilai</th>
                   <th>Tanggal</th>
@@ -93,6 +196,8 @@
               <tbody>
                 {% for p in penilaian %}
                 <tr>
+                  <!-- <td>{{ (page - 1) * per_page + loop.index }}</td> -->
+                   <td>{{loop.index}}</td>
                   <td>{{ p.nis }}</td>
                   <td>{{ p.siswa_rel.nama }}</td>
                   <td>{{ p.siswa_rel.pembagian_rel[-1].kelas_rel.nama_kelas if p.siswa_rel.pembagian_rel else '' }}</td>
@@ -119,55 +224,56 @@
                         <form id="editForm-{{ p.id_penilaian }}">
                           <input type="hidden" name="id_penilaian" value="{{ p.id_penilaian }}">
                           <div class="col-md-12 mb-3">
-  <label for="nis" class="form-label">Siswa</label><br>
-    <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
-      <option value="" disabled selected>Pilih Siswa</option>
-      {% for siswa in data_siswa %}
-        <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
-      {% endfor %}
-    </select>
-</div>
+                          <label for="nis" class="form-label">Siswa</label><br>
+                            <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
+                              <option value="" disabled selected>Pilih Siswa</option>
+                              {% for siswa in data_siswa %}
+                                <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
 
-<div class="col-md-12 mb-3">
-  <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label><br>
-  <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
-      <option value="" disabled selected>Pilih Ampu Mapel</option>
-      {% for ampu in data_ampu %}
-          <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
-      {% endfor %}
-  </select>
-</div>
+                        <div class="col-md-12 mb-3">
+                          <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label><br>
+                          <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
+                              <option value="" disabled selected>Pilih Ampu Mapel</option>
+                              {% for ampu in data_ampu %}
+                                  <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
 
-<div class="col-md-12 mb-3">
-  <label>Jenis Penilaian:</label>
-  <select name="jenis_penilaian" class="form-control" required>
-    <option value="">Pilih Jenis Penilaian</option>
-    <option value="UH" {% if p.jenis_penilaian == 'UH' %} selected {% endif %}">UH</option>
-    <option value="Tugas" {% if p.jenis_penilaian == 'Tugas' %} selected {% endif %}>Tugas</option>
-    <option value="UTS" {% if p.jenis_penilaian == 'UTS' %} selected {% endif %}>UTS</option>
-    <option value="UAS" {% if p.jenis_penilaian == 'UAS' %} selected {% endif %}>UAS</option>
-  </select>
-</div>
+                        <div class="col-md-12 mb-3">
+                          <label>Jenis Penilaian:</label>
+                          <select name="jenis_penilaian" class="form-control" required>
+                            <option value="">Pilih Jenis Penilaian</option>
+                            <option value="UH" {% if p.jenis_penilaian == 'UH' %} selected {% endif %}">UH</option>
+                            <option value="Tugas" {% if p.jenis_penilaian == 'Tugas' %} selected {% endif %}>Tugas</option>
+                            <option value="UTS" {% if p.jenis_penilaian == 'UTS' %} selected {% endif %}>UTS</option>
+                            <option value="UAS" {% if p.jenis_penilaian == 'UAS' %} selected {% endif %}>UAS</option>
+                          </select>
+                        </div>
 
-<div class="col-md-12 mb-3">
-  <label>Nilai:</label>
-  <div class="col-md-12 mb-3">
-  <input type="text"
-       pattern="^100$|^[1-9]?[0-9]{1,3}$"
-        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if (parseInt(this.value) > 100) this.value = '100';"
-         title="Masukkan angka 1 sampai 3 digit (0-100)"
-         class="form-control"
-         name="nilai"
-         placeholder="Nilai"
-         value="{{ p.nilai }}" 
-         required>
-</div>
-</div>
+                        <div class="col-md-12 mb-3">
+                          <label>Nilai:</label>
+                          <div class="col-md-12 mb-3">
+                          <input type="text"
+                              pattern="^100$|^[1-9]?[0-9]{1,3}$"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if (parseInt(this.value) > 100) this.value = '100';"
+                                title="Masukkan angka 1 sampai 3 digit (0-100)"
+                                class="form-control"
+                                name="nilai"
+                                placeholder="Nilai"
+                                value="{{ p.nilai }}" 
+                                required>
+                        </div>
+                        </div>
 
-<div class="col-md-12 mb-3">
+                        <div class="col-md-12 mb-3">
                           <label>Tanggal:</label>
-  <input type="date" class="form-control" name="tanggal" value="{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}" required>
-</div>                    <div class="modal-footer">
+                          <input type="date" class="form-control" name="tanggal" value="{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}" required>
+                        </div>                    
+                        <div class="modal-footer">
                             <button type="submit" id="tombol-edit-{{ p.id_penilaian }}" class="btn btn-success">Simpan</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                           </div>
@@ -180,7 +286,7 @@
               </tbody>
             </table>
           </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
+             <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
               <strong>Halaman {{ page }} dari {{ total_pages }}</strong> — Total Data: {{ total_records }}
             </div>
@@ -248,7 +354,10 @@
 </div>
 
 <script>
-  $('#myTable').DataTable();
+$('#myTable').DataTable({
+  paging: false, // atau pagination: false juga bisa
+});
+
 
   {% for p in penilaian %}
   document.getElementById("editForm-{{ p.id_penilaian }}").addEventListener("submit", function(event) {
@@ -288,6 +397,31 @@
   });
   {% endfor %}
 </script>
+<script>
+function run() {
+    const tahun = document.getElementById('tahun_data').value;
+    const bulan = document.getElementById('bulan_data').value;
+    const tanggal = document.getElementById('tanggal_data').value;
+    const nis = document.getElementById('siswa_data').value;
+    const id_kelas = document.getElementById('kelas_data').value;
+    const id_mapel = document.getElementById('mapel_data').value;
+    const jenis = document.getElementById('jenis_data').value;
+
+    const queryParams = new URLSearchParams();
+
+    if (tahun) queryParams.append("tahun", tahun);
+    if (bulan) queryParams.append("bulan", bulan);
+    if (tanggal) queryParams.append("tanggal", tanggal);
+    if (nis) queryParams.append("nis", nis);
+    if (id_kelas) queryParams.append("id_kelas", id_kelas);
+    if (id_mapel) queryParams.append("id_mapel", id_mapel);
+    if (jenis) queryParams.append("jenis_penilaian", jenis);
+
+    // Redirect with query parameters
+    window.location.href = `?${queryParams.toString()}`;
+}
+</script>
+
 
     <script src="/static/assets/libs/select2/dist/js/select2.full.min.js"></script>
     <script src="/static/assets/libs/select2/dist/js/select2.min.js"></script>
@@ -297,6 +431,7 @@
   $('.select2tambah').select2({
     dropdownParent: $('#tambahModal')  // atau ganti dengan id modal sesuai kebutuhan
   });
+  
 });
 
     </script>

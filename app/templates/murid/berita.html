@@ -36,7 +36,7 @@
 <table class="table" id="myTable">
   <thead>
     <tr>
-      <th>ID Berita</th>
+      <th>No</th>
       <th>Judul</th>
       <th>Isi</th>
       <th>Pembuat</th>
@@ -45,7 +45,7 @@
   <tbody>
     {% for s in berita %}
     <tr>
-      <td>{{ s.id_berita }}</td>
+      <td>{{ loop.index }}</td>
       <td>{{ s.judul }}</td>
       <td>{{ s.isi }}</td>
       <td>{{ s.guru.nama }} ({{ s.nip }})</td>

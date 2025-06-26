@@ -32,7 +32,7 @@
             <h2>Data Kehadiran</h2>
             <p>Berikut adalah data kehadiran Anda. Silakan periksa dan pastikan informasi yang tercantum sudah benar.</p>
             <div class="table-responsive">
-<table id="myTable">
+<table id="myTable"class="table table-striped">
     <thead>
         <tr>
             <th>Nama Murid</th>
@@ -45,19 +45,33 @@
         </tr>
     </thead>
     <tbody>
-        {% for i in kehadiran_list %}
-        <tr>
-            <td>
-                {{ i.nama_lengkap}}
-            </td>
-            <td>{{ i.tanggal }}</td>
-            <td>{{ i.nama_mapel }}</td>
-            <td>{{ i.nama_kelas }}</td>
-            <td>{{ i.tingkat }}</td>
-            <td>{{ i.materi }}</td>
-            <td>{{ i.keterangan }}</td>
-        </tr>
-        {% endfor %}
+        {% for i in data_kehadiran %}
+      <tr>
+        <td>{{ i.siswa_rel.nama }}</td>
+        <td>{{ i.kbm_rel.tanggal if i.kbm_rel else '-' }}</td>
+
+        {% if i.kbm_rel and i.kbm_rel.ampu_rel %}
+          <td>{{ i.kbm_rel.ampu_rel.mapel_rel.nama_mapel or '-' }}</td>
+        {% else %}
+          <td>-</td>
+        {% endif %}
+
+       {% set found = False %}
+{% if i.kbm_rel and i.kbm_rel.ampu_rel %}
+  {% for p in pembagian %}
+    {% if p.id_tahun_akademik == i.kbm_rel.ampu_rel.id_tahun_akademik %}
+      {% set found = True %}
+      <td>{{ p.kelas_rel.nama_kelas }}</td>
+      <td>{{ p.kelas_rel.tingkat }}</td>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+        <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
+        <td>{{ i.keterangan_rel.keterangan if i.keterangan_rel else '-' }}</td>
+      </tr>
+      {% endfor %}
+
     </tbody>
 </table>
 </div>

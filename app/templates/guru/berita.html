@@ -70,7 +70,7 @@
   <tbody>
     {% for s in berita %}
     <tr>
-      <td>{{ s.id_berita }}</td>
+      <td>{{ loop.index }}</td>
       <td>{{ s.judul }}</td>
       <td>{{ s.isi }}</td>
       <td>{{ s.pengumuman_untuk }}</td>

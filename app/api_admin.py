@@ -19,7 +19,7 @@ from dateutil.relativedelta import relativedelta
 from flask_jwt_extended import jwt_required
 # Fungsi untuk mengubah angka menjadi teks (terbilang)
 from num2words import num2words
-from flask import flash, redirect
+from flask import flash, redirect, url_for
 # Import dari aplikasi lokal
 from . import AmpuMapel,Kelas, Mapel,EvaluasiGuru, UserRoles,Role, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
 
@@ -532,36 +532,57 @@ def hapus_admin_siswa(nis):
 # === LIST EVALUASI GURU ===
 @app.route('/evaluasi_guru')
 def evaluasi_guru_list():
-    if session.get('role') == 'guru':
+    if session.get('role') == 'admin':
         btn_tambah = False
-    evaluasi_list = EvaluasiGuru.query.all()
+        evaluasi_list = EvaluasiGuru.query.all()
     guru = Guru.query.all()
     users = User.query.all()
     ampu = AmpuMapel.query.all()
     title = "Manage Evaluasi Guru"
     title_data = "Evaluasi Guru"
-    btn_tambah = True
-    return render_template('admin/evaluasi_guru.html', ampu=ampu, guru=guru,users=users, btn_tambah=btn_tambah, evaluasi=evaluasi_list, title=title, title_data=title_data)
+    if session.get('role') == 'siswa':
+        btn_tambah = True
+        evaluasi_list = EvaluasiGuru.query.filter_by(nis=nis)
+    return render_template('admin/evaluasi_guru.html', ampu=ampu, guru=guru,users=users, btn_tambah=False, evaluasi=evaluasi_list, title=title, title_data=title_data)
 
 # === TAMBAH EVALUASI GURU ===
 @app.route('/evaluasi_guru/tambah', methods=['POST'])
 def tambah_evaluasi_guru():
     if session.get('role') == 'guru':
         abort(403)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        # Fallback ke request.form jika bukan JSON
+        data = request.form.to_dict()
     
-    evaluasi = EvaluasiGuru(
-        nip=request.json.get('nip'),
-        id_ampu=request.json.get('id_ampu'),
-        evaluator_id=request.json.get('evaluator_id'),
-        evaluator_role=request.json.get('evaluator_role'),
-        aspek=request.json.get('aspek'),
-        skor=request.json.get('skor'),
-        komentar=request.json.get('komentar')
-    )
-    db.session.add(evaluasi)
-    db.session.commit()
-    flash('Evaluasi berhasil ditambahkan')
-    return jsonify({'msg': 'Evaluasi berhasil ditambahkan'})
+    id_ampu=data.get('id_ampu','')
+    if id_ampu != '':
+        evaluasi = EvaluasiGuru(
+            nip=data.get('nip'),
+            id_ampu=id_ampu,
+            evaluator_id=data.get('evaluator_id'),
+            evaluator_role=data.get('evaluator_role'),
+            aspek=data.get('aspek'),
+            skor=data.get('skor'),
+            komentar=data.get('komentar')
+        )
+        db.session.add(evaluasi)
+        db.session.commit()
+        return jsonify({'msg': 'Evaluasi berhasil ditambahkan'})
+    else:
+        evaluasi = EvaluasiGuru(
+            nip=data.get('nip'),
+            evaluator_id=data.get('evaluator_id'),
+            evaluator_role=data.get('evaluator_role'),
+            aspek=data.get('aspek'),
+            skor=data.get('skor'),
+            komentar=data.get('komentar')
+        )
+        db.session.add(evaluasi)
+        db.session.commit()
+        flash('Evaluasi berhasil ditambahkan')
+        return redirect(url_for('dashboard'))
 
 # === EDIT EVALUASI GURU ===
 @app.route('/evaluasi_guru/edit/<int:id>', methods=['PUT'])

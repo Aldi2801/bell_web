@@ -114,8 +114,8 @@ class Semester(db.Model):
     semester = db.Column(db.String(6), nullable=True)
 
 class TahunAkademik(db.Model):
-    id_tahun_akademik = db.Column(db.String(4), primary_key=True)
-    tahun_akademik = db.Column(db.String(9), nullable=True)
+    id_tahun_akademik = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tahun_akademik = db.Column(db.String(9), unique=True, nullable=True)  # e.g., "2024/2025"
     mulai = db.Column(db.Date, nullable=True)
     sampai = db.Column(db.Date, nullable=True)
 
@@ -134,31 +134,46 @@ class AmpuMapel(db.Model):
     id_semester = db.Column(db.CHAR(1), db.ForeignKey('semester.id_semester', ondelete='CASCADE'), nullable=True)
     id_mapel = db.Column(db.CHAR(3), db.ForeignKey('mapel.id_mapel', ondelete='CASCADE'), nullable=True)
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=True)
-    id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
-    id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian', ondelete='SET NULL'))
+    id_tahun_akademik = db.Column(db.Integer, db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
+    id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian', ondelete='SET NULL'), nullable=True)
 
     guru_rel = db.relationship("Guru", backref="ampu_mapel_list", passive_deletes=True)
     mapel_rel = db.relationship("Mapel", backref="ampu_mapel_list", passive_deletes=True)
     semester_rel = db.relationship("Semester", backref="ampu_mapel", passive_deletes=True)
     tahun_akademik_rel = db.relationship("TahunAkademik", backref="ampu_mapel", passive_deletes=True)
     pembagian_rel = db.relationship("PembagianKelas", backref="ampu_mapel", passive_deletes=True, uselist=False)
-
 class Kbm(db.Model):
+    __tablename__ = 'kbm'
+
     id_kbm = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date, nullable=True)
     materi = db.Column(db.String(35), nullable=True)
     sub_materi = db.Column(db.String(100))
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu'), nullable=False)
 
+    # Relasi ke AmpuMapel
+    ampu_rel = db.relationship('AmpuMapel', backref='kbm_list', lazy=True)
+
 class Keterangan(db.Model):
     id_keterangan = db.Column(db.CHAR(1), primary_key=True)
     keterangan = db.Column(db.String(5), nullable=True)
 
 class Kehadiran(db.Model):
+    __tablename__ = 'kehadiran'
+
     id_kehadiran = db.Column(db.Integer, primary_key=True)
     id_keterangan = db.Column(db.CHAR(1), db.ForeignKey('keterangan.id_keterangan', ondelete='CASCADE'), nullable=True)
     id_kbm = db.Column(db.Integer, db.ForeignKey('kbm.id_kbm', ondelete='CASCADE'), nullable=True)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=True)
+
+    # Relasi ke tabel Keterangan
+    keterangan_rel = db.relationship('Keterangan', backref='kehadiran_list', lazy=True)
+
+    # Relasi ke tabel Kbm
+    kbm_rel = db.relationship('Kbm', backref='kehadiran_list', lazy=True)
+
+    # Relasi ke tabel Siswa
+    siswa_rel = db.relationship('Siswa', backref='kehadiran_list', lazy=True)  
 
 class Siswa(db.Model):
     nis = db.Column(db.Integer, primary_key=True)
@@ -186,7 +201,7 @@ class PembagianKelas(db.Model):
     tanggal = db.Column(db.Date)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=True)
     id_kelas = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas', ondelete='CASCADE'), nullable=True)
-    id_tahun_akademik = db.Column(db.String(4), db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
+    id_tahun_akademik = db.Column(db.Integer, db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=True)
 
     kelas_rel = db.relationship("Kelas", backref="pembagian_list", passive_deletes=True)
@@ -224,7 +239,7 @@ class JadwalPelajaran(db.Model):
 class Penilaian(db.Model):
     id_penilaian = db.Column(db.Integer, primary_key=True)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=False)
-    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='CASCADE'), nullable=False)
+    id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='CASCADE'), nullable=True)
     jenis_penilaian = db.Column(db.String(20), nullable=False)  # Contoh: 'UH', 'UTS', 'UAS', 'Tugas'
     nilai = db.Column(db.Float, nullable=False)
     tanggal = db.Column(db.Date, default=datetime.utcnow)
@@ -299,20 +314,47 @@ def page_not_found(error):
         response.status_code = 404
         return response
     return render_template('404.html'), 404
+
 def get_semester_and_year():
     now = datetime.now()
     year = now.year
     month = now.month
-    semester = "Ganjil" if month < 7 else "Genap"
+
     if month < 7:
+        semester = "genap"
         tahun_ajaran = f"{year-1}/{year}"
+        mulai = datetime(year-1, 7, 1)     # 1 Juli tahun sebelumnya
+        selesai = datetime(year, 6, 30)    # 30 Juni tahun ini
     else:
+        semester = "ganjil"
         tahun_ajaran = f"{year}/{year+1}"
-    return semester, tahun_ajaran
+        mulai = datetime(year, 7, 1)       # 1 Juli tahun ini
+        selesai = datetime(year+1, 6, 30)  # 30 Juni tahun depan
+
+    return semester, tahun_ajaran, mulai, selesai
 
 def is_valid_email(email):
     regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
     return re.match(regex, email)
+
+@app.before_request
+def create_automatic_tahun_ajaran():
+    semester, tahun_ajaran, mulai, selesai = get_semester_and_year()
+
+    # Cek apakah data tahun akademik dan semester ini sudah ada
+    existing = TahunAkademik.query.filter_by(
+        tahun_akademik = tahun_ajaran,
+    ).first()
+
+    if not existing:
+        # Buat entri baru
+        new_ta = TahunAkademik(
+            tahun_akademik=tahun_ajaran,
+            mulai=mulai,
+            sampai=selesai
+        )
+        db.session.add(new_ta)
+        db.session.commit()
 
 from . import api_admin, login, midtrans, view, api_guru, api_murid
 

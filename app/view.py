@@ -1,4 +1,4 @@
-from . import app, bcrypt, db, User, Berita, Kelas,TahunAkademik, Kbm, Siswa, Guru, Mapel,Penilaian, JadwalPelajaran, PembagianKelas, Siswa
+from . import app, bcrypt, db, User, Berita, Kelas,TahunAkademik, EvaluasiGuru, Kbm, Siswa, Guru, Mapel,Penilaian, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, jsonify, render_template, redirect, url_for, session
 import jwt, re, datetime, os, json, ast, uuid
 from datetime import datetime, timedelta
@@ -55,13 +55,16 @@ def dashboard():
     batas_waktu = datetime.utcnow() - timedelta(days=14)
   
     profil = {}
+    evaluasi = False
+    berita_terbaru = None
     if role == 'admin':
-        berita_terbaru =''
+        data_guru = Guru.query.all()
         profil = {
             'username': user.username,
             'email': user.email,
             'role': 'Admin'
         }
+        berita_terbaru = None
         # Jumlah data
         jumlah_siswa = db.session.query(Siswa).count()
         jumlah_guru = db.session.query(Guru).count()
@@ -98,7 +101,8 @@ def dashboard():
         chart_bulan = []
         chart_rata = []
         now = datetime.now()
-
+        
+        data_guru = Guru.query.all()
         for i in range(11, -1, -1):
             target_date = now.replace(day=1) - timedelta(days=30*i)
             bulan = target_date.strftime('%b %Y')
@@ -115,7 +119,10 @@ def dashboard():
                 'bulan': chart_bulan,
                 'rata_rata': chart_rata
             }
-        return render_template('dashboard.html', 
+        return render_template('dashboard.html',
+            
+        data_guru = data_guru,
+            evaluasi=evaluasi,
             jumlah_siswa=jumlah_siswa,
             jumlah_guru=jumlah_guru,
             jumlah_kelas=jumlah_kelas,
@@ -130,6 +137,7 @@ def dashboard():
         berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'guru').order_by(Berita.tanggal_dibuat.desc()).first()
 
         guru = Guru.query.filter_by(nip=user.nip).first()
+
         profil = {
             'nama': guru.nama,
             'nip': guru.nip,
@@ -143,10 +151,33 @@ def dashboard():
             'spesialisasi': guru.spesialisasi,
             'role': 'Guru'
         }
+        data_guru = Guru.query.all()
 
     elif role == 'murid':
         berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'murid').order_by(Berita.tanggal_dibuat.desc()).first()
+        
+        # 1. Ambil tahun akademik dan semester aktif
+        tahun_aktif = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).first()
 
+        if tahun_aktif:
+            tanggal_awal = tahun_aktif.mulai
+            tanggal_akhir = tahun_aktif.sampai
+        else:
+            tanggal_awal = tanggal_akhir = datetime.utcnow()  # fallback kalau gak ada
+
+        # 2. Cek apakah ada evaluasi guru untuk siswa ini di semester ini
+        
+        evaluasi_exist = EvaluasiGuru.query.filter(
+        EvaluasiGuru.evaluator_id == session['id'],
+        EvaluasiGuru.tanggal >= tanggal_awal,
+        EvaluasiGuru.tanggal <= tanggal_akhir
+        ).first()
+        print(session['id'])
+        print(evaluasi_exist)
+        # 3. Set flag evaluasi
+        evaluasi = False if evaluasi_exist else True
+        print(evaluasi)
+        data_guru = Guru.query.all()
         siswa = Siswa.query.filter_by(nis=user.nis).first()
         kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
         profil = {
@@ -162,7 +193,8 @@ def dashboard():
             'role': 'Murid'
         }
     
-    return render_template('dashboard.html', profil=profil, berita=berita_terbaru)
+    return render_template('dashboard.html',
+        data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
 
 @app.route('/daftar_hadir_ujian')
 def view_daftar_hadir_ujian():

@@ -16,7 +16,7 @@
   <label>Mapel yang Diampu</label>
   <select class="form-control" name="id_ampu" required>
     {% for a in ampu %}
-    <option value="{{ a.id_ampu }}">{{ a.guru_rel.nama }} - {{ a.mapel_rel.nama_mapel }} - {{ a.pembagian_rel.kelas_rel.nama_kelas }}</option>
+    <option value="{{ a.id_ampu }}">{{ a.guru_rel.nama }} - {{ a.mapel_rel.nama_mapel }} </option>
     {% endfor %}
   </select>
 </div>
@@ -32,7 +32,11 @@
   <label>Penilai</label>
   <select class="form-control" name="evaluator_id" required>
     {% for user in users %}
-    <option value="{{ user.id }}">{{ user.username }} - {{ user.roles[0].name }}</option>
+    <option value="{{ user.id }}">{{ user.username }} - 
+      {% if user.roles %}
+        - {{ user.roles[-1].name }}
+      {% endif %}
+    </option>
     {% endfor %}
   </select>
 </div>
@@ -96,14 +100,13 @@
          {% for e in evaluasi %}
 		<tr>
 		  <td>{{ e.guru.nama }}</td>
-		  <td>{{ e.ampu.mapel_rel.nama_mapel }} - {{ e.ampu.pembagian_rel.kelas_rel.nama_kelas }}</td>
+		  <td>{{ e.ampu.mapel_rel.nama_mapel if e.ampu and e.ampu.mapel_rel else 'semua mapel' }}</td>
 		  <td>{{ e.aspek }}</td>
 		  <td>{{ e.skor }}</td>
 		  <td>{{ e.komentar or '-' }}</td>
-		  <td>{{ e.evaluator.nama }} ({{ e.evaluator_role }})</td>
+		  <td>{{ e.evaluator.nama }}  ({{ e.evaluator_role }})</td>
 		  <td>{{ e.tanggal.strftime("%d-%m-%Y %H:%M") }}</td>
 		  <td>
-			<button type="button" class="btn btn-warning" onclick="openEditModal('{{ e.id }}')">Edit</button>
 			<button type="button" class="btn btn-danger" onclick="deleteData('{{ e.id }}')">Hapus</button>
 		  </td>
 		</tr>

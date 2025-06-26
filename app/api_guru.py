@@ -5,7 +5,10 @@ from sqlalchemy import case
 from itsdangerous import BadSignature, SignatureExpired
 import jwt, re, datetime, os, json, ast, uuid
 from collections import defaultdict
+from sqlalchemy import extract
+from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
+from sqlalchemy.exc import IntegrityError
 
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
@@ -272,31 +275,123 @@ def list_kbm():
     daftar_tahun = TahunAkademik.query.all()
     daftar_pembagian = PembagianKelas.query.filter_by(nip=guru.nip).all()
     print(data_ampu)
+    
+    tahun = request.args.get('tahun', type=int)
+    bulan = request.args.get('bulan', type=int)
+    tanggal = request.args.get('tanggal', type=int)
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    # Mulai query dari AmpuMapel
+    query = AmpuMapel.query.filter_by(nip=guru.nip)
+
+    # Filter berdasarkan tanggal jika ada
+    if tahun:
+        query = query.filter(extract('year', AmpuMapel.tanggal) == tahun)
+    if bulan:
+        query = query.filter(extract('month', AmpuMapel.tanggal) == bulan)
+    if tanggal:
+        query = query.filter(extract('day', AmpuMapel.tanggal) == tanggal)
+
+    # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
+    # Jangan urutkan pakai kolom dari table lain
+    query = query.order_by(AmpuMapel.id_ampu.desc())
+
+
+    # Pagination
+    paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+    print(query.all())
+    info_list = paginated_data.items
+    # Cek total data dulu
+    total_records = query.count()
+    total_pages = (total_records + per_page - 1) // per_page
+
+    # Jika halaman diminta melebihi total halaman, reset ke 1
+    if page > total_pages:
+        page = 1
+
+    has_next = paginated_data.has_next
+    has_prev = paginated_data.has_prev
+    data_kbm = Kbm.query.all()
+    page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
+    keterangan = Keterangan.query.order_by(
+        case(
+            (Keterangan.id_keterangan == 1, 0),
+            else_=1
+        )
+    ).all()
+
+    # Serialize ke dict
+    result = []
+    for k in keterangan:
+        result.append({
+            "id_keterangan": k.id_keterangan,
+            "keterangan": k.keterangan
+        })
+
+    print(info_list)
+    print(data_kbm)
+    # Ambil semua data pendukung untuk dropdown/filter
+    data_guru = Guru.query.all()
+    data_kelas = Kelas.query.all()
+    data_mapel = Mapel.query.all()
+
+    # Ambil tahun unik dari tanggal ampu_mapel
+    tahun_query = (
+        db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
+        .filter_by(nip=guru.nip)
+        .group_by(extract('year', AmpuMapel.tanggal))
+        .order_by(extract('year', AmpuMapel.tanggal).desc())
+        .all()
+    )
+
+    # Buat list tahun dari hasil query
+    tahun_list = [int(row.tahun) for row in tahun_query if row.tahun is not None]
     return render_template("guru/list_ampu.html",
-                           title="Pelajaran Diampu",
-                           btn_tambah=True,
-                           data_ampu=data_ampu,
-                           daftar_mapel=daftar_mapel,
-                           daftar_semester=daftar_semester,
-                           daftar_kelas=daftar_kelas,
-                           daftar_tahun=daftar_tahun,
-                           daftar_pembagian=daftar_pembagian)
+                            title="Pelajaran Diampu",
+                            btn_tambah=True,
+                            thn=tahun_list,
+                            data_guru = data_guru,
+                            data_kelas = data_kelas,
+                            data_mapel = data_mapel,
+                            data_ampu=info_list,
+                            data_kbm=data_kbm,
+                            keterangan=result,
+                            daftar_mapel=daftar_mapel,
+                            daftar_semester=daftar_semester,
+                            daftar_kelas=daftar_kelas,
+                            daftar_tahun=daftar_tahun,
+                            daftar_pembagian=daftar_pembagian,
+                            page=page,
+                            per_page=per_page,
+                            total_pages=total_pages,
+                            total_records=total_records,
+                            has_next=has_next,
+                            has_prev=has_prev,
+                            page_range=page_range)
 
 @app.route("/kbm/list/tambah", methods=["POST"])
 def kbm_tambah():
-     # Tambah data baru
+    try:
         new_ampu = AmpuMapel(
-            nip=session.get('nip',''),
+            nip=session.get('nip', ''),
             id_mapel=request.json.get('id_mapel'),
-            id_pembagian=request.json.get('id_pembagian'),
+            id_pembagian=request.json.get('id_pembagian') or None,  # NULL -> None
             id_semester=request.json.get('id_semester'),
             id_tahun_akademik=request.json.get('id_tahun_akademik'),
-            tanggal=datetime.utcnow()  # meskipun tidak ditampilkan
+            tanggal=datetime.datetime.utcnow()
         )
         db.session.add(new_ampu)
         db.session.commit()
         flash("Data pelajaran berhasil ditambahkan", "success")
-        return redirect(url_for('list_kbm'))
+    except IntegrityError:
+        db.session.rollback()
+        flash("Gagal menambahkan data: ID pembagian tidak valid atau tidak ditemukan.", "danger")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Terjadi kesalahan: {str(e)}", "danger")
+
+    return jsonify({'msg':'Data berhasil ditambahkan'})
+
 @app.route("/kbm/list/edit/<int:id>", methods=["PUT"])
 def edit_ampu(id):
         ampu = AmpuMapel.query.get_or_404(id)
@@ -306,14 +401,25 @@ def edit_ampu(id):
         ampu.id_tahun_akademik = request.json.get('id_tahun_akademik')
         db.session.commit()
         flash("Data berhasil diupdate", "success")
-        return redirect(url_for('list_kbm'))
+        
+        return jsonify({'msg':'Data berhasil ditupdate'})
 @app.route("/kbm/list/hapus/<int:id>", methods=["DELETE"])
 def hapus_ampu(id):
-    ampu = AmpuMapel.query.get_or_404(id)
+    ampu = AmpuMapel.query.filter_by(id_ampu=id).first()
+    if not ampu:
+        return jsonify({'msg': 'Data ampu_mapel tidak ditemukan'}), 404
+
+    # Hapus semua KBM yang terkait dengan ampu ini
+    daftar_kbm = Kbm.query.filter_by(id_ampu=ampu.id_ampu).all()
+    for kbm in daftar_kbm:
+        db.session.delete(kbm)
+
     db.session.delete(ampu)
     db.session.commit()
+
     flash("Data berhasil dihapus", "success")
-    return redirect(url_for('list_kbm'))
+    return jsonify({'msg': 'Data berhasil dihapus'})
+
 
 @app.route("/kbm/<int:id_ampu>/daftar")
 def daftar_kbm(id_ampu):
@@ -486,58 +592,97 @@ def hapus_tagihan(id_tagihan):
 
 @app.route('/guru/penilaian')
 def penilaian_list():
-    print(session.get('role'))
     if session.get('role') != 'guru':
         abort(403)
-    penilaian = Penilaian.query.all()
+
+    nip = session.get('nip')
+    if not nip:
+        abort(403)
+
+    # Ambil objek guru
+    guru = Guru.query.filter_by(nip=nip).first()
+    if not guru:
+        abort(404)
+
     data_siswa = Siswa.query.all()
-    data_ampu = AmpuMapel.query.filter_by(nip=session['nip']).all()
-    btn_tambah = True
+    data_ampu = AmpuMapel.query.filter_by(nip=nip).all()
+    data_guru = Guru.query.all()
+    data_kelas = Kelas.query.all()
+    data_mapel = Mapel.query.all()
+
     title = "Nilai Siswa"
     title_data = "Nilai Siswa"
+    btn_tambah = True
 
+    # Ambil filter query
     tahun = request.args.get('tahun', type=int)
     bulan = request.args.get('bulan', type=int)
     tanggal = request.args.get('tanggal', type=int)
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
-    
-    # Mulai query dari Penilaian
-    query = Penilaian.query
+    nis = request.args.get('nis')
+    id_kelas = request.args.get('id_kelas')
+    id_mapel = request.args.get('id_mapel')
+    jenis_penilaian = request.args.get('jenis_penilaian')
+    print(id_mapel)
+    print(nip)
+    query = (
+        Penilaian.query
+        .join(AmpuMapel, Penilaian.id_ampu == AmpuMapel.id_ampu)
+        .filter(AmpuMapel.nip == nip)
+    )
 
-    # Filter berdasarkan tanggal jika ada
     if tahun:
         query = query.filter(extract('year', Penilaian.tanggal) == tahun)
     if bulan:
         query = query.filter(extract('month', Penilaian.tanggal) == bulan)
     if tanggal:
         query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
+    if nis:
+        query = query.filter(Penilaian.nis == nis)
+    if id_mapel:
+        query = query.filter(AmpuMapel.id_mapel == id_mapel)
+    if jenis_penilaian:
+        query = query.filter(Penilaian.jenis_penilaian == jenis_penilaian)
+    if id_kelas:
+        subq = (
+            db.session.query(PembagianKelas.nis)
+            .filter(PembagianKelas.id_kelas == id_kelas)
+            .subquery()
+        )
+        query = query.filter(Penilaian.nis.in_(subq))
 
-    # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
     query = query.order_by(Penilaian.id_penilaian.desc())
-
     # Pagination
     paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
-    print(query.all())
     info_list = paginated_data.items
-    # Cek total data dulu
     total_records = query.count()
-    total_pages = (total_records + per_page - 1) // per_page
-
-    # Jika halaman diminta melebihi total halaman, reset ke 1
-    if page > total_pages:
-        page = 1
-
+    total_pages = paginated_data.pages
     has_next = paginated_data.has_next
     has_prev = paginated_data.has_prev
     page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
-    print(info_list)
+
+    # Ambil tahun unik dari tanggal AmpuMapel
+    tahun_query = (
+        db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
+        .filter(AmpuMapel.nip == nip)
+        .group_by(extract('year', AmpuMapel.tanggal))
+        .order_by(extract('year', AmpuMapel.tanggal).desc())
+        .all()
+    )
+    thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
+
+    print(thn)
     return render_template(
         'guru/penilaian.html',
         penilaian=info_list,
-        btn_tambah=btn_tambah,
+        tahun=thn,
+        data_guru=data_guru,
+        data_kelas=data_kelas,
+        data_mapel=data_mapel,
         data_siswa=data_siswa,
         data_ampu=data_ampu,
+        btn_tambah=btn_tambah,
         title=title,
         title_data=title_data,
         page=page,
@@ -604,3 +749,37 @@ def hapus_penilaian(id_penilaian):
     db.session.commit()
     flash('penilaian berhasil dihapus')
     return jsonify({'msg': 'penilaian berhasil dihapus'})
+@app.route('/api/kehadiran/siswa')
+def api_kehadiran_siswa():
+    id_ampu = request.args.get('id_ampu')
+    siswa_list = (
+        db.session.query(Siswa.nama, PembagianKelas.nis, Kelas.nama_kelas, Kehadiran.id_keterangan)
+        .join(PembagianKelas, PembagianKelas.nis == Siswa.nis)
+        .join(Kelas, Kelas.id_kelas == PembagianKelas.id_kelas)
+        .join(Kehadiran, Kehadiran.nis == Siswa.nis)
+        .filter(PembagianKelas.id_tahun_akademik == AmpuMapel.query.get(id_ampu).id_tahun_akademik)
+        .all()
+    )
+    return jsonify([{'nama': s[0], 'nis': s[1], 'nama_kelas': s[2],'id_keterangan': s[3]} for s in siswa_list])
+
+@app.route('/guru/kehadiran/tambah', methods=['POST'])
+def simpan_kehadiran_siswa():
+    id_ampu = request.form['id_ampu']
+    tanggal = datetime.datetime.now().date()
+
+    # Tambahkan data ke KBM (karena kehadiran harus ada ID KBM)
+    kbm = Kbm(tanggal=tanggal, materi='Kehadiran', sub_materi='-', id_ampu=id_ampu)
+    db.session.add(kbm)
+    db.session.flush()  # agar dapatkan id_kbm sebelum commit
+
+    for key in request.form:
+        if key.startswith('status['):
+            nis = key[7:-1]  # ambil angka di dalam status[20001]
+            status = request.form[key]
+            print(status)
+            id_keterangan = status  # fungsi untuk mapping
+            kehadiran = Kehadiran(id_kbm=kbm.id_kbm, nis=int(nis), id_keterangan=id_keterangan)
+            db.session.add(kehadiran)
+
+    db.session.commit()
+    return '', 200

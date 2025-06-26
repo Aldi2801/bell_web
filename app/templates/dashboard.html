@@ -1,4 +1,4 @@
-{% extends 'include/include.html' %} 
+{% extends 'layout.html' %} 
 {% block head %}
     <title>Dashboard - {{ profil.role }}</title>
  <link
@@ -17,196 +17,249 @@
 </style>
 {% endblock %}
 {% block content %}
- 
-<div class="container-fluid">
-{% if session['role'] == 'admin' %}
-<div class="row">
-  <!-- CARD: Jumlah Siswa -->
-  <div class="col-lg-3 col-md-6">
-    <div class="card bg-light-primary">
-      <div class="card-body">
-        <h5 class="card-title">Jumlah Siswa</h5>
-        <h2 class="fw-bold">{{ jumlah_siswa }}</h2>
+ <div class="container-fluid">
+  {% if session['role'] == 'admin' %}
+    <!-- Dashboard untuk admin -->
+    <div class="row">
+      <!-- CARD: Jumlah Siswa -->
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-light-primary">
+          <div class="card-body">
+            <h5 class="card-title">Jumlah Siswa</h5>
+            <h2 class="fw-bold">{{ jumlah_siswa }}</h2>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  <!-- CARD: Jumlah Guru -->
-  <div class="col-lg-3 col-md-6">
-    <div class="card bg-light-info">
-      <div class="card-body">
-        <h5 class="card-title">Jumlah Guru</h5>
-        <h2 class="fw-bold">{{ jumlah_guru }}</h2>
+      <!-- CARD: Jumlah Guru -->
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-light-info">
+          <div class="card-body">
+            <h5 class="card-title">Jumlah Guru</h5>
+            <h2 class="fw-bold">{{ jumlah_guru }}</h2>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-   <!-- CARD: Jumlah Kelas -->
-  <div class="col-lg-3 col-md-6">
-    <div class="card bg-light-success">
-      <div class="card-body">
-        <h5 class="card-title">Jumlah Kelas</h5>
-        <h2 class="fw-bold">{{ jumlah_kelas }}</h2>
+      <!-- CARD: Jumlah Kelas -->
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-light-success">
+          <div class="card-body">
+            <h5 class="card-title">Jumlah Kelas</h5>
+            <h2 class="fw-bold">{{ jumlah_kelas }}</h2>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  <!-- CARD: Rata-rata Siswa per Kelas -->
-  <div class="col-lg-3 col-md-6">
-    <div class="card bg-light-warning">
-      <div class="card-body">
-        <h5 class="card-title">Rata-rata Siswa/Kelas</h5>
-        <h2 class="fw-bold">{{ rata_siswa_per_kelas }}</h2>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-6">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">Download Data</h4>
-        <a href="/admin/export_rapor" class="btn btn-primary mt-2">Download Rapor</a>
-        <a href="/admin/export_penilaian" class="btn btn-info mt-2">Download Data Penilaian</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">Jadwal KBM Hari Ini</h4>
-        <ul class="list-group">
-          {% for item in jadwal_hari_ini %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ item.time }} - {{ item.subject }}
-            <span class="badge bg-success">{{ item.day }}</span>
-          </li>
-          {% else %}
-          <li class="list-group-item">Tidak ada jadwal hari ini.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-6">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">Rata-rata Penilaian Siswa per Bulan</h4>
-        <div id="chart-penilaian"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-12">
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">Siswa Terbaru</h4>
-        <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama</th>
-                <th>NIS</th>
-                <th>NISN</th>
-                <th>Tanggal Daftar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for s in siswa_terbaru %}
-              <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ s.nama }}</td>
-                <td>{{ s.nis }}</td>
-                <td>{{ s.nisn }}</td>
-                <td>{{ s.user.created_at.strftime('%d-%m-%Y') if s.user and s.user.created_at else '-' }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+      <!-- CARD: Rata-rata Siswa per Kelas -->
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-light-warning">
+          <div class="card-body">
+            <h5 class="card-title">Rata-rata Siswa/Kelas</h5>
+            <h2 class="fw-bold">{{ rata_siswa_per_kelas }}</h2>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-<!--This page JavaScript -->
+
+    <!-- Chart dan Tabel -->
+    <div class="row">
+      <div class="col-lg-12 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Rata-rata Penilaian Siswa per Bulan</h4>
+            <div id="chart-penilaian"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Siswa Terbaru</h4>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>NIS</th>
+                    <th>NISN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for s in siswa_terbaru %}
+                    <tr>
+                      <td>{{ loop.index }}</td>
+                      <td>{{ s.nama }}</td>
+                      <td>{{ s.nis }}</td>
+                      <td>{{ s.nisn }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script Chart -->
     <script src="../../static/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
-    <!-- Chart JS -->
     <script>
-const data_bulan = {{ chart_data.bulan | safe }};
-const data_rata_rata = {{ chart_data.rata_rata | safe }};
+      const data_bulan = {{ chart_data.bulan | safe }};
+      const data_rata_rata = {{ chart_data.rata_rata | safe }};
 
-var options = {
-  chart: {
-    type: 'bar',
-    height: 300
-  },
-  series: [{
-    name: 'Rata-rata Nilai',
-    data: data_rata_rata
-  }],
-  xaxis: {
-    categories: data_bulan
-  },
-  colors: ['#1e4db7']
-};
+      var options = {
+        chart: { type: 'bar', height: 300 },
+        series: [{ name: 'Rata-rata Nilai', data: data_rata_rata }],
+        xaxis: { categories: data_bulan },
+        colors: ['#1e4db7'],
+      };
+      new ApexCharts(document.querySelector("#chart-penilaian"), options).render();
+    </script>
 
-var chart = new ApexCharts(document.querySelector("#chart-penilaian"), options);
-chart.render();
-</script>
   {% else %}
-{% if berita %}
-<!-- Modal -->
-<div class="modal fade" id="beritaModal" tabindex="-1" aria-labelledby="beritaModalLabel" aria-hidden="true">
+    {% if evaluasi|string == 'True' %}
+    
+<!-- Modal untuk evaluasi -->
+<div class="modal fade" id="evaluasiModal" tabindex="-1" aria-labelledby="evaluasiModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="beritaModalLabel">{{ berita.judul }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        <h5 class="modal-title" id="evaluasiModalLabel">Evaluasi</h5>
       </div>
-      <div class="modal-body">
-        <p>{{ berita.isi }}</p>
-        <small class="text-muted">Dibuat pada: {{ berita.tanggal_dibuat.strftime('%d %B %Y') }}</small>
+      <div class="modal-body" id="body">
+        <p>{{evaluasi}} Seluruh orang tua diharapkan mengisi evaluasi di link form <a href="#" id="click">disini</a></p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      <div class="modal-footer" id="modal-footer">
+        <!-- Tombol tutup akan ditampilkan setelah submit berhasil -->
       </div>
     </div>
   </div>
 </div>
 
-<!-- Script untuk auto-show modal -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    var beritaModal = new bootstrap.Modal(document.getElementById('beritaModal'));
-    beritaModal.show();
+document.addEventListener("DOMContentLoaded", function () {
+  const evaluasiModal = new bootstrap.Modal(document.getElementById('evaluasiModal'), {
+    backdrop: 'static',
+    keyboard: false
   });
+  evaluasiModal.show();
+
+  document.getElementById('click').addEventListener('click', function () {
+    document.getElementById('body').innerHTML = `
+    
+      <form id="evaluasiForm" class="needs-validation" novalidate action="/evaluasi_guru/tambah" method="POST">
+        <input type="hidden" name="evaluator_role" value="murid" required>
+        <input type="hidden" name="evaluator_id" value="{{ session.get('id','') }}" required>
+
+        <div class="col-md-12 mb-3">
+          <label>Aspek</label>
+          <input type="text" class="form-control" name="aspek" required>
+        </div>
+
+        <div class="col-md-12 mb-3">
+          <label>Skor (1-100)</label>
+          <input type="number" class="form-control" name="skor" min="1" max="100" required>
+        </div>
+
+        <div class="col-md-12 mb-3">
+          <label>Guru yang Dinilai</label>
+          <select name="nip" class="form-select" required>
+            <option value="" disabled selected>Pilih Guru</option>
+            {% for guru in data_guru %}
+              <option value="{{ guru.nip }}">{{ guru.nip }} - {{ guru.nama }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-12 mb-3">
+          <label>Komentar</label>
+          <textarea class="form-control" name="komentar" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Kirim</button>
+      </form>
+    `;
+
+    // Tambahkan validasi dan submit handler
+    setTimeout(() => {
+      const form = document.getElementById('evaluasiForm');
+      form.addEventListener('submit', function (e) {
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          e.stopPropagation();
+          form.classList.add('was-validated');
+        } else {
+          // Setelah form valid dan submit diklik, tampilkan tombol "Tutup"
+          const footer = document.getElementById('modal-footer');
+          footer.innerHTML = `
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+          `;
+        }
+      });
+    }, 100); // Delay agar form ter-render dulu
+  });
+});
+</script>
+    {% else %}
+    {% if berita %}
+      <!-- Modal untuk berita -->
+      <div class="modal fade" id="beritaModal" tabindex="-1" aria-labelledby="beritaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="beritaModalLabel">{{ berita.judul }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <p>{{ berita.isi }}</p>
+              <small class="text-muted">Dibuat pada: {{ berita.tanggal_dibuat.strftime('%d %B %Y') }}</small>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          new bootstrap.Modal(document.getElementById('beritaModal')).show();
+        });
+      </script>
+    {% endif %}
+
+    {% endif %}
+
+    <!-- Informasi Profil untuk non-admin -->
+    <h1 class="mb-4">Selamat datang, {{ profil.nama if profil.nama else profil.username }}!</h1>
+    <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
+    <div class="row mt-3">
+      <div class="col-lg-12 col-md-12">
+        <div class="card">
+          <div class="card-header bg-primary text-white">Informasi Profil - {{ profil.role }}</div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for key, value in profil.items() if key != 'role' %}
+                <li class="list-group-item d-flex align-items-center">
+                  <strong>{{ key.replace('_', ' ').title() }}:</strong>&nbsp;{{ value }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {% endif %}
+</div>
+{% if session['role']!='admin' %}
+<script>
+         const now = new Date();
+    const year = now.getFullYear();
+    const semester = now.getMonth() + 1 >= 7 ? "Ganjil" : "Genap";
+    const startYear = semester === "Ganjil" ? year : year - 1;
+    const endYear = startYear + 1;
+    document.getElementById("tahunPelajaran").innerHTML = `Tahun Pelajaran ${startYear}/${endYear} - Semester ${semester}`;
+
 </script>
 {% endif %}
-        <h1 class="mb-4">Selamat datang, {{ profil.nama if profil.nama else profil.username }}!</h1>
-        <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
-  <div class="row">
-   
-    <div class="col-lg-12 col-md-12">
-
-      <div class="card">
-            <div class="card-header bg-primary text-white">
-                Informasi Profil - {{ profil.role }}
-            </div>
-            <div class="card-body">
-                <ul class="list-group">
-                    {% for key, value in profil.items() %}
-                        {% if key != 'role' %}
-                            <li class="list-group-item d-flex justify-content-start align-items-center">
-                                <strong>{{ key.replace('_', ' ').title() }} = </strong>
-                                <span> {{ value }}</span>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
- </div> </div>
- </div>
-        </div>
-  </div>
-  {% endif %}
-
 {% endblock %}

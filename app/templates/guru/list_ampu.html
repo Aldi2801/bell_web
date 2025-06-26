@@ -9,10 +9,17 @@
     {% endfor %}
   </select>
 </div>
-
 <div class="col-md-12 mb-3">
-  <label for="id_pembagian">Kelas</label>
-  <select name="id_pembagian" class="form-control" required>
+  <label for="id_mapel">Materi</label>
+  <input name="materi" class="form-control" required>
+</div>
+<div class="col-md-12 mb-3">
+  <label for="id_mapel">Sub materi (optional)</label>
+  <input name="sub_materi" class="form-control" >
+</div>
+<div class="col-md-12 mb-3">
+  <label for="id_kelas">Kelas</label>
+  <select name="id_kelas" class="form-control" required>
     {% for k in daftar_kelas %}
     <option value="{{ k.id_kelas }}">{{ k.nama_kelas }}</option>
     {% endfor %}
@@ -36,6 +43,7 @@
     {% endfor %}
   </select>
 </div>
+
 {% endblock %}
 
 {% block content %}
@@ -73,10 +81,9 @@
                   <th>No</th>
                   <th>Nama Guru</th>
                   <th>Mata Pelajaran</th>
-                  <th>Nama Siswa</th>
-                  <th>Kelas</th>
                   <th>Semester</th>
                   <th>Tahun Akademik</th>
+                  <th>Tanggal</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -88,9 +95,9 @@
                   <td>{{ a.mapel_rel.nama_mapel }}</td>
                   <td>{{ a.semester_rel.semester }}</td>
                   <td>{{ a.tahun_akademik_rel.tahun_akademik }}</td>
+                  <td>{{ a.tanggal }}</td>
                   <td>
                       <button type="button" class="btn btn-success" onclick="openKehadiranModal('{{ a.id_ampu }}')">Kehadiran</button>
-                      <button type="button" class="btn btn-warning" onclick="openEditModal('{{ a.id_ampu }}')">Edit</button>
                       <button type="button" class="btn btn-danger" onclick="deleteData('{{ a.id_ampu }}')">Hapus</button>
                   </td>
                 </tr>
@@ -130,28 +137,94 @@
     </div>
   </div>
 </div>
- <!-- Modal Kehadiran -->
+<!-- Modal Kehadiran -->
 <div class="modal fade" id="kehadiranModal" tabindex="-1" aria-labelledby="kehadiranLabel" aria-hidden="true">
-  <div class="modal-dialog  modal-lg"> 
-  <div class="modal-content">
-    
-    <!-- Modal Header -->
-    <div class="modal-header">
-    <h5 class="modal-title" id="kehadiranLabel"></h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-    </div>
-    <!-- Modal Body -->
-    <div class="modal-body">
-    <form id="kehadiranForm">
-        
-      <div class="modal-footer"><button type="submit" id="tombol-kehadiran" class="btn btn-success">Simpan</button>
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+  <div class="modal-dialog modal-lg"> 
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="kehadiranLabel">Kehadiran Siswa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      
-    </form>
+      <div class="modal-body">
+        <form id="kehadiranForm">
+          <input type="hidden" name="id_ampu" id="idAmpuInput">
+          <div class="table-responsive">
+            <table id="kehadiranTable" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Siswa</th>
+                  <th>Kelas</th>
+                  <th>Kehadiran</th>
+                </tr>
+              </thead>
+              <tbody id="kehadiranTbody">
+                <!-- baris akan diisi via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Simpan</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
   </div>
 </div>
-<script>$('#myTable').DataTable();</script>
+
+<script>
+$('#myTable').DataTable();
+$('#kehadiranModal').on('shown.bs.modal', function () {
+  if (!$.fn.DataTable.isDataTable('#kehadiranTable')) {
+    $('#kehadiranTable').DataTable();
+  }
+});
+
+</script>
+<script>
+function openKehadiranModal(id_ampu) {
+  const keteranganList = {{ keterangan | tojson  }};
+
+  $('#idAmpuInput').val(id_ampu);
+  $('#kehadiranLabel').text('Kehadiran - ID: ' + id_ampu);
+  const tbody = $('#kehadiranTbody').empty();
+
+  $.getJSON(`/api/kehadiran/siswa?id_ampu=${id_ampu}`, function(data) {
+    data.forEach((s, i) => {
+      const options = keteranganList.map(k => `
+        <option value="${k.id_keterangan}" ${s.id_keterangan == k.id_keterangan ? 'selected' : ''}>${k.keterangan}</option>
+      `).join('');
+
+      tbody.append(`
+        <tr>
+          <td>${i+1}</td>
+          <td>${s.nama}</td>
+          <td>${s.nama_kelas}</td>
+          <td>
+            <select name="status[${s.nis}]" class="form-select">
+              ${options}
+            </select>
+          </td>
+        </tr>
+      `);
+    });
+
+    $('#kehadiranModal').modal('show');
+  });
+}
+
+
+  $('#kehadiranForm').on('submit', function(e){
+    e.preventDefault();
+    const data = $(this).serialize();
+    $.post('/guru/kehadiran/tambah', data)
+      .done(() => {
+        alert('Kehadiran tersimpan!');
+        $('#kehadiranModal').modal('hide');
+      })
+      .fail(() => alert('Gagal simpan kehadiran'));
+  });
+</script>
+
 {% endblock %}

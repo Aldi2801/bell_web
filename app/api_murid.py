@@ -1,4 +1,4 @@
-from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
+from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan,TahunAkademik, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
 from flask import render_template, request, jsonify, session, redirect, abort
 import jwt
 from datetime import datetime
@@ -164,51 +164,35 @@ def view_kehadiran():
     btn_tambah = True,
     title = "Manage Berita",
     title_data = "Berita / Pengumuman")
-
 @app.route('/murid/kehadiran')
 def kehadiran():
-    # Ambil NIS dari user yang login
-    nis = session.get('nis', None)
+    nis = session.get('nis')
+    if not nis:
+        return "Unauthorized", 403
 
-    # Ambil nama lengkap murid dari tabel Siswa berdasarkan NIS
     siswa = Siswa.query.filter_by(nis=nis).first()
-    nama_lengkap = siswa.nama if siswa else None
+    if not siswa:
+        return "Siswa tidak ditemukan", 404
 
-    # Query kehadiran siswa
-    data_kehadiran = (
-        db.session.query(
-            Kehadiran,
-            Kbm.tanggal,
-            Kbm.materi,
-            Mapel.nama_mapel,
-            Keterangan.keterangan,
-            Kelas.nama_kelas,
-            Kelas.tingkat
-        )
-        .join(Kbm, Kehadiran.id_kbm == Kbm.id_kbm)
-        .join(AmpuMapel, Kbm.id_ampu == AmpuMapel.id_ampu)
-        .join(Mapel, AmpuMapel.id_mapel == Mapel.id_mapel)
-        .join(Keterangan, Kehadiran.id_keterangan == Keterangan.id_keterangan)
-        .join(PembagianKelas, AmpuMapel.id_pembagian == PembagianKelas.id_pembagian)
-        .join(Kelas, PembagianKelas.id_kelas == Kelas.id_kelas)
-        .filter(Kehadiran.nis == nis)
-        .all()
-    )
+    data_kehadiran = Kehadiran.query.filter_by(nis=nis).all()
 
-    return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran, nama_lengkap=nama_lengkap,
-                           
-    btn_tambah = False,
-    title = "Kehadiran",
-    title_data = "Kehadiran")
+
+    # Ubah hasil query jadi dict agar cocok dengan HTML
+    print(data_kehadiran)
+    
+    pembagian = PembagianKelas.query.filter_by(nis=nis).all()
+    return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran,pembagian=pembagian,
+                           btn_tambah = False,
+                           title = "Kehadiran",
+                           title_data = "Kehadiran")
 
 @app.route('/pengumuman')
 def view_pengumuman():
-    berita = Berita.query.all()
-    guru = Guru.query.all()  # ambil semua guru
+    berita = Berita.query.filter_by(pengumuman_untuk='murid').all()
     btn_tambah = False
     title = "Pengumuman"
     title_data = "Pengumuman"
-    return render_template('murid/berita.html', berita=berita, guru=guru,btn_tambah=btn_tambah,title=title,title_data=title_data)
+    return render_template('murid/berita.html', berita=berita,btn_tambah=btn_tambah,title=title,title_data=title_data)
 
 @app.route('/murid/penilaian')
 def penilaian_murid():
