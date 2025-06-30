@@ -1,6 +1,18 @@
 {% extends "layout.html" %}
 
 {% block form_tambah %}
+{% if session['role'] =='admin' %}
+
+<div class="col-md-12 mb-3">
+  <label for="nip">Pilih Guru</label>
+  <select name="nip" class="form-control" required>
+    {% for g in data_guru %}
+    <option value="{{ g.nip }}">{{ g.nama }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+{% endif %}
 <div class="col-md-12 mb-3">
   <label for="id_mapel">Mata Pelajaran</label>
   <select name="id_mapel" class="form-control" required>
@@ -217,7 +229,11 @@ function openKehadiranModal(id_ampu,id_kbm) {
             <td>${s.nama}</td>
             <td>${s.nama_kelas}</td>
             <td>
-              <select name="status[${s.nis}]" class="form-select">
+              <select name="status[${s.nis}]" 
+                  {% if session['role'] =='admin' %}
+                  disabled
+                  {% endif %}
+                  class="form-select">
                 ${options}
               </select>
             </td>

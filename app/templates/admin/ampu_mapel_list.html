@@ -89,6 +89,9 @@
                   <th>No</th>
                   <th>Nama Guru</th>
                   <th>Mata Pelajaran</th>
+                  <th>Materi</th>
+                  <th>Submateri</th>
+                  <th>Kelas</th>
                   <th>Semester</th>
                   <th>Tahun Akademik</th>
                   <th>Tanggal</th>
@@ -101,11 +104,14 @@
                   <td>{{ loop.index }}</td>
                   <td>{{ a.guru_rel.nama }}</td>
                   <td>{{ a.mapel_rel.nama_mapel }}</td>
+                  <td>{{ a.materi }}</td>
+                  <td>{{ a.sub_materi }}</td>
+                  <td>{{ a.kelas_rel.nama_kelas }}</td>
                   <td>{{ a.semester_rel.semester }}</td>
                   <td>{{ a.tahun_akademik_rel.tahun_akademik }}</td>
                   <td>{{ a.tanggal }}</td>
                   <td>
-                      <button type="button" class="btn btn-success" onclick="openKehadiranModal('{{ a.id_ampu }}')">Kehadiran</button>
+                      <button type="button" class="btn btn-success" onclick="openKehadiranModal({{ a.id_ampu }},{{ a.id_kbm }})">Kehadiran</button>
                       <button type="button" class="btn btn-danger" onclick="deleteData('{{ a.id_ampu }}')">Hapus</button>
                   </td>
                 </tr>
@@ -190,14 +196,14 @@ $('#kehadiranModal').on('shown.bs.modal', function () {
 
 </script>
 <script>
-function openKehadiranModal(id_ampu) {
+function openKehadiranModal(id_ampu,id_kbm) {
   const keteranganList = {{ keterangan | tojson  }};
 
   $('#idAmpuInput').val(id_ampu);
-  $('#kehadiranLabel').text('Kehadiran - ID: ' + id_ampu);
+  $('#kehadiranLabel').text('Kehadiran - ID: ' + id_kbm);
   const tbody = $('#kehadiranTbody').empty();
 
-  $.getJSON(`/api/kehadiran/siswa?id_ampu=${id_ampu}`, function(data) {
+  $.getJSON(`/api/kehadiran/siswa?id_kbm=${id_kbm}`, function(data) {
     data.forEach((s, i) => {
       const options = keteranganList.map(k => `
         <option value="${k.id_keterangan}" ${s.id_keterangan == k.id_keterangan ? 'selected' : ''}>${k.keterangan}</option>

@@ -298,7 +298,7 @@ def tambah_ubah_jadwal():
 
 @app.route("/kbm/list")
 def list_kbm():
-    if 'role' not in session or session['role'] != 'guru':
+    if 'role' not in session or session['role'] == 'guru':
         return redirect(url_for('login'))
 
     guru = Guru.query.filter_by(nip=session['nip']).first()
@@ -417,8 +417,12 @@ def kbm_tambah():
         id_semester=request.json.get('id_semester')
         id_kelas=request.json.get('id_kelas')
         id_tahun_akademik=request.json.get('id_tahun_akademik')
+        if session['role'] =='guru':
+            nip = session.get('nip', '')
+        else:
+            nip = request.json.get('nip')
         new_ampu = AmpuMapel(
-            nip = session.get('nip', ''),
+            nip = nip,
             id_mapel = request.json.get('id_mapel'),
             id_pembagian = request.json.get('id_pembagian') or None,  # NULL -> None
             id_semester = id_semester,

@@ -1,5 +1,7 @@
 from app import app, db, Role # pastikan Role diimpor dari model kamu
 
+from app import api_admin, login, midtrans, api_guru, api_murid
+
 def add_default_roles():
     role_names = ['murid', 'guru', 'admin']
     for role_name in role_names:

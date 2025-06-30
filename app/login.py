@@ -24,7 +24,7 @@ def homepahe():
     #return render_template('index.html')
 @app.route('/login')
 def login():
-    return render_template('admin/admin.html')
+    return render_template('login.html')
 
 @app.route('/proses_login', methods=['POST'])
 def proses_login():

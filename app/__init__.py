@@ -358,8 +358,6 @@ def create_automatic_tahun_ajaran():
         db.session.add(new_ta)
         db.session.commit()
 
-from . import api_admin, login, midtrans, view, api_guru, api_murid
-
 # @app.before_request
 # def create_automatic_bills():
     # semester, tahun_ajaran = get_semester_and_year()
