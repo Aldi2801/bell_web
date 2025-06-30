@@ -136,12 +136,14 @@ class AmpuMapel(db.Model):
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=True)
     id_tahun_akademik = db.Column(db.Integer, db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
     id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian', ondelete='SET NULL'), nullable=True)
+    id_kelas = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas', ondelete='CASCADE'), nullable=True)
 
     guru_rel = db.relationship("Guru", backref="ampu_mapel_list", passive_deletes=True)
     mapel_rel = db.relationship("Mapel", backref="ampu_mapel_list", passive_deletes=True)
     semester_rel = db.relationship("Semester", backref="ampu_mapel", passive_deletes=True)
     tahun_akademik_rel = db.relationship("TahunAkademik", backref="ampu_mapel", passive_deletes=True)
     pembagian_rel = db.relationship("PembagianKelas", backref="ampu_mapel", passive_deletes=True, uselist=False)
+    kelas_rel = db.relationship("Kelas", backref="ampu_mapel", passive_deletes=True)
 class Kbm(db.Model):
     __tablename__ = 'kbm'
 

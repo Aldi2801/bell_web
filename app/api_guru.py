@@ -308,7 +308,7 @@ def list_kbm():
     daftar_mapel = Mapel.query.all()
     daftar_semester = Semester.query.all()
     daftar_kelas = Kelas.query.all()
-    daftar_tahun = TahunAkademik.query.all()
+    daftar_tahun = TahunAkademik.query.order_by(TahunAkademik.id_tahun_akademik.desc()).all()
     daftar_pembagian = PembagianKelas.query.filter_by(nip=guru.nip).all()
     print(data_ampu)
     
@@ -364,8 +364,14 @@ def list_kbm():
             "keterangan": k.keterangan
         })
 
-    print(info_list)
     print(data_kbm)
+    for k in data_kbm:
+        for l in info_list:
+            if k.id_ampu == l.id_ampu:
+                l.id_kbm = k.id_kbm
+                l.materi = k.materi
+                l.sub_materi = k.sub_materi
+    print(info_list)
     # Ambil semua data pendukung untuk dropdown/filter
     data_guru = Guru.query.all()
     data_kelas = Kelas.query.all()
@@ -408,15 +414,39 @@ def list_kbm():
 @app.route("/kbm/list/tambah", methods=["POST"])
 def kbm_tambah():
     try:
+        id_semester=request.json.get('id_semester')
+        id_kelas=request.json.get('id_kelas')
+        id_tahun_akademik=request.json.get('id_tahun_akademik')
         new_ampu = AmpuMapel(
-            nip=session.get('nip', ''),
-            id_mapel=request.json.get('id_mapel'),
-            id_pembagian=request.json.get('id_pembagian') or None,  # NULL -> None
-            id_semester=request.json.get('id_semester'),
-            id_tahun_akademik=request.json.get('id_tahun_akademik'),
-            tanggal=datetime.datetime.utcnow()
+            nip = session.get('nip', ''),
+            id_mapel = request.json.get('id_mapel'),
+            id_pembagian = request.json.get('id_pembagian') or None,  # NULL -> None
+            id_semester = id_semester,
+            id_kelas = id_kelas,
+            id_tahun_akademik = id_tahun_akademik,
+            tanggal = datetime.datetime.now(datetime.timezone.utc)
         )
         db.session.add(new_ampu)
+        db.session.commit()
+        new_kbm = Kbm(
+            materi = request.json.get('materi'),
+            sub_materi = request.json.get('sub_materi'),
+            id_ampu = new_ampu.id_ampu
+        )
+        
+        db.session.add(new_kbm)
+        db.session.commit()  # Commit new_kbm before adding attendance
+        siswa_kelas = PembagianKelas.query.filter_by(id_kelas=id_kelas).filter_by(id_tahun_akademik=id_tahun_akademik).all()
+
+        # Tambahkan data kehadiran default "Hadir"
+        for siswa in siswa_kelas:
+            new_kehadiran = Kehadiran(
+                id_kbm=new_kbm.id_kbm,
+                nis=siswa.nis,
+                id_keterangan=1
+            )
+            db.session.add(new_kehadiran)
+
         db.session.commit()
         flash("Data pelajaran berhasil ditambahkan", "success")
     except IntegrityError:
@@ -787,15 +817,16 @@ def hapus_penilaian(id_penilaian):
     return jsonify({'msg': 'penilaian berhasil dihapus'})
 @app.route('/api/kehadiran/siswa')
 def api_kehadiran_siswa():
-    id_ampu = request.args.get('id_ampu')
+    id_kbm = request.args.get('id_kbm')
     siswa_list = (
         db.session.query(Siswa.nama, PembagianKelas.nis, Kelas.nama_kelas, Kehadiran.id_keterangan)
         .join(PembagianKelas, PembagianKelas.nis == Siswa.nis)
         .join(Kelas, Kelas.id_kelas == PembagianKelas.id_kelas)
         .join(Kehadiran, Kehadiran.nis == Siswa.nis)
-        .filter(PembagianKelas.id_tahun_akademik == AmpuMapel.query.get(id_ampu).id_tahun_akademik)
+        .filter(Kehadiran.id_kbm == id_kbm)
         .all()
     )
+    print(siswa_list)
     return jsonify([{'nama': s[0], 'nis': s[1], 'nama_kelas': s[2],'id_keterangan': s[3]} for s in siswa_list])
 
 @app.route('/guru/kehadiran/tambah', methods=['POST'])
