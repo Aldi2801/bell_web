@@ -298,18 +298,40 @@ def tambah_ubah_jadwal():
 
 @app.route("/kbm/list")
 def list_kbm():
-    if 'role' not in session or session['role'] == 'guru':
+    if 'role' not in session or session['role'] == 'murid':
         return redirect(url_for('login'))
+    if session['role'] == 'guru':
+        guru = Guru.query.filter_by(nip=session['nip']).first()
+        data_ampu = AmpuMapel.query.filter_by(nip=guru.nip).all()
+        daftar_pembagian = PembagianKelas.query.filter_by(nip=guru.nip).all()
+        query = AmpuMapel.query.filter_by(nip=guru.nip)
+        
+        # Ambil tahun unik dari tanggal ampu_mapel
+        tahun_query = (
+            db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
+            .filter_by(nip=guru.nip)
+            .group_by(extract('year', AmpuMapel.tanggal))
+            .order_by(extract('year', AmpuMapel.tanggal).desc())
+            .all()
+        )
+    else:
+        guru = Guru.query.all()
+        data_ampu = AmpuMapel.query.all()
+        daftar_pembagian = PembagianKelas.query.all()
+        query = AmpuMapel.query
 
-    guru = Guru.query.filter_by(nip=session['nip']).first()
-
+        # Ambil tahun unik dari tanggal ampu_mapel
+        tahun_query = (
+            db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
+            .group_by(extract('year', AmpuMapel.tanggal))
+            .order_by(extract('year', AmpuMapel.tanggal).desc())
+            .all()
+        )
     # Ambil data untuk tampilan
-    data_ampu = AmpuMapel.query.filter_by(nip=guru.nip).all()
     daftar_mapel = Mapel.query.all()
     daftar_semester = Semester.query.all()
     daftar_kelas = Kelas.query.all()
     daftar_tahun = TahunAkademik.query.order_by(TahunAkademik.id_tahun_akademik.desc()).all()
-    daftar_pembagian = PembagianKelas.query.filter_by(nip=guru.nip).all()
     print(data_ampu)
     
     tahun = request.args.get('tahun', type=int)
@@ -318,7 +340,6 @@ def list_kbm():
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
     # Mulai query dari AmpuMapel
-    query = AmpuMapel.query.filter_by(nip=guru.nip)
 
     # Filter berdasarkan tanggal jika ada
     if tahun:
@@ -377,14 +398,6 @@ def list_kbm():
     data_kelas = Kelas.query.all()
     data_mapel = Mapel.query.all()
 
-    # Ambil tahun unik dari tanggal ampu_mapel
-    tahun_query = (
-        db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
-        .filter_by(nip=guru.nip)
-        .group_by(extract('year', AmpuMapel.tanggal))
-        .order_by(extract('year', AmpuMapel.tanggal).desc())
-        .all()
-    )
 
     # Buat list tahun dari hasil query
     tahun_list = [int(row.tahun) for row in tahun_query if row.tahun is not None]
@@ -452,7 +465,7 @@ def kbm_tambah():
             db.session.add(new_kehadiran)
 
         db.session.commit()
-        flash("Data pelajaran berhasil ditambahkan", "success")
+        flash("Data berhasil ditambahkan", "success")
     except IntegrityError:
         db.session.rollback()
         flash("Gagal menambahkan data: ID pembagian tidak valid atau tidak ditemukan.", "danger")
@@ -484,6 +497,10 @@ def hapus_ampu(id):
     for kbm in daftar_kbm:
         db.session.delete(kbm)
 
+    # Hapus semua kehadiran yang terkait dengan ampu ini
+    daftar_kehidaran = Kehadiran.query.filter_by(id_kbm=ampu.id_ampu).all()
+    for kehadiran in daftar_kehidaran:
+        db.session.delete(kehadiran)
     db.session.delete(ampu)
     db.session.commit()
 

@@ -361,7 +361,7 @@ INSERT INTO `transaksi` (`id_transaksi`, `kode_order`, `id_tagihan`, `nis`, `ema
 --
 
 INSERT INTO `user` (`id`, `username`, `password`, `nis`, `nip`, `email`, `active`) VALUES
-(1, 'admin', '$2b$12$0CDIw.GPbUrAsVfn4bhbKeEcwjRd.hyAqomQunp1S3gX1tmJvd2mC', NULL, NULL, 'ADMIN@mail.com', 1),
+(1, 'admin', '$2b$12$0CDIw.GPbUrAsVfn4bhbKeEcwjRd.hyAqomQunp1S3gX1tmJvd2mC', NULL, NULL, 'mtsalhudabatang@gmail.com', 1),
 (2, 'jamar', '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '198005122020041001', 'pakarisW@mial.com', 1),
 (3, 'Salman', '$2b$12$N2D4cncbxLazOpAUX1GZnOsbyr7uFCTc41NtbxMgCO6ZGPJFtlHc.', 20001, NULL, 'man@gmail.com', 1),
 (4, 'Ulya', '$2b$12$zmdlJW2byTw/eW.1PQIPQ.0rQyUqoCId6VPyOGeVlLo1mtgNCwtPW', 20002, NULL, 'ulyakuswandarispt0@mail.com', 1),

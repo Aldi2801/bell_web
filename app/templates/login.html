@@ -1,7 +1,7 @@
 {% if session.jwt_token %}
 	<!-- Jika jwt_token ada -->
 	<script>
-		window.location.href = "/admin/dashboard";
+		window.location.href = "/dashboard";
 	</script>
 {% else %}
 <!DOCTYPE html>
@@ -126,11 +126,11 @@
 									<button type="button" id="login" class="btn  btn-block" style="background-color:#3692FF; color:#fff">
 										Login
 									</button>
-								</div>
+								</div><br>
 								<div class="form-group m-0">
-									<button type="button" id="reset_password_admin" class="btn  btn-block" style="background-color:#3692FF; color:#fff">
+									<a href="/reset_password_admin">
 										Reset Password Admin
-									</button>
+									</a>
 								</div>
 							</form>
 						</div>
@@ -175,7 +175,7 @@
                 document.getElementById("msg").style.display = "block";
             } else {
                 saveTokenToLocalStorage(response.token);
-                window.location.href = '/admin/dashboard';
+                window.location.href = '/dashboard';
             }
         },
         error: function(xhr, status, error) {
