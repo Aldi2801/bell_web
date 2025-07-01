@@ -45,6 +45,8 @@ def allowed_file(filename):
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
+def time_zone_wib():
+    return datetime.utcnow() + timedelta(hours=7) 
 # Define the 'user_roles' class before 'User' class
 class UserRoles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -102,7 +104,7 @@ class Berita(db.Model):
     judul = db.Column(db.String(35), nullable=True)
     isi = db.Column(db.String(255), nullable=True)
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='SET NULL'), nullable=True)
-    tanggal_dibuat = db.Column(db.DateTime, default=datetime.utcnow)
+    tanggal_dibuat = db.Column(db.DateTime, default=time_zone_wib)
     pengumuman_untuk = db.Column(db.String(10), nullable=True)  # 'murid' atau 'guru'
     
 class Mapel(db.Model):
@@ -217,7 +219,7 @@ class Tagihan(db.Model):
     tahun_ajaran = db.Column(db.String(10))
     deskripsi = db.Column(db.String(255))
     total = db.Column(db.Float, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=time_zone_wib)
 
 class Transaksi(db.Model):
     id_transaksi = db.Column(db.Integer, primary_key=True)
@@ -228,8 +230,8 @@ class Transaksi(db.Model):
     total = db.Column(db.Float, nullable=True)
     status = db.Column(db.String(50), default="pending")
     fraud_status = db.Column(db.String(50), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=time_zone_wib)
+    updated_at = db.Column(db.DateTime, default=time_zone_wib, onupdate=time_zone_wib)
 
 class JadwalPelajaran(db.Model):
     id_jadwal = db.Column(db.Integer, primary_key=True)
@@ -244,7 +246,7 @@ class Penilaian(db.Model):
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='CASCADE'), nullable=True)
     jenis_penilaian = db.Column(db.String(20), nullable=False)  # Contoh: 'UH', 'UTS', 'UAS', 'Tugas'
     nilai = db.Column(db.Float, nullable=False)
-    tanggal = db.Column(db.Date, default=datetime.utcnow)
+    tanggal = db.Column(db.Date, default=time_zone_wib)
 
     siswa_rel = db.relationship("Siswa", backref="penilaian_list", passive_deletes=True)
     ampu_rel = db.relationship("AmpuMapel", backref="penilaian_list", passive_deletes=True)
@@ -262,7 +264,7 @@ class EvaluasiGuru(db.Model):
     aspek = db.Column(db.String(50), nullable=False)
     skor = db.Column(db.Integer, nullable=False)
     komentar = db.Column(db.Text, nullable=True)
-    tanggal = db.Column(db.DateTime, default=datetime.utcnow)
+    tanggal = db.Column(db.Date, default=time_zone_wib)
 
     # Relasi
     guru = db.relationship("Guru", backref="evaluasi_list", passive_deletes=True)

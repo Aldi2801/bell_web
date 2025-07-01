@@ -642,7 +642,7 @@ def evaluasi_guru_list():
     title_data = "Evaluasi Guru"
     if session.get('role') == 'siswa':
         btn_tambah = True
-        evaluasi_list = EvaluasiGuru.query.filter_by(nis=nis)
+        evaluasi_list = EvaluasiGuru.query.filter_by(nis=session.get('nis',''))
     return render_template('admin/evaluasi_guru.html', ampu=ampu, guru=guru,users=users, btn_tambah=False, evaluasi=evaluasi_list, title=title, title_data=title_data)
 
 # === TAMBAH EVALUASI GURU ===

@@ -41,7 +41,7 @@ def proses_login():
             'username': username,
             'role': user.roles[0].name if user.roles else None,
             'email' : user.email,
-            'exp': datetime.utcnow() + timedelta(hours=24)
+            'exp': datetime.utcnow()+timedelta(hours=7) + timedelta(hours=24)
         }
         access_token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
         session['jwt_token'] = access_token
@@ -165,7 +165,7 @@ def dashboard():
     print(session.get('role'))
     print(user)
     # Ambil berita terbaru < 14 hari
-    batas_waktu = datetime.utcnow() - timedelta(days=14)
+    batas_waktu = datetime.utcnow()+timedelta(hours=7) - timedelta(days=14)
   
     profil = {}
     evaluasi = False
@@ -276,10 +276,12 @@ def dashboard():
             tanggal_awal = tahun_aktif.mulai
             tanggal_akhir = tahun_aktif.sampai
         else:
-            tanggal_awal = tanggal_akhir = datetime.utcnow()  # fallback kalau gak ada
+            tanggal_awal = tanggal_akhir = datetime.utcnow() +timedelta(hours=7)  # fallback kalau gak ada
 
         # 2. Cek apakah ada evaluasi guru untuk siswa ini di semester ini
-        
+        print(tanggal_awal)
+        print(tanggal_akhir)
+        print(datetime.utcnow()+timedelta(hours=7))
         evaluasi_exist = EvaluasiGuru.query.filter(
         EvaluasiGuru.evaluator_id == session['id'],
         EvaluasiGuru.tanggal >= tanggal_awal,
