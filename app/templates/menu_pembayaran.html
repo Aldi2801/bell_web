@@ -251,8 +251,8 @@ function populateTagihanTable(tagihan) {
             <td>${item.status}</td>
             <td>
 			 {% if session['role'] != 'murid' %}
-                ${lunas ? `<button onclick="bayar(${item.total}, '${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Online</button>
-                          <button onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-success btn-sm">Bayar Offline</button>`
+                ${lunas ? `
+                      <button onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Offline</button>`
                       : '<button style="width:100px; margin-bottom:5px"  class="btn btn-success btn-sm">Lunas</button>'}
                
                 <button onclick="editTagihan('${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-warning btn-sm">Edit</button>

@@ -34,8 +34,9 @@ def create_transaction():
             tagihan_id = request.json.get('tagihan_id', 0)
         else:
             data = request.json
+            data_user = User.query.filter_by(email=email).first()
             new_tagihan = Tagihan(
-                user_email=data['email'],
+                user_id=data_user.id,
                 deskripsi="SPP dan biaya lainnya",
                 total=data['amount']
             )

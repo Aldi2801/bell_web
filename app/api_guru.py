@@ -9,6 +9,8 @@ from sqlalchemy import extract
 from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
+import ast
+from itertools import zip_longest
 
 @app.route('/manage_jadwal')
 def view_manage_jadwal():
@@ -269,26 +271,36 @@ def tambah_ubah_jadwal():
     day = data.get('day')
     time = data.get('time')
     period = data.get('period')
-    subject = data.get('subject')  # list of strings
+    subject = data.get('subject')  # list of strings, bisa berisi ' - '
 
     if not (day and time and period is not None and subject):
         return jsonify({'status': 'error', 'message': 'Data tidak lengkap'}), 400
 
-    # Cek apakah data dengan day + period sudah ada
     existing = JadwalPelajaran.query.filter_by(day=day, period=period).first()
 
     if existing:
-        # Update
+        # Ambil dan evaluasi subject lama dari DB
+        try:
+            subject_lama = ast.literal_eval(existing.subject) if existing.subject else []
+        except Exception:
+            subject_lama = []
+
+        # Gabungkan: jika elemen baru bukan '-' dan bukan kosong, pakai yang baru
+        subject_final = [
+            baru.strip() if baru.strip() != "-" and baru.strip() != "" else lama
+            for lama, baru in zip_longest(subject_lama, subject, fillvalue="")
+        ]
+
         existing.time = time
-        existing.subject = json.dumps(subject)  # simpan sebagai string JSON
+        existing.subject = str(subject_final)
         msg = "Jadwal berhasil diperbarui"
     else:
-        # Insert baru
+        # Simpan data baru
         new_schedule = JadwalPelajaran(
             day=day,
             time=time,
             period=period,
-            subject=json.dumps(subject)
+            subject=str(subject)
         )
         db.session.add(new_schedule)
         msg = "Jadwal berhasil ditambahkan"
@@ -602,7 +614,6 @@ def tambah_tagihan():
                 tahun_ajaran=request.json.get('tahun_ajaran'),
                 deskripsi=request.json.get('deskripsi'),
                 total=request.json.get('total'),
-                user_email=siswa.email
             )
             db.session.add(tagihan)
         db.session.commit()
@@ -615,7 +626,6 @@ def tambah_tagihan():
             tahun_ajaran=request.json.get('tahun_ajaran'),
             deskripsi=request.json.get('deskripsi'),
             total=request.json.get('total'),
-            user_email=email_target,
         )
         db.session.add(tagihan)
         db.session.commit()
@@ -638,6 +648,7 @@ def get_tagihan(id_tagihan):
     return jsonify({
         'id_tagihan': tagihan.id_tagihan,
         'user_email': tagihan.user.email,
+        'user_id': tagihan.user_id,
         'semester': tagihan.semester,
         'tahun_ajaran': tagihan.tahun_ajaran,
         'deskripsi': tagihan.deskripsi,

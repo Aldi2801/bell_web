@@ -144,14 +144,14 @@
                 <div class="form-group mb-3">
                     <label for="{{ kelas }}guru">Kelas {{ kelas }}:</label>
                     <div class="d-flex">
-                        <select class="form-control me-2" id="{{ kelas }}guru" required>
+                        <select class="form-control me-2" id="{{ kelas }}guru" >
                             <option value="">Pilih Guru</option>
                             {% for item in kode_guru %}
                             <option value="{{ item.inisial }}">{{ item.inisial }} | {{ item.nama }}</option>
                             {% endfor %}
                         </select>
             
-                        <select class="form-control" id="{{ kelas }}mapel" required>
+                        <select class="form-control" id="{{ kelas }}mapel" >
                             <option value="">Pilih Mapel</option>
                             {% for item in kode_mapel %}
                             <option value="{{ item.id_mapel }}">{{ item.id_mapel }} | {{ item.nama }}</option>
