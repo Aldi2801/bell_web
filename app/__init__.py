@@ -15,7 +15,7 @@ upload_folder = os.path.join(project_directory, 'static', 'image')
 upload_nota = os.path.join(project_directory, 'static', 'nota')
 app.config['UPLOAD_FOLDER'] = upload_folder 
 app.config['UPLOAD_NOTA'] = upload_nota
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sistem'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
@@ -137,14 +137,12 @@ class AmpuMapel(db.Model):
     id_mapel = db.Column(db.CHAR(3), db.ForeignKey('mapel.id_mapel', ondelete='CASCADE'), nullable=True)
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=True)
     id_tahun_akademik = db.Column(db.Integer, db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
-    id_pembagian = db.Column(db.Integer, db.ForeignKey('pembagian_kelas.id_pembagian', ondelete='SET NULL'), nullable=True)
     id_kelas = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas', ondelete='CASCADE'), nullable=True)
 
     guru_rel = db.relationship("Guru", backref="ampu_mapel_list", passive_deletes=True)
     mapel_rel = db.relationship("Mapel", backref="ampu_mapel_list", passive_deletes=True)
     semester_rel = db.relationship("Semester", backref="ampu_mapel", passive_deletes=True)
     tahun_akademik_rel = db.relationship("TahunAkademik", backref="ampu_mapel", passive_deletes=True)
-    pembagian_rel = db.relationship("PembagianKelas", backref="ampu_mapel", passive_deletes=True, uselist=False)
     kelas_rel = db.relationship("Kelas", backref="ampu_mapel", passive_deletes=True)
 class Kbm(db.Model):
     __tablename__ = 'kbm'

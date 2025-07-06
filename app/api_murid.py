@@ -1,11 +1,9 @@
-from . import Kbm, Kelas, Siswa, app, db, get_semester_and_year, Tagihan,TahunAkademik, JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
-from flask import render_template, request, jsonify, session, redirect, abort
-from sqlalchemy import and_
-import jwt, re, datetime, os, json, ast, uuid
-from datetime import datetime, timedelta
-from sqlalchemy import func, extract, case
+from . import EvaluasiGuru, Kbm, Kelas, Siswa, app, db, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
+from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for
+import jwt, datetime, ast
+from datetime import datetime
+from sqlalchemy import extract, case
 from collections import defaultdict
-from itsdangerous import BadSignature, SignatureExpired
 
 @app.route('/get_menu_pembayaran')
 def get_menu_pembayaran():
@@ -18,7 +16,6 @@ def get_menu_pembayaran():
         user_email = decoded_token['email']
         role = decoded_token['role']
 
-        print(user_email)
         # Ambil semua tagihan
         if role == 'murid':
             all_tagihan = Tagihan.query.filter_by(
@@ -71,9 +68,7 @@ def get_menu_pembayaran():
             }
 
             siswa_map[nis] = data
-            print(siswa_map)
             return data
-
 
         # Bangun response
         result_tagihan = []
@@ -101,7 +96,6 @@ def get_menu_pembayaran():
                 result['kelas'] = siswa_info['kelas']
 
             result_tagihan.append(result)
-        print(result_tagihan)
         if result_tagihan ==[]:
             return jsonify({"message": "Data tagihan tidak ditemukan"})
         else:
@@ -112,60 +106,6 @@ def get_menu_pembayaran():
     except jwt.InvalidTokenError:
         return jsonify({'valid': False, 'message': 'Invalid token'}), 403
 
-
-from sqlalchemy.orm import joinedload
-
-@app.route('/kehadiran')
-def view_kehadiran():
-    nis = session.get('nis')
-    print(nis)
-    if nis:
-        nama_siswa = Siswa.query.filter_by(nis=nis).first()
-    else:
-        redirect('/')
-
-    data_kelas = Kelas.query.order_by(Kelas.nama_kelas.asc()).all()
-    data_kbm = Kbm.query.all()
-    # Ambil semua kehadiran berdasarkan nis
-    kehadiran_list = Kehadiran.query\
-            .filter_by(nis=nis)\
-            .join(Kbm, Kehadiran.id_kbm == Kbm.id_kbm)\
-            .join(Keterangan, Kehadiran.id_keterangan == Keterangan.id_keterangan)\
-            .join(AmpuMapel, AmpuMapel.id_ampu == Kbm.id_ampu)\
-            .join(Guru, Guru.nip == AmpuMapel.nip)\
-            .add_columns(
-                AmpuMapel.id_mapel('id_mapel'),
-                AmpuMapel.nip('nip'),
-                AmpuMapel.id_tahun_akademik('id_tahun_akademik'),
-                Guru.nama('nama_guru'),
-                Kbm.tanggal.label('tanggal'),
-                Kbm.materi.label('materi'),
-                Kbm.sub_materi.label('sub_materi'),
-                Keterangan.keterangan.label('keterangan')
-            ).all()
-
-    print(kehadiran_list)
-    # Format data hasil
-    result = []
-    for k in kehadiran_list:
-            nama_kelas = PembagianKelas.query.filter_by(nis=nis,id_tahun_akademik=k.id_tahun_akademik).first()
-            result.append({
-                'nama_lengkap':nama_siswa.nama,
-                'tanggal': k.tanggal.isoformat(),
-                'nama_mapel':k.id_mapel,
-                'nama_kelas':nama_kelas.id_kelas,
-                'nip':k.nip,
-                'nama_guru':k.nama_guru,
-                'materi': k.materi,
-                'sub_materi': k.sub_materi,
-                'keterangan': k.keterangan
-            })
-    print(result)
-    data_siswa = Siswa.query.filter_by(user_id=session['id'])
-    return render_template("kehadiran.html",kehadiran_list= kehadiran_list, siswa=data_siswa, kelas=data_kelas, kbm=data_kbm,
-    btn_tambah = True,
-    title = "Manage Berita",
-    title_data = "Berita / Pengumuman")
 @app.route('/murid/kehadiran')
 def kehadiran():
     nis = session.get('nis')
@@ -178,10 +118,7 @@ def kehadiran():
 
     data_kehadiran = Kehadiran.query.filter_by(nis=nis).all()
 
-
-    # Ubah hasil query jadi dict agar cocok dengan HTML
-    print(data_kehadiran)
-    
+    # Ubah hasil query jadi dict agar cocok dengan HTM
     pembagian = PembagianKelas.query.filter_by(nis=nis).all()
     return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran,pembagian=pembagian,
                            btn_tambah = False,
@@ -235,7 +172,6 @@ def view_jadwal():
         {"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas}
         for k in data_kelas
     ]
-    print(kelas_dict)
 
     return render_template("murid/jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict,
                            
@@ -265,8 +201,6 @@ def penilaian_murid():
     id_kelas = request.args.get('id_kelas')
     id_mapel = request.args.get('id_mapel')
     jenis_penilaian = request.args.get('jenis_penilaian')
-    print(id_mapel)
-    print(nip)
     tahun = request.args.get('tahun', type=int)
     bulan = request.args.get('bulan', type=int)
     tanggal = request.args.get('tanggal', type=int)
@@ -274,7 +208,6 @@ def penilaian_murid():
     per_page = request.args.get('per_page', default=10, type=int)
     siswa_now = int(session.get('nis', 0))
 
-    print(siswa_now)
     # Mulai query dari Penilaian
     query = Penilaian.query
 
@@ -306,7 +239,6 @@ def penilaian_murid():
 
     # Pagination
     paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
-    print(query.all())
     info_list = paginated_data.items
     # Cek total data dulu
     total_records = query.count()
@@ -319,7 +251,6 @@ def penilaian_murid():
     has_next = paginated_data.has_next
     has_prev = paginated_data.has_prev
     page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
-    print(info_list)
      # Ambil tahun unik dari tanggal AmpuMapel
     data_siswa = Siswa.query.all()
     data_ampu = AmpuMapel.query.filter_by(nip=nip).all()
@@ -335,7 +266,6 @@ def penilaian_murid():
     )
     thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
 
-    print(thn)
     return render_template(
         'murid/penilaian.html',
         penilaian=info_list,
@@ -356,3 +286,42 @@ def penilaian_murid():
         has_prev=has_prev,
         page_range=page_range
     )
+
+# === TAMBAH EVALUASI GURU ===
+@app.route('/evaluasi_guru/tambah', methods=['POST'])
+def tambah_evaluasi_guru():
+    if session.get('role') == 'guru':
+        abort(403)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        # Fallback ke request.form jika bukan JSON
+        data = request.form.to_dict()
+    
+    id_ampu=data.get('id_ampu','')
+    if id_ampu != '':
+        evaluasi = EvaluasiGuru(
+            nip=data.get('nip'),
+            id_ampu=id_ampu,
+            evaluator_id=data.get('evaluator_id'),
+            evaluator_role=data.get('evaluator_role'),
+            aspek=data.get('aspek'),
+            skor=data.get('skor'),
+            komentar=data.get('komentar')
+        )
+        db.session.add(evaluasi)
+        db.session.commit()
+        return jsonify({'msg': 'Evaluasi berhasil ditambahkan'})
+    else:
+        evaluasi = EvaluasiGuru(
+            nip=data.get('nip'),
+            evaluator_id=data.get('evaluator_id'),
+            evaluator_role=data.get('evaluator_role'),
+            aspek=data.get('aspek'),
+            skor=data.get('skor'),
+            komentar=data.get('komentar')
+        )
+        db.session.add(evaluasi)
+        db.session.commit()
+        flash('Evaluasi berhasil ditambahkan')
+        return redirect(url_for('dashboard'))

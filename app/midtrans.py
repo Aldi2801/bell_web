@@ -1,9 +1,5 @@
-
 from flask import request, jsonify, render_template, session
-import os, uuid, base64, json, requests   
-from dotenv import load_dotenv
-import jwt
-from jwt import ExpiredSignatureError, InvalidTokenError
+import os, uuid, base64, json, requests, jwt
 from . import app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User
 print(os.getenv('ENV') )
 if os.getenv('ENV') == 'production':

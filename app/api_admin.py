@@ -1,32 +1,15 @@
 # Import library bawaan Python
-import os
-import textwrap
-import locale
-import uuid
-from decimal import Decimal
+import datetime
+import os, locale, uuid, jwt
 # Import library pihak ketiga
-from datetime import datetime, timedelta
-from io import BytesIO
-import jwt
-from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
-from openpyxl.styles import Font, Alignment
-import calendar
-from io import BytesIO
-from flask import abort, render_template, request, jsonify, g, send_file, session
+from flask import abort, render_template, request, jsonify, g, session
 from PIL import Image
-from dateutil.relativedelta import relativedelta
-from flask_jwt_extended import jwt_required
 # Fungsi untuk mengubah angka menjadi teks (terbilang)
-from num2words import num2words
 from flask import flash, redirect, url_for
 # Import dari aplikasi lokal
-from . import AmpuMapel,Kelas, Mapel,EvaluasiGuru,Kbm, UserRoles,Role,Keterangan, PembagianKelas, Semester, TahunAkademik, app, db, project_directory, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Tagihan, Gender, Status
-from sqlalchemy import and_
-import jwt, re, datetime, os, json, ast, uuid
-from datetime import datetime, timedelta
-from sqlalchemy import func, extract, case
-from collections import defaultdict
+from . import AmpuMapel,Kelas, Mapel,EvaluasiGuru,Kbm, Role,Keterangan, PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status
+from sqlalchemy import extract, case
+from sqlalchemy.orm import joinedload
 
 # Fungsi untuk mengelola gambar (upload, edit, delete)
 def do_image(do, table, id):
@@ -160,7 +143,6 @@ def get_guru(nip):
 @app.route('/hapus_jadwal', methods=['DELETE'])
 def hapus_jadwal():
     data = request.get_json()
-    print(data)
     day = data.get('day')
     period = data.get('period')
     if not day or not period:
@@ -250,7 +232,6 @@ def ampu_mapel_list():
     daftar_kelas = Kelas.query.all()
     daftar_tahun = TahunAkademik.query.all()
     daftar_pembagian = PembagianKelas.query.all()
-    print(data_ampu)
     
     tahun = request.args.get('tahun', type=int)
     bulan = request.args.get('bulan', type=int)
@@ -275,7 +256,6 @@ def ampu_mapel_list():
 
     # Pagination
     paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
-    print(query.all())
     info_list = paginated_data.items
     # Cek total data dulu
     total_records = query.count()
@@ -304,8 +284,6 @@ def ampu_mapel_list():
             "keterangan": k.keterangan
         })
 
-    print(info_list)
-    print(data_kbm)
     # Ambil semua data pendukung untuk dropdown/filter
     data_guru = Guru.query.all()
     data_kelas = Kelas.query.all()
@@ -355,7 +333,6 @@ def kelas_list():
 
 @app.route('/admin/semester')
 def semester_list():
-    print(session.get('role'))
     if session.get('role') != 'admin':
         abort(403)
     semester = Semester.query.all()
@@ -423,7 +400,6 @@ def hapus_kelas(id_kelas):
 
 @app.route('/admin/semester/tambah', methods=['POST'])
 def tambah_semester():
-    print(session.get('role'))
     if session.get('role') != 'admin':
         abort(403)
     semester = Semester(
@@ -474,7 +450,6 @@ def view_manage_pengumuman():
 
 @app.route('/manage_pengumuman/tambah', methods=['POST'])
 def tambah_pengumuman():
-    print(session.get('role'))
     if session.get('role') == 'murid':
         abort(403)
     berita = Berita(
@@ -588,8 +563,6 @@ def edit_admin_siswa(nis):
         return jsonify({'error': 'Siswa tidak ditemukan'}), 404
 
     data = request.json
-    print(nis)
-    print(data.get('nis'))
     siswa.nis = data.get('nis')
     siswa.nisn = data.get('nisn')
     siswa.nama = data.get('nama')
@@ -645,80 +618,6 @@ def evaluasi_guru_list():
         evaluasi_list = EvaluasiGuru.query.filter_by(nis=session.get('nis',''))
     return render_template('admin/evaluasi_guru.html', ampu=ampu, guru=guru,users=users, btn_tambah=False, evaluasi=evaluasi_list, title=title, title_data=title_data)
 
-# === TAMBAH EVALUASI GURU ===
-@app.route('/evaluasi_guru/tambah', methods=['POST'])
-def tambah_evaluasi_guru():
-    if session.get('role') == 'guru':
-        abort(403)
-    if request.is_json:
-        data = request.get_json()
-    else:
-        # Fallback ke request.form jika bukan JSON
-        data = request.form.to_dict()
-    
-    id_ampu=data.get('id_ampu','')
-    if id_ampu != '':
-        evaluasi = EvaluasiGuru(
-            nip=data.get('nip'),
-            id_ampu=id_ampu,
-            evaluator_id=data.get('evaluator_id'),
-            evaluator_role=data.get('evaluator_role'),
-            aspek=data.get('aspek'),
-            skor=data.get('skor'),
-            komentar=data.get('komentar')
-        )
-        db.session.add(evaluasi)
-        db.session.commit()
-        return jsonify({'msg': 'Evaluasi berhasil ditambahkan'})
-    else:
-        evaluasi = EvaluasiGuru(
-            nip=data.get('nip'),
-            evaluator_id=data.get('evaluator_id'),
-            evaluator_role=data.get('evaluator_role'),
-            aspek=data.get('aspek'),
-            skor=data.get('skor'),
-            komentar=data.get('komentar')
-        )
-        db.session.add(evaluasi)
-        db.session.commit()
-        flash('Evaluasi berhasil ditambahkan')
-        return redirect(url_for('dashboard'))
-
-# === EDIT EVALUASI GURU ===
-@app.route('/evaluasi_guru/edit/<int:id>', methods=['PUT'])
-def edit_evaluasi_guru(id):
-    if session.get('role') != 'admin':
-        abort(403)
-
-    evaluasi = EvaluasiGuru.query.get_or_404(id)
-    data = request.get_json()
-
-    # Validasi wajib isi
-    if not data.get('aspek') or data.get('skor') is None:
-        return jsonify({'error': 'Aspek dan skor wajib diisi'}), 400
-
-    try:
-        skor = int(data['skor'])
-    except (ValueError, TypeError):
-        return jsonify({'error': 'Skor harus berupa angka'}), 400
-
-    if not 1 <= skor <= 100:
-        return jsonify({'error': 'Skor harus antara 1 sampai 100'}), 400
-
-    # Update field
-    evaluasi.aspek = data['aspek']
-    evaluasi.skor = skor
-    evaluasi.komentar = data.get('komentar')
-
-    # Optional fields: cuma update jika ada
-    evaluasi.nip = data.get('nip', evaluasi.nip)
-    evaluasi.id_ampu = data.get('id_ampu', evaluasi.id_ampu)
-    evaluasi.evaluator_id = data.get('evaluator_id', evaluasi.evaluator_id)
-    evaluasi.evaluator_role = data.get('evaluator_role', evaluasi.evaluator_role)
-
-    db.session.commit()
-    flash('Evaluasi berhasil diperbarui')
-    return jsonify({'msg': 'Evaluasi berhasil diperbarui'})
 
 # === HAPUS EVALUASI GURU ===
 @app.route('/evaluasi_guru/hapus/<int:id>', methods=['DELETE'])
@@ -737,7 +636,6 @@ def hapus_evaluasi_guru(id):
 
 @app.route('/admin/mapel')
 def mapel_list():
-    print(session.get('role'))
     if session.get('role') != 'admin':
         abort(403)
     mapel = Mapel.query.all()
@@ -748,7 +646,6 @@ def mapel_list():
 
 @app.route('/admin/mapel/tambah', methods=['POST'])
 def tambah_mapel():
-    print(session.get('role'))
     if session.get('role') != 'admin':
         abort(403)
     mapel = Mapel(
@@ -784,3 +681,127 @@ def hapus_mapel(id_mapel):
     db.session.commit()
     flash('Mapel berhasil dihapus')
     return jsonify({'msg': 'Mapel berhasil dihapus'})
+
+@app.route('/menu_pembayaran/tambah', methods=['POST'])
+def tambah_tagihan():
+    if session.get('role') == 'murid':
+        abort(403)
+    nis = request.json.get('nis')
+    if 'role' not in session or session['role'] == 'murid':
+        return jsonify({'error': 'Akses ditolak'}), 403
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Format request tidak valid'}), 400
+
+    email_target = data.get('user_email')
+    if email_target == 'semua_siswa':
+        siswa_list = Siswa.query.all()
+        for siswa in siswa_list:
+            user = User.query.filter_by(nis=siswa.nis).first()
+           
+            tagihan = Tagihan(
+                semester=request.json.get('semester'),
+                user_id = user.id,
+                tahun_ajaran=request.json.get('tahun_ajaran'),
+                deskripsi=request.json.get('deskripsi'),
+                total=request.json.get('total'),
+                user_email=siswa.email
+            )
+            db.session.add(tagihan)
+        db.session.commit()
+        return jsonify({'msg': 'Tagihan berhasil ditambahkan ke semua siswa'})
+    else:
+        user = User.query.filter_by(nis=nis).first()
+        tagihan = Tagihan(
+            semester=request.json.get('semester'),
+            user_id = user.id,
+            tahun_ajaran=request.json.get('tahun_ajaran'),
+            deskripsi=request.json.get('deskripsi'),
+            total=request.json.get('total'),
+            user_email=email_target,
+        )
+        db.session.add(tagihan)
+        db.session.commit()
+        return jsonify({'msg': 'Tagihan berhasil ditambahkan'})
+@app.route('/get_tagihan/<int:id_tagihan>', methods=['GET'])
+def get_tagihan(id_tagihan):
+    tagihan = Tagihan.query.options(joinedload(Tagihan.user)).filter_by(id_tagihan=id_tagihan).first()
+    if not tagihan:
+        return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
+
+    # Cari transaksi yang terhubung ke tagihan ini
+    transaksi = Transaksi.query.filter_by(id_tagihan=id_tagihan).first()
+
+    # Jika transaksi ditemukan dan statusnya 'paid', ubah jadi 'lunas'
+    if transaksi and transaksi.status == 'paid':
+        status = 'Lunas'
+    else:
+        status = "Belum Lunas"
+    return jsonify({
+        'id_tagihan': tagihan.id_tagihan,
+        'user_email': tagihan.user.email,
+        'semester': tagihan.semester,
+        'tahun_ajaran': tagihan.tahun_ajaran,
+        'deskripsi': tagihan.deskripsi,
+        'total': tagihan.total,
+        'status': status
+        
+    })
+
+@app.route('/menu_pembayaran/edit/<int:id_tagihan>', methods=['PUT'])
+def edit_tagihan(id_tagihan):
+    if session.get('role') == 'murid':
+        abort(403)
+
+    tagihan = Tagihan.query.filter_by(id_tagihan=id_tagihan).first()
+    if not tagihan:
+        return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
+
+    tagihan.semester = request.json.get('semester')
+    tagihan.tahun_ajaran = request.json.get('tahun_ajaran')
+    tagihan.deskripsi = request.json.get('deskripsi')
+    tagihan.total = request.json.get('total')
+
+    db.session.commit()
+    flash('Tagihan berhasil diperbarui')
+    return jsonify({'msg': 'Tagihan berhasil diperbarui'})
+@app.route('/menu_pembayaran/hapus/<int:id_tagihan>', methods=['DELETE'])
+def hapus_tagihan(id_tagihan):
+    if session.get('role') == 'murid':
+        abort(403)
+
+    tagihan = Tagihan.query.filter_by(id_tagihan=id_tagihan).first()
+    if not tagihan:
+        return jsonify({'error': 'Tagihan tidak ditemukan'}), 404
+
+    db.session.delete(tagihan)
+    db.session.commit()
+    flash('Tagihan berhasil dihapus')
+    return jsonify({'msg': 'Tagihan berhasil dihapus'})
+
+@app.route('/bayar_offline', methods=['POST'])
+def bayar_offline():
+    data = request.json
+    id_tagihan = data.get('id_tagihan')
+    total = data.get('total')
+    user = session.get('username')  # atau session['username']
+
+    if not id_tagihan or not total:
+        return jsonify(success=False, message="Data tidak lengkap")
+
+    tagihan = Tagihan.query.options(joinedload(Tagihan.user)).filter_by(id_tagihan=id_tagihan).first()
+    kode_order = f"offline_{user}"
+    transaksi = Transaksi(
+        id_tagihan=id_tagihan,
+        kode_order=kode_order,
+        email= tagihan.user.email,
+        total=total,
+        fraud_status = 0,
+        status="settlement",
+        created_at=datetime.datetime.now()
+    )
+    db.session.add(transaksi)
+
+    db.session.commit()
+    return jsonify(success=True)

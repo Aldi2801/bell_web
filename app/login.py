@@ -1,22 +1,12 @@
-from . import app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,TahunAkademik, EvaluasiGuru, Kbm, Siswa, Guru, Mapel,Penilaian, JadwalPelajaran, PembagianKelas, Siswa
-
+from . import app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
-from flask_jwt_extended import create_access_token, unset_jwt_cookies
+from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime, timedelta
-
-import jwt, re, datetime, os, json, ast, uuid
-
-from datetime import datetime, timedelta
-from sqlalchemy import func, extract, case
-from collections import defaultdict
-
-from flask_mail import Message
 import jwt
+from sqlalchemy import func, extract
+from flask_mail import Message
 from jwt import ExpiredSignatureError, InvalidTokenError
-from itsdangerous import URLSafeTimedSerializer
-import secrets
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-from datetime import datetime
 
 @app.route('/')
 def homepahe():
@@ -161,9 +151,6 @@ def global_jwt_check():
 def dashboard():
     role = session.get('role')
     user = User.query.filter_by(username=session.get('username')).first()
-    print(session.get('username'))
-    print(session.get('role'))
-    print(user)
     # Ambil berita terbaru < 14 hari
     batas_waktu = datetime.utcnow()+timedelta(hours=7) - timedelta(days=14)
   
@@ -226,8 +213,6 @@ def dashboard():
 
             chart_bulan.append(bulan)
             chart_rata.append(round(avg_nilai, 2) if avg_nilai else 0)
-        print(chart_bulan)
-        print(chart_rata)
         chart_data={
                 'bulan': chart_bulan,
                 'rata_rata': chart_rata
@@ -279,19 +264,13 @@ def dashboard():
             tanggal_awal = tanggal_akhir = datetime.utcnow() +timedelta(hours=7)  # fallback kalau gak ada
 
         # 2. Cek apakah ada evaluasi guru untuk siswa ini di semester ini
-        print(tanggal_awal)
-        print(tanggal_akhir)
-        print(datetime.utcnow()+timedelta(hours=7))
         evaluasi_exist = EvaluasiGuru.query.filter(
         EvaluasiGuru.evaluator_id == session['id'],
         EvaluasiGuru.tanggal >= tanggal_awal,
         EvaluasiGuru.tanggal <= tanggal_akhir
         ).first()
-        print(session['id'])
-        print(evaluasi_exist)
         # 3. Set flag evaluasi
         evaluasi = False if evaluasi_exist else True
-        print(evaluasi)
         data_guru = Guru.query.all()
         siswa = Siswa.query.filter_by(nis=user.nis).first()
         kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
