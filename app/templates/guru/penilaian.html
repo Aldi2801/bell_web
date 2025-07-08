@@ -210,7 +210,7 @@
                   <td>{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}</td>
                   <td>
                     <button type="button" class="btn btn-warning" onclick="openEditModal('{{ p.id_penilaian }}')">Edit</button>
-                    <button type="button" class="btn btn-danger" onclick="deleteDawsta('{{ p.id_penilaian }}')">Hapus</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteData('{{ p.id_penilaian }}')">Hapus</button>
                   </td>
                 </tr>
 

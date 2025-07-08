@@ -67,7 +67,7 @@
 
         <!-- Manajemen Guru & Pembelajaran -->
         <li class="sidebar-item">
-                <a class="sidebar-link" href="/tambah_guru"><i class="fas fa-user-plus mr-2 "></i><span class="hide-menu"> Guru</span></a>
+                <a class="sidebar-link" href="/admin/guru"><i class="fas fa-user-plus mr-2 "></i><span class="hide-menu"> Guru</span></a>
         </li>
         <li class="sidebar-item">
                 <a class="sidebar-link" href="/kbm/list"><i class="fas fa-book mr-2 "></i><span class="hide-menu"> Ampu Mapel</span></a>
@@ -101,7 +101,7 @@
                 <a class="sidebar-link" href="/jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Jadwal</span></a>
         </li>
         <li class="sidebar-item">
-                <a class="sidebar-link" href="/manage_pengumuman"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Lihat Pengumuman</span></a>
+                <a class="sidebar-link" href="/guru/pengumuman"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Lihat Pengumuman</span></a>
         </li>
 
         {% elif session['role'] == 'murid' %}
@@ -112,7 +112,7 @@
                 <a class="sidebar-link" href="/jadwal" id="link-jadwal"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Jadwal</span></a>
         </li>
         <li class="sidebar-item">
-                <a class="sidebar-link" href="/pengumuman"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Pengumuman</span></a>
+                <a class="sidebar-link" href="/murid/pengumuman"><i class="fas fa-calendar-alt mr-2"></i><span class="hide-menu"> Pengumuman</span></a>
         </li>
         <li class="sidebar-item">
                 <a class="sidebar-link" href="/murid/penilaian"><i class="fas fa-star mr-2"></i><span class="hide-menu"> Lihat Nilai</span></a>

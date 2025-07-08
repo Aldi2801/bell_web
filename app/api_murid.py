@@ -1,4 +1,4 @@
-from . import EvaluasiGuru, Kbm, Kelas, Siswa, app, db, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, Keterangan, PembagianKelas, Berita, Guru,User
+from . import EvaluasiGuru, Kelas, Siswa, app, db, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
 from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for
 import jwt, datetime, ast
 from datetime import datetime
@@ -105,7 +105,6 @@ def get_menu_pembayaran():
         return jsonify({'valid': False, 'message': 'Token expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'valid': False, 'message': 'Invalid token'}), 403
-
 @app.route('/murid/kehadiran')
 def kehadiran():
     nis = session.get('nis')
@@ -117,13 +116,50 @@ def kehadiran():
         return "Siswa tidak ditemukan", 404
 
     data_kehadiran = Kehadiran.query.filter_by(nis=nis).all()
+    
+    # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
+    if not data_kehadiran:
+        return render_template(
+            'murid/kehadiran.html',
+            data_kehadiran=None,
+            btn_tambah=False,
+            title="Kehadiran",
+            title_data="Kehadiran"
+        )
 
-    # Ubah hasil query jadi dict agar cocok dengan HTM
     pembagian = PembagianKelas.query.filter_by(nis=nis).all()
-    return render_template('murid/kehadiran.html', data_kehadiran=data_kehadiran,pembagian=pembagian,
-                           btn_tambah = False,
-                           title = "Kehadiran",
-                           title_data = "Kehadiran")
+
+    # Mapping pembagian berdasarkan tahun akademik
+    pembagian_map = {
+        p.id_tahun_akademik: {
+            "nama_kelas": p.kelas_rel.nama_kelas,
+            "tingkat": p.kelas_rel.tingkat
+        } for p in pembagian
+    }
+
+    # Tambahkan info kelas ke data kehadiran
+    enriched_kehadiran = []
+    for d in data_kehadiran:
+        id_tahun = (
+            d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
+        )
+        kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
+        enriched_kehadiran.append({
+            "siswa_rel": d.siswa_rel,
+            "kbm_rel": d.kbm_rel,
+            "keterangan_rel": d.keterangan_rel,
+            "nama_kelas": kelas_info["nama_kelas"],
+            "tingkat": kelas_info["tingkat"]
+        })
+
+    return render_template(
+        'murid/kehadiran.html',
+        data_kehadiran=enriched_kehadiran,
+        btn_tambah=False,
+        title="Kehadiran",
+        title_data="Kehadiran"
+    )
+
 @app.route('/jadwal')
 def view_jadwal():    
     formatted_teacher_map = {}
@@ -179,8 +215,8 @@ def view_jadwal():
     title = "Jadwal Pelajaran",
     title_data = "Jadwal Pelajaran")
 
-@app.route('/pengumuman')
-def view_pengumuman():
+@app.route('/muird/pengumuman')
+def view_murid_pengumuman():
     berita = Berita.query.filter_by(pengumuman_untuk='murid').all()
     btn_tambah = False
     title = "Pengumuman"
@@ -191,11 +227,9 @@ def view_pengumuman():
 def penilaian_murid():
     if session.get('role') != 'murid':
         abort(403)
-
     btn_tambah = False
     title = "Nilai Anda"
     title_data = "Nilai Anda"
-
     # Ambil filter query
     nip = request.args.get('nip')
     id_kelas = request.args.get('id_kelas')
@@ -207,10 +241,8 @@ def penilaian_murid():
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
     siswa_now = int(session.get('nis', 0))
-
     # Mulai query dari Penilaian
     query = Penilaian.query
-
     # Filter berdasarkan tanggal jika ada
     if tahun:
         query = query.filter(extract('year', Penilaian.tanggal) == tahun)
@@ -233,30 +265,18 @@ def penilaian_murid():
             .subquery()
         )
         query = query.filter(Penilaian.nis.in_(subq))
-
     # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
     query = query.order_by(Penilaian.id_penilaian.desc())
-
     # Pagination
     paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
     info_list = paginated_data.items
     # Cek total data dulu
     total_records = query.count()
     total_pages = (total_records + per_page - 1) // per_page
-
     # Jika halaman diminta melebihi total halaman, reset ke 1
     if page > total_pages:
         page = 1
-
-    has_next = paginated_data.has_next
-    has_prev = paginated_data.has_prev
     page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
-     # Ambil tahun unik dari tanggal AmpuMapel
-    data_siswa = Siswa.query.all()
-    data_ampu = AmpuMapel.query.filter_by(nip=nip).all()
-    data_guru = Guru.query.all()
-    data_kelas = Kelas.query.all()
-    data_mapel = Mapel.query.all()
     tahun_query = (
         db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
         .filter(Penilaian.nis == siswa_now)
@@ -265,27 +285,7 @@ def penilaian_murid():
         .all()
     )
     thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
-
-    return render_template(
-        'murid/penilaian.html',
-        penilaian=info_list,
-        tahun=thn,
-        data_guru=data_guru,
-        data_kelas=data_kelas,
-        data_mapel=data_mapel,
-        data_siswa=data_siswa,
-        data_ampu=data_ampu,
-        btn_tambah=btn_tambah,
-        title=title,
-        title_data=title_data,
-        page=page,
-        per_page=per_page,
-        total_pages=total_pages,
-        total_records=total_records,
-        has_next=has_next,
-        has_prev=has_prev,
-        page_range=page_range
-    )
+    return render_template( 'murid/penilaian.html', penilaian=info_list, tahun=thn, data_guru=Guru.query.all(), data_kelas=Kelas.query.all(), data_mapel=Mapel.query.all(), data_siswa=Siswa.query.all(), data_ampu=AmpuMapel.query.filter_by(nip=nip).all(), btn_tambah=btn_tambah, title=title, title_data=title_data, page=page, per_page=per_page, total_pages=total_pages, total_records=total_records, has_next=paginated_data.has_next, has_prev=paginated_data.has_prev, page_range=page_range )
 
 # === TAMBAH EVALUASI GURU ===
 @app.route('/evaluasi_guru/tambah', methods=['POST'])

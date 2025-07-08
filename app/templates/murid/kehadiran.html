@@ -45,32 +45,29 @@
         </tr>
     </thead>
     <tbody>
-        {% for i in data_kehadiran %}
-      <tr>
-        <td>{{ i.siswa_rel.nama }}</td>
-        <td>{{ i.kbm_rel.tanggal if i.kbm_rel else '-' }}</td>
+      {% if data_kehadiran %}
+  {% for i in data_kehadiran %}
+    <tr>
+      <td>{{ i.siswa_rel.nama }}</td>
+      <td>{{ i.kbm_rel.tanggal if i.kbm_rel else '-' }}</td>
 
-        {% if i.kbm_rel and i.kbm_rel.ampu_rel %}
-          <td>{{ i.kbm_rel.ampu_rel.mapel_rel.nama_mapel or '-' }}</td>
-        {% else %}
-          <td>-</td>
-        {% endif %}
+      <td>
+        {{ i.kbm_rel.ampu_rel.mapel_rel.nama_mapel if i.kbm_rel and i.kbm_rel.ampu_rel and i.kbm_rel.ampu_rel.mapel_rel else '-' }}
+      </td>
 
-       {% set found = False %}
-{% if i.kbm_rel and i.kbm_rel.ampu_rel %}
-  {% for p in pembagian %}
-    {% if p.id_tahun_akademik == i.kbm_rel.ampu_rel.id_tahun_akademik %}
-      {% set found = True %}
-      <td>{{ p.kelas_rel.nama_kelas }}</td>
-      <td>{{ p.kelas_rel.tingkat }}</td>
-    {% endif %}
+      <td>{{ i.nama_kelas }}</td>
+      <td>{{ i.tingkat }}</td>
+
+      <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
+      <td>{{ i.keterangan_rel.keterangan if i.keterangan_rel else '-' }}</td>
+    </tr>
   {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="7" class="text-center">Tidak ada data kehadiran.</td>
+  </tr>
 {% endif %}
 
-        <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
-        <td>{{ i.keterangan_rel.keterangan if i.keterangan_rel else '-' }}</td>
-      </tr>
-      {% endfor %}
 
     </tbody>
 </table>
