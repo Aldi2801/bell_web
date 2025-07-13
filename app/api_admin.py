@@ -83,20 +83,6 @@ def tambah_kelas():
     flash('Kelas berhasil ditambahkan')
     return jsonify({'msg': 'Kelas berhasil ditambahkan'})
 
-@app.route('/admin/kelas/edit/<id_kelas>', methods=['PUT'])
-def edit_kelas(id_kelas):
-    if session.get('role') != 'admin':
-        abort(403)
-    kelas = Kelas.query.filter_by(id_kelas=id_kelas).first()
-    if not kelas:
-        return jsonify({'error': 'Kelas tidak ditemukan'}), 404
-    kelas.id_kelas = request.json.get('id_kelas')
-    kelas.nama_kelas = request.json.get('nama_kelas')
-    kelas.tingkat = request.json.get('tingkat')
-    db.session.commit()
-    flash('Kelas berhasil diperbarui')
-    return jsonify({'msg': 'Kelas berhasil diperbarui'})
-
 @app.route('/admin/kelas/hapus/<id_kelas>', methods=['DELETE'])
 def hapus_kelas(id_kelas):
     if session.get('role') != 'admin':
@@ -131,19 +117,6 @@ def tambah_mapel():
     db.session.commit()
     flash('Mapel berhasil ditambahkan')
     return jsonify({'msg':'Mapel berhasil ditambahkan'})
-
-@app.route('/admin/mapel/edit/<id_mapel_old>', methods=['PUT'])
-def edit_mapel(id_mapel_old):
-    if session.get('role') != 'admin':
-        abort(403)
-    mapel = Mapel.query.filter_by(id_mapel=id_mapel_old).first()
-    if not mapel:
-        return jsonify({'error': 'Mapel tidak ditemukan'}), 404
-    mapel.id_mapel = request.json.get('id_mapel')
-    mapel.nama_mapel = request.json.get('nama_mapel')
-    db.session.commit()
-    flash('Mapel berhasil diperbarui')
-    return jsonify({'msg': 'Mapel berhasil diperbarui'})
 
 @app.route('/admin/mapel/hapus/<id_mapel>', methods=['DELETE'])
 def hapus_mapel(id_mapel):
@@ -360,31 +333,6 @@ def save_guru():
         user.roles.append(new_role)
         
     try:
-        # token = s.dumps(email, salt='email-confirm')
-        # conf_email_url = url_for('confirm_email', token=token, _external=True)
-        # email_body = render_template_string('''
-        #     Hello {{ username }},
-            
-        #     Anda menerima email ini, karena kami memerlukan verifikasi email untuk akun Anda agar aktif dan dapat digunakan.
-            
-        #     Silakan klik tautan di bawah ini untuk verifikasi email Anda. Tautan ini akan kedaluwarsa dalam 1 jam.
-            
-        #     confirm your email: {{ conf_email_url }}
-            
-        #     hubungi dukungan jika Anda memiliki pertanyaan.
-            
-        #     Untuk bantuan lebih lanjut, silakan hubungi tim dukungan kami di developer masteraldi2809@gmail.com .
-            
-        #     Salam Hangat,
-            
-        #     Admin
-        # ''', username=username,  conf_email_url=conf_email_url)
-
-        # msg = Message('Confirmasi Email Anda',
-        #             sender='masteraldi2809@gmail.com', recipients=[email])
-
-        # msg.body = email_body
-        # mail.send(msg)
         db.session.add(user)
         db.session.add(new_guru)
         db.session.commit()

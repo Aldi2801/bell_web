@@ -81,10 +81,7 @@
 			  <form id="editForm-{{ s.id_semester }}">
 				<input type="hidden" name="id_semester_old" value="{{ s.id_semester }}">
 
-				<div class="mb-3">
-				  <label for="edit_id_semester_{{ s.id_semester }}">ID Semester</label>
-				  <input type="text" name="id_semester" id="edit_id_semester_{{ s.id_semester }}" value="{{ s.id_semester }}" class="form-control">
-				</div>
+				<input type="hidden" name="id_semester" id="edit_id_semester_{{ s.id_semester }}" value="{{ s.id_semester }}" class="form-control">
 
 				<div class="mb-3">
 				  <label for="edit_nama_semester_{{ s.id_semester }}">Nama Semester</label>
