@@ -1,4 +1,6 @@
-from . import EvaluasiGuru, Kelas, Siswa, app, db, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
+import os
+import uuid
+from . import EvaluasiGuru, Kelas, Siswa, app, db,allowed_file, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
 from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for
 import jwt, datetime, ast
 from datetime import datetime
@@ -215,7 +217,7 @@ def view_jadwal():
     title = "Jadwal Pelajaran",
     title_data = "Jadwal Pelajaran")
 
-@app.route('/muird/pengumuman')
+@app.route('/murid/pengumuman')
 def view_murid_pengumuman():
     berita = Berita.query.filter_by(pengumuman_untuk='murid').all()
     btn_tambah = False
@@ -325,3 +327,101 @@ def tambah_evaluasi_guru():
         db.session.commit()
         flash('Evaluasi berhasil ditambahkan')
         return redirect(url_for('dashboard'))
+    
+@app.route('/murid/surat_izin')
+def surat_izin():
+    nis = session.get('nis')
+    if not nis:
+        return "Unauthorized", 403
+
+    siswa = Siswa.query.filter_by(nis=nis).first()
+    if not siswa:
+        return "Siswa tidak ditemukan", 404
+
+    data_kehadiran = Kehadiran.query.filter_by(nis=nis).all()
+    
+    # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
+    if not data_kehadiran:
+        return render_template(
+            'murid/kehadiran.html',
+            data_kehadiran=None,
+            btn_tambah=False,
+            title="Kehadiran",
+            title_data="Kehadiran"
+        )
+
+    pembagian = PembagianKelas.query.filter_by(nis=nis).all()
+
+    # Mapping pembagian berdasarkan tahun akademik
+    pembagian_map = {
+        p.id_tahun_akademik: {
+            "nama_kelas": p.kelas_rel.nama_kelas,
+            "tingkat": p.kelas_rel.tingkat
+        } for p in pembagian
+    }
+
+    # Tambahkan info kelas ke data kehadiran
+    enriched_kehadiran = []
+    for d in data_kehadiran:
+        id_tahun = (
+            d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
+        )
+        kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
+        enriched_kehadiran.append({
+            "id_kehadiran": d.id_kehadiran,
+            "surat_izin": d.surat_izin,
+            "siswa_rel": d.siswa_rel,
+            "kbm_rel": d.kbm_rel,
+            "keterangan_rel": d.keterangan_rel,
+            "nama_kelas": kelas_info["nama_kelas"],
+            "tingkat": kelas_info["tingkat"]
+        })
+
+    return render_template(
+        'murid/upload_surat_izin.html',
+        data_kehadiran=enriched_kehadiran,
+        btn_tambah=False,
+        title="Kehadiran",
+        title_data="Kehadiran"
+    )
+@app.route('/murid/surat_izin_simpan', methods=['POST'])
+def surat_izin_simpan():
+    if session.get('role') != 'murid':
+        abort(403)
+
+    # Ambil data dari form
+    data = request.form.to_dict()
+    print(data)
+    id_kehadiran = data.get('id_kehadiran')
+
+    if not id_kehadiran:
+        flash('Data tidak lengkap', 'danger')
+        return redirect(request.referrer or url_for('surat_izin'))  # fallback jika referrer kosong
+
+    kehadiran = Kehadiran.query.filter_by(id_kehadiran=id_kehadiran).first()
+    if not kehadiran:
+        flash('Data kehadiran tidak ditemukan', 'danger')
+        return redirect(request.referrer or url_for('surat_izin'))
+
+    file = request.files.get('surat_izin')
+    if not file or not allowed_file(file.filename):
+        flash('File tidak valid atau belum diunggah', 'danger')
+        return redirect(request.referrer or url_for('surat_izin'))
+
+    # Hapus file lama jika ada
+    if kehadiran.surat_izin:
+        old_path = os.path.join(app.config['UPLOAD_SURAT_IZIN'], kehadiran.surat_izin)
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+    # Simpan file baru
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    filepath = os.path.join(app.config['UPLOAD_SURAT_IZIN'], filename)
+    file.save(filepath)
+
+    kehadiran.surat_izin = filename
+    db.session.commit()
+
+    flash('Surat izin berhasil ditambahkan.', 'success')
+    return redirect(request.referrer or url_for('surat_izin'))

@@ -12,9 +12,9 @@ from flask_jwt_extended import JWTManager
 app = Flask(__name__)
 project_directory = os.path.abspath(os.path.dirname(__file__))
 upload_folder = os.path.join(project_directory, 'static', 'image')
-upload_nota = os.path.join(project_directory, 'static', 'nota')
+upload_surat_izin = os.path.join(project_directory, 'static', 'surat_izin')
 app.config['UPLOAD_FOLDER'] = upload_folder 
-app.config['UPLOAD_NOTA'] = upload_nota
+app.config['UPLOAD_SURAT_IZIN'] = upload_surat_izin
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sistem'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
@@ -37,7 +37,7 @@ jwt = JWTManager(app)
 mail = Mail(app)
 mail.init_app(app)
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
-ALLOWED_EXTENSIONS = {'xlsx'}
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'pdf'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -167,6 +167,7 @@ class Kehadiran(db.Model):
     id_keterangan = db.Column(db.CHAR(1), db.ForeignKey('keterangan.id_keterangan', ondelete='CASCADE'), nullable=True)
     id_kbm = db.Column(db.Integer, db.ForeignKey('kbm.id_kbm', ondelete='CASCADE'), nullable=True)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=True)
+    surat_izin = db.Column(db.String(255), nullable=True)
 
     # Relasi ke tabel Keterangan
     keterangan_rel = db.relationship('Keterangan', backref='kehadiran_list', lazy=True)
