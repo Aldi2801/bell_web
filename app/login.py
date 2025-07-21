@@ -237,6 +237,8 @@ def dashboard():
         guru = Guru.query.filter_by(nip=user.nip).first()
 
         profil = {
+            'img_profile':user.img_profile,
+            'username': user.username,
             'nama': guru.nama,
             'nip': guru.nip,
             'tempat_lahir': guru.tempat_lahir,
@@ -275,6 +277,8 @@ def dashboard():
         siswa = Siswa.query.filter_by(nis=user.nis).first()
         kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
         profil = {
+            'img_profile':user.img_profile,
+            'username': user.username,
             'nama': siswa.nama,
             'nis': siswa.nis,
             'tempat_lahir': siswa.tempat_lahir,

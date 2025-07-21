@@ -243,6 +243,59 @@ def hapus_ampu(id):
     flash("Data berhasil dihapus", "success")
     return jsonify({'msg': 'Data berhasil dihapus'})
 
+@app.route('/guru/surat_izin')
+def lihat_surat_izin_murid():
+
+    siswa = Siswa.query.all()
+    if not siswa:
+        return "Siswa tidak ditemukan", 404
+
+    data_kehadiran = Kehadiran.query.all()
+    
+    # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
+    if not data_kehadiran:
+        return render_template(
+            'murid/kehadiran.html',
+            data_kehadiran=None,
+            btn_tambah=False,
+            title="Kehadiran",
+            title_data="Kehadiran"
+        )
+
+    pembagian = PembagianKelas.query.all()
+
+    # Mapping pembagian berdasarkan tahun akademik
+    pembagian_map = {
+        p.id_tahun_akademik: {
+            "nama_kelas": p.kelas_rel.nama_kelas,
+            "tingkat": p.kelas_rel.tingkat
+        } for p in pembagian
+    }
+
+    # Tambahkan info kelas ke data kehadiran
+    enriched_kehadiran = []
+    for d in data_kehadiran:
+        id_tahun = (
+            d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
+        )
+        kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
+        enriched_kehadiran.append({
+            "id_kehadiran": d.id_kehadiran,
+            "surat_izin": d.surat_izin,
+            "siswa_rel": d.siswa_rel,
+            "kbm_rel": d.kbm_rel,
+            "keterangan_rel": d.keterangan_rel,
+            "nama_kelas": kelas_info["nama_kelas"],
+            "tingkat": kelas_info["tingkat"]
+        })
+
+    return render_template(
+        'guru/surat_izin.html',
+        data_kehadiran=enriched_kehadiran,
+        btn_tambah=False,
+        title="Surat Izin Murid",
+        title_data="Surat Izin Murid"
+    )
 @app.route('/guru/penilaian')
 def penilaian_list():
     if session.get('role') != 'guru':

@@ -13,8 +13,10 @@ app = Flask(__name__)
 project_directory = os.path.abspath(os.path.dirname(__file__))
 upload_folder = os.path.join(project_directory, 'static', 'image')
 upload_surat_izin = os.path.join(project_directory, 'static', 'surat_izin')
+upload_img_profile = os.path.join(project_directory, 'static', 'img_profile')
 app.config['UPLOAD_FOLDER'] = upload_folder 
 app.config['UPLOAD_SURAT_IZIN'] = upload_surat_izin
+app.config['UPLOAD_IMG_PROFILE'] = upload_img_profile
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sistem'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
@@ -37,10 +39,14 @@ jwt = JWTManager(app)
 mail = Mail(app)
 mail.init_app(app)
 s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'pdf'}
+ALLOWED_EXTENSIONS_SURAT_IZIN = {'jpg', 'jpeg', 'png', 'pdf'}
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def allowed_file_surat_izin(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_SURAT_IZIN
+
+ALLOWED_EXTENSIONS_IMG_PROFILE = {'jpg', 'jpeg', 'png'}
+def allowed_file_img_profile(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_IMG_PROFILE
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -71,6 +77,7 @@ class User(db.Model, UserMixin):
                             secondaryjoin='Role.id == UserRoles.role_id',
                             backref=db.backref('users', lazy='dynamic'),
                             passive_deletes=True)
+    img_profile = db.Column(db.String(255),nullable=True)
 
     siswa = db.relationship("Siswa", back_populates="user", uselist=False, passive_deletes=True)
     tagihan = db.relationship("Tagihan", backref="user", passive_deletes=True)

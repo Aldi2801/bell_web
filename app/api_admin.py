@@ -1,12 +1,12 @@
 # Import library bawaan Python
 from collections import defaultdict
-import datetime, ast
+import datetime, ast, os, uuid
 # Import library pihak ketiga
-from flask import abort, render_template, request, jsonify, session
+from flask import abort, render_template, request, jsonify, session, redirect, url_for
 # Fungsi untuk mengubah angka menjadi teks (terbilang)
 from flask import flash
 # Import dari aplikasi lokal
-from . import AmpuMapel,Kelas, Mapel,EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
+from . import AmpuMapel,Kelas, Mapel,allowed_file_img_profile, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
 from sqlalchemy import case
 from sqlalchemy.orm import joinedload
 from itertools import zip_longest
@@ -377,12 +377,29 @@ def edit_guru(nip):
     user.email = email
     if password != '':
             user.password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
+    file = request.files.get('img_profile')
+    if not file or not allowed_file_img_profile(file.filename):
+        flash('File tidak valid atau belum diunggah', 'danger')
+        return redirect(request.referrer or url_for('img_profile'))
+
+    # Hapus file lama jika ada
+    if user.img_profile:
+        old_path = os.path.join(app.config['UPLOAD_IMG_PROFILE'], user.img_profile)
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+    # Simpan file baru
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    filepath = os.path.join(app.config['UPLOAD_IMG_PROFILE'], filename)
+    file.save(filepath)
+
+    user.img_profile = filename
     db.session.commit()
     
     # Simpan data terbaru
     guru = Guru.query.filter_by(nip=nip).first()
-    guru.nama= request.json.get('nama_lengkap')
+    guru.nama = request.json.get('nama_lengkap')
     guru.email=email
     guru.nip = nip_baru
     guru.inisial = request.json.get('inisial')
@@ -393,7 +410,6 @@ def edit_guru(nip):
     guru.spesialisasi = request.json.get('spesialisasi')
     guru.id_gender = request.json.get('id_gender')
     guru.id_status = request.json.get('id_status')
-        
     db.session.commit()
     
     flash('Data guru berhasil diperbarui', 'success')

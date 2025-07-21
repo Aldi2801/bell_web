@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="page-titles">
+  <div class="row">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 d-flex align-items-center">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="link">
+              <i class="ri-home-3-line fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
+        </ol>
+      </nav>
+      <h1 class="mb-0 fw-bold">Data {{title}}</h1>
+    </div>
+	{% if btn_tambah %}
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
+		  <i class="ri-add-line me-1"></i> Tambah Data
+		</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+            <h2>Data Kehadiran Izin</h2>
+            <p>Berikut adalah data kehadiran Izin Anda. Silakan periksa dan pastikan surat izin yang tercantum sudah benar.</p>
+            <div class="table-responsive">
+<table id="myTable"class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nama Murid</th>
+            <th>Tanggal</th>
+            <th>Mata Pelajaran</th>
+            <th>Nama Kelas</th>
+            <th>Tingkat</th>
+            <th>Materi</th>
+            <th>Keterangan</th>
+            <th>Surat Izin</th>
+        </tr>
+    </thead>
+    <tbody>
+      {% if data_kehadiran %}
+  {% for i in data_kehadiran %}
+    <tr>
+      {% if i.keterangan_rel.keterangan  == 'izin' %}
+      <td>{{ i.siswa_rel.nama }}</td>
+      <td>{{ i.kbm_rel.tanggal if i.kbm_rel else '-' }}</td>
+      <td>
+        {{ i.kbm_rel.ampu_rel.mapel_rel.nama_mapel if i.kbm_rel and i.kbm_rel.ampu_rel and i.kbm_rel.ampu_rel.mapel_rel else '-' }}
+      </td>
+      <td>{{ i.nama_kelas }}</td>
+      <td>{{ i.tingkat }}</td>
+      <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
+      <td>{{ i.keterangan_rel.keterangan if i.keterangan_rel else '-' }}</td>
+      <td>
+          {% if i.surat_izin == NULL %}
+          <span>Murid Belum Mengupload Surat Izin<span><br>
+          {% else %}
+          <a href="/static/surat_izin/{{i.surat_izin}}" class="btn btn-primary btn-sm">Lihat Surat Izin</a><br>
+          {% endif %}
+      </td>
+      {% elif i.keterangan_rel.keterangan == 'sakit' %}
+      {% endif %}
+    </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="7" class="text-center">Tidak ada data kehadiran.</td>
+  </tr>
+{% endif %}
+
+
+    </tbody>
+</table>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+ $('#myTable').DataTable();
+ </script>
+{% endblock %}
