@@ -195,12 +195,9 @@ def tambah_admin_siswa():
 
 @app.route('/admin/siswa/edit/<int:nis>', methods=['PUT'])
 def edit_admin_siswa(nis):
-    if session.get('role') == 'murid':
-        abort(403)
-
     siswa = Siswa.query.get(nis)
     if not siswa:
-        return jsonify({'error': 'Siswa tidak ditemukan'}), 404
+        return jsonify({'error': 'Siswa tidak ditemukan'})
 
     data = request.json
     siswa.nis = data.get('nis')
@@ -380,7 +377,6 @@ def edit_guru(nip):
     file = request.files.get('img_profile')
     if not file or not allowed_file_img_profile(file.filename):
         flash('File tidak valid atau belum diunggah', 'danger')
-        return redirect(request.referrer or url_for('img_profile'))
 
     # Hapus file lama jika ada
     if user.img_profile:
@@ -687,7 +683,8 @@ def tambah_tagihan():
     if not data:
         return jsonify({'error': 'Format request tidak valid'}), 400
 
-    email_target = data.get('user_email')
+    email_target = data.get('nis')
+    print(email_target)
     if email_target == 'semua_siswa':
         siswa_list = Siswa.query.all()
         for siswa in siswa_list:
@@ -699,7 +696,6 @@ def tambah_tagihan():
                 tahun_ajaran=request.json.get('tahun_ajaran'),
                 deskripsi=request.json.get('deskripsi'),
                 total=request.json.get('total'),
-                user_email=siswa.email
             )
             db.session.add(tagihan)
         db.session.commit()
@@ -712,7 +708,6 @@ def tambah_tagihan():
             tahun_ajaran=request.json.get('tahun_ajaran'),
             deskripsi=request.json.get('deskripsi'),
             total=request.json.get('total'),
-            user_email=email_target,
         )
         db.session.add(tagihan)
         db.session.commit()
@@ -785,6 +780,7 @@ def bayar_offline():
 
     tagihan = Tagihan.query.options(joinedload(Tagihan.user)).filter_by(id_tagihan=id_tagihan).first()
     kode_order = f"offline_{user}"
+    print(tagihan.user.email)
     transaksi = Transaksi(
         id_tagihan=id_tagihan,
         kode_order=kode_order,

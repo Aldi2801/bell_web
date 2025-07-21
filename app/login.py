@@ -237,10 +237,11 @@ def dashboard():
         guru = Guru.query.filter_by(nip=user.nip).first()
 
         profil = {
+            'nip': guru.nip,
             'img_profile':user.img_profile,
             'username': user.username,
             'nama': guru.nama,
-            'nip': guru.nip,
+            'inisial': guru.inisial,
             'tempat_lahir': guru.tempat_lahir,
             'tanggal_lahir': guru.tanggal_lahir,
             'alamat': guru.alamat,
@@ -287,6 +288,7 @@ def dashboard():
             'no_hp': siswa.no_hp,
             'email': session.get('email',''),
             'gender': siswa.gender_rel.gender,
+            'status': siswa.status_rel.status,
             'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
             'role': 'Murid'
         }
