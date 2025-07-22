@@ -141,7 +141,7 @@ def kbm_tambah():
         new_ampu = AmpuMapel(
             nip = nip,
             id_mapel = request.json.get('id_mapel'),
-            id_pembagian = request.json.get('id_pembagian') or None,  # NULL -> None
+            
             id_semester = id_semester,
             id_kelas = id_kelas,
             id_tahun_akademik = id_tahun_akademik,
