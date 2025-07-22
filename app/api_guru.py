@@ -436,7 +436,7 @@ def hapus_penilaian(id_penilaian):
 
 @app.route('/guru/pengumuman')
 def view_guru_pengumuman():
-    berita = Berita.query.filter_by(pengumuman_untuk='murid').all()
+    berita = Berita.query.filter_by(pengumuman_untuk='guru').all()
     btn_tambah = False
     title = "Pengumuman"
     title_data = "Pengumuman"
