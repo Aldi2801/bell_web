@@ -183,6 +183,10 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-success">Simpan</button>
+            <button type="submit" class="btn btn-success">Tandai Hadir</button>
+            <button type="submit" class="btn btn-success">Tandai Izin</button>
+            <button type="submit" class="btn btn-success">Tandai Sakit</button>
+            <button type="submit" class="btn btn-success">Tandai Alpa</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
           </div>
         </form>
@@ -194,9 +198,7 @@
 <script>
 $('#myTable').DataTable();
 $('#kehadiranModal').on('shown.bs.modal', function () {
-  if (!$.fn.DataTable.isDataTable('#kehadiranTable')) {
     $('#kehadiranTable').DataTable();
-  }
 });
 
 </script>

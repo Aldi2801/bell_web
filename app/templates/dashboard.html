@@ -340,21 +340,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById('click').addEventListener('click', function () {
     document.getElementById('body').innerHTML = `
-    
       <form id="evaluasiForm" class="needs-validation" novalidate action="/evaluasi_guru/tambah" method="POST">
         <input type="hidden" name="evaluator_role" value="murid" required>
         <input type="hidden" name="evaluator_id" value="{{ session.get('id','') }}" required>
-
-        <div class="col-md-12 mb-3">
-          <label>Aspek</label>
-          <input type="text" class="form-control" name="aspek" required>
-        </div>
-
-        <div class="col-md-12 mb-3">
-          <label>Skor (1-100)</label>
-          <input type="number" class="form-control" name="skor" min="1" max="100" required>
-        </div>
-
         <div class="col-md-12 mb-3">
           <label>Guru yang Dinilai</label>
           <select name="nip" class="form-select" required>
@@ -363,6 +351,78 @@ document.addEventListener("DOMContentLoaded", function () {
               <option value="{{ guru.nip }}">{{ guru.nip }} - {{ guru.nama }}</option>
             {% endfor %}
           </select>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana guru menyampaikan materi pelajaran?</label><br>
+					  <label><input type="radio" name="q1" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q1" value="2"> Baik</label>
+            <label><input type="radio" name="q1" value="3"> Cukup</label>
+            <label><input type="radio" name="q1" value="4"> Buruk</label>
+					</select>  
+        </div>
+        
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru mampu mengelola kelas dengan baik?</label><br>
+					  <label><input type="radio" name="q2" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q2" value="2"> Baik</label>
+            <label><input type="radio" name="q2" value="3"> Cukup</label>
+            <label><input type="radio" name="q2" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana guru memotivasi siswa untuk belajar?</label><br>
+					  <label><input type="radio" name="q3" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q3" value="2"> Baik</label>
+            <label><input type="radio" name="q3" value="3"> Cukup</label>
+            <label><input type="radio" name="q3" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Seberapa sering guru menggunakan media atau metode pembelajaran yang bervariasi?</label><br>
+					  <label><input type="radio" name="q4" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q4" value="2"> Baik</label>
+            <label><input type="radio" name="q4" value="3"> Cukup</label>
+            <label><input type="radio" name="q4" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru memberi kesempatan siswa untuk bertanya dan berdiskusi?</label><br>
+					  <label><input type="radio" name="q5" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q5" value="2"> Baik</label>
+            <label><input type="radio" name="q5" value="3"> Cukup</label>
+            <label><input type="radio" name="q5" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana penilaian guru terhadap hasil belajar siswa?</label><br>
+					  <label><input type="radio" name="q6" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q6" value="2"> Baik</label>
+            <label><input type="radio" name="q6" value="3"> Cukup</label>
+            <label><input type="radio" name="q6" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menunjukkan sikap profesional dalam menjalankan tugas?</label><br>
+					  <label><input type="radio" name="q7" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q7" value="2"> Baik</label>
+            <label><input type="radio" name="q7" value="3"> Cukup</label>
+            <label><input type="radio" name="q7" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana hubungan guru dengan siswa secara umum?</label><br>
+					  <label><input type="radio" name="q8" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q8" value="2"> Baik</label>
+            <label><input type="radio" name="q8" value="3"> Cukup</label>
+            <label><input type="radio" name="q8" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru aktif mengikuti pelatihan, seminar, atau pengembangan diri lainnya?</label><br>
+					  <label><input type="radio" name="q9" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q9" value="2"> Baik</label>
+            <label><input type="radio" name="q9" value="3"> Cukup</label>
+            <label><input type="radio" name="q9" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana peran guru dalam mendukung program sekolah dan kerja sama dengan rekan guru lain?</label><br>
+					  <label><input type="radio" name="q10" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q10" value="2"> Baik</label>
+            <label><input type="radio" name="q10" value="3"> Cukup</label>
+            <label><input type="radio" name="q10" value="4"> Buruk</label>
         </div>
 
         <div class="col-md-12 mb-3">
@@ -373,10 +433,10 @@ document.addEventListener("DOMContentLoaded", function () {
         <button type="submit" class="btn btn-success w-100">Kirim</button>
       </form>
     `;
-
     // Tambahkan validasi dan submit handler
     setTimeout(() => {
       const form = document.getElementById('evaluasiForm');
+
       form.addEventListener('submit', function (e) {
         if (!form.checkValidity()) {
           e.preventDefault();

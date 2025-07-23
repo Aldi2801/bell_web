@@ -403,9 +403,17 @@ def tambah_evaluasi_guru():
             nip=data.get('nip'),
             id_ampu=id_ampu,
             evaluator_id=data.get('evaluator_id'),
+            q1=data.get('q1'),
+            q2=data.get('q2'),
+            q3=data.get('q3'),
+            q4=data.get('q4'),
+            q5=data.get('q5'),
+            q6=data.get('q6'),
+            q7=data.get('q7'),
+            q8=data.get('q8'),
+            q9=data.get('q9'),
+            q10=data.get('q10'),
             evaluator_role=data.get('evaluator_role'),
-            aspek=data.get('aspek'),
-            skor=data.get('skor'),
             komentar=data.get('komentar')
         )
         db.session.add(evaluasi)
@@ -416,8 +424,6 @@ def tambah_evaluasi_guru():
             nip=data.get('nip'),
             evaluator_id=data.get('evaluator_id'),
             evaluator_role=data.get('evaluator_role'),
-            aspek=data.get('aspek'),
-            skor=data.get('skor'),
             komentar=data.get('komentar')
         )
         db.session.add(evaluasi)

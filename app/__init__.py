@@ -267,8 +267,17 @@ class EvaluasiGuru(db.Model):
     evaluator_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
     evaluator_role = db.Column(db.String(10), nullable=False)  # 'murid', 'admin', 'guru'
 
-    aspek = db.Column(db.String(50), nullable=False)
-    skor = db.Column(db.Integer, nullable=False)
+    q1 = db.Column(db.Integer, nullable=False)
+    q2 = db.Column(db.Integer, nullable=False)
+    q3 = db.Column(db.Integer, nullable=False)
+    q4 = db.Column(db.Integer, nullable=False)
+    q5 = db.Column(db.Integer, nullable=False)
+    q6 = db.Column(db.Integer, nullable=False)
+    q7 = db.Column(db.Integer, nullable=False)
+    q8 = db.Column(db.Integer, nullable=False)
+    q9 = db.Column(db.Integer, nullable=False)
+    q10 = db.Column(db.Integer, nullable=False)
+    
     komentar = db.Column(db.Text, nullable=True)
     tanggal = db.Column(db.Date, default=time_zone_wib)
 
