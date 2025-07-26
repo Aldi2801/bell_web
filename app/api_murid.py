@@ -396,23 +396,33 @@ def tambah_evaluasi_guru():
     else:
         # Fallback ke request.form jika bukan JSON
         data = request.form.to_dict()
-    
+    print(data)
     id_ampu=data.get('id_ampu','')
+    q1=int(data.get('q1')),
+    q2=int(data.get('q2')),
+    q3=int(data.get('q3')),
+    q4=int(data.get('q4')),
+    q5=int(data.get('q5')),
+    q6=int(data.get('q6')),
+    q7=int(data.get('q7')),
+    q8=int(data.get('q8')),
+    q9=int(data.get('q9')),
+    q10=int(data.get('q10')),
     if id_ampu != '':
         evaluasi = EvaluasiGuru(
             nip=data.get('nip'),
             id_ampu=id_ampu,
             evaluator_id=data.get('evaluator_id'),
-            q1=data.get('q1'),
-            q2=data.get('q2'),
-            q3=data.get('q3'),
-            q4=data.get('q4'),
-            q5=data.get('q5'),
-            q6=data.get('q6'),
-            q7=data.get('q7'),
-            q8=data.get('q8'),
-            q9=data.get('q9'),
-            q10=data.get('q10'),
+            q1=q1,
+            q2=q2,
+            q3=q3,
+            q4=q4,
+            q5=q5,
+            q6=q6,
+            q7=q7,
+            q8=q8,
+            q9=q9,
+            q10=q10,
             evaluator_role=data.get('evaluator_role'),
             komentar=data.get('komentar')
         )
