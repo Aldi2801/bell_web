@@ -18,3 +18,4 @@ openpyxl
 python-dateutil
 num2words
 faker
+pandas
