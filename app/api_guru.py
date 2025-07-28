@@ -393,7 +393,7 @@ def tambah_penilaian():
         )
         db.session.add(penilaian)
         db.session.commit()
-        flash('Penilaian berhasil ditambahkan')
+        flash('Penilaian berhasil ditambahkan', 'success')
         return jsonify({'msg': 'Penilaian berhasil ditambahkan'}), 201
     except Exception as e:
         db.session.rollback()
@@ -416,7 +416,7 @@ def edit_penilaian(id_penilaian_old):
         penilaian.tanggal = request.json.get('tanggal', penilaian.tanggal)  # Format: 'YYYY-MM-DD'
 
         db.session.commit()
-        flash('Penilaian berhasil diperbarui')
+        flash('Penilaian berhasil diperbarui', 'info')
         return jsonify({'msg': 'Penilaian berhasil diperbarui'})
     except Exception as e:
         db.session.rollback()
@@ -431,7 +431,7 @@ def hapus_penilaian(id_penilaian):
         return jsonify({'error': 'penilaian tidak ditemukan'}), 404
     db.session.delete(penilaian)
     db.session.commit()
-    flash('penilaian berhasil dihapus')
+    flash('penilaian berhasil dihapus', 'warning')
     return jsonify({'msg': 'penilaian berhasil dihapus'})
 
 @app.route('/guru/pengumuman')

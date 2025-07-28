@@ -1,0 +1,235 @@
+{% extends 'layout.html' %}
+{% block head %}
+<title>Dashboard - {{ profil.role }}</title>
+<link rel="stylesheet" href="../../static/assets/libs/apexcharts/dist/apexcharts.css" />
+<style>
+    .table-responsive {
+        overflow-x: auto;
+        /* Menambahkan scroll horizontal jika diperlukan */
+    }
+
+    .fallback-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        font-size: 24px;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+
+    <h1 class="mb-4">Selamat datang, {{ profil.nama or profil.username }}!</h1>
+    <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
+
+    <div class="row mt-3">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Informasi Profil - {{ profil.role }}
+                </div>
+                <div class="card-body d-flex">
+                    {% if profil.img_profile %}
+                    <img src="/static/img_profile/{{ profil.img_profile }}" alt="Profile">
+                    {% else %}
+                    <div class="fallback-icon"
+                        style='background-color: {{ ["#f94144", "#f3722c", "#f9c74f", "#90be6d", "#43aa8b", "#577590"] | random }};'>
+                        {{ profil.username[0]|upper }}
+                    </div>
+                    {% endif %}
+
+                    <div class="w-100">
+                        <ul class="list-group">
+                            {% for key, value in profil.items() if key not in ['role', 'img_profile', 'username'] %}
+                            <li class="list-group-item d-flex align-items-center">
+                                <strong>{{ key.replace('_', ' ').title() }}:</strong>&nbsp;{{ value }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        <!-- Tombol edit bisa disesuaikan role -->
+                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#editModalguru">Edit
+                            Profil</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div class="modal fade" id="editModalguru" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editLabel">Edit {{title_data}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="editForm-{{ profil.nip }}" enctype="multipart/form-data">
+                        <input type="hidden" class="form-control" id="nip" value="{{profil.nip}}" name="nip"
+                            placeholder="NIP" required>
+                        <div class="col-md-12 mb-2">
+                            <label for="username">Img Profile</label>
+                            <input type="file" class="form-control" id="img_profile" name="img_profile">
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" value="{{profil.username}}"
+                                name="username" placeholder="Username" autocomplete="off" required>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="nama_lengkap">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="nama_lengkap" value="{{profil.nama}}"
+                                name="nama_lengkap" placeholder="Nama Lengkap" required>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="inisial">Inisial</label>
+                            <input type="text" class="form-control" id="inisial" value="{{profil.inisial}}"
+                                name="inisial" placeholder="Inisial">
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="tempat_lahir">Tempat Lahir</label>
+                            <input type="text" class="form-control" id="tempat_lahir" value="{{profil.tempat_lahir}}"
+                                name="tempat_lahir" placeholder="Tempat Lahir" required>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="tanggal_lahir">Tanggal Lahir</label>
+                            <input type="date" class="form-control" id="tanggal_lahir" value="{{profil.tanggal_lahir}}"
+                                name="tanggal_lahir" required>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="alamat">Alamat</label>
+                            <input type="text" class="form-control" id="alamat" value="{{profil.alamat}}" name="alamat"
+                                placeholder="Alamat" required>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="no_hp">Nomor HP</label>
+                            <input type="text" class="form-control" id="no_hp" value="{{profil.no_hp}}" name="no_hp"
+                                placeholder="Nomor HP" required>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" value="{{profil.email}}" name="email"
+                                placeholder="Email" autocomplete="off" required>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="spesialisasi">Spesialisasi</label>
+                            <input type="text" class="form-control" id="spesialisasi" value="{{profil.spesialisasi}}"
+                                name="spesialisasi" placeholder="Spesialisasi">
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="id_gender">Gender</label>
+                            <select class="form-select" id="id_gender" name="id_gender" required>
+                                <option value="" selected disabled>Pilih Gender</option>
+                                <option value="L" {% if profil.gender == 'laki-laki' %} selected {% endif %}>Laki-laki
+                                </option>
+                                <option value="P" {% if profil.gender == 'perempuan' %} selected {% endif %}>Perempuan
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="id_status">Status</label>
+                            <select class="form-select" id="id_status" name="id_status" required>
+                                <option value="" selected disabled>Pilih Status</option>
+                                <option value="1" {% if profil.status == 'aktif' %} selected {% endif %}>Aktif</option>
+                                <option value="0" {% if profil.status == 'tidak aktif' %} selected {% endif %}>Non-Aktif
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="password">Password</label>
+                            <input type="password" autocomplete="off" class="form-control" id="password" name="password"
+                                placeholder="Password">
+                        </div>
+
+                        <div class="col-md-12 mb-2">
+                            <label for="re-password">Ulangi Password</label>
+                            <input type="password" autocomplete="off" class="form-control" id="re-password"
+                                name="re-password" placeholder="Ulangi Password">
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" id="tombol-edit-{{ profil.nip }}"
+                                class="btn btn-success">Simpan</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+        document.getElementById("editForm-{{ profil.nip }}").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value.trim();
+            });
+            const tombol = document.getElementById("tombol-edit-{{ profil.nip }}");
+            tombol.disabled = true;
+            tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+            $.ajax({
+                url: '/admin/guru/edit/{{ profil.nip }}',
+                type: 'PUT',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(data),
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (response) {
+                    tombol.innerHTML = "Simpan";
+                    tombol.disabled = false;
+                    alert(response.msg || "Berhasil update guru");
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    tombol.innerHTML = "Simpan";
+                    tombol.disabled = false;
+                    var errorTxt = "Server Error";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorTxt = xhr.responseJSON.error;
+                    }
+                    if (xhr.responseJSON && xhr.responseJSON.msg) {
+                        errorTxt = xhr.responseJSON.msg;
+                    }
+                    alert(`Edit failed: ${errorTxt}`);
+                }
+            });
+        });
+    </script>
+    <script>
+        const now = new Date();
+        const year = now.getFullYear();
+        const semester = now.getMonth() + 1 >= 7 ? "Ganjil" : "Genap";
+        const startYear = semester === "Ganjil" ? year : year - 1;
+        const endYear = startYear + 1;
+        document.getElementById("tahunPelajaran").innerHTML =
+            `Tahun Pelajaran ${startYear}/${endYear} - Semester ${semester}`;
+    </script>
+{% endblock %}

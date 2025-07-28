@@ -89,7 +89,7 @@ class Gender(db.Model):
 class Guru(db.Model):
     nip = db.Column(db.String(25), primary_key=True)
     inisial = db.Column(db.String(4))
-    nama = db.Column(db.String(50), nullable=True)
+    nama = db.Column(db.String(255), nullable=True)
     tempat_lahir = db.Column(db.String(20), nullable=True)
     tanggal_lahir = db.Column(db.Date, nullable=True)
     alamat = db.Column(db.String(125), nullable=True)
@@ -188,7 +188,7 @@ class Kehadiran(db.Model):
 class Siswa(db.Model):
     nis = db.Column(db.Integer, primary_key=True)
     nisn = db.Column(db.String(10))
-    nama = db.Column(db.String(50), nullable=True)
+    nama = db.Column(db.String(255), nullable=True)
     id_gender = db.Column(db.CHAR(1), db.ForeignKey('gender.id_gender', ondelete='CASCADE'), nullable=True)
     tempat_lahir = db.Column(db.String(20), nullable=True)
     tanggal_lahir = db.Column(db.Date, nullable=True)
@@ -277,6 +277,7 @@ class EvaluasiGuru(db.Model):
     q8 = db.Column(db.Integer, nullable=False)
     q9 = db.Column(db.Integer, nullable=False)
     q10 = db.Column(db.Integer, nullable=False)
+    q11 = db.Column(db.Integer, nullable=False)
     
     komentar = db.Column(db.Text, nullable=True)
     tanggal = db.Column(db.Date, default=time_zone_wib)

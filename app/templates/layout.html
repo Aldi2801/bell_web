@@ -242,19 +242,20 @@
       {% include "include/sidebar2.html" %}
       <div class="page-wrapper">
 	  
-    <div class="flash-message-container my-2 ">
+    <div class="flash-message-container" style="padding: 30px; margin-left: auto; margin-right: auto; padding-bottom:0px;">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible fade show " style="z-index: 999;" role="alert">
+              <div class="alert alert-{{ category }}  alert-dismissible fade show " style="z-index: 999;" role="alert">
                 {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
             {% endfor %}
           {% endif %}
         {% endwith %}
       </div>
-    
+    {% if message_time == False %}
+    {% else %}
       <script>
         // Auto-hide alert after 4 seconds
         setTimeout(() => {
@@ -265,8 +266,8 @@
           });
         }, 4000);
       </script>
-      
-        {% block content %}{% endblock content %}  
+      {% endif %}
+      {% block content %}{% endblock content %}  
 		
     <!-- Modal Tambah -->
 <div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">

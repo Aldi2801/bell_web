@@ -1,0 +1,118 @@
+{% extends 'layout.html' %}
+{% block head %}
+<title>Dashboard - {{ profil.role }}</title>
+<link rel="stylesheet" href="../../static/assets/libs/apexcharts/dist/apexcharts.css" />
+<style>
+    .table-responsive {
+        overflow-x: auto;
+        /* Menambahkan scroll horizontal jika diperlukan */
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard untuk admin -->
+    <div class="row">
+        <!-- CARD: Jumlah Siswa -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-light-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Jumlah Siswa</h5>
+                    <h2 class="fw-bold">{{ jumlah_siswa }}</h2>
+                </div>
+            </div>
+        </div>
+        <!-- CARD: Jumlah Guru -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-light-info">
+                <div class="card-body">
+                    <h5 class="card-title">Jumlah Guru</h5>
+                    <h2 class="fw-bold">{{ jumlah_guru }}</h2>
+                </div>
+            </div>
+        </div>
+        <!-- CARD: Jumlah Kelas -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-light-success">
+                <div class="card-body">
+                    <h5 class="card-title">Jumlah Kelas</h5>
+                    <h2 class="fw-bold">{{ jumlah_kelas }}</h2>
+                </div>
+            </div>
+        </div>
+        <!-- CARD: Rata-rata Siswa per Kelas -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-light-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Rata-rata Siswa/Kelas</h5>
+                    <h2 class="fw-bold">{{ rata_siswa_per_kelas }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart dan Tabel -->
+    <div class="row">
+        <div class="col-lg-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Rata-rata Penilaian Siswa per Bulan</h4>
+                    <div id="chart-penilaian"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Siswa Terbaru</h4>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>NIS</th>
+                                    <th>NISN</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in siswa_terbaru %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ s.nama }}</td>
+                                    <td>{{ s.nis }}</td>
+                                    <td>{{ s.nisn }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Script Chart -->
+    <script src="../../static/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script>
+        const data_bulan = {{ chart_data.bulan | safe }};
+        const data_rata_rata = {{ chart_data.rata_rata | safe }};
+
+        var options = {
+            chart: {
+                type: 'bar',
+                height: 300
+            },
+            series: [{
+                name: 'Rata-rata Nilai',
+                data: data_rata_rata
+            }],
+            xaxis: {
+                categories: data_bulan
+            },
+            colors: ['#1e4db7'],
+        };
+        new ApexCharts(document.querySelector("#chart-penilaian"), options).render();
+    </script>
+{% endblock %}

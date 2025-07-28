@@ -10,6 +10,7 @@ from . import AmpuMapel,Kelas, Mapel,allowed_file_img_profile, EvaluasiGuru,Role
 from sqlalchemy import case
 from sqlalchemy.orm import joinedload
 from itertools import zip_longest
+import pandas as pd
         
 @app.route('/admin/semester')
 def semester_list():
@@ -31,7 +32,7 @@ def tambah_semester():
     )
     db.session.add(semester)
     db.session.commit()
-    flash('Semester berhasil ditambahkan')
+    flash('Semester berhasil ditambahkan', 'success')
     return jsonify({'msg':'Semester berhasil ditambahkan'})
 
 @app.route('/admin/semester/edit/<id_semester_old>', methods=['PUT'])
@@ -44,7 +45,7 @@ def edit_semester(id_semester_old):
     semester.id_semester = request.json.get('id_semester')
     semester.semester = request.json.get('nama_semester')
     db.session.commit()
-    flash('Semester berhasil diperbarui')
+    flash('Semester berhasil diperbarui', 'info')
     return jsonify({'msg': 'Semester berhasil diperbarui'})
 
 @app.route('/admin/semester/hapus/<id_semester>', methods=['DELETE'])
@@ -56,7 +57,7 @@ def hapus_semester(id_semester):
         return jsonify({'error': 'Semester tidak ditemukan'}), 404
     db.session.delete(semester)
     db.session.commit()
-    flash('Semester berhasil dihapus')
+    flash('Semester berhasil dihapus', 'warning')
     return jsonify({'msg': 'Semester berhasil dihapus'})
 
 @app.route('/admin/kelas')
@@ -80,7 +81,7 @@ def tambah_kelas():
     )
     db.session.add(kelas)
     db.session.commit()
-    flash('Kelas berhasil ditambahkan')
+    flash('Kelas berhasil ditambahkan', 'success')
     return jsonify({'msg': 'Kelas berhasil ditambahkan'})
 
 @app.route('/admin/kelas/hapus/<id_kelas>', methods=['DELETE'])
@@ -92,7 +93,7 @@ def hapus_kelas(id_kelas):
         return jsonify({'error': 'Kelas tidak ditemukan'}), 404
     db.session.delete(kelas)
     db.session.commit()
-    flash('Kelas berhasil dihapus')
+    flash('Kelas berhasil dihapus', 'warning')
     return jsonify({'msg': 'Kelas berhasil dihapus'})
 
 @app.route('/admin/mapel')
@@ -115,7 +116,7 @@ def tambah_mapel():
     )
     db.session.add(mapel)
     db.session.commit()
-    flash('Mapel berhasil ditambahkan')
+    flash('Mapel berhasil ditambahkan', 'success')
     return jsonify({'msg':'Mapel berhasil ditambahkan'})
 
 @app.route('/admin/mapel/hapus/<id_mapel>', methods=['DELETE'])
@@ -127,7 +128,7 @@ def hapus_mapel(id_mapel):
         return jsonify({'error': 'Mapel tidak ditemukan'}), 404
     db.session.delete(mapel)
     db.session.commit()
-    flash('Mapel berhasil dihapus')
+    flash('Mapel berhasil dihapus', 'warning')
     return jsonify({'msg': 'Mapel berhasil dihapus'})
 # Model Siswa tetap, tidak diubah
 
@@ -140,7 +141,7 @@ def view_admin_siswa():
     title = "Manage Siswa"
     title_data = "Siswa"
     return render_template('admin/siswa.html', siswa_list=siswa_list,gender_list=gender_list,status_list=status_list,
-    btn_tambah=btn_tambah, title=title, title_data=title_data)
+    btn_tambah=btn_tambah, title=title, title_data=title_data, message_time=False)
 
 
 @app.route('/admin/siswa/tambah', methods=['POST'])
@@ -190,15 +191,185 @@ def tambah_admin_siswa():
     db.session.add(siswa)
     db.session.commit()
 
-    flash('Siswa berhasil ditambahkan')
+    flash('Siswa berhasil ditambahkan', 'success')
     return jsonify({'msg': 'Siswa berhasil ditambahkan'})
+
+@app.route('/admin/siswa/tambah_excell', methods=['POST'])
+def upload_excel():
+    file = request.files.get('file')
+    if not file:
+        flash('Tidak ada file yang diunggah', 'danger')
+        return redirect('/admin/siswa')
+
+    try:
+        df = pd.read_excel(file)
+        df = df[['nis', 'nisn', 'nama_lengkap', 'username', 'gender', 'tempat_lahir',
+                 'tanggal_lahir', 'alamat', 'no_hp', 'email', 'nama_ayah', 'nama_ibu',
+                 'penghasilan_ayah', 'penghasilan_ibu', 'asal_sekolah', 'status', 'password']]
+        df = df.dropna(subset=['nis', 'nisn', 'nama_lengkap'])
+
+        # Format kolom numeric
+        df['nis'] = df['nis'].astype(int).astype(str)
+        df['nisn'] = df['nisn'].astype(int).astype(str)
+
+        # Mapping gender dan status
+        gender_map = {'laki-laki': 'L', 'perempuan': 'P'}
+        status_map = {'aktif': 1, 'tidak aktif': 0}
+        df['id_gender'] = df['gender'].map(gender_map)
+        df['id_status'] = df['status'].map(status_map)
+        inserted_count = 0
+        failed_rows = []
+
+        for _, row in df.iterrows():
+            error_msgs = []
+            nis = str(row['nis'])
+            email = str(row['email'])
+            username = str(row['username'])
+            # Cek duplikat username/email di DB
+            if User.query.filter_by(username=username).first():
+                error_msgs.append(f"Username sudah dipakai: {username}")
+            if User.query.filter_by(email=email).first():
+                error_msgs.append(f"Email sudah dipakai: {email}")
+
+            # Cek duplikat NIS & NISN di tabel Siswa
+            if Siswa.query.filter_by(nis=int(nis)).first():
+                error_msgs.append(f"NIS sudah digunakan: {nis}")
+            if Siswa.query.filter_by(nisn=row['nisn']).first():
+                error_msgs.append(f"NISN sudah digunakan: {row['nisn']}")
+
+            # Validasi Gender dan Status
+            id_gender = gender_map.get(row['gender'])
+            id_status = status_map.get(row['status'])
+
+            if not id_gender:
+                error_msgs.append(f"Gender tidak valid: {row['gender']}")
+            if id_status is None:
+                error_msgs.append(f"Status tidak valid: {row['status']}")
+
+            # Validasi tanggal_lahir
+            try:
+                tanggal_lahir = pd.to_datetime(row['tanggal_lahir']).date()
+            except:
+                error_msgs.append(f"Tanggal lahir tidak bisa diparse: {row['tanggal_lahir']}")
+
+            # Jika ada error, simpan dan skip
+            if error_msgs:
+                failed_rows.append({
+                    'nama': row['nama_lengkap'],
+                    'nis': nis,
+                    'email': email,
+                    'error': error_msgs
+                })
+                continue
+
+            try:
+                # Buat User
+                user = User(
+                    username=username,
+                    nis=int(nis),
+                    email=email,
+                    password=bcrypt.generate_password_hash(str(row['password'])).decode('utf-8'),
+                    active=True
+                )
+
+                role = Role.query.filter_by(name='murid').first()
+                if role:
+                    user.roles.append(role)
+
+                db.session.add(user)
+                db.session.flush()
+
+                # Buat Siswa
+                siswa = Siswa(
+                    nis=int(nis),
+                    nisn=row['nisn'],
+                    nama=row['nama_lengkap'],
+                    id_gender=id_gender,
+                    tempat_lahir=row['tempat_lahir'],
+                    tanggal_lahir=tanggal_lahir,
+                    alamat=row['alamat'],
+                    no_hp=str(row['no_hp']),
+                    nama_ayah=row['nama_ayah'],
+                    nama_ibu=row['nama_ibu'],
+                    penghasilan_ayah=row['penghasilan_ayah'],
+                    penghasilan_ibu=row['penghasilan_ibu'],
+                    asal_sekolah=row['asal_sekolah'],
+                    id_status=id_status,
+                    user_id=user.id
+                )
+
+                db.session.add(siswa)
+                inserted_count += 1
+
+            except Exception as db_error:
+                failed_rows.append({
+                    'nama': row['nama_lengkap'],
+                    'nis': nis,
+                    'email': email,
+                    'error': [f'Gagal simpan ke database: {str(db_error)}']
+                })
+                db.session.rollback()
+                continue
+
+        db.session.commit()
+
+        # Flash hasil
+        flash(f'{inserted_count} siswa berhasil ditambahkan.', 'success')
+        if failed_rows:
+            for fail in failed_rows:
+                db.session.rollback()
+                flash(f"❌ {fail['nama']} (NIS: {fail['nis']}) gagal: {', '.join(fail['error'])}", 'danger')
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Gagal memproses file: {e}', 'danger')
+
+    return redirect('/admin/siswa')
 
 @app.route('/admin/siswa/edit/<int:nis>', methods=['PUT'])
 def edit_admin_siswa(nis):
+    nis = request.json.get('nis')
+    nis_baru = request.json.get('nis')
+    username = request.json.get('username')
+    email = request.json.get('email')
+    password = request.json.get('password','')
     siswa = Siswa.query.get(nis)
     if not siswa:
         return jsonify({'error': 'Siswa tidak ditemukan'})
+    user = User.query.filter_by(nis=nis).first()
+    # Cek jika username/email yang baru mau diganti ke milik orang lain
+    if User.query.filter(User.username == username, User.id != user.id).first():
+            flash('Username sudah digunakan oleh user lain', 'danger')
+            return jsonify({'msg': 'Username sudah digunakan oleh user lain'}), 400
+    if User.query.filter(User.email == email, User.id != user.id).first():
+            flash('Email sudah digunakan oleh user lain', 'danger')
+            return jsonify({'msg': 'Email sudah digunakan oleh user lain'}), 400
 
+    user.nis=nis_baru
+    user.username = username
+    user.email = email
+    if password != '':
+            user.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    file = request.files.get('img_profile')
+    if not file or not allowed_file_img_profile(file.filename):
+        flash('File tidak valid atau belum diunggah', 'danger')
+
+    # Hapus file lama jika ada
+    if user.img_profile:
+        old_path = os.path.join(app.config['UPLOAD_IMG_PROFILE'], user.img_profile)
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+    # Simpan file baru
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    filepath = os.path.join(app.config['UPLOAD_IMG_PROFILE'], filename)
+    file.save(filepath)
+
+    user.img_profile = filename
+    db.session.commit()
+    
+    # Simpan data terbaru
     data = request.json
     siswa.nis = data.get('nis')
     siswa.nisn = data.get('nisn')
@@ -208,12 +379,6 @@ def edit_admin_siswa(nis):
     siswa.tanggal_lahir = data.get('tanggal_lahir')
     siswa.alamat = data.get('alamat')
     siswa.no_hp = data.get('no_hp')
-    user = User.query.get(siswa.user_id)
-    user.nis=int(data.get('nis'))
-    if data.get('password','') != '':
-        user.password=bcrypt.generate_password_hash(data.get('password')).decode('utf-8')
-    user.email = data.get('email')
-    user.username = data.get('username')
     siswa.nama_ayah = data.get('nama_ayah')
     siswa.nama_ibu = data.get('nama_ibu')
     siswa.penghasilan_ayah = int(data.get('penghasilan_ayah'))
@@ -222,7 +387,7 @@ def edit_admin_siswa(nis):
     siswa.id_status = data.get('id_status')
 
     db.session.commit()
-    flash('Siswa berhasil diperbarui')
+    flash('Data Siswa berhasil diperbarui', 'info')
     return jsonify({'msg': 'Siswa berhasil diperbarui'})
 
 
@@ -237,7 +402,7 @@ def hapus_admin_siswa(nis):
 
     db.session.delete(siswa)
     db.session.commit()
-    flash('Siswa berhasil dihapus')
+    flash('Siswa berhasil dihapus', 'warning')
     return jsonify({'msg': 'Siswa berhasil dihapus'})
 
 @app.route('/admin/guru')
@@ -453,7 +618,7 @@ def tambah_pembagian_kelas():
     )
     db.session.add(pembagian)
     db.session.commit()
-    flash('Pembagian kelas berhasil ditambahkan')
+    flash('Pembagian kelas berhasil ditambahkan', 'success')
     return jsonify({'msg': 'Pembagian kelas berhasil ditambahkan'})
 
 @app.route('/admin/pembagian_kelas/edit/<id_pembagian>', methods=['PUT'])
@@ -469,7 +634,7 @@ def edit_pembagian_kelas(id_pembagian):
     pembagian.id_tahun_akademik = request.json.get('id_tahun_akademik')
     pembagian.nip = request.json.get('nip')
     db.session.commit()
-    flash('Pembagian kelas berhasil diperbarui')
+    flash('Pembagian kelas berhasil diperbarui', 'info')
     return jsonify({'msg': 'Pembagian kelas berhasil diperbarui'})
 
 @app.route('/admin/pembagian_kelas/hapus/<id_pembagian>', methods=['DELETE'])
@@ -481,7 +646,7 @@ def hapus_pembagian_kelas(id_pembagian):
         return jsonify({'error': 'Pembagian kelas tidak ditemukan'}), 404
     db.session.delete(pembagian)
     db.session.commit()
-    flash('Pembagian kelas berhasil dihapus')
+    flash('Pembagian kelas berhasil dihapus', 'warning')
     return jsonify({'msg': 'Pembagian kelas berhasil dihapus'})
 
 @app.route('/manage_jadwal')
@@ -613,7 +778,7 @@ def hapus_evaluasi_guru(id):
     
     db.session.delete(evaluasi)
     db.session.commit()
-    flash('Evaluasi berhasil dihapus')
+    flash('Evaluasi berhasil dihapus', 'warning')
     return jsonify({'msg': 'Evaluasi berhasil dihapus'})
 
 @app.route('/manage_pengumuman')
@@ -641,7 +806,7 @@ def tambah_pengumuman():
     )
     db.session.add(berita)
     db.session.commit()
-    flash('berita berhasil ditambahkan')
+    flash('berita berhasil ditambahkan', 'success')
     return jsonify({'msg':'berita berhasil ditambahkan'})
 
 @app.route('/manage_pengumuman/edit/<id_pengumuman_old>', methods=['PUT'])
@@ -656,7 +821,7 @@ def edit_pengumuman(id_pengumuman_old):
     berita.nip   = request.json.get('nip')
     berita.pengumuman_untuk   = request.json.get('pengumuman_untuk')
     db.session.commit()
-    flash('berita berhasil diperbarui')
+    flash('berita berhasil diperbarui', 'info')
     return jsonify({'msg': 'berita berhasil diperbarui'})
 
 @app.route('/manage_pengumuman/hapus/<id_pengumuman>', methods=['DELETE'])
@@ -668,7 +833,7 @@ def hapus_pengumuman(id_pengumuman):
         return jsonify({'error': 'berita tidak ditemukan'}), 404
     db.session.delete(berita)
     db.session.commit()
-    flash('berita berhasil dihapus')
+    flash('berita berhasil dihapus', 'warning')
     return jsonify({'msg': 'berita berhasil dihapus'})
 
 @app.route('/menu_pembayaran/tambah', methods=['POST'])
@@ -752,7 +917,7 @@ def edit_tagihan(id_tagihan):
     tagihan.total = request.json.get('total')
 
     db.session.commit()
-    flash('Tagihan berhasil diperbarui')
+    flash('Tagihan berhasil diperbarui', 'info')
     return jsonify({'msg': 'Tagihan berhasil diperbarui'})
 @app.route('/menu_pembayaran/hapus/<int:id_tagihan>', methods=['DELETE'])
 def hapus_tagihan(id_tagihan):
@@ -765,7 +930,7 @@ def hapus_tagihan(id_tagihan):
 
     db.session.delete(tagihan)
     db.session.commit()
-    flash('Tagihan berhasil dihapus')
+    flash('Tagihan berhasil dihapus', 'warning')
     return jsonify({'msg': 'Tagihan berhasil dihapus'})
 
 @app.route('/bayar_offline', methods=['POST'])

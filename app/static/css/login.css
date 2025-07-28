@@ -9,7 +9,6 @@ body {
 
 body.my-login-page {
 	position: relative;
-	background-image: url("../image/biru.png");
 	background-size: cover;
 	background-repeat: no-repeat;
 	font-size: 14px;

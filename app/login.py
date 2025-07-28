@@ -120,7 +120,7 @@ def keluar():
     unset_jwt_cookies(response)
     session.pop('jwt_token', None)
     session.pop('username', None)
-    flash('Sukses Logout')
+    flash('Sukses Logout', 'success')
     return redirect(url_for('login'))
     
 
@@ -217,7 +217,8 @@ def dashboard():
                 'bulan': chart_bulan,
                 'rata_rata': chart_rata
             }
-        return render_template('dashboard.html',
+        print(chart_data)
+        return render_template('admin/dashboard.html',
             
         data_guru = data_guru,
             evaluasi=evaluasi,
@@ -253,6 +254,9 @@ def dashboard():
             'role': 'Guru'
         }
         data_guru = Guru.query.all()
+        return render_template('guru/dashboard.html',
+        data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
+
 
     elif role == 'murid':
         berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'murid').order_by(Berita.tanggal_dibuat.desc()).first()
@@ -293,8 +297,8 @@ def dashboard():
             'role': 'Murid'
         }
     
-    return render_template('dashboard.html',
-        data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
+        return render_template('murid/dashboard.html',
+            data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
 
 
 # @app.route('/bikin_akun', methods=['GET', 'POST'])
@@ -327,7 +331,7 @@ def dashboard():
 #         unset_jwt_cookies(response)
 #         session.pop('jwt_token', None)
 #         session.pop('username', None)
-#         flash('Sukses Logout')
+#         flash('Sukses Logout','success')
 #         return redirect(url_for('login', msg='Registration Successful'))
 
 #     return render_template('admin/register.html')

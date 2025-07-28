@@ -384,7 +384,7 @@ def penilaian_murid():
         .all()
     )
     thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
-    return render_template( 'murid/penilaian.html', penilaian=info_list, tahun=thn, data_guru=Guru.query.all(), data_kelas=Kelas.query.all(), data_mapel=Mapel.query.all(), data_siswa=Siswa.query.all(), data_ampu=AmpuMapel.query.filter_by(nip=nip).all(), btn_tambah=btn_tambah, title=title, title_data=title_data, page=page, per_page=per_page, total_pages=total_pages, total_records=total_records, has_next=paginated_data.has_next, has_prev=paginated_data.has_prev, page_range=page_range )
+    return render_template('murid/penilaian.html', penilaian=info_list, tahun=thn, data_guru=Guru.query.all(), data_kelas=Kelas.query.all(), data_mapel=Mapel.query.all(), data_siswa=Siswa.query.all(), data_ampu=AmpuMapel.query.filter_by(nip=nip).all(), btn_tambah=btn_tambah, title=title, title_data=title_data, page=page, per_page=per_page, total_pages=total_pages, total_records=total_records, has_next=paginated_data.has_next, has_prev=paginated_data.has_prev, page_range=page_range )
 
 # === TAMBAH EVALUASI GURU ===
 @app.route('/evaluasi_guru/tambah', methods=['POST'])
@@ -395,34 +395,24 @@ def tambah_evaluasi_guru():
         data = request.get_json()
     else:
         # Fallback ke request.form jika bukan JSON
-        data = request.form.to_dict()
-    print(data)
+        data = request.form
     id_ampu=data.get('id_ampu','')
-    q1=int(data.get('q1')),
-    q2=int(data.get('q2')),
-    q3=int(data.get('q3')),
-    q4=int(data.get('q4')),
-    q5=int(data.get('q5')),
-    q6=int(data.get('q6')),
-    q7=int(data.get('q7')),
-    q8=int(data.get('q8')),
-    q9=int(data.get('q9')),
-    q10=int(data.get('q10')),
     if id_ampu != '':
         evaluasi = EvaluasiGuru(
             nip=data.get('nip'),
             id_ampu=id_ampu,
             evaluator_id=data.get('evaluator_id'),
-            q1=q1,
-            q2=q2,
-            q3=q3,
-            q4=q4,
-            q5=q5,
-            q6=q6,
-            q7=q7,
-            q8=q8,
-            q9=q9,
-            q10=q10,
+            q1=data.get('q1'),
+            q2=data.get('q2'),
+            q3=data.get('q3'),
+            q4=data.get('q4'),
+            q5=data.get('q5'),
+            q6=data.get('q6'),
+            q7=data.get('q7'),
+            q8=data.get('q8'),
+            q9=data.get('q9'),
+            q10=data.get('q10'),
+            q11=data.get('q11'),
             evaluator_role=data.get('evaluator_role'),
             komentar=data.get('komentar')
         )
@@ -434,10 +424,21 @@ def tambah_evaluasi_guru():
             nip=data.get('nip'),
             evaluator_id=data.get('evaluator_id'),
             evaluator_role=data.get('evaluator_role'),
+            q1=data.get('q1'),
+            q2=data.get('q2'),
+            q3=data.get('q3'),
+            q4=data.get('q4'),
+            q5=data.get('q5'),
+            q6=data.get('q6'),
+            q7=data.get('q7'),
+            q8=data.get('q8'),
+            q9=data.get('q9'),
+            q10=data.get('q10'),
+            q11=data.get('q11'),
             komentar=data.get('komentar')
         )
         db.session.add(evaluasi)
         db.session.commit()
-        flash('Evaluasi berhasil ditambahkan')
+        flash('Evaluasi berhasil ditambahkan', 'success')
         return redirect(url_for('dashboard'))
     
