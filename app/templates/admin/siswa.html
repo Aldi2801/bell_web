@@ -3,20 +3,24 @@
 
 <div class="row">
     <div class="col-md-6 mb-3">
+        <label for="img_profile">Img Profile</label>
+        <input type="file" class="form-control" id="img_profile" name="img_profile">
+    </div>
+    <div class="col-md-6 mb-3">
         <label for="nis">NIS</label>
-        <input type="number" class="form-control" id="nis" name="nis" placeholder="NIS" required>
+        <input type="number" class="form-control" id="nis" name="nis" placeholder="NIS" required >
     </div>
     <div class="col-md-6 mb-3">
         <label for="nisn">NISN</label>
-        <input type="text" class="form-control" id="nisn" name="nisn" placeholder="NISN">
+        <input type="text" class="form-control" id="nisn" name="nisn" placeholder="NISN" required maxlength="10" pattern="[0-9]{0,10}" title="Masukkan 10 digit angka NISN">
     </div>
     <div class="col-md-6 mb-3">
         <label for="nama">Nama</label>
-        <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama" required>
+        <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama" required maxlength="255" title="Nama lengkap siswa">
     </div>
     <div class="col-md-6 mb-3">
         <label for="username_tambah">Username</label>
-        <input type="text" class="form-control" autocomplete="off" id="username_tambah" value="" placeholder="username" name="username_tambah" required>
+        <input type="text" class="form-control" autocomplete="off" id="username_tambah" placeholder="username" name="username_tambah" required maxlength="255" title="Username untuk login siswa">
     </div>
     <div class="col-md-6 mb-3">
         <label for="id_gender">Gender</label>
@@ -29,43 +33,43 @@
     </div>
     <div class="col-md-6 mb-3">
         <label for="tempat_lahir">Tempat Lahir</label>
-        <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir" placeholder="Tempat Lahir" required>
+        <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir" placeholder="Tempat Lahir" required maxlength="20" title="Tempat lahir siswa">
     </div>
     <div class="col-md-6 mb-3">
         <label for="tanggal_lahir">Tanggal Lahir</label>
-        <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" placeholder="Tanggal Lahir" required>
+        <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" placeholder="Tanggal Lahir" required >
     </div>
     <div class="col-md-6 mb-3">
         <label for="alamat">Alamat</label>
-        <input type="text" class="form-control" id="alamat" name="alamat" placeholder="Alamat" required>
+        <input type="text" class="form-control" id="alamat" name="alamat" placeholder="Alamat" required maxlength="125" title="Alamat lengkap siswa">
     </div>
     <div class="col-md-6 mb-3">
         <label for="no_hp">No HP</label>
-        <input type="text" class="form-control" id="no_hp" name="no_hp" placeholder="No HP" required>
+        <input type="tel" class="form-control" id="no_hp" name="no_hp" placeholder="No HP" required maxlength="15" pattern="[0-9]{10,15}" title="Masukkan no HP antara 10–15 digit angka">
     </div>
     <div class="col-md-6 mb-3">
         <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Email" required autocomplete="off">
+        <input type="email" class="form-control" id="email" name="email" placeholder="Email" required autocomplete="off" maxlength="255" title="Email untuk login siswa">
     </div>
     <div class="col-md-6 mb-3">
         <label for="asal_sekolah">Asal Sekolah</label>
-        <input type="text" class="form-control" id="asal_sekolah" name="asal_sekolah" placeholder="Asal Sekolah" required>
+        <input type="text" class="form-control" id="asal_sekolah" name="asal_sekolah" placeholder="Asal Sekolah" required maxlength="30" title="Nama sekolah asal siswa">
     </div>
     <div class="col-md-6 mb-3">
         <label for="nama_ayah">Nama Ayah</label>
-        <input type="text" class="form-control" id="nama_ayah" name="nama_ayah" placeholder="Nama Ayah" required>
+        <input type="text" class="form-control" id="nama_ayah" name="nama_ayah" placeholder="Nama Ayah" required maxlength="35" title="Nama ayah">
     </div>
     <div class="col-md-6 mb-3">
         <label for="nama_ibu">Nama Ibu</label>
-        <input type="text" class="form-control" id="nama_ibu" name="nama_ibu" placeholder="Nama Ibu" required>
+        <input type="text" class="form-control" id="nama_ibu" name="nama_ibu" placeholder="Nama Ibu" required  maxlength="35" title="Nama ibu">
     </div>
     <div class="col-md-6 mb-3">
         <label for="penghasilan_ayah">Penghasilan Ayah</label>
-        <input type="number" class="form-control" id="penghasilan_ayah" name="penghasilan_ayah" placeholder="Penghasilan Ayah" required>
+        <input type="number" class="form-control" id="penghasilan_ayah" name="penghasilan_ayah" placeholder="Penghasilan Ayah" required min="0" title="Penghasilan ayah (dalam angka)">
     </div>
     <div class="col-md-6 mb-3">
         <label for="penghasilan_ibu">Penghasilan Ibu</label>
-        <input type="number" class="form-control" id="penghasilan_ibu" name="penghasilan_ibu" placeholder="Penghasilan Ibu" required>
+        <input type="number" class="form-control" id="penghasilan_ibu" name="penghasilan_ibu" placeholder="Penghasilan Ibu" required min="0" title="Penghasilan ibu (dalam angka)">
     </div>
     <div class="col-md-6 mb-3">
         <label for="id_status">Status</label>
@@ -78,7 +82,7 @@
     </div>
     <div class="col-md-6 mb-3">
         <label for="password_tambah">Password</label>
-        <input type="password" class="form-control" autocomplete="off" value="" id="password_tambah" name="password_tambah" placeholder="password" required>
+        <input type="password" class="form-control" autocomplete="off" id="password_tambah" name="password_tambah" placeholder="password" required maxlength="255" title="Password untuk login siswa">
     </div>
 </div>
 
@@ -127,6 +131,8 @@
 <table id="myTable" class="table table-stripped" >
     <thead>
         <tr>
+            <th>No</th>
+            <th>Img Profile</th>
                         <th>NIS</th>
                         <th>NISN</th>
                         <th>Nama Lengkap</th>
@@ -149,6 +155,8 @@
     <tbody>
            {% for s in siswa_list %}
                 <tr>
+                        <td>{{loop.index}}</td>
+                        <td><img src="/static/image/img_profile/{{s.img_profile}}" width="50px" height="50px" alt="Image Profile {{s.nama}}" ></td>
                         <td>{{ s.nis }}</td>
                         <td>{{ s.nisn }}</td>
                         <td>{{ s.nama }}</td>
@@ -182,27 +190,30 @@
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
 					  </div>	
 					<div class="modal-body">
-					  <form id="editForm-{{ s.nis }}">
+					  <form id="editForm-{{ s.nis }}" enctype="multipart/form-data">
 						<input type="hidden" name="nis_old" value="{{ s.nis }}">
-
+            <div class="mb-2 row">
+              <label for="img_profile_{{ s.nis }}">Img Profile</label>
+              <input type="file" class="form-control" id="img_profile_{{ s.nis }}" name="img_profile">
+            </div>
 						<div class="mb-2 row">
 						  <label for="nis_{{ s.nis }}" class="col-sm-4 col-form-label">NIS</label>
 						  <div class="col-sm-8">
-							<input type="number" id="nis_{{ s.nis }}" name="nis" value="{{ s.nis }}" class="form-control" required>
+							<input type="number" id="nis_{{ s.nis }}" name="nis" value="{{ s.nis }}" class="form-control" required >
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="nisn_{{ s.nis }}" class="col-sm-4 col-form-label">NISN</label>
 						  <div class="col-sm-8">
-							<input type="text" id="nisn_{{ s.nis }}" name="nisn" value="{{ s.nisn }}" class="form-control">
+							<input type="text" id="nisn_{{ s.nis }}" name="nisn" value="{{ s.nisn }}" class="form-control" maxlength="10" pattern="[0-9]{0,10}" title="Masukkan 10 digit angka NISN">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="nama_{{ s.nis }}" class="col-sm-4 col-form-label">Nama</label>
 						  <div class="col-sm-8">
-							<input type="text" id="nama_{{ s.nis }}" name="nama" value="{{ s.nama }}" class="form-control" required>
+							<input type="text" id="nama_{{ s.nis }}" name="nama" value="{{ s.nama }}" class="form-control" required maxlength="255" title="Nama lengkap siswa">
 						  </div>
 						</div>
 
@@ -220,7 +231,7 @@
 						<div class="mb-2 row">
 						  <label for="tempat_lahir_{{ s.nis }}" class="col-sm-4 col-form-label">Tempat Lahir</label>
 						  <div class="col-sm-8">
-							<input type="text" id="tempat_lahir_{{ s.nis }}" name="tempat_lahir" value="{{ s.tempat_lahir }}" class="form-control" required>
+							<input type="text" id="tempat_lahir_{{ s.nis }}" name="tempat_lahir" value="{{ s.tempat_lahir }}" class="form-control" required maxlength="20" title="Tempat lahir siswa">
 						  </div>
 						</div>
 
@@ -234,70 +245,70 @@
 						<div class="mb-2 row">
 						  <label for="alamat_{{ s.nis }}" class="col-sm-4 col-form-label">Alamat</label>
 						  <div class="col-sm-8">
-							<input type="text" id="alamat_{{ s.nis }}" name="alamat" value="{{ s.alamat }}" class="form-control" required>
+							<input type="text" id="alamat_{{ s.nis }}" name="alamat" value="{{ s.alamat }}" class="form-control" required maxlength="125" title="Alamat lengkap siswa">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="no_hp_{{ s.nis }}" class="col-sm-4 col-form-label">No HP</label>
 						  <div class="col-sm-8">
-							<input type="text" id="no_hp_{{ s.nis }}" name="no_hp" value="{{ s.no_hp }}" class="form-control" required>
+							<input type="text" id="no_hp_{{ s.nis }}" name="no_hp" value="{{ s.no_hp }}" class="form-control" required maxlength="15" pattern="[0-9]{10,15}" title="Masukkan no HP antara 10–15 digit angka">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="username_{{ s.nis }}" class="col-sm-4 col-form-label">Username</label>
 						  <div class="col-sm-8">
-							<input type="text" id="username_{{ s.nis }}" name="username" value="{{ s.user.username }}" class="form-control" required autocomplete="off">
+							<input type="text" id="username_{{ s.nis }}" name="username" value="{{ s.user.username }}" class="form-control" required autocomplete="off" maxlength="255" title="Username untuk login siswa">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="password_{{ s.nis }}" class="col-sm-4 col-form-label">Password</label>
 						  <div class="col-sm-8">
-							<input type="password" id="password_{{ s.nis }}" name="password" class="form-control" autocomplete="off">
+							<input type="password" id="password_{{ s.nis }}" name="password" class="form-control" autocomplete="off" maxlength="255" title="Password untuk login siswa">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="email_{{ s.nis }}" class="col-sm-4 col-form-label">Email</label>
 						  <div class="col-sm-8">
-							<input type="email" id="email_{{ s.nis }}" name="email" value="{{ s.user.email }}" class="form-control" required autocomplete="off">
+							<input type="email" id="email_{{ s.nis }}" name="email" value="{{ s.user.email }}" class="form-control" required autocomplete="off" maxlength="255" title="Email untuk login siswa">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="nama_ayah_{{ s.nis }}" class="col-sm-4 col-form-label">Nama Ayah</label>
 						  <div class="col-sm-8">
-							<input type="text" id="nama_ayah_{{ s.nis }}" name="nama_ayah" value="{{ s.nama_ayah }}" class="form-control" required>
+							<input type="text" id="nama_ayah_{{ s.nis }}" name="nama_ayah" value="{{ s.nama_ayah }}" class="form-control" required maxlength="35" title="Nama ayah">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="nama_ibu_{{ s.nis }}" class="col-sm-4 col-form-label">Nama Ibu</label>
 						  <div class="col-sm-8">
-							<input type="text" id="nama_ibu_{{ s.nis }}" name="nama_ibu" value="{{ s.nama_ibu }}" class="form-control" required>
+							<input type="text" id="nama_ibu_{{ s.nis }}" name="nama_ibu" value="{{ s.nama_ibu }}" class="form-control" required maxlength="35" title="Nama ibu">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="penghasilan_ayah_{{ s.nis }}" class="col-sm-4 col-form-label">Penghasilan Ayah</label>
 						  <div class="col-sm-8">
-							<input type="number" id="penghasilan_ayah_{{ s.nis }}" name="penghasilan_ayah" value="{{ s.penghasilan_ayah }}" class="form-control" required>
+							<input type="number" id="penghasilan_ayah_{{ s.nis }}" name="penghasilan_ayah" value="{{ s.penghasilan_ayah }}" class="form-control" required min="0" title="Penghasilan ayah (dalam angka)">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="penghasilan_ibu_{{ s.nis }}" class="col-sm-4 col-form-label">Penghasilan Ibu</label>
 						  <div class="col-sm-8">
-							<input type="number" id="penghasilan_ibu_{{ s.nis }}" name="penghasilan_ibu" value="{{ s.penghasilan_ibu }}" class="form-control" required>
+							<input type="number" id="penghasilan_ibu_{{ s.nis }}" name="penghasilan_ibu" value="{{ s.penghasilan_ibu }}" class="form-control" required min="0" title="Penghasilan ibu (dalam angka)">
 						  </div>
 						</div>
 
 						<div class="mb-2 row">
 						  <label for="asal_sekolah_{{ s.nis }}" class="col-sm-4 col-form-label">Asal Sekolah</label>
 						  <div class="col-sm-8">
-							<input type="text" id="asal_sekolah_{{ s.nis }}" name="asal_sekolah" value="{{ s.asal_sekolah }}" class="form-control" required>
+							<input type="text" id="asal_sekolah_{{ s.nis }}" name="asal_sekolah" value="{{ s.asal_sekolah }}" class="form-control" required maxlength="30" title="Nama sekolah asal siswa">
 						  </div>
 						</div>
 

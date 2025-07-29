@@ -189,27 +189,43 @@ def api_kehadiran_siswa():
         .filter(Kehadiran.id_kbm == id_kbm)
         .all()
     )
-    return jsonify([{'nama': s[0], 'nis': s[1], 'nama_kelas': s[2],'id_keterangan': s[3]} for s in siswa_list])
+    return jsonify([{'id_kbm':id_kbm,'nama': s[0], 'nis': s[1], 'nama_kelas': s[2],'id_keterangan': s[3]} for s in siswa_list])
 
 @app.route('/guru/kehadiran/tambah', methods=['POST'])
 def simpan_kehadiran_siswa():
     id_ampu = request.form['id_ampu']
+    id_kbm = request.form['id_kbm']
     tanggal = datetime.datetime.now().date()
 
     # Tambahkan data ke KBM (karena kehadiran harus ada ID KBM)
-    kbm = Kbm(tanggal=tanggal, materi='Kehadiran', sub_materi='-', id_ampu=id_ampu)
-    db.session.add(kbm)
-    db.session.flush()  # agar dapatkan id_kbm sebelum commit
-
+ 
+    print(request.form['nama_kelas'])
     for key in request.form:
         if key.startswith('status['):
             nis = key[7:-1]  # ambil angka di dalam status[20001]
             status = request.form[key]
             id_keterangan = status  # fungsi untuk mapping
-            kehadiran = Kehadiran(id_kbm=kbm.id_kbm, nis=int(nis), id_keterangan=id_keterangan)
-            db.session.add(kehadiran)
+            # Cek apakah sudah ada sebelumnya
+            exists = Kehadiran.query.filter_by(
+                id_kbm=id_kbm,
+                nis=int(nis),
+                nama_kelas=request.form['nama_kelas'],
+                id_keterangan=id_keterangan
+            ).first()
 
-    db.session.commit()
+            if not exists:
+                kehadiran = Kehadiran(
+                    id_kbm=id_kbm,
+                    nis=int(nis),
+                    nama_kelas=request.form['nama_kelas'],
+                    id_keterangan=id_keterangan
+                )
+                db.session.add(kehadiran)
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+
     return '', 200
 @app.route("/kbm/list/edit/<int:id>", methods=["PUT"])
 def edit_ampu(id):
@@ -275,18 +291,13 @@ def lihat_surat_izin_murid():
     # Tambahkan info kelas ke data kehadiran
     enriched_kehadiran = []
     for d in data_kehadiran:
-        id_tahun = (
-            d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
-        )
-        kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
         enriched_kehadiran.append({
             "id_kehadiran": d.id_kehadiran,
             "surat_izin": d.surat_izin,
             "siswa_rel": d.siswa_rel,
             "kbm_rel": d.kbm_rel,
             "keterangan_rel": d.keterangan_rel,
-            "nama_kelas": kelas_info["nama_kelas"],
-            "tingkat": kelas_info["tingkat"]
+            "nama_kelas": d.nama_kelas,
         })
 
     return render_template(

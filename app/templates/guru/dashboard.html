@@ -75,7 +75,7 @@
 
                 <!-- Modal Body -->
                 <div class="modal-body">
-                    <form id="editForm-{{ profil.nip }}" enctype="multipart/form-data">
+                    <form id="editprofile" enctype="multipart/form-data">
                         <input type="hidden" class="form-control" id="nip" value="{{profil.nip}}" name="nip"
                             placeholder="NIP" required>
                         <div class="col-md-12 mb-2">
@@ -170,7 +170,7 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="submit" id="tombol-edit-{{ profil.nip }}"
+                            <button type="submit" id="submit-profile"
                                 class="btn btn-success">Simpan</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         </div>
@@ -182,15 +182,15 @@
     </div>
 </div>
     <script>
-        document.getElementById("editForm-{{ profil.nip }}").addEventListener("submit", function (event) {
+        document.getElementById("editprofile").addEventListener("submit", function (event) {
             event.preventDefault();
             const form = this;
             const formData = new FormData(form);
             const data = {};
             formData.forEach((value, key) => {
-                data[key] = value.trim();
+                data[key] = value.trim ? value.trim() : value;
             });
-            const tombol = document.getElementById("tombol-edit-{{ profil.nip }}");
+            const tombol = document.getElementById("submit-profile");
             tombol.disabled = true;
             tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
             $.ajax({

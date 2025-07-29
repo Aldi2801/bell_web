@@ -39,7 +39,6 @@
             <th>Tanggal</th>
             <th>Mata Pelajaran</th>
             <th>Nama Kelas</th>
-            <th>Tingkat</th>
             <th>Materi</th>
             <th>Keterangan</th>
             <th>Surat Izin</th>
@@ -56,7 +55,6 @@
         {{ i.kbm_rel.ampu_rel.mapel_rel.nama_mapel if i.kbm_rel and i.kbm_rel.ampu_rel and i.kbm_rel.ampu_rel.mapel_rel else '-' }}
       </td>
       <td>{{ i.nama_kelas }}</td>
-      <td>{{ i.tingkat }}</td>
       <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
       <td>{{ i.keterangan_rel.keterangan if i.keterangan_rel else '-' }}</td>
       <td>

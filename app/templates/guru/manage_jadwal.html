@@ -253,7 +253,7 @@ document.getElementById("tombolhapus").addEventListener("click", function(event)
     const data = {};
 
     formData.forEach((value, key) => {
-        data[key] = value.trim();
+        data[key] = value.trim ? value.trim() : value;
     });
 
     document.getElementById("tombolhapus").disabled = true;

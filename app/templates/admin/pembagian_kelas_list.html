@@ -194,7 +194,7 @@ document.getElementById("editForm-{{ s.id_pembagian }}").addEventListener("submi
     const formData = new FormData(form);
     const data = {};
     formData.forEach((value, key) => {
-        data[key] = value.trim();
+        data[key] = value.trim ? value.trim() : value;
     });
     const tombol = document.getElementById("tombol-edit-{{ s.id_pembagian }}");
     tombol.disabled = true;

@@ -135,7 +135,7 @@ class Status(db.Model):
 class Kelas(db.Model):
     id_kelas = db.Column(db.String(6), primary_key=True)
     nama_kelas = db.Column(db.String(15), nullable=True)
-    tingkat = db.Column(db.CHAR(1), nullable=True)
+    tingkat = db.Column(db.CHAR(2), nullable=True)
 
 class AmpuMapel(db.Model):
     id_ampu = db.Column(db.Integer, primary_key=True)
@@ -175,6 +175,7 @@ class Kehadiran(db.Model):
     id_kbm = db.Column(db.Integer, db.ForeignKey('kbm.id_kbm', ondelete='CASCADE'), nullable=True)
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=True)
     surat_izin = db.Column(db.String(255), nullable=True)
+    nama_kelas = db.Column(db.String(15), nullable=True)
 
     # Relasi ke tabel Keterangan
     keterangan_rel = db.relationship('Keterangan', backref='kehadiran_list', lazy=True)
@@ -184,6 +185,9 @@ class Kehadiran(db.Model):
 
     # Relasi ke tabel Siswa
     siswa_rel = db.relationship('Siswa', backref='kehadiran_list', lazy=True)  
+    __table_args__ = (
+        db.UniqueConstraint('id_kbm', 'nis', 'nama_kelas', 'id_keterangan', name='unique_kehadiran'),
+    )
 
 class Siswa(db.Model):
     nis = db.Column(db.Integer, primary_key=True)

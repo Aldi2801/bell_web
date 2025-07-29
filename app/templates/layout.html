@@ -342,7 +342,7 @@ function closeEditModal(id) {
 $('#editModal-' + id).modal('hide');
 }
 
-// AJAX for Delete Semester (DELETE)
+// AJAX for Delete Data (DELETE)
 function deleteData(id) {
     if (!confirm('Yakin?')) return;
     const baseUrl = window.location.origin + window.location.pathname;
@@ -371,7 +371,7 @@ function deleteData(id) {
     });
 }
 
-// AJAX for Tambah Semester (POST)
+// AJAX for Tambah Data (POST)
 document.getElementById("tombolSubmit").addEventListener("click", function(event) {
     event.preventDefault(); // Prevent default form submit
     const form = document.getElementById("tambahModalForm");
@@ -383,7 +383,7 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
     // Cek tiap elemen yang required
     [...form.elements].forEach(input => {
         if (input.hasAttribute("required")) {
-            const value = input.value.trim();
+            const value = input.value.trim ? input.value.trim() : input.value;
             if (!value) {
                 isValid = false;
                 firstInvalid = firstInvalid || input;
@@ -404,7 +404,7 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
 
     // Ambil data dari FormData ke objek JS
     formData.forEach((value, key) => {
-        data[key] = value.trim();
+        data[key] = value.trim ? value.trim() : value;
     });
 
     // Ubah tampilan tombol jadi loading
@@ -412,6 +412,7 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
     document.getElementById("tombolSubmit").innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
 
     const baseUrl = window.location.origin + window.location.pathname;
+
     $.ajax({
         url: baseUrl + '/tambah',
         type: 'POST',
@@ -424,7 +425,7 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
         success: function (response) {
             document.getElementById("tombolSubmit").innerHTML = "Submit";
             document.getElementById("tombolSubmit").disabled = false;
-            alert(response.msg || "Berhasil tambah semester");
+            alert(response.msg || "Berhasil tambah data");
             window.location.reload();
         },
         error: function (xhr, status, error) {

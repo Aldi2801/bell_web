@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block form_tambah %}
 <div class="col-md-12 mb-2">
+  <label for="img_profile">Img Profile</label>
+  <input type="file" class="form-control" id="img_profile" name="img_profile">
+</div>
+<div class="col-md-12 mb-2">
   <label for="nip">NIP</label>
   <input type="text" class="form-control" id="nip" name="nip" placeholder="NIP" required>
 </div>
@@ -117,6 +121,7 @@
     <thead>
         <tr>            
         <th>No</th>
+            <th>Img Profile</th>
             <th>Username</th>
             <th>nip</th>
             <th>inisial</th>
@@ -138,6 +143,7 @@
         {% for s in guru %}
         <tr>
             <td>{{loop.index}}</td>
+            <td><img src="/static/image/img_profile/{{s.img_profile}}" width="50px" height="50px" alt="Image Profile {{s.nama}}" ></td>
             <td>{{s.username}}</td>
             <td>{{s.nip}}</td>
             <td>{{s.inisial}}</td>
@@ -173,8 +179,11 @@
 
 			  <!-- Modal Body -->
 			  <div class="modal-body">
-				<form id="editForm-{{ s.nip }}">
-  
+				<form id="editForm-{{ s.nip }}" enctype="multipart/form-data">
+          <div class="col-md-12 mb-2">
+          <label for="img_profile">Img Profile</label>
+          <input type="file" class="form-control" id="img_profile" name="img_profile">
+          </div>
 				  <div class="col-md-12 mb-2">
 					<label for="nip">NIP</label>
 					<input type="text" class="form-control" id="nip" value="{{s.nip}}" name="nip" placeholder="NIP" required>
@@ -274,6 +283,8 @@
 		</div>
 <script>
  $('#myTable').DataTable();
+const form_tambah = document.getElementById("tambahModalForm");
+form_tambah.attr('enctype',"multipart/form-data");
  </script>
 <script>
 // AJAX for Edit guru (PUT)
@@ -284,7 +295,7 @@ document.getElementById("editForm-{{ s.nip }}").addEventListener("submit", funct
     const formData = new FormData(form);
     const data = {};
     formData.forEach((value, key) => {
-        data[key] = value.trim();
+        data[key] = value.trim ? value.trim() : value;
     });
     const tombol = document.getElementById("tombol-edit-{{ s.nip }}");
     tombol.disabled = true;

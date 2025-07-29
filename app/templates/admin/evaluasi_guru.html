@@ -172,7 +172,7 @@ document.getElementById("editForm-{{ e.id }}").addEventListener("submit", functi
 
     // Ambil dan trim semua input
     formData.forEach((value, key) => {
-        data[key] = value.trim();
+        data[key] = value.trim ? value.trim() : value;
     });
 
     // Konversi skor jadi number

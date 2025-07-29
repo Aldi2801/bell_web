@@ -1,12 +1,13 @@
 # Import library bawaan Python
 from collections import defaultdict
-import datetime, ast, os, uuid
+import datetime, ast, os, uuid, re
 # Import library pihak ketiga
 from flask import abort, render_template, request, jsonify, session, redirect, url_for
 # Fungsi untuk mengubah angka menjadi teks (terbilang)
 from flask import flash
 # Import dari aplikasi lokal
 from . import AmpuMapel,Kelas, Mapel,allowed_file_img_profile, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
+from .form import FormSiswa
 from sqlalchemy import case
 from sqlalchemy.orm import joinedload
 from itertools import zip_longest
@@ -26,9 +27,19 @@ def semester_list():
 def tambah_semester():
     if session.get('role') != 'admin':
         abort(403)
+        
+    nama_semester=request.json.get('nama_semester')
+
+    if not re.fullmatch(r'[A-Za-z]{1,6}', nama_semester):
+        return jsonify({'error': 'Nama semester hanya boleh huruf maksimal 6 karakter'}), 400
+    if Semester.query.filter_by(id_semester=request.json.get('id_semester')).first():
+        return jsonify({'error': 'ID Semester sudah ada'}), 400
+    if Semester.query.filter_by(semester=nama_semester).first():
+        return jsonify({'error': 'Nama semester sudah ada'}), 400
+    
     semester = Semester(
             id_semester=request.json.get('id_semester'),
-            semester=request.json.get('nama_semester')
+            semester=nama_semester
     )
     db.session.add(semester)
     db.session.commit()
@@ -42,8 +53,12 @@ def edit_semester(id_semester_old):
     semester = Semester.query.filter_by(id_semester=id_semester_old).first()
     if not semester:
         return jsonify({'error': 'Semester tidak ditemukan'}), 404
+    nama_semester=request.json.get('nama_semester')
+    if not re.fullmatch(r'[A-Za-z]{1,6}', nama_semester):
+        return jsonify({'error': 'Nama semester hanya boleh huruf maksimal 6 karakter'}), 400
+    
     semester.id_semester = request.json.get('id_semester')
-    semester.semester = request.json.get('nama_semester')
+    semester.semester = nama_semester
     db.session.commit()
     flash('Semester berhasil diperbarui', 'info')
     return jsonify({'msg': 'Semester berhasil diperbarui'})
@@ -74,6 +89,12 @@ def kelas_list():
 def tambah_kelas():
     if session.get('role') != 'admin':
         abort(403)
+    id_kelas=request.json.get('id_kelas')
+    if not re.fullmatch(r'[A-Za-z0-9]{0,2}', id_kelas):
+        return jsonify({'error': 'Id Kelas hanya boleh 2 digit huruf dan angka '}), 400
+    tingkat=request.json.get('tingkat')
+    if not re.fullmatch(r'[0-9]{0,2}', tingkat):
+        return jsonify({'error': 'Tingkat Kelas hanya boleh max 2 digit angka'}), 400
     kelas = Kelas(
         id_kelas=request.json.get('id_kelas'),
         nama_kelas=request.json.get('nama_kelas'),
@@ -150,6 +171,16 @@ def tambah_admin_siswa():
         abort(403)
     data = request.json
 
+    # Cek duplikat username/email di DB
+    if User.query.filter_by(username=data.get('username_tambah')).first():
+        return jsonify({'error': f"Username sudah dipakai: {data.get('username_tambah')}"})
+    if User.query.filter_by(email=data.get('email')).first():
+        return jsonify({'error': f"Email sudah dipakai: {data.get('email')}"})
+    # Cek duplikat NIS & NISN di tabel Siswa
+    if Siswa.query.filter_by(nis=int(data.get('nis'))).first():
+        return jsonify({'error': f"NIS sudah digunakan: {int(data.get('nis'))}"})
+    if Siswa.query.filter_by(nisn=data.get('nisn')).first():
+        return jsonify({'error': f"NISN sudah digunakan: {data.get('nis')}"})
     # Create User
     user = User(
         username=data.get('username_tambah'),
@@ -168,26 +199,25 @@ def tambah_admin_siswa():
     db.session.add(user)
     db.session.flush()  # Ensures user.id is populated
 
-    # Create Siswa linked to User
+    # Create Siswa linked to User  
     siswa = Siswa(
-        nis=int(data.get('nis')),
-        nisn=data.get('nisn'),
-        nama=data.get('nama'),
-        id_gender=data.get('id_gender'),
-        tempat_lahir=data.get('tempat_lahir'),
-        tanggal_lahir=data.get('tanggal_lahir'),
-        alamat=data.get('alamat'),
-        no_hp=data.get('no_hp'),
-        nama_ayah=data.get('nama_ayah'),
-        nama_ibu=data.get('nama_ibu'),
-        penghasilan_ayah=data.get('penghasilan_ayah'),
-        penghasilan_ibu=data.get('penghasilan_ibu'),
-        asal_sekolah=data.get('asal_sekolah'),
-        id_status=data.get('id_status'),
-        user_id=user.id,  # Ensure user.id is available
-    )
+            nis=data.get('nis'),
+            nisn=data.get('nisn'),
+            nama=data.get('nama'),
+            tempat_lahir=data.get('tempat_lahir'),
+            tanggal_lahir=data.get('tanggal_lahir'),
+            alamat=data.get('alamat'),
+            no_hp=data.get('no_hp'),
+            nama_ayah=data.get('nama_ayah'),
+            nama_ibu=data.get('nama_ibu'),
+            penghasilan_ayah=data.get('penghasilan_ayah'),
+            penghasilan_ibu=data.get('penghasilan_ibu'),
+            asal_sekolah=data.get('asal_sekolah'),
+            id_gender=data.get('id_gender'),
+            id_status=data.get('id_status'),
+        )
 
-    # Add siswa and commit all
+        # Add siswa and commit all
     db.session.add(siswa)
     db.session.commit()
 
@@ -352,21 +382,22 @@ def edit_admin_siswa(nis):
             user.password = bcrypt.generate_password_hash(password).decode('utf-8')
     file = request.files.get('img_profile')
     if not file or not allowed_file_img_profile(file.filename):
-        flash('File tidak valid atau belum diunggah', 'danger')
+        flash('File img_profile tidak valid atau belum diunggah', 'warning')
+        pass
+    else:
+        # Hapus file lama jika ada
+        if user.img_profile:
+            old_path = os.path.join(app.config['UPLOAD_IMG_PROFILE'], user.img_profile)
+            if os.path.exists(old_path):
+                os.remove(old_path)
 
-    # Hapus file lama jika ada
-    if user.img_profile:
-        old_path = os.path.join(app.config['UPLOAD_IMG_PROFILE'], user.img_profile)
-        if os.path.exists(old_path):
-            os.remove(old_path)
+        # Simpan file baru
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        filepath = os.path.join(app.config['UPLOAD_IMG_PROFILE'], filename)
+        file.save(filepath)
 
-    # Simpan file baru
-    ext = file.filename.rsplit('.', 1)[1].lower()
-    filename = f"{uuid.uuid4().hex}.{ext}"
-    filepath = os.path.join(app.config['UPLOAD_IMG_PROFILE'], filename)
-    file.save(filepath)
-
-    user.img_profile = filename
+        user.img_profile = filename
     db.session.commit()
     
     # Simpan data terbaru
@@ -541,21 +572,22 @@ def edit_guru(nip):
             user.password = bcrypt.generate_password_hash(password).decode('utf-8')
     file = request.files.get('img_profile')
     if not file or not allowed_file_img_profile(file.filename):
-        flash('File tidak valid atau belum diunggah', 'danger')
+        flash('File img_profile tidak valid atau belum diunggah', 'warning')
+        pass
+    else:
+        # Hapus file lama jika ada
+        if user.img_profile:
+            old_path = os.path.join(app.config['UPLOAD_IMG_PROFILE'], user.img_profile)
+            if os.path.exists(old_path):
+                os.remove(old_path)
 
-    # Hapus file lama jika ada
-    if user.img_profile:
-        old_path = os.path.join(app.config['UPLOAD_IMG_PROFILE'], user.img_profile)
-        if os.path.exists(old_path):
-            os.remove(old_path)
+        # Simpan file baru
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        filepath = os.path.join(app.config['UPLOAD_IMG_PROFILE'], filename)
+        file.save(filepath)
 
-    # Simpan file baru
-    ext = file.filename.rsplit('.', 1)[1].lower()
-    filename = f"{uuid.uuid4().hex}.{ext}"
-    filepath = os.path.join(app.config['UPLOAD_IMG_PROFILE'], filename)
-    file.save(filepath)
-
-    user.img_profile = filename
+        user.img_profile = filename
     db.session.commit()
     
     # Simpan data terbaru

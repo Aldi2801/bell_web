@@ -319,7 +319,7 @@
     const form = this;
     const formData = new FormData(form);
     const data = {};
-    formData.forEach((value, key) => { data[key] = value.trim(); });
+    formData.forEach((value, key) => { data[key] = value.trim ? value.trim() : value; });
 
     const tombol = document.getElementById("tombol-edit-{{ p.id_penilaian }}");
     tombol.disabled = true;

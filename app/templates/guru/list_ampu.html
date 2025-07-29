@@ -183,10 +183,6 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-success">Simpan</button>
-            <button type="submit" class="btn btn-success">Tandai Hadir</button>
-            <button type="submit" class="btn btn-success">Tandai Izin</button>
-            <button type="submit" class="btn btn-success">Tandai Sakit</button>
-            <button type="submit" class="btn btn-success">Tandai Alpa</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
           </div>
         </form>
@@ -227,9 +223,9 @@ function openKehadiranModal(id_ampu,id_kbm) {
 
         tbody.append(`
           <tr>
-            <td>${i+1}</td>
+            <td>${i+1}<input type='hidden' name='id_kbm' value="${s.id_kbm}"></td>
             <td>${s.nama}</td>
-            <td>${s.nama_kelas}</td>
+            <td>${s.nama_kelas} <input type='hidden' name='nama_kelas' value="${s.nama_kelas}"></td>
             <td>
               <select name="status[${s.nis}]" 
                   {% if session['role'] =='admin' %}
