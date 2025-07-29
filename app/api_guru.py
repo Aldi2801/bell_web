@@ -156,14 +156,15 @@ def kbm_tambah():
         )
         
         db.session.add(new_kbm)
-        db.session.commit()  # Commit new_kbm before adding attendance
+        db.session.flush()  # agar dapatkan id_kbm sebelum commit
         siswa_kelas = PembagianKelas.query.filter_by(id_kelas=id_kelas).filter_by(id_tahun_akademik=id_tahun_akademik).all()
-
+        nama_kelas = Kelas.query.filter_by(id_kelas=id_kelas).first()
         # Tambahkan data kehadiran default "Hadir"
         for siswa in siswa_kelas:
             new_kehadiran = Kehadiran(
                 id_kbm=new_kbm.id_kbm,
                 nis=siswa.nis,
+                nama_kelas=nama_kelas.nama_kelas,
                 id_keterangan=1
             )
             db.session.add(new_kehadiran)

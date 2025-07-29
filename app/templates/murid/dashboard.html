@@ -36,7 +36,106 @@
                     <h5 class="modal-title" id="evaluasiModalLabel">Evaluasi</h5>
                 </div>
                 <div class="modal-body" id="body">
-                    <p> Seluruh murid diharapkan mengisi evaluasi di link form <a href="#" id="click">disini</a></p>
+                    <form id="evaluasiForm" class="needs-validation" novalidate action="/evaluasi_guru/tambah" method="POST">
+        <input type="hidden" name="evaluator_role" value="murid" required>
+        <input type="hidden" name="evaluator_id" value="{{ session.get('id','') }}" required>
+        <div class="col-md-12 mb-3">
+          <label>Guru yang Dinilai</label>
+          <select name="nip" class="form-select" required>
+            <option value="" disabled selected>Pilih Guru</option>
+            {% for guru in data_guru %}
+              <option value="{{ guru.nip }}">{{ guru.nip }} - {{ guru.nama }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Guru menyampaikan Materi Pelajaran ?</label><br>
+					  <label><input type="radio" name="q1" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q1" value="2"> Baik</label>
+            <label><input type="radio" name="q1" value="3"> Cukup</label>
+            <label><input type="radio" name="q1" value="4"> Buruk</label>
+					</select>  
+        </div>
+        
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Guru mengelola Kelas dengan Baik?</label><br>
+					  <label><input type="radio" name="q2" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q2" value="2"> Baik</label>
+            <label><input type="radio" name="q2" value="3"> Cukup</label>
+            <label><input type="radio" name="q2" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Guru memotivasi Siswa untuk Belajar?</label><br>
+					  <label><input type="radio" name="q3" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q3" value="2"> Baik</label>
+            <label><input type="radio" name="q3" value="3"> Cukup</label>
+            <label><input type="radio" name="q3" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Seberapa sering guru mennggunakan media pembelajaran yang bervariasi?</label><br>
+					  <label><input type="radio" name="q4" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q4" value="2"> Baik</label>
+            <label><input type="radio" name="q4" value="3"> Cukup</label>
+            <label><input type="radio" name="q4" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Penilaian Guru terhadap hasil belajar siswa?</label><br>
+					  <label><input type="radio" name="q5" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q5" value="2"> Baik</label>
+            <label><input type="radio" name="q5" value="3"> Cukup</label>
+            <label><input type="radio" name="q5" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menguasai materi pelajaran yang diajarkan?</label><br>
+					  <label><input type="radio" name="q6" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q6" value="2"> Baik</label>
+            <label><input type="radio" name="q6" value="3"> Cukup</label>
+            <label><input type="radio" name="q6" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label> Apakah guru menunjukkan sikap disiplin dan tanggung jawab?</label><br>
+					  <label><input type="radio" name="q7" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q7" value="2"> Baik</label>
+            <label><input type="radio" name="q7" value="3"> Cukup</label>
+            <label><input type="radio" name="q7" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menjadi teladan dalam bertutur kata dan bersikap?</label><br>
+			<label><input type="radio" name="q8" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q8" value="2"> Baik</label>
+            <label><input type="radio" name="q8" value="3"> Cukup</label>
+            <label><input type="radio" name="q8" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menjaga penampilan yang sopan dan rapi?</label><br>
+					  <label><input type="radio" name="q9" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q9" value="2"> Baik</label>
+            <label><input type="radio" name="q9" value="3"> Cukup</label>
+            <label><input type="radio" name="q9" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menjalin komunikasi yang baik dengan orang tua siswa?</label><br>
+					  <label><input type="radio" name="q10" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q10" value="2"> Baik</label>
+            <label><input type="radio" name="q10" value="3"> Cukup</label>
+            <label><input type="radio" name="q10" value="4"> Buruk</label>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru hadir dan tepat waktu dalam kegiatan sekolah?</label><br>
+					  <label><input type="radio" name="q11" value="1"> Sangat Baik</label>
+            <label><input type="radio" name="q11" value="2"> Baik</label>
+            <label><input type="radio" name="q11" value="3"> Cukup</label>
+            <label><input type="radio" name="q11" value="4"> Buruk</label>
+        </div>
+
+        <div class="col-md-12 mb-3">
+          <label>Komentar</label>
+          <textarea class="form-control" name="komentar" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Kirim</button>
+      </form>
+    
                 </div>
                 <div class="modal-footer" id="modal-footer">
                     <!-- Tombol tutup akan ditampilkan setelah submit berhasil -->
