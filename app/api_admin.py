@@ -358,11 +358,16 @@ def upload_excel():
 
 @app.route('/admin/siswa/edit/<int:nis>', methods=['PUT'])
 def edit_admin_siswa(nis):
-    nis = request.json.get('nis')
-    nis_baru = request.json.get('nis')
-    username = request.json.get('username')
-    email = request.json.get('email')
-    password = request.json.get('password','')
+    if request.is_json:
+        data = request.get_json()
+    else:
+        # Fallback ke request.form jika bukan JSON
+        data = request.form
+    nis = data.get('nis')
+    nis_baru = data.get('nis')
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password','')
     siswa = Siswa.query.get(nis)
     if not siswa:
         return jsonify({'error': 'Siswa tidak ditemukan'})
@@ -381,10 +386,12 @@ def edit_admin_siswa(nis):
     if password != '':
             user.password = bcrypt.generate_password_hash(password).decode('utf-8')
     file = request.files.get('img_profile')
+    print(file)
     if not file or not allowed_file_img_profile(file.filename):
         flash('File img_profile tidak valid atau belum diunggah', 'warning')
         pass
     else:
+        print(file.filename)
         # Hapus file lama jika ada
         if user.img_profile:
             old_path = os.path.join(app.config['UPLOAD_IMG_PROFILE'], user.img_profile)
@@ -394,6 +401,7 @@ def edit_admin_siswa(nis):
         # Simpan file baru
         ext = file.filename.rsplit('.', 1)[1].lower()
         filename = f"{uuid.uuid4().hex}.{ext}"
+        print(filename)
         filepath = os.path.join(app.config['UPLOAD_IMG_PROFILE'], filename)
         file.save(filepath)
 
@@ -401,7 +409,6 @@ def edit_admin_siswa(nis):
     db.session.commit()
     
     # Simpan data terbaru
-    data = request.json
     siswa.nis = data.get('nis')
     siswa.nisn = data.get('nisn')
     siswa.nama = data.get('nama')
@@ -410,12 +417,18 @@ def edit_admin_siswa(nis):
     siswa.tanggal_lahir = data.get('tanggal_lahir')
     siswa.alamat = data.get('alamat')
     siswa.no_hp = data.get('no_hp')
-    siswa.nama_ayah = data.get('nama_ayah')
-    siswa.nama_ibu = data.get('nama_ibu')
-    siswa.penghasilan_ayah = int(data.get('penghasilan_ayah'))
-    siswa.penghasilan_ibu = int(data.get('penghasilan_ibu'))
-    siswa.asal_sekolah = data.get('asal_sekolah')
-    siswa.id_status = data.get('id_status')
+    if data.get('nama_ayah'):
+        siswa.nama_ayah = data.get('nama_ayah')
+    if data.get('nama_ibu'):
+        siswa.nama_ibu = data.get('nama_ibu')
+    if data.get('penghasilan_ayah'):
+        siswa.penghasilan_ayah = int(data.get('penghasilan_ayah'))
+    if data.get('penghasilan_ibu'):
+        siswa.penghasilan_ibu = int(data.get('penghasilan_ibu'))
+    if data.get('asal_sekolah'):
+        siswa.asal_sekolah = data.get('asal_sekolah')
+    if data.get('id_status'):
+        siswa.id_status = data.get('id_status')
 
     db.session.commit()
     flash('Data Siswa berhasil diperbarui', 'info')
