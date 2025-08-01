@@ -27,6 +27,105 @@
 
     <h1 class="mb-4">Selamat datang, {{ profil.nama or profil.username }}!</h1>
     <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-success text-white">Mata Pelajaran yang Diampu</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for mapel in profil.mapel_diampu %}
+                    <li class="list-group-item">{{ mapel }}</li>
+                    {% else %}
+                    <li class="list-group-item text-muted">Belum ada data</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-info text-white">Kelas yang Diampu</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for kelas in profil.kelas_diampu %}
+                    <li class="list-group-item">{{ kelas }}</li>
+                    {% else %}
+                    <li class="list-group-item text-muted">Belum ada kelas</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">Top 3 Siswa Berprestasi</div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    {% for siswa in siswa_terbaik %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ siswa.nama }}
+                        <span class="badge bg-success rounded-pill">{{ siswa.nilai }}</span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-muted">Belum ada data</li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-dark text-white">Aktivitas Terakhir</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for log in log_aktivitas %}
+                    <li class="list-group-item">
+                        {{ log.timestamp }} - {{ log.kegiatan }}
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-muted">Belum ada aktivitas</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">Jadwal Mengajar Hari Ini</div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Jam</th>
+                            <th>Mata Pelajaran</th>
+                            <th>Kelas</th>
+                            <th>Ruang</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jadwal in jadwal_hari_ini %}
+                        <tr>
+                            <td>{{ jadwal.jam }}</td>
+                            <td>{{ jadwal.mapel }}</td>
+                            <td>{{ jadwal.kelas }}</td>
+                            <td>{{ jadwal.ruang }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Tidak ada jadwal hari ini</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    
+</div>
 
     <div class="row mt-3">
         <div class="col-lg-12">
@@ -79,7 +178,7 @@
                         <input type="hidden" class="form-control" id="nip" value="{{profil.nip}}" name="nip"
                             placeholder="NIP" required>
                         <div class="col-md-12 mb-2">
-                            <label for="username">Img Profile</label>
+                            <label for="img_profile">Img Profile</label>
                             <input type="file" class="form-control" id="img_profile" name="img_profile">
                         </div>
                         <div class="col-md-12 mb-2">
@@ -89,9 +188,9 @@
                         </div>
 
                         <div class="col-md-12 mb-2">
-                            <label for="nama_lengkap">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="nama_lengkap" value="{{profil.nama}}"
-                                name="nama_lengkap" placeholder="Nama Lengkap" required>
+                            <label for="nama">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="nama" value="{{profil.nama}}"
+                                name="nama" placeholder="Nama Lengkap" required>
                         </div>
 
                         <div class="col-md-12 mb-2">
@@ -147,27 +246,28 @@
                             </select>
                         </div>
 
-                        <div class="col-md-12 mb-2">
-                            <label for="id_status">Status</label>
-                            <select class="form-select" id="id_status" name="id_status" required>
-                                <option value="" selected disabled>Pilih Status</option>
-                                <option value="1" {% if profil.status == 'aktif' %} selected {% endif %}>Aktif</option>
-                                <option value="0" {% if profil.status == 'tidak aktif' %} selected {% endif %}>Non-Aktif
-                                </option>
-                            </select>
-                        </div>
+                        <button type="button" class="btn btn-secondary mb-2" onclick="togglePasswordFields()">
+                            Ubah Password
+                        </button>
+                        <div id="collapsePassword" class="collapse">
+                            <div class="col-md-12 mb-2">
+                                <label for="password">Password</label>
+                                <input type="password" autocomplete="off" class="form-control" id="password" name="password"
+                                    placeholder="Password tidak wajibb diisi">
+                            </div>
 
-                        <div class="col-md-12 mb-2">
-                            <label for="password">Password</label>
-                            <input type="password" autocomplete="off" class="form-control" id="password" name="password"
-                                placeholder="Password">
+                            <div class="col-md-12 mb-2">
+                                <label for="re-password">Ulangi Password</label>
+                                <input type="password" autocomplete="off" class="form-control" id="re-password"
+                                    name="re-password" placeholder="Ulangi Password" value="">
+                            </div>
                         </div>
-
-                        <div class="col-md-12 mb-2">
-                            <label for="re-password">Ulangi Password</label>
-                            <input type="password" autocomplete="off" class="form-control" id="re-password"
-                                name="re-password" placeholder="Ulangi Password">
-                        </div>
+                        <script>
+                            function togglePasswordFields() {
+                                const passwordFields = document.getElementById("collapsePassword");
+                                passwordFields.classList.toggle("show");
+                            }
+                        </script>
 
                         <div class="modal-footer">
                             <button type="submit" id="submit-profile"
@@ -196,9 +296,9 @@
             $.ajax({
                 url: '/admin/guru/edit/{{ profil.nip }}',
                 type: 'PUT',
-                contentType: 'application/json',
-                dataType: 'json',
-                data: JSON.stringify(data),
+                data: formData,
+                contentType: false,
+                processData: false,
                 xhrFields: {
                     withCredentials: true
                 },

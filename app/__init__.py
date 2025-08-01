@@ -346,16 +346,20 @@ def get_semester_and_year():
 
     if month < 7:
         semester = "genap"
+        awal_semester = datetime(year, 1, 1)
+        akhir_semester = datetime(year, 6, 30)
         tahun_ajaran = f"{year-1}/{year}"
         mulai = datetime(year-1, 7, 1)     # 1 Juli tahun sebelumnya
         selesai = datetime(year, 6, 30)    # 30 Juni tahun ini
     else:
         semester = "ganjil"
+        awal_semester = datetime(year, 7, 1)
+        akhir_semester = datetime(year, 12, 31)
         tahun_ajaran = f"{year}/{year+1}"
         mulai = datetime(year, 7, 1)       # 1 Juli tahun ini
         selesai = datetime(year+1, 6, 30)  # 30 Juni tahun depan
 
-    return semester, tahun_ajaran, mulai, selesai
+    return semester, awal_semester, akhir_semester, tahun_ajaran, mulai, selesai
 
 def is_valid_email(email):
     regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -363,7 +367,7 @@ def is_valid_email(email):
 
 @app.before_request
 def create_automatic_tahun_ajaran():
-    semester, tahun_ajaran, mulai, selesai = get_semester_and_year()
+    semester, awal_semester, akhir_semester, tahun_ajaran, mulai, selesai = get_semester_and_year()
 
     # Cek apakah data tahun akademik dan semester ini sudah ada
     existing = TahunAkademik.query.filter_by(

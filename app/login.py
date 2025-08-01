@@ -1,4 +1,4 @@
-from . import app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
+from . import AmpuMapel, app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,get_semester_and_year, TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime, timedelta
@@ -254,35 +254,65 @@ def dashboard():
             'role': 'Guru'
         }
         data_guru = Guru.query.all()
+        jadwal_hari_ini = [
+            {'jam': '07:00 - 08:30', 'mapel': 'Matematika', 'kelas': 'X IPA 1', 'ruang': 'Ruang 1'},
+            {'jam': '10:00 - 11:30', 'mapel': 'Statistika', 'kelas': 'X IPA 2', 'ruang': 'Ruang 2'},
+        ]
+
+        siswa_terbaik = [
+            {'nama': 'Siti Aminah', 'nilai': 95},
+            {'nama': 'Ahmad R', 'nilai': 93},
+            {'nama': 'Rina Lestari', 'nilai': 91},
+        ]
+
+        log_aktivitas = [
+            {'timestamp': '2025-07-30 08:00', 'kegiatan': 'Mengajar Matematika di X IPA 1'},
+            {'timestamp': '2025-07-29 10:00', 'kegiatan': 'Input nilai Statistika'},
+        ]
+
         return render_template('guru/dashboard.html',
-        data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
+            jadwal_hari_ini=jadwal_hari_ini,
+            siswa_terbaik=siswa_terbaik,
+            log_aktivitas=log_aktivitas,
+            data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
 
 
     elif role == 'murid':
-        berita_terbaru = Berita.query.filter(Berita.tanggal_dibuat >= batas_waktu, Berita.pengumuman_untuk == 'murid').order_by(Berita.tanggal_dibuat.desc()).first()
-        
-        # 1. Ambil tahun akademik dan semester aktif
-        tahun_aktif = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).first()
+        # 0. Ambil berita terbaru khusus untuk murid
+        berita_terbaru = Berita.query.filter(
+            Berita.tanggal_dibuat >= batas_waktu,
+            Berita.pengumuman_untuk == 'murid'
+        ).order_by(Berita.tanggal_dibuat.desc()).first()
 
+        # 1. Ambil tahun akademik aktif (semester aktif)
+        tahun_aktif = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).first()
         if tahun_aktif:
             tanggal_awal = tahun_aktif.mulai
             tanggal_akhir = tahun_aktif.sampai
         else:
-            tanggal_awal = tanggal_akhir = datetime.utcnow() +timedelta(hours=7)  # fallback kalau gak ada
+            now = datetime.utcnow() + timedelta(hours=7)
+            tanggal_awal = tanggal_akhir = now
 
-        # 2. Cek apakah ada evaluasi guru untuk siswa ini di semester ini
+        # 2. Cek apakah murid ini sudah pernah mengisi evaluasi di semester aktif
         evaluasi_exist = EvaluasiGuru.query.filter(
-        EvaluasiGuru.evaluator_id == session['id'],
-        EvaluasiGuru.tanggal >= tanggal_awal,
-        EvaluasiGuru.tanggal <= tanggal_akhir
+            EvaluasiGuru.evaluator_id == session['id'],
+            EvaluasiGuru.evaluator_role == 'murid',
+            EvaluasiGuru.tanggal >= tanggal_awal,
+            EvaluasiGuru.tanggal <= tanggal_akhir
         ).first()
-        # 3. Set flag evaluasi
-        evaluasi = False if evaluasi_exist else True
-        data_guru = Guru.query.all()
+
+        # 3. Evaluasi masih perlu diisi jika belum pernah mengisi
+        evaluasi_perlu = False if evaluasi_exist else True
+
+        # 4. Ambil data murid dan kelas aktif
         siswa = Siswa.query.filter_by(nis=user.nis).first()
-        kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
+        kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(
+            PembagianKelas.tanggal.desc()
+        ).first()
+
+        # 5. Buat profil murid
         profil = {
-            'img_profile':user.img_profile,
+            'img_profile': user.img_profile,
             'username': user.username,
             'nama': siswa.nama,
             'nis': siswa.nis,
@@ -290,15 +320,113 @@ def dashboard():
             'tanggal_lahir': siswa.tanggal_lahir,
             'alamat': siswa.alamat,
             'no_hp': siswa.no_hp,
-            'email': session.get('email',''),
+            'email': session.get('email', ''),
             'gender': siswa.gender_rel.gender,
             'status': siswa.status_rel.status,
             'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
             'role': 'Murid'
         }
-    
+
+        # 6. Ambil data dashboard murid
+        id_murid = session.get('id')
+        data_guru = Guru.query.all()
+        ringkasan_nilai = get_ringkasan_nilai(id_murid)
+        print(ringkasan_nilai)
+        jadwal_hari_ini = get_jadwal_hari_ini(id_murid)
+        #tugas = get_tugas_murid(id_murid)
+        evaluasi_terisi = get_jumlah_evaluasi(id_murid)
+        total_guru = len(data_guru)
+        evaluasi_persen = int((evaluasi_terisi / total_guru) * 100) if total_guru else 0
+
+        # 7. Kirim ke template dashboard
         return render_template('murid/dashboard.html',
-            data_guru = data_guru, profil=profil, evaluasi=evaluasi,berita=berita_terbaru)
+                            profil=profil,
+                            ringkasan_nilai=ringkasan_nilai,
+                            jadwal_hari_ini=jadwal_hari_ini,
+                            #tugas=tugas,
+                            data_guru=data_guru,
+                            evaluasi_terisi=evaluasi_terisi,
+                            total_guru=total_guru,
+                            evaluasi_persen=evaluasi_persen,
+                            evaluasi=evaluasi_perlu,
+                            berita=berita_terbaru)
+def get_semester_info_custom(tahun_awal: int, semester: str):
+    if semester == "ganjil":
+        awal = datetime(tahun_awal, 7, 1)
+        akhir = datetime(tahun_awal, 12, 31)
+    elif semester == "genap":
+        awal = datetime(tahun_awal + 1, 1, 1)
+        akhir = datetime(tahun_awal + 1, 6, 30)
+    else:
+        raise ValueError("Semester harus 'ganjil' atau 'genap'.")
+
+    return {
+        "semester": semester,
+        "awal_semester": awal,
+        "akhir_semester": akhir,
+        "tahun_ajaran": f"{tahun_awal}/{tahun_awal + 1}"
+    }
+
+def get_ringkasan_nilai(id_murid):
+    from sqlalchemy.sql import func
+    semester, awal_semester, akhir_semester, tahun_ajaran, mulai, selesai = get_semester_and_year()
+    print(f"Semester: {semester}, Tahun Ajaran: {tahun_ajaran}, Awal semester: {awal_semester.date()}, Akhir semester: {akhir_semester.date()}")
+    # Ambil semua nilai siswa dan hitung rata-rata per mapel
+    hasil = db.session.query(
+        AmpuMapel.id_mapel,
+        func.avg(Penilaian.nilai).label('rata_rata')
+    ).join(Penilaian, Penilaian.id_ampu == AmpuMapel.id_ampu)\
+     .join(Siswa, Penilaian.nis == Siswa.nis)\
+     .filter(Siswa.user_id == id_murid)\
+     .filter(Penilaian.tanggal >= awal_semester.date(),
+             Penilaian.tanggal <= akhir_semester.date())\
+     .group_by(AmpuMapel.id_mapel)\
+     .all()
+    print(f"Rata-rata nilai per mapel: {hasil}")
+    return [{'mapel': h[0], 'rata_rata': round(h[1], 2)} for h in hasil]
+def get_jadwal_hari_ini(id_murid):
+    import datetime
+    hari_ini = datetime.datetime.now().strftime('%A').lower()  # contoh: 'monday'
+
+    siswa = Siswa.query.filter_by(user_id=id_murid).first()
+    if not siswa:
+        return []
+
+    kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(
+        PembagianKelas.tanggal.desc()
+    ).first()
+
+    if not kelas_aktif:
+        return []
+
+    jadwal = JadwalPelajaran.query.filter_by(day=hari_ini).order_by(JadwalPelajaran.period).all()
+    return [{'mapel': j.subject, 'jam': j.time, 'period': j.period} for j in jadwal]
+def get_jumlah_evaluasi(id_murid):
+    jumlah = EvaluasiGuru.query.filter_by(
+        evaluator_id=id_murid,
+        evaluator_role='murid'
+    ).count()
+    return jumlah
+# def get_tugas_murid(id_murid):
+#     from datetime import datetime
+
+#     siswa = Siswa.query.filter_by(user_id=id_murid).first()
+#     if not siswa:
+#         return []
+
+#     now = datetime.utcnow() + timedelta(hours=7)
+
+#     # Tugas yang belum lewat deadline
+#     tugas_aktif = Tugas.query.join(PembagianKelas, Tugas.id_kelas == PembagianKelas.id)\
+#         .filter(PembagianKelas.nis == siswa.nis, Tugas.deadline >= now)\
+#         .order_by(Tugas.deadline.asc()).all()
+
+#     return [{
+#         'judul': t.judul,
+#         'deskripsi': t.deskripsi,
+#         'deadline': t.deadline.strftime('%d-%m-%Y %H:%M')
+#     } for t in tugas_aktif]
+
 
 
 # @app.route('/bikin_akun', methods=['GET', 'POST'])
