@@ -93,6 +93,24 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">Aktivitas Terakhir</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for log in log_aktivitas %}
+                    <li class="list-group-item">
+                        {{ log.timestamp }} - {{ log.kegiatan }}
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-muted">Belum ada aktivitas</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Script Chart -->
     <script src="../../static/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
     <script>

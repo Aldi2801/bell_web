@@ -3,8 +3,8 @@
 {% block form_tambah %}
 <div class="col-md-12 mb-3">
   <label for="id_mapel">Inisial Mapel</label>
-  <input type="text" class="form-control" name="id_mapel" id="id_mapel" required placeholder="inisial mapel (3 digit angka / huruf)" 
-    required pattern="[A-Za-z0-9]{3}" maxlength="3" title="Masukkan 3 digit angka atau huruf saja">
+  <input type="text" class="form-control" name="id_mapel" id="id_mapel" required placeholder="inisial mapel (4 digit angka / huruf)" 
+    required pattern="[A-Za-z0-9]{2,4}" maxlength="4" title="Masukkan 4 digit angka atau huruf saja">
 </div><br>
 
 <div class="col-md-12 mb-3">
@@ -82,8 +82,8 @@
 
 				<div class="mb-3">
 				  <label for="edit_id_mapel_{{ s.id_mapel }}">Inisial Mapel</label>
-				  <input type="text" name="id_mapel" id="edit_id_mapel_{{ s.id_mapel }}" required value="{{ s.id_mapel }}" class="form-control" placeholder="inisial mapel (3 digit angka / huruf)" 
-    required pattern="[A-Za-z0-9]{3}" maxlength="3" title="Masukkan 3 digit angka atau huruf saja">
+				  <input type="text" name="id_mapel" id="edit_id_mapel_{{ s.id_mapel }}" required value="{{ s.id_mapel }}" class="form-control" placeholder="inisial mapel (4 digit angka / huruf)" 
+    required pattern="[A-Za-z0-9]{4}" maxlength="4" title="Masukkan 4 digit angka atau huruf saja">
 				</div>
 
 				<div class="mb-3">

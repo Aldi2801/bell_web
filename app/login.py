@@ -1,9 +1,11 @@
-from . import AmpuMapel, app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,get_semester_and_year, TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
+import ast
+from collections import defaultdict
+from . import AmpuMapel, LogAktivitas, app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,get_semester_and_year, TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime, timedelta
 import jwt
-from sqlalchemy import func, extract
+from sqlalchemy import case, func, extract
 from flask_mail import Message
 from jwt import ExpiredSignatureError, InvalidTokenError
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
@@ -218,9 +220,10 @@ def dashboard():
                 'rata_rata': chart_rata
             }
         print(chart_data)
+        log_aktivitas = get_log_aktivitas(25)
         return render_template('admin/dashboard.html',
-            
-        data_guru = data_guru,
+            log_aktivitas=log_aktivitas,
+            data_guru = data_guru,
             evaluasi=evaluasi,
             jumlah_siswa=jumlah_siswa,
             jumlah_guru=jumlah_guru,
@@ -254,21 +257,13 @@ def dashboard():
             'role': 'Guru'
         }
         data_guru = Guru.query.all()
-        jadwal_hari_ini = [
-            {'jam': '07:00 - 08:30', 'mapel': 'Matematika', 'kelas': 'X IPA 1', 'ruang': 'Ruang 1'},
-            {'jam': '10:00 - 11:30', 'mapel': 'Statistika', 'kelas': 'X IPA 2', 'ruang': 'Ruang 2'},
-        ]
+        
+        jadwal_hari_ini = ambil_jadwal_guru(guru.inisial)
+        print(jadwal_hari_ini)  
 
-        siswa_terbaik = [
-            {'nama': 'Siti Aminah', 'nilai': 95},
-            {'nama': 'Ahmad R', 'nilai': 93},
-            {'nama': 'Rina Lestari', 'nilai': 91},
-        ]
+        siswa_terbaik = get_siswa_terbaik()
 
-        log_aktivitas = [
-            {'timestamp': '2025-07-30 08:00', 'kegiatan': 'Mengajar Matematika di X IPA 1'},
-            {'timestamp': '2025-07-29 10:00', 'kegiatan': 'Input nilai Statistika'},
-        ]
+        log_aktivitas = get_log_aktivitas(3)
 
         return render_template('guru/dashboard.html',
             jadwal_hari_ini=jadwal_hari_ini,
@@ -350,6 +345,80 @@ def dashboard():
                             evaluasi_persen=evaluasi_persen,
                             evaluasi=evaluasi_perlu,
                             berita=berita_terbaru)
+def ambil_jadwal_guru(inisial):
+    # Ambil 1 jadwal 
+    hari_ini = datetime.now().strftime('%A')  # Contoh: 'Monday'
+    # Jika database pakai nama hari Bahasa Indonesia:
+    hari_map = {
+        'Monday': 'Senin',
+        'Tuesday': 'Selasa',
+        'Wednesday': 'Rabu',
+        'Thursday': 'Kamis',
+        'Friday': 'Jumat',
+        'Saturday': 'Sabtu',
+        'Sunday': 'Minggu'
+    }
+    hari = hari_map[hari_ini]
+    
+    # Urutan kelas yang sesuai posisi index subject
+    kelas_urut = [k.nama_kelas for k in Kelas.query.order_by(Kelas.id_kelas.asc()).all()]
+    print(kelas_urut)
+    hasil = []
+
+    # Ambil jadwal hari ini
+    jadwal_hari_ini = JadwalPelajaran.query\
+        .with_entities(JadwalPelajaran.time, JadwalPelajaran.subject)\
+        .filter(JadwalPelajaran.day == hari)\
+        .all()
+    print(f"Jadwal hari ini ({hari}): {jadwal_hari_ini}")
+    print(inisial)
+    for waktu, subject_str in jadwal_hari_ini:
+        try:
+            subject_list = ast.literal_eval(subject_str)  # convert string ke list asli
+            print("Parsed subject list:", subject_list)
+        except Exception as e:
+            print("Gagal parsing subject:", subject_str, "Error:", e)
+            continue
+
+        for idx, subject in enumerate(subject_list):
+            print(f"Processing subject: {subject} at index {idx}")
+            if subject.endswith(f"-{inisial}"):
+                print(f"Found matching subject: {subject} for inisial {inisial}")
+                mapel = subject.split("-")[0]
+                kelas = kelas_urut[idx] if idx < len(kelas_urut) else f"Unknown-{idx}"
+                hasil.append({
+                    'jam': waktu,
+                    'kelas': kelas,
+                    'mapel': mapel
+                })
+
+    return hasil
+def get_siswa_terbaik(limit=3):
+    hasil = db.session.query(
+        Siswa.nama,
+        func.avg(Penilaian.nilai).label('rata_rata')
+    ).join(Penilaian, Penilaian.nis == Siswa.nis)\
+     .group_by(Siswa.nama)\
+     .order_by(func.avg(Penilaian.nilai).desc())\
+     .limit(limit)\
+     .all()
+
+    return [{'nama': h[0], 'nilai': round(h[1], 2)} for h in hasil]
+
+def get_log_aktivitas(limit=10):
+    user_id = session.get('id')  # ambil user_id dari session
+
+    log = db.session.query(LogAktivitas)\
+        .filter(LogAktivitas.user_id == user_id)\
+        .order_by(LogAktivitas.timestamp.desc())\
+        .limit(limit)\
+        .all()
+
+    return [{
+        'timestamp': l.timestamp.strftime('%Y-%m-%d %H:%M'),
+        'kegiatan': f"{l.aksi} pada {l.model}: {l.keterangan}"
+    } for l in log]
+
 def get_semester_info_custom(tahun_awal: int, semester: str):
     if semester == "ganjil":
         awal = datetime(tahun_awal, 7, 1)

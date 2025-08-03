@@ -115,7 +115,7 @@ class Berita(db.Model):
     pengumuman_untuk = db.Column(db.String(10), nullable=True)  # 'murid' atau 'guru'
     
 class Mapel(db.Model):
-    id_mapel = db.Column(db.CHAR(3), primary_key=True)
+    id_mapel = db.Column(db.CHAR(4), primary_key=True)
     nama_mapel = db.Column(db.String(35), nullable=True)
 
 class Semester(db.Model):
@@ -290,6 +290,57 @@ class EvaluasiGuru(db.Model):
     guru = db.relationship("Guru", backref="evaluasi_list", passive_deletes=True)
     ampu = db.relationship("AmpuMapel", backref="evaluasi_list", passive_deletes=True)
     evaluator = db.relationship("User", backref="evaluasi_dibuat", passive_deletes=True)
+class LogAktivitas(db.Model):
+    __tablename__ = 'log_aktivitas'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # atau relasi user kamu
+    aksi = db.Column(db.String(255))
+    model = db.Column(db.String(100))
+    keterangan = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User')  # opsional, kalau ingin relasi ke user
+from sqlalchemy import event
+
+def log_crud_action(mapper, connection, target):
+    try:
+        from flask import session
+        from sqlalchemy.inspection import inspect
+
+        user_id = session.get('id')
+        aksi = 'buat' if not inspect(target).persistent else 'ubah'
+        model = target.__class__.__name__
+
+        # Ambil field yang bukan foreign key ID saja
+        fields = []
+        for column in inspect(target.__class__).columns:
+            key = column.key
+            value = getattr(target, key, None)
+            if key.lower() != "id" and not key.endswith("_id") and not key.startswith("id_"):
+                fields.append(f"{key}: {value}")
+
+        keterangan = f"{model} | " + ", ".join(fields)
+
+        log = LogAktivitas(
+            user_id=user_id,
+            aksi=aksi,
+            model=model,
+            keterangan=keterangan,
+            timestamp=datetime.now()
+        )
+        db.session.add(log)
+        db.session.flush()  # biar nggak pending
+    except Exception as e:
+        print("Log error:", e)
+
+
+# Daftarkan event untuk model yang ingin dilacak
+for model_class in [AmpuMapel, Kehadiran, Berita, Tagihan, PembagianKelas, Semester, Mapel, TahunAkademik , Kelas, Penilaian, Siswa, Guru, EvaluasiGuru]:
+    event.listen(model_class, 'after_insert', log_crud_action)
+    event.listen(model_class, 'after_update', log_crud_action)    
+    event.listen(model_class, 'after_delete', log_crud_action)
+
 
 
 # allow CORS biar api yang dibuat bisa dipake website lain

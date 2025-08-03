@@ -33,11 +33,8 @@
             <div class="card-header bg-success text-white">Mata Pelajaran yang Diampu</div>
             <div class="card-body">
                 <ul class="list-group">
-                    {% for mapel in profil.mapel_diampu %}
-                    <li class="list-group-item">{{ mapel }}</li>
-                    {% else %}
-                    <li class="list-group-item text-muted">Belum ada data</li>
-                    {% endfor %}
+                    <li class="list-group-item text-muted">{{ profil.spesialisasi }}</li>
+                    
                 </ul>
             </div>
         </div>
@@ -101,16 +98,14 @@
                             <th>Jam</th>
                             <th>Mata Pelajaran</th>
                             <th>Kelas</th>
-                            <th>Ruang</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for jadwal in jadwal_hari_ini %}
                         <tr>
-                            <td>{{ jadwal.jam }}</td>
+                            <td>{{ jadwal.jam}}</td>
                             <td>{{ jadwal.mapel }}</td>
                             <td>{{ jadwal.kelas }}</td>
-                            <td>{{ jadwal.ruang }}</td>
                         </tr>
                         {% else %}
                         <tr>
