@@ -142,6 +142,7 @@ const jumlah_kelas = document.querySelectorAll("#scheduleTable thead tr th").len
 schedule.forEach(day => {
     day.sessions.forEach((session, index) => {
         const row = document.createElement('tr');
+        row.border = "1px solid #ddd"; // Optional: Add border to each row
 
         if (index === 0) {
             const dayCell = document.createElement('td');
@@ -156,13 +157,17 @@ schedule.forEach(day => {
 		console.log(session.period)
         if (session.period === 0) {
 			const periodCell = document.createElement('td');
-			periodCell.innerText = "ISTIRAHAT";
-			row.appendChild(periodCell);
+			periodCell.colSpan = jumlah_kelas+1;
+            session.subjects.some(subject => {
 
-			const istirahatCell = document.createElement('td');
-			istirahatCell.colSpan = jumlah_kelas;
-			istirahatCell.innerText = ""; // kosong atau bisa isi "—"
-			row.appendChild(istirahatCell);
+                if (subject === "Upacara") {
+                periodCell.innerText = "UPACARA";
+                return true; // Stop iterating once we find "Upacara"
+                } else {
+                periodCell.innerText = "ISTIRAHAT";
+                }
+            });
+			row.appendChild(periodCell);
 		}
 		else {
             // Normal: period + subjects
@@ -173,21 +178,14 @@ schedule.forEach(day => {
             session.subjects.some(subject => {
                 const subjectCell = document.createElement('td');
                 subjectCell.innerText = subject;
-
-                if (subject === "Upacara") {
-                    subjectCell.colSpan = "8";
-                    row.appendChild(subjectCell);
-                    return true; // stop loop
-                } else {
-                    row.appendChild(subjectCell);
-                }
+                row.appendChild(subjectCell);
+                
             });
         }
 
         scheduleTable.appendChild(row);
     });
 });
-
 
     // Data JSON
     var kode_mapel = {{ kode_mapel | tojson | safe }};

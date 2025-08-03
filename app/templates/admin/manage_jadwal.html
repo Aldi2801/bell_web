@@ -114,11 +114,12 @@
       <div class="card">
         <div class="card-body">
      
-            <h2>Tambah/Ubah Jadwal</h2>
+            <h2>Ubah Jadwal</h2>
             <form id="scheduleForm">
                 <div class="form-group">
                     <label for="day">Hari:</label>
                     <select class="form-control" id="day" required>
+                        <option value="">Pilih Hari</option>
                         <option value="Senin">Senin</option>
                         <option value="Selasa">Selasa</option>
                         <option value="Rabu">Rabu</option>
@@ -128,16 +129,18 @@
                     </select>
                 </div>
                 
+                <div class="form-group">
+                    <label for="period">Periode Ke:</label>
+                    <select class="form-control" id="period" required>
+                        <option value="">Pilih Hari</option>
+                        </select>
+                </div>
             
                 <div class="form-group">
-                    <label for="time">Waktu:</label>
+                    <label for="time">Ubah Waktu:</label>
                     <input class="form-control" type="text" id="time" placeholder="Contoh: 07:00 - 08:00" required>
                 </div>
             
-                <div class="form-group">
-                    <label for="period">Periode Ke:</label>
-                    <input class="form-control" type="number" id="period" min="1" placeholder="Contoh: 1" required>
-                </div>
             
                 <!-- Mulai dari Kelas -->
                 {% for kelas in ['7A', '7B', '7C', '8A', '8B', '8C', '9A', '9B'] %}
@@ -239,13 +242,82 @@
  </script>
 <script>
     
-    function closeHapusModal() {
-        document.getElementById('HapusModal').style.display = 'none';
+function closeHapusModal() {
+    document.getElementById('HapusModal').style.display = 'none';
+}
+function openHapusModal(nip) {
+    document.getElementById('HapusModal').style.display = 'block';
+}
+document.getElementById('day').addEventListener('change', updatePeriods);
+
+document.getElementById('period').addEventListener('change', function () {
+    const selectedDay = document.getElementById('day').value;
+    const selectedPeriod = parseInt(this.value);
+
+    const schedule = {{ schedule | tojson | safe }};
+    const hariDipilih = schedule.find(item => item.day === selectedDay);
+
+    if (!hariDipilih) return;
+
+    const session = hariDipilih.sessions.find(s => s.period === selectedPeriod);
+    if (!session) return;
+
+    const kelasList = ['7A', '7B', '7C', '8A', '8B', '8C', '9A', '9B'];
+
+    session.subjects.forEach((subjectStr, index) => {
+        if (!kelasList[index]) return;
+
+        const [guru, mapel] = subjectStr.split('-');
+        const guruSelect = document.getElementById(kelasList[index] + 'guru');
+        const mapelSelect = document.getElementById(kelasList[index] + 'mapel');
+
+        if (guruSelect) guruSelect.value = guru || '';
+        if (mapelSelect) mapelSelect.value = mapel || '';
+    });
+});
+
+// Fungsi untuk update list period berdasarkan hari
+function updatePeriods() {
+    const selectedDay = this.value;
+    const periodSelect = document.getElementById('period');
+    periodSelect.innerHTML = '';
+
+    const schedule = {{ schedule | tojson | safe }};
+    const seen = new Set();
+
+    const hariDipilih = schedule.find(item => item.day === selectedDay);
+
+    if (hariDipilih && hariDipilih.sessions.length > 0) {
+        hariDipilih.sessions.forEach(session => {
+            const key = session.period + session.time;
+            if (!seen.has(key) && session.period !== 0) {
+                seen.add(key);
+                const option = document.createElement('option');
+                option.value = session.period;
+                option.textContent = `Periode ke-${session.period} (${session.time})`;
+                periodSelect.appendChild(option);
+            }
+        });
     }
-    function openHapusModal(nip) {
-        document.getElementById('HapusModal').style.display = 'block';
+
+    if (periodSelect.options.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = 'Tidak ada periode';
+        opt.disabled = true;
+        opt.selected = true;
+        periodSelect.appendChild(opt);
     }
-    
+
+    // Reset semua mapel dan guru
+    const kelasList = ['7A', '7B', '7C', '8A', '8B', '8C', '9A', '9B'];
+    kelasList.forEach(kelas => {
+        document.getElementById(kelas + 'guru').value = '';
+        document.getElementById(kelas + 'mapel').value = '';
+    });
+
+    document.getElementById('time').value = '';
+}
+
 document.getElementById("tombolhapus").addEventListener("click", function(event) {
     event.preventDefault(); // Prevent form from submitting traditionally
      const form = document.getElementById("deleteForm");
@@ -362,52 +434,50 @@ console.log(schedule); // sudah berupa object/array JS, tidak perlu parse lagi
 const jumlah_kelas = document.querySelectorAll("#scheduleTable thead tr th").length - 3;
 
 schedule.forEach(day => {
-day.sessions.forEach((session, index) => {
-    const row = document.createElement('tr');
+    day.sessions.forEach((session, index) => {
+        const row = document.createElement('tr');
+        row.border = "1px solid #ddd"; // Optional: Add border to each row
 
-    if (index === 0) {
-        const dayCell = document.createElement('td');
-        dayCell.rowSpan = day.sessions.length;
-        dayCell.innerText = day.day;
-        row.appendChild(dayCell);
-    }
+        if (index === 0) {
+            const dayCell = document.createElement('td');
+            dayCell.rowSpan = day.sessions.length;
+            dayCell.innerText = day.day;
+            row.appendChild(dayCell);
+        }
 
-    const timeCell = document.createElement('td');
-    timeCell.innerText = session.time;
-    row.appendChild(timeCell);
+        const timeCell = document.createElement('td');
+        timeCell.innerText = session.time;
+        row.appendChild(timeCell);
+		console.log(session.period)
+        if (session.period === 0) {
+			const periodCell = document.createElement('td');
+			periodCell.colSpan = jumlah_kelas+1;
+            session.subjects.some(subject => {
+                if (subject === "Upacara") {
+                periodCell.innerText = "UPACARA";
+                return true; // Stop iterating once we find "Upacara"
+                } else {
+                periodCell.innerText = "ISTIRAHAT";
+                }
+            });
+			row.appendChild(periodCell);
+		}
+		else {
+            // Normal: period + subjects
+            const periodCell = document.createElement('td');
+            periodCell.innerText = session.period;
+            row.appendChild(periodCell);
 
-    if (session.period === 7) {
-        const periodCell = document.createElement('td');
-        periodCell.innerText = "ISTIRAHAT";
-        row.appendChild(periodCell);
-
-        const istirahatCell = document.createElement('td');
-        istirahatCell.colSpan = jumlah_kelas;
-        istirahatCell.innerText = ""; // kosong atau bisa isi "—"
-        row.appendChild(istirahatCell);
-    }
-    else {
-        // Normal: period + subjects
-        const periodCell = document.createElement('td');
-        periodCell.innerText = session.period;
-        row.appendChild(periodCell);
-
-        session.subjects.some(subject => {
-            const subjectCell = document.createElement('td');
-            subjectCell.innerText = subject;
-
-            if (subject === "Upacara") {
-                subjectCell.colSpan = "8";
+            session.subjects.some(subject => {
+                const subjectCell = document.createElement('td');
+                subjectCell.innerText = subject;
                 row.appendChild(subjectCell);
-                return true; // stop loop
-            } else {
-                row.appendChild(subjectCell);
-            }
-        });
-    }
+                
+            });
+        }
 
-    scheduleTable.appendChild(row);
-});
+        scheduleTable.appendChild(row);
+    });
 });
 
 

@@ -568,7 +568,6 @@ def edit_guru(nip):
     email = request.json.get('email')
     nip = request.json.get('nip')
     password = request.json.get('password','')
-    role = request.json.get('role')
 
     user = User.query.filter_by(nip=nip).first()
     # Cek jika username/email yang baru mau diganti ke milik orang lain
@@ -709,7 +708,7 @@ def view_manage_jadwal():
     )
 
     # Ambil semua jadwal dalam 1 query
-    results = JadwalPelajaran.query.order_by(hari_order, JadwalPelajaran.period).all()
+    results = JadwalPelajaran.query.order_by(hari_order).all()
 
     # Buat struktur data jadwal terformat
     grouped_schedule = defaultdict(list)
@@ -740,7 +739,7 @@ def view_manage_jadwal():
     kelas_dict = [{"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas} for k in data_kelas]
 
     return render_template(
-        "guru/manage_jadwal.html",
+        "admin/manage_jadwal.html",
         schedule=formatted_schedule,
         kode_guru=formatted_teacher_map["kodeGuru"],
         kode_mapel=formatted_teacher_map["kodeMapel"],

@@ -1,4 +1,5 @@
-from . import AmpuMapel, Berita, Kehadiran, Keterangan, PembagianKelas, Penilaian, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik
+import pandas as pd
+from . import AmpuMapel, Berita, Kehadiran, Keterangan, PembagianKelas, Penilaian, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik
 from flask import flash, redirect, request, jsonify, url_for, render_template, session, abort
 from sqlalchemy import case, extract
 import datetime
@@ -130,7 +131,6 @@ def list_kbm():
 
 @app.route("/kbm/list/tambah", methods=["POST"])
 def kbm_tambah():
-    try:
         id_semester=request.json.get('id_semester')
         id_kelas=request.json.get('id_kelas')
         id_tahun_akademik=request.json.get('id_tahun_akademik')
@@ -171,14 +171,7 @@ def kbm_tambah():
 
         db.session.commit()
         flash("Data berhasil ditambahkan", "success")
-    except IntegrityError:
-        db.session.rollback()
-        flash("Gagal menambahkan data: ID pembagian tidak valid atau tidak ditemukan.", "danger")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Terjadi kesalahan: {str(e)}", "danger")
-
-    return jsonify({'msg':'Data berhasil ditambahkan'})
+        return jsonify({'msg':'Data berhasil ditambahkan'})
 @app.route('/api/kehadiran/siswa')
 def api_kehadiran_siswa():
     id_kbm = request.args.get('id_kbm')
@@ -413,6 +406,117 @@ def tambah_penilaian():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+@app.route('/guru/penilaian/tambah_excell', methods=['POST'])
+def tambah_penilaian_excel():
+    file = request.files.get('file')
+    if not file:
+        flash('❌ Tidak ada file yang diunggah.', 'danger')
+        return redirect('/guru/penilaian')
+
+    try:
+        df = pd.read_excel(file)
+
+        required_columns = ['nis', 'id_ampu', 'jenis_penilaian', 'nilai', 'tanggal']
+        for col in required_columns:
+            if col not in df.columns:
+                flash(f'❌ Kolom "{col}" tidak ditemukan dalam file Excel.', 'danger')
+                return redirect('/guru/penilaian')
+
+        df = df[required_columns]
+
+        # Drop baris yang kosong
+        df.dropna(subset=required_columns, inplace=True)
+
+        # Validasi dan konversi kolom
+        failed_rows = []
+
+        # Konversi NIS ke string
+        try:
+            df['nis'] = df['nis'].astype(int).astype(str)
+        except Exception as e:
+            flash(f'❌ Gagal konversi NIS: {e}', 'danger')
+            return redirect('/guru/penilaian')
+
+        # Nilai: Ganti koma jadi titik → float
+        try:
+            df['nilai'] = df['nilai'].astype(str).str.replace(',', '.').astype(float)
+        except Exception as e:
+            flash(f'❌ Gagal konversi nilai ke angka: {e}', 'danger')
+            return redirect('/guru/penilaian')
+
+        # Validasi nilai harus 0–100
+        df = df[(df['nilai'] >= 0.0) & (df['nilai'] <= 100.0)]
+
+        # Filter jenis_penilaian yang valid
+        jenis_valid = ['UTS', 'UAS', 'UH', 'Tugas']
+        df = df[df['jenis_penilaian'].isin(jenis_valid)]
+
+        # Konversi tanggal ke datetime
+        df['tanggal'] = pd.to_datetime(df['tanggal'], errors='coerce')
+        df.dropna(subset=['tanggal'], inplace=True)
+
+        inserted_count = 0
+
+        for index, row in df.iterrows():
+            row_index = index + 2  # baris di Excel
+            error_msgs = []
+            nis = str(row['nis'])
+            id_ampu = str(row['id_ampu'])
+
+            siswa = Siswa.query.filter_by(nis=int(nis)).first()
+            ampu = AmpuMapel.query.filter_by(id_ampu=id_ampu).first()
+
+            if not siswa:
+                error_msgs.append(f"NIS tidak ditemukan")
+            if not ampu:
+                error_msgs.append(f"id_ampu tidak ditemukan")
+
+            if pd.isna(row['tanggal']):
+                error_msgs.append("Tanggal tidak valid")
+
+            if error_msgs:
+                failed_rows.append({
+                    'row': row_index,
+                    'nis': nis,
+                    'nama': siswa.nama if siswa else '-',
+                    'error': error_msgs
+                })
+                continue
+
+            try:
+                penilaian = Penilaian(
+                    nis=nis,
+                    id_ampu=id_ampu,
+                    jenis_penilaian=row['jenis_penilaian'],
+                    nilai=row['nilai'],
+                    tanggal=row['tanggal'].date()
+                )
+                db.session.add(penilaian)
+                inserted_count += 1
+
+            except Exception as db_error:
+                failed_rows.append({
+                    'row': row_index,
+                    'nis': nis,
+                    'nama': siswa.nama if siswa else '-',
+                    'error': [f'Gagal simpan ke database: {str(db_error)}']
+                })
+                db.session.rollback()
+                continue
+
+        db.session.commit()
+
+        flash(f'✅ {inserted_count} penilaian berhasil ditambahkan.', 'success')
+
+        if failed_rows:
+            for fail in failed_rows:
+                flash(f"❌ Baris {fail['row']} | {fail['nama']} (NIS: {fail['nis']}) gagal: {', '.join(fail['error'])}", 'danger')
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'❌ Gagal memproses file: {str(e)}', 'danger')
+
+    return redirect('/guru/penilaian')
 
 @app.route('/guru/penilaian/edit/<int:id_penilaian_old>', methods=['PUT'])
 def edit_penilaian(id_penilaian_old):

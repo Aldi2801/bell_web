@@ -91,6 +91,7 @@
               <thead>
                 <tr>
                   <th>No</th>
+                  <th>ID ampu</th>
                   <th>Nama Guru</th>
                   <th>Mata Pelajaran</th>
                   <th>Materi</th>
@@ -106,6 +107,7 @@
                 {% for a in data_ampu %}
                 <tr>
                   <td>{{ loop.index }}</td>
+                  <td>{{ a.id_ampu }}</td>
                   <td>{{ a.guru_rel.nama }}</td>
                   <td>{{ a.mapel_rel.nama_mapel }}</td>
                   <td>{{ a.materi }}</td>

@@ -51,7 +51,7 @@ INSERT INTO `berita` (`id_berita`, `judul`, `isi`, `nip`, `tanggal_dibuat`, `pen
 --
 
 INSERT INTO `evaluasi_guru` (`id`, `nip`, `id_ampu`, `evaluator_id`, `evaluator_role`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `komentar`, `tanggal`) VALUES
-(3, '198203202020041006', NULL, 3, 'murid', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'baik', '2025-07-22');
+(3, '198203202020041006', NULL, 3, 'murid', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 'baik', '2025-07-22');
 
 --
 -- Dumping data untuk tabel `gender`
@@ -85,9 +85,10 @@ INSERT INTO `guru` (`nip`, `inisial`, `nama`, `tempat_lahir`, `tanggal_lahir`, `
 --
 -- Dumping data untuk tabel `jadwal_pelajaran`
 --
---
+-- [, , [\'ULN-QHDS\', \'NSA-BARA\', \'KRN-AMI\', \'PRW-MTK\', \'NRW-IPA\', \'EDI-FQH\', \'TEP-BIND\', \'FTZ-THF\'], [\'ULN-SKI\', \'NSA-BARA\', \'TEP-NU\', \'PRW-MTK\', \'NRW-KTB\', \'SLE-AMI\', \'HKM-AKHL\', \'FTZ-THF\'], [\'YLS-BDA\', \'HKM-FQH\', \'RYN-FQH\', \'NRW-IPA\', \'EDI-BIND\', \'SLE-FQH\', \'FTZ-THF\', \'PRW-MTK\'], [\'CHL-IPS\', \'HKM-FQH\', \'NSA-QHDS\', \'NRW-IPA\', \'EDI-BIND\', \'RYN-QHDS\', \'FTZ-THF\', \'PRW-MTK\'], [], [], [\'NRW-IPA\', \'NDZ-PJOK\', \'TEP-QHDS\', \'NSA-BIND\', \'PRW-MTK\', \'JMR-SKI\', \'YLS-BDA\', \'TEP-PKN\'], [\'NRW-IPA\', \'NDZ-PJOK\', \'RYN-FQH\', \'HKM-AMI\', \'PRW-MTK\', \'TEP-BIND\', \'NSA-BARA\', \'TEP-PKN\'], [\'NRW-IPA\', \'NDZ-PJOK\', \'JMR-NU\', \'EDI-NU\', \'NSA-BARA\', \'NRW-QHDS\', \'HKM-AMI\', \'KRN-KHT\'], [\'NSA-BIND\', \'TEP-PKN\', \'ENY-PKN\', \'HKM-AKHL\', \'NSA-BARA\', \'YLS-BARA\', \'EDI-NU\', \'KRN-KHT\'], [\'NSA-BARA\', \'TEP-PKN\', \'HKM-QHDS\', \'RYN-IPS\', \'HKM-AKHL\', \'NDZ-NU\', \'KRN-KHT\', \'ULN-KTB\'], [\'NSA-BARA\', \'NRW-IPA\', \'ULN-BARA\', \'RYN-IPS\', \'YLS-BDA\', \'ENY-FQH\', \'KRN-KHT\', \'HKM-NHW\'], [\'RYN-SBY\', \'NRW-IPA\', \'CHL-NU\', \'PRW-MTK\', \'EDI-BIND\', \'HKM-PKN\', \'HKM-NHW\', \'NSA-BARA\'], [\'RYN-SBY\', \'NRW-IPA\', \'NDZ-QHDS\', \'PRW-MTK\', \'HKM-AMI\', \'PRW-NU\', \'ULN-KTB\', \'NSA-BARA\'], [], [], [\'NDZ-PJOK\', \'NSA-BIND\', \'SLE-FQH\', \'NRW-IPA\', \'CHL-PJOK\', \'TEP-PKN\', \'TEP-BIND\', \'PRW-MTK\'], [\'NDZ-PJOK\', \'NSA-BIND\', \'YLS-NU\', \'NRW-IPA\', \'CHL-PJOK\', \'RYN-QHDS\', \'TEP-BIND\', \'PRW-MTK\'], [\'NDZ-PJOK\', \'NSA-BIND\', \'JMR-AKHL\', \'NRW-IPA\', \'CHL-PJOK\', \'NRW-NU\', \'ENY-BING\', \'HKM-FQH\'], [\'NSA-BARA\', \'ULN-KTB\', \'KRN-SKI\', \'RYN-IPS\', \'PRW-MTK\', \'HKM-AKHL\', \'ENY-BING\', \'HKM-FQH\'], [\'ENY-BING\', \'HKM-NHW\', \'RYN-BARA\', \'NSA-BARA\', \'KRN-KHT\', \'CHL-FQH\', \'NRW-SBY\', \'NSA-BARA\'], [\'ENY-BING\', \'YLS-BDA\', \'ULN-PKN\', \'NSA-BARA\', \'KRN-KHT\', \'PRW-SKI\', \'NRW-SBY\', \'YLS-BDA\'], [\'KRN-KHT\', \'ENY-BING\', \'SLE-QHDS\', \'PRW-MTK\', \'NSA-BARA\', \'HKM-BIND\', \'HKM-FQH\', \'ULN-QHDS\'], [\'KRN-KHT\', \'ENY-BING\', \'NRW-AKHL\', \'YLS-BDA\', \'NRW-IPA\', \'JMR-BARA\', \'HKM-FQH\', \'ULN-SKI\'], [], [\'PRW-MTK\', \'EDI-NU\', \'HKM-FQH\', \'NRW-SBY\', \'TEP-PKN\', \'ULN-IPA\', \'CHL-PJOK\', \'RYN-IPS\'], [\'HKM-AKHL\', \'PRW-MTK\', \'ENY-BING\', \'NRW-SBY\', \'TEP-PKN\', \'NSA-BARA\', \'CHL-PJOK\', \'RYN-IPS\'], [\'HKM-AMI\', \'PRW-MTK\', \'ENY-BING\', \'HKM-FQH\', \'NRW-SBY\', \'ULN-IPA\', \'CHL-PJOK\', \'RYN-IPS\'], [\'EDI-NU\', \'PRW-MTK\', \'NSA-BARA\', \'HKM-FQH\', \'NRW-SBY\', \'ULN-PKN\', \'RYN-IPS\', \'TEP-BIND\'], [\'CHL-IPS\', \'HKM-AMI\', \'JMR-FQH\', \'EDI-BIND\', \'ULN-QHDS\', \'TEP-PKN\', \'RYN-IPS\', \'NRW-IPA\'], [\'CHL-IPS\', \'HKM-AKHL\', \'PRW-MTK\', \'EDI-BIND\', \'ULN-SKI\', \'JMR-NU\', \'RYN-IPS\', \'NRW-IPA\'], [], [\'JMR-THF\', \'SLE-THF\', \'YLS-PKN\', \'ULN-KTB\', \'ENY-BING\', \'HKM-AKHL\', \'PRW-MTK\', \'CHL-PJOK\'], [\'JMR-THF\', \'SLE-THF\', \'NSA-IPS\', \'HKM-NHW\', \'ENY-BING\', \'NRW-SBY\', \'PRW-MTK\', \'CHL-PJOK\'], [\'TEP-PKN\', \'ENY-BING\', \'ULN-SKI\', \'KRN-KHT\', \'RYN-IPS\', \'EDI-FQH\', \'PRW-MTK\', \'CHL-PJOK\'], [\'TEP-PKN\', \'ENY-BING\', \'FTZ-THF\', \'KRN-KHT\', \'HKM-NHW\', \'ULN-KTB\', \'NRW-IPA\', \'PRW-MTK\'], [\'ULN-KTB\', \'CHL-IPS\', \'NRW-SBY\', \'FTZ-THF\', \'PRW-MTK\', \'JMR-FQH\', \'NRW-IPA\', \'ENY-BING\'], [\'HKM-NHW\', \'CHL-IPS\', \'EDI-SKI\', \'FTZ-THF\', \'PRW-MTK\', \'JMR-PJOK\', \'NRW-IPA\', \'ENY-BING\'], [\'SLE-THF\', \'KRN-KHT\', \'HKM-FQH\', \'ENY-BING\', \'FTZ-THF\', \'CHL-MTK\', \'ULN-QHDS\', \'NRW-SBY\'], [\'SLE-THF\', \'KRN-KHT\', \'NSA-BARA\', \'ENY-BING\', \'FTZ-THF\', \'PRW-NU\', \'ULN-SKI\', \'NRW-SBY\']]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`) VALUES
-(1, 'Senin', '07.00 - 07.40', 1, '[\'Upacara\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
+(1, 'Senin', '07.00 - 07.40', 0, '[\'Upacara\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
 (2, 'Senin', '07.40 - 08.20', 1, '[\'NSA-BIND\', \'PRW-MTK\', \'SLE-PJOK\', \'TEP-PKN\', \'RYN-IPS\', \'JMR-QHDS\', \'NRW-IPA\', \'ENY-BING\']'),
 (3, 'Senin', '08.20 - 09.00', 2, '[\'NSA-BIND\', \'PRW-MTK\', \'ULN-BING\', \'TEP-PKN\', \'RYN-IPS\', \'NRW-BARA\', \'NRW-IPA\', \'ENY-BING\']'),
 (4, 'Senin', '09.00 - 09.40', 3, '[\'PRW-MTK\', \'NSA-BARA\', \'NRW-KTB\', \'ULN-QHDS\', \'RYN-FQH\', \'ENY-NHW\', \'NRW-IPA\', \'TEP-BIND\']'),
@@ -97,54 +98,54 @@ INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`)
 (8, 'Senin', '11.15 - 11.55', 6, '[\'HKM-FQH\', \'RYN-SBY\', \'CHL-THF\', \'ENY-BING\', \'EDI-BIND\', \'NRW-SKI\', \'TEP-PKN\', \'NRW-IPA\']'),
 (9, 'Senin', '11.55 - 12.10', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
 (10, 'Senin', '12.10 - 12.55', 7, '[\'NRW-IPA\', \'NSA-BIND\', \'KRN-IPS\', \'EDI-BIND\', \'JMR-PKN\', \'ENY-FQH\', \'PRW-MTK\', \'HKM-AKHL\']'),
-(11, 'Senin', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(11, 'Senin', '12.55 - 13.30', 8, '[ \'NRW-IPA\', \'NSA-BIND\', \'TEP-IPA\', \'EDI-BIND\', \'RYN-QHDS\', \'ENY-THF\', \'PRW-MTK\', \'HKM-AMI\' ]'),
 (12, 'Selasa', '07.40 - 08.20', 1, '[\'NRW-IPA\', \'NSA-BIND\', \'TEP-IPA\', \'EDI-BIND\', \'RYN-QHDS\', \'ENY-THF\', \'PRW-MTK\', \'HKM-AMI\']'),
 (13, 'Selasa', '08.20 - 09.00', 2, '[\'PRW-MTK\', \'NRW-IPA\', \'EDI-BDA\', \'CHL-PJOK\', \'HKM-FQH\', \'FTZ-KHT\', \'NSA-BARA\', \'TEP-BIND\']'),
-(14, 'Selasa', '09.00 - 09.40', 3, '[\'IPS-JMR\', \'MTK-RA\', \'BI-PRW\', \'BI-JMR\', \'MTK-NRW\', \'IPA-ULN\', \'IPS-RA\', \'MTK-BYT\']'),
+(14, 'Selasa', '09.00 - 09.40', 3, '[\'PRW-MTK\', \'NRW-IPA\', \'RYN-PKN\', \'CHL-PJOK\', \'HKM-FQH\', \'SLE-KHT\', \'NSA-BARA\', \'TEP-BIND\']'),
 (15, 'Selasa', '09.40 - 09.55', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(16, 'Selasa', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
-(17, 'Selasa', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(18, 'Selasa', '11.15 - 11.55', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(16, 'Selasa', '09.55 - 10.35', 4, '[\'NSA-BIND\', \'ULN-SKI\', \'JMR-BIND\', \'CHL-PJOK\', \'EDI-NU\', \'HKM-AMI\', \'TEP-BIND\', \'NRW-IPA\']'),
+(17, 'Selasa', '10.35 - 11.15', 5, '[ \'ULN-QHDS\', \'NSA-BARA\', \'KRN-AMI\', \'PRW-MTK\', \'NRW-IPA\', \'EDI-FQH\', \'TEP-BIND\', \'FTZ-THF\' ]'),
+(18, 'Selasa', '11.15 - 11.55', 6, ' [ \'ULN-SKI\', \'NSA-BARA\', \'TEP-NU\', \'PRW-MTK\', \'NRW-KTB\', \'SLE-AMI\', \'HKM-AKHL\', \'FTZ-THF\' ]'),
 (19, 'Selasa', '11.55 - 12.10', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(20, 'Selasa', '12.10 - 12.55', 7, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(21, 'Selasa', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(22, 'Rabu', '07.40 - 08.20', 1, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(23, 'Rabu', '08.20 - 09.00', 2, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(24, 'Rabu', '09.00 - 09.40', 3, '[\'IPS-JMR\', \'MTK-RA\', \'BI-PRW\', \'BI-JMR\', \'MTK-NRW\', \'IPA-ULN\', \'IPS-RA\', \'MTK-BYT\']'),
+(20, 'Selasa', '12.10 - 12.55', 7, '[ \'YLS-BDA\', \'HKM-FQH\', \'RYN-FQH\', \'NRW-IPA\', \'EDI-BIND\', \'SLE-FQH\', \'FTZ-THF\', \'PRW-MTK\' ]'),
+(21, 'Selasa', '12.55 - 13.30', 8, '[ \'CHL-IPS\', \'HKM-FQH\', \'NSA-QHDS\', \'NRW-IPA\', \'EDI-BIND\', \'RYN-QHDS\', \'FTZ-THF\', \'PRW-MTK\' ]'),
+(22, 'Rabu', '07.40 - 08.20', 1, '[ \'NRW-IPA\', \'NDZ-PJOK\', \'TEP-QHDS\', \'NSA-BIND\', \'PRW-MTK\', \'JMR-SKI\', \'YLS-BDA\', \'TEP-PKN\' ]'),
+(23, 'Rabu', '08.20 - 09.00', 2, '[ \'NRW-IPA\', \'NDZ-PJOK\', \'RYN-FQH\', \'HKM-AMI\', \'PRW-MTK\', \'TEP-BIND\', \'NSA-BARA\', \'TEP-PKN\' ]'),
+(24, 'Rabu', '09.00 - 09.40', 3, '[ \'NRW-IPA\', \'NDZ-PJOK\', \'JMR-NU\', \'EDI-NU\', \'NSA-BARA\', \'NRW-QHDS\', \'HKM-AMI\', \'KRN-KHT\' ]'),
 (25, 'Rabu', '09.40 - 09.55', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(26, 'Rabu', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
-(27, 'Rabu', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(28, 'Rabu', '11.15 - 11.55', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(26, 'Rabu', '09.55 - 10.35', 4, '[ \'NSA-BIND\', \'TEP-PKN\', \'ENY-PKN\', \'HKM-AKHL\', \'NSA-BARA\', \'YLS-BARA\', \'EDI-NU\', \'KRN-KHT\' ]'),
+(27, 'Rabu', '10.35 - 11.15', 5, '[ \'NSA-BARA\', \'TEP-PKN\', \'HKM-QHDS\', \'RYN-IPS\', \'HKM-AKHL\', \'NDZ-NU\', \'KRN-KHT\', \'ULN-KTB\' ]'),
+(28, 'Rabu', '11.15 - 11.55', 6, '[ \'NSA-BARA\', \'NRW-IPA\', \'ULN-BARA\', \'RYN-IPS\', \'YLS-BDA\', \'ENY-FQH\', \'KRN-KHT\', \'HKM-NHW\' ]'),
 (29, 'Rabu', '11.55 - 12.10', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(30, 'Rabu', '12.10 - 12.55', 7, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(31, 'Rabu', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(32, 'Kamis', '07.40 - 08.20', 1, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(33, 'Kamis', '08.20 - 09.00', 2, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(34, 'Kamis', '09.00 - 09.40', 3, '[\'IPS-JMR\', \'MTK-RA\', \'BI-PRW\', \'BI-JMR\', \'MTK-NRW\', \'IPA-ULN\', \'IPS-RA\', \'MTK-BYT\']'),
+(30, 'Rabu', '12.10 - 12.55', 7, '[ \'RYN-SBY\', \'NRW-IPA\', \'CHL-NU\', \'PRW-MTK\', \'EDI-BIND\', \'HKM-PKN\', \'HKM-NHW\', \'NSA-BARA\' ]'),
+(31, 'Rabu', '12.55 - 13.30', 8, '[ \'RYN-SBY\', \'NRW-IPA\', \'NDZ-QHDS\', \'PRW-MTK\', \'HKM-AMI\', \'PRW-NU\', \'ULN-KTB\', \'NSA-BARA\' ]'),
+(32, 'Kamis', '07.40 - 08.20', 1, '[ \'NDZ-PJOK\', \'NSA-BIND\', \'SLE-FQH\', \'NRW-IPA\', \'CHL-PJOK\', \'TEP-PKN\', \'TEP-BIND\', \'PRW-MTK\' ]'),
+(33, 'Kamis', '08.20 - 09.00', 2, '[ \'NDZ-PJOK\', \'NSA-BIND\', \'YLS-NU\', \'NRW-IPA\', \'CHL-PJOK\', \'RYN-QHDS\', \'TEP-BIND\', \'PRW-MTK\' ]'),
+(34, 'Kamis', '09.00 - 09.40', 3, '[ \'NDZ-PJOK\', \'NSA-BIND\', \'JMR-AKHL\', \'NRW-IPA\', \'CHL-PJOK\', \'NRW-NU\', \'ENY-BING\', \'HKM-FQH\' ]'),
 (35, 'Kamis', '09.40 - 09.55', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(36, 'Kamis', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
-(37, 'Kamis', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(38, 'Kamis', '11.15 - 11.55', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(36, 'Kamis', '09.55 - 10.35', 4, '[ \'NSA-BARA\', \'ULN-KTB\', \'KRN-SKI\', \'RYN-IPS\', \'PRW-MTK\', \'HKM-AKHL\', \'ENY-BING\', \'HKM-FQH\' ]'),
+(37, 'Kamis', '10.35 - 11.15', 5, '[ \'ENY-BING\', \'HKM-NHW\', \'RYN-BARA\', \'NSA-BARA\', \'KRN-KHT\', \'CHL-FQH\', \'NRW-SBY\', \'NSA-BARA\' ]'),
+(38, 'Kamis', '11.15 - 11.55', 6, '[ \'ENY-BING\', \'YLS-BDA\', \'ULN-PKN\', \'NSA-BARA\', \'KRN-KHT\', \'PRW-SKI\', \'NRW-SBY\', \'YLS-BDA\' ]'),
 (39, 'Kamis', '11.55 - 12.10', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(40, 'Kamis', '12.10 - 12.55', 7, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(41, 'Kamis', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(42, 'Jumat', '07.40 - 08.20', 1, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(43, 'Jumat', '08.20 - 09.00', 2, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(44, 'Jumat', '09.00 - 09.40', 3, '[\'IPS-JMR\', \'MTK-RA\', \'BI-PRW\', \'BI-JMR\', \'MTK-NRW\', \'IPA-ULN\', \'IPS-RA\', \'MTK-BYT\']'),
+(40, 'Kamis', '12.10 - 12.55', 7, '[ \'KRN-KHT\', \'ENY-BING\', \'SLE-QHDS\', \'PRW-MTK\', \'NSA-BARA\', \'HKM-BIND\', \'HKM-FQH\', \'ULN-QHDS\' ]'),
+(41, 'Kamis', '12.55 - 13.30', 8, '[ \'KRN-KHT\', \'ENY-BING\', \'NRW-AKHL\', \'YLS-BDA\', \'NRW-IPA\', \'JMR-BARA\', \'HKM-FQH\', \'ULN-SKI\' ]'),
+(42, 'Jumat', '07.40 - 08.20', 1, '[ \'PRW-MTK\', \'EDI-NU\', \'HKM-FQH\', \'NRW-SBY\', \'TEP-PKN\', \'ULN-IPA\', \'CHL-PJOK\', \'RYN-IPS\' ]'),
+(43, 'Jumat', '08.20 - 09.00', 2, '[ \'HKM-AKHL\', \'PRW-MTK\', \'ENY-BING\', \'NRW-SBY\', \'TEP-PKN\', \'NSA-BARA\', \'CHL-PJOK\', \'RYN-IPS\' ]'),
+(44, 'Jumat', '09.00 - 09.40', 3, '[ \'HKM-AMI\', \'PRW-MTK\', \'ENY-BING\', \'HKM-FQH\', \'NRW-SBY\', \'ULN-IPA\', \'CHL-PJOK\', \'RYN-IPS\' ]'),
 (45, 'Jumat', '09.40 - 09.55', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(46, 'Jumat', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
-(47, 'Jumat', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(48, 'Jumat', '11.15 - 11.55', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(49, 'Sabtu', '07.40 - 08.20', 1, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(50, 'Sabtu', '08.20 - 09.00', 2, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
-(51, 'Sabtu', '09.00 - 09.40', 3, '[\'IPS-JMR\', \'MTK-RA\', \'BI-PRW\', \'BI-JMR\', \'MTK-NRW\', \'IPA-ULN\', \'IPS-RA\', \'MTK-BYT\']'),
+(46, 'Jumat', '09.55 - 10.35', 4, '[ \'EDI-NU\', \'PRW-MTK\', \'NSA-BARA\', \'HKM-FQH\', \'NRW-SBY\', \'ULN-PKN\', \'RYN-IPS\', \'TEP-BIND\' ]'),
+(47, 'Jumat', '10.35 - 11.15', 5, '[ \'CHL-IPS\', \'HKM-AMI\', \'JMR-FQH\', \'EDI-BIND\', \'ULN-QHDS\', \'TEP-PKN\', \'RYN-IPS\', \'NRW-IPA\' ]'),
+(48, 'Jumat', '11.15 - 11.55', 6, '[ \'CHL-IPS\', \'HKM-AKHL\', \'PRW-MTK\', \'EDI-BIND\', \'ULN-SKI\', \'JMR-NU\', \'RYN-IPS\', \'NRW-IPA\' ]'),
+(49, 'Sabtu', '07.40 - 08.20', 1, '[ \'JMR-THF\', \'SLE-THF\', \'YLS-PKN\', \'ULN-KTB\', \'ENY-BING\', \'HKM-AKHL\', \'PRW-MTK\', \'CHL-PJOK\' ]'),
+(50, 'Sabtu', '08.20 - 09.00', 2, '[ \'JMR-THF\', \'SLE-THF\', \'NSA-IPS\', \'HKM-NHW\', \'ENY-BING\', \'NRW-SBY\', \'PRW-MTK\', \'CHL-PJOK\' ]'),
+(51, 'Sabtu', '09.00 - 09.40', 3, '[ \'TEP-PKN\', \'ENY-BING\', \'ULN-SKI\', \'KRN-KHT\', \'RYN-IPS\', \'EDI-FQH\', \'PRW-MTK\', \'CHL-PJOK\' ]'),
 (52, 'Sabtu', '09.40 - 09.55', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(53, 'Sabtu', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
-(54, 'Sabtu', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(55, 'Sabtu', '11.15 - 11.55', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(53, 'Sabtu', '09.55 - 10.35', 4, '[ \'TEP-PKN\', \'ENY-BING\', \'FTZ-THF\', \'KRN-KHT\', \'HKM-NHW\', \'ULN-KTB\', \'NRW-IPA\', \'PRW-MTK\' ]'),
+(54, 'Sabtu', '10.35 - 11.15', 5, '[ \'ULN-KTB\', \'CHL-IPS\', \'NRW-SBY\', \'FTZ-THF\', \'PRW-MTK\', \'JMR-FQH\', \'NRW-IPA\', \'ENY-BING\' ]'),
+(55, 'Sabtu', '11.15 - 11.55', 6, '[ \'HKM-NHW\', \'CHL-IPS\', \'EDI-SKI\', \'FTZ-THF\', \'PRW-MTK\', \'JMR-PJOK\', \'NRW-IPA\', \'ENY-BING\' ]'),
 (56, 'Sabtu', '11.55 - 12.10', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(57, 'Sabtu', '12.10 - 12.55', 7, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(58, 'Sabtu', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']');
+(57, 'Sabtu', '12.10 - 12.55', 7, '[ \'SLE-THF\', \'KRN-KHT\', \'HKM-FQH\', \'ENY-BING\', \'FTZ-THF\', \'CHL-MTK\', \'ULN-QHDS\', \'NRW-SBY\' ]'),
+(58, 'Sabtu', '12.55 - 13.30', 8, '[ \'SLE-THF\', \'KRN-KHT\', \'NSA-BARA\', \'ENY-BING\', \'FTZ-THF\', \'PRW-NU\', \'ULN-SKI\', \'NRW-SBY\' ]');
 
 --
 -- Dumping data untuk tabel `kbm`
