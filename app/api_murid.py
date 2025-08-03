@@ -286,7 +286,7 @@ def view_jadwal():
     )
 
     # Ambil semua jadwal dalam 1 query
-    results = JadwalPelajaran.query.order_by(hari_order, JadwalPelajaran.period).all()
+    results = JadwalPelajaran.query.order_by(hari_order).all()
 
     # Buat struktur data jadwal terformat
     grouped_schedule = defaultdict(list)
