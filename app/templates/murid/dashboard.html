@@ -466,7 +466,7 @@ document.getElementById("btnIsiEvaluasi").addEventListener("click", function () 
                 success: function (response) {
                     tombol.innerHTML = "Simpan";
                     tombol.disabled = false;
-                    alert(response.msg || "Berhasil update murid");
+                    alert(response.msg || "Berhasil update Murid");
                     window.location.reload();
                 },
                 error: function (xhr, status, error) {

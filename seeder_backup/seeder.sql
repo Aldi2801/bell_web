@@ -85,7 +85,7 @@ INSERT INTO `guru` (`nip`, `inisial`, `nama`, `tempat_lahir`, `tanggal_lahir`, `
 --
 -- Dumping data untuk tabel `jadwal_pelajaran`
 --
--- [, [\'PRW-MTK\', \'NRW-IPA\', \'RYN-PKN\', \'CHL-PJOK\', \'HKM-FQH\', \'SLE-KHT\', \'NSA-BARA\', \'TEP-BIND\'], [\'NSA-BIND\', \'ULN-SKI\', \'JMR-BIND\', \'CHL-PJOK\', \'EDI-NU\', \'HKM-AMI\', \'TEP-BIND\', \'NRW-IPA\'], [\'NSA-BIND\', \'ULN-QHDS\', \'JMR-AMI\', \'NSA-BARA\', \'NRW-IPA\', \'ENY-BDA\', \'TEP-BIND\', \'EDI-NU\'], [\'ULN-QHDS\', \'NSA-BARA\', \'KRN-AMI\', \'PRW-MTK\', \'NRW-IPA\', \'EDI-FQH\', \'TEP-BIND\', \'FTZ-THF\'], [\'ULN-SKI\', \'NSA-BARA\', \'TEP-NU\', \'PRW-MTK\', \'NRW-KTB\', \'SLE-AMI\', \'HKM-AKHL\', \'FTZ-THF\'], [\'YLS-BDA\', \'HKM-FQH\', \'RYN-FQH\', \'NRW-IPA\', \'EDI-BIND\', \'SLE-FQH\', \'FTZ-THF\', \'PRW-MTK\'], [\'CHL-IPS\', \'HKM-FQH\', \'NSA-QHDS\', \'NRW-IPA\', \'EDI-BIND\', \'RYN-QHDS\', \'FTZ-THF\', \'PRW-MTK\'], [], [], [\'NRW-IPA\', \'NDZ-PJOK\', \'TEP-QHDS\', \'NSA-BIND\', \'PRW-MTK\', \'JMR-SKI\', \'YLS-BDA\', \'TEP-PKN\'], [\'NRW-IPA\', \'NDZ-PJOK\', \'RYN-FQH\', \'HKM-AMI\', \'PRW-MTK\', \'TEP-BIND\', \'NSA-BARA\', \'TEP-PKN\'], [\'NRW-IPA\', \'NDZ-PJOK\', \'JMR-NU\', \'EDI-NU\', \'NSA-BARA\', \'NRW-QHDS\', \'HKM-AMI\', \'KRN-KHT\'], [\'NSA-BIND\', \'TEP-PKN\', \'ENY-PKN\', \'HKM-AKHL\', \'NSA-BARA\', \'YLS-BARA\', \'EDI-NU\', \'KRN-KHT\'], [\'NSA-BARA\', \'TEP-PKN\', \'HKM-QHDS\', \'RYN-IPS\', \'HKM-AKHL\', \'NDZ-NU\', \'KRN-KHT\', \'ULN-KTB\'], [\'NSA-BARA\', \'NRW-IPA\', \'ULN-BARA\', \'RYN-IPS\', \'YLS-BDA\', \'ENY-FQH\', \'KRN-KHT\', \'HKM-NHW\'], [\'RYN-SBY\', \'NRW-IPA\', \'CHL-NU\', \'PRW-MTK\', \'EDI-BIND\', \'HKM-PKN\', \'HKM-NHW\', \'NSA-BARA\'], [\'RYN-SBY\', \'NRW-IPA\', \'NDZ-QHDS\', \'PRW-MTK\', \'HKM-AMI\', \'PRW-NU\', \'ULN-KTB\', \'NSA-BARA\'], [], [], [\'NDZ-PJOK\', \'NSA-BIND\', \'SLE-FQH\', \'NRW-IPA\', \'CHL-PJOK\', \'TEP-PKN\', \'TEP-BIND\', \'PRW-MTK\'], [\'NDZ-PJOK\', \'NSA-BIND\', \'YLS-NU\', \'NRW-IPA\', \'CHL-PJOK\', \'RYN-QHDS\', \'TEP-BIND\', \'PRW-MTK\'], [\'NDZ-PJOK\', \'NSA-BIND\', \'JMR-AKHL\', \'NRW-IPA\', \'CHL-PJOK\', \'NRW-NU\', \'ENY-BING\', \'HKM-FQH\'], [\'NSA-BARA\', \'ULN-KTB\', \'KRN-SKI\', \'RYN-IPS\', \'PRW-MTK\', \'HKM-AKHL\', \'ENY-BING\', \'HKM-FQH\'], [\'ENY-BING\', \'HKM-NHW\', \'RYN-BARA\', \'NSA-BARA\', \'KRN-KHT\', \'CHL-FQH\', \'NRW-SBY\', \'NSA-BARA\'], [\'ENY-BING\', \'YLS-BDA\', \'ULN-PKN\', \'NSA-BARA\', \'KRN-KHT\', \'PRW-SKI\', \'NRW-SBY\', \'YLS-BDA\'], [\'KRN-KHT\', \'ENY-BING\', \'SLE-QHDS\', \'PRW-MTK\', \'NSA-BARA\', \'HKM-BIND\', \'HKM-FQH\', \'ULN-QHDS\'], [\'KRN-KHT\', \'ENY-BING\', \'NRW-AKHL\', \'YLS-BDA\', \'NRW-IPA\', \'JMR-BARA\', \'HKM-FQH\', \'ULN-SKI\'], [], [\'PRW-MTK\', \'EDI-NU\', \'HKM-FQH\', \'NRW-SBY\', \'TEP-PKN\', \'ULN-IPA\', \'CHL-PJOK\', \'RYN-IPS\'], [\'HKM-AKHL\', \'PRW-MTK\', \'ENY-BING\', \'NRW-SBY\', \'TEP-PKN\', \'NSA-BARA\', \'CHL-PJOK\', \'RYN-IPS\'], [\'HKM-AMI\', \'PRW-MTK\', \'ENY-BING\', \'HKM-FQH\', \'NRW-SBY\', \'ULN-IPA\', \'CHL-PJOK\', \'RYN-IPS\'], [\'EDI-NU\', \'PRW-MTK\', \'NSA-BARA\', \'HKM-FQH\', \'NRW-SBY\', \'ULN-PKN\', \'RYN-IPS\', \'TEP-BIND\'], [\'CHL-IPS\', \'HKM-AMI\', \'JMR-FQH\', \'EDI-BIND\', \'ULN-QHDS\', \'TEP-PKN\', \'RYN-IPS\', \'NRW-IPA\'], [\'CHL-IPS\', \'HKM-AKHL\', \'PRW-MTK\', \'EDI-BIND\', \'ULN-SKI\', \'JMR-NU\', \'RYN-IPS\', \'NRW-IPA\'], [], [\'JMR-THF\', \'SLE-THF\', \'YLS-PKN\', \'ULN-KTB\', \'ENY-BING\', \'HKM-AKHL\', \'PRW-MTK\', \'CHL-PJOK\'], [\'JMR-THF\', \'SLE-THF\', \'NSA-IPS\', \'HKM-NHW\', \'ENY-BING\', \'NRW-SBY\', \'PRW-MTK\', \'CHL-PJOK\'], [\'TEP-PKN\', \'ENY-BING\', \'ULN-SKI\', \'KRN-KHT\', \'RYN-IPS\', \'EDI-FQH\', \'PRW-MTK\', \'CHL-PJOK\'], [\'TEP-PKN\', \'ENY-BING\', \'FTZ-THF\', \'KRN-KHT\', \'HKM-NHW\', \'ULN-KTB\', \'NRW-IPA\', \'PRW-MTK\'], [\'ULN-KTB\', \'CHL-IPS\', \'NRW-SBY\', \'FTZ-THF\', \'PRW-MTK\', \'JMR-FQH\', \'NRW-IPA\', \'ENY-BING\'], [\'HKM-NHW\', \'CHL-IPS\', \'EDI-SKI\', \'FTZ-THF\', \'PRW-MTK\', \'JMR-PJOK\', \'NRW-IPA\', \'ENY-BING\'], [\'SLE-THF\', \'KRN-KHT\', \'HKM-FQH\', \'ENY-BING\', \'FTZ-THF\', \'CHL-MTK\', \'ULN-QHDS\', \'NRW-SBY\'], [\'SLE-THF\', \'KRN-KHT\', \'NSA-BARA\', \'ENY-BING\', \'FTZ-THF\', \'PRW-NU\', \'ULN-SKI\', \'NRW-SBY\']]
+--
 INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`) VALUES
 (1, 'Senin', '07.00 - 07.40', 1, '[\'Upacara\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
 (2, 'Senin', '07.40 - 08.20', 1, '[\'NSA-BIND\', \'PRW-MTK\', \'SLE-PJOK\', \'TEP-PKN\', \'RYN-IPS\', \'JMR-QHDS\', \'NRW-IPA\', \'ENY-BING\']'),
@@ -100,7 +100,7 @@ INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`)
 (11, 'Senin', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
 (12, 'Selasa', '07.40 - 08.20', 1, '[\'NRW-IPA\', \'NSA-BIND\', \'TEP-IPA\', \'EDI-BIND\', \'RYN-QHDS\', \'ENY-THF\', \'PRW-MTK\', \'HKM-AMI\']'),
 (13, 'Selasa', '08.20 - 09.00', 2, '[\'PRW-MTK\', \'NRW-IPA\', \'EDI-BDA\', \'CHL-PJOK\', \'HKM-FQH\', \'FTZ-KHT\', \'NSA-BARA\', \'TEP-BIND\']'),
-(14, 'Selasa', '09.00 - 09.40', 3, ''),
+(14, 'Selasa', '09.00 - 09.40', 3, '[\'IPS-JMR\', \'MTK-RA\', \'BI-PRW\', \'BI-JMR\', \'MTK-NRW\', \'IPA-ULN\', \'IPS-RA\', \'MTK-BYT\']'),
 (15, 'Selasa', '09.40 - 09.55', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
 (16, 'Selasa', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
 (17, 'Selasa', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
@@ -139,12 +139,12 @@ INSERT INTO `jadwal_pelajaran` (`id_jadwal`, `day`, `time`, `period`, `subject`)
 (50, 'Sabtu', '08.20 - 09.00', 2, '[\'BING-NSA\', \'PAI-JMR\', \'PAI-NRW\', \'PAI-ULN\', \'PAI-TEP\', \'IPA-RYN\', \'BING-HKM\', \'IPS-ENY\']'),
 (51, 'Sabtu', '09.00 - 09.40', 3, '[\'IPS-JMR\', \'MTK-RA\', \'BI-PRW\', \'BI-JMR\', \'MTK-NRW\', \'IPA-ULN\', \'IPS-RA\', \'MTK-BYT\']'),
 (52, 'Sabtu', '09.40 - 09.55', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(52, 'Sabtu', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
-(53, 'Sabtu', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(54, 'Sabtu', '11.15 - 11.55', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(55, 'Sabtu', '11.55 - 12.10', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
-(56, 'Sabtu', '12.10 - 12.55', 7, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
-(57, 'Sabtu', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(53, 'Sabtu', '09.55 - 10.35', 4, '[\'BI-TEP\', \'BI-ULN\', \'IPA-JMR\', \'MTK-PRW\', \'BI-JMR\', \'BING-NRW\', \'IPA-ULN\', \'BI-NRW\']'),
+(54, 'Sabtu', '10.35 - 11.15', 5, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(55, 'Sabtu', '11.15 - 11.55', 6, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(56, 'Sabtu', '11.55 - 12.10', 0, '[\'\', \'\', \'\', \'\', \'\', \'\', \'\', \'\']'),
+(57, 'Sabtu', '12.10 - 12.55', 7, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']'),
+(58, 'Sabtu', '12.55 - 13.30', 8, '[\'MTK-ULN\', \'MTK-BYT\', \'PAI-TEP\', \'IPS-BYT\', \'BING-PRW\', \'IPS-JMR\', \'PAI-NRW\', \'BI-ULN\']');
 
 --
 -- Dumping data untuk tabel `kbm`
@@ -284,7 +284,7 @@ INSERT INTO `mapel` (`id_mapel`, `nama_mapel`) VALUES
 ('FQH', 'Fiqih'),
 ('AKHL', 'Aqidah Akhlak'),
 ('SKI', 'Sejarah Kebudayaan Islam'),
-('PKN', 'Pendidikan Kewargaaanegaraan')
+('PKN', 'Pendidikan Kewargaaanegaraan'),
 ('BIND', 'Bahasa Indonesia'),
 ('MTK', 'Matematika'),
 ('IPA', 'Ilmu Pengetahuan Alam'),
