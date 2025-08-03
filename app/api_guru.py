@@ -128,74 +128,131 @@ def list_kbm():
                             has_next=has_next,
                             has_prev=has_prev,
                             page_range=page_range)
+from sqlalchemy.exc import IntegrityError
+from datetime import datetime
 
 @app.route("/kbm/list/tambah", methods=["POST"])
 def kbm_tambah():
-        id_semester=request.json.get('id_semester')
-        id_kelas=request.json.get('id_kelas')
-        id_tahun_akademik=request.json.get('id_tahun_akademik')
-        if session['role'] =='guru':
+    try:
+        id_semester = request.json.get('id_semester')
+        id_kelas = request.json.get('id_kelas')
+        id_tahun_akademik = request.json.get('id_tahun_akademik')
+        id_mapel = request.json.get("id_mapel", "").strip()
+        tanggal_str = request.json.get("tanggal", "").strip()
+        print(f"id_mapel: {id_mapel}, tanggal: {tanggal_str} id_semester: {id_semester}, id_kelas: {id_kelas}, id_tahun_akademik: {id_tahun_akademik}")
+        if not Mapel.query.get(id_mapel):
+            return jsonify({'msg': 'Mapel tidak ditemukan'}), 400
+
+        # Konversi tanggal string ke objek datetime
+        try:
+            tanggal = datetime.strptime(tanggal_str, "%Y-%m-%d")
+        except ValueError:
+            print(f"Format tanggal tidak valid: {tanggal_str}")
+            return jsonify({'msg': 'Format tanggal tidak valid (harus YYYY-MM-DD).'}), 400
+
+        # Ambil nip tergantung role
+        if session.get('role') == 'guru':
             nip = session.get('nip', '')
         else:
             nip = request.json.get('nip')
-            print(repr(request.json.get("id_mapel")))
+        print(f"nip: {nip}")
+        # Validasi foreign key id_mapel
+        if not Mapel.query.get(id_mapel):
+            print(f"Mapel dengan ID {id_mapel} tidak ditemukan.")
+            return jsonify({'msg': f'Mapel dengan ID "{id_mapel}" tidak ditemukan.'}), 400
 
+        # Tambahkan AmpuMapel (biarkan id_ampu auto-increment)
         new_ampu = AmpuMapel(
-            nip = nip,
-            id_mapel = request.json.get("id_mapel").strip(),
-            id_semester = id_semester,
-            id_kelas = id_kelas,
-            id_tahun_akademik = id_tahun_akademik,
-            tanggal = datetime.datetime.now(datetime.timezone.utc)
+            nip=nip,
+            id_mapel=id_mapel,
+            id_semester=id_semester,
+            id_kelas=id_kelas,
+            id_tahun_akademik=id_tahun_akademik,
+            tanggal=tanggal
         )
+        print(f"new_ampu: {new_ampu}")
         db.session.add(new_ampu)
-        db.session.commit()
+        db.session.flush()  # agar new_ampu.id_ampu terisi
+        print(new_ampu)
+        # Tambahkan KBM
         new_kbm = Kbm(
-            materi = request.json.get('materi'),
-            sub_materi = request.json.get('sub_materi'),
-            id_ampu = new_ampu.id_ampu
+            materi=request.json.get('materi'),
+            sub_materi=request.json.get('sub_materi'),
+            id_ampu=new_ampu.id_ampu
         )
-        
         db.session.add(new_kbm)
-        db.session.flush()  # agar dapatkan id_kbm sebelum commit
-        siswa_kelas = PembagianKelas.query.filter_by(id_kelas=id_kelas).filter_by(id_tahun_akademik=id_tahun_akademik).all()
-        nama_kelas = Kelas.query.filter_by(id_kelas=id_kelas).first()
-        # Tambahkan data kehadiran default "Hadir"
+        db.session.flush()  # agar new_kbm.id_kbm terisi
+
+        # Ambil daftar siswa dan nama kelas
+        siswa_kelas = PembagianKelas.query.filter_by(
+            id_kelas=id_kelas,
+            id_tahun_akademik=id_tahun_akademik
+        ).all()
+        nama_kelas = Kelas.query.get(id_kelas)
+        print(f"nama_kelas: {nama_kelas}, siswa_kelas: {siswa_kelas}")
+        if not nama_kelas:
+            print(f"Kelas dengan ID {id_kelas} tidak ditemukan.")
+            return jsonify({'msg': f'Kelas dengan ID "{id_kelas}" tidak ditemukan.'}), 400
+
+        # Tambahkan kehadiran default "Hadir" (id_keterangan = 1)
         for siswa in siswa_kelas:
-            existing = Kehadiran.query.filter_by(
+            exists = Kehadiran.query.filter_by(
                 id_kbm=new_kbm.id_kbm,
                 nis=siswa.nis,
                 nama_kelas=nama_kelas.nama_kelas,
                 id_keterangan=1
             ).first()
-            if existing:
-                continue  # skip kalau sudah ada
+            if exists:
+                continue
 
-            new_kehadiran = Kehadiran(
+            db.session.add(Kehadiran(
                 id_kbm=new_kbm.id_kbm,
                 nis=siswa.nis,
                 nama_kelas=nama_kelas.nama_kelas,
                 id_keterangan=1
-            )
-            db.session.add(new_kehadiran)
-
+            ))
+            print(f"Menambahkan Kehadiran untuk NIS {siswa.nis} di kelas {nama_kelas.nama_kelas}")
 
         db.session.commit()
+        print(f"KBM dan Kehadiran berhasil ditambahkan untuk kelas {nama_kelas.nama_kelas} dengan ID KBM {new_kbm.id_kbm}.")
         flash("Data berhasil ditambahkan", "success")
-        return jsonify({'msg':'Data berhasil ditambahkan'})
+        return jsonify({'msg': 'Data berhasil ditambahkan'})
+
+    except IntegrityError as e:
+        db.session.rollback()
+        return jsonify({'msg': 'Gagal menambahkan data karena konflik integritas.', 'error': str(e)}), 400
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'msg': 'Terjadi kesalahan internal.', 'error': str(e)}), 500
+
 @app.route('/api/kehadiran/siswa')
 def api_kehadiran_siswa():
     id_kbm = request.args.get('id_kbm')
+    id_kelas = request.args.get('id_kelas')  # jika kamu pakai
+    id_semester = request.args.get('id_semester')
+    id_tahun = request.args.get('id_tahun_akademik')
+
     siswa_list = (
-        db.session.query(Siswa.nama, PembagianKelas.nis, Kelas.nama_kelas, Kehadiran.id_keterangan)
+        db.session.query(Kehadiran.nis, Siswa.nama, Kehadiran.nama_kelas, Kehadiran.id_keterangan)
+        .join(Siswa, Siswa.nis == Kehadiran.nis)
+        .join(Kbm, Kbm.id_kbm == Kehadiran.id_kbm)
+        .join(AmpuMapel, AmpuMapel.id_ampu == Kbm.id_ampu)
         .join(PembagianKelas, PembagianKelas.nis == Siswa.nis)
-        .join(Kelas, Kelas.id_kelas == PembagianKelas.id_kelas)
-        .join(Kehadiran, Kehadiran.nis == Siswa.nis)
         .filter(Kehadiran.id_kbm == id_kbm)
+        .filter(PembagianKelas.id_tahun_akademik == id_tahun)
+        .filter(PembagianKelas.id_kelas == id_kelas)
         .all()
     )
-    return jsonify([{'id_kbm':id_kbm,'nama': s[0], 'nis': s[1], 'nama_kelas': s[2],'id_keterangan': s[3]} for s in siswa_list])
-
+    return jsonify([
+  {
+    'nis': s[0],
+    'nama': s[1],
+    'nama_kelas': s[2],
+    'id_kbm': id_kbm,
+    'id_keterangan': s[3]
+  } for s in siswa_list
+])
 @app.route('/guru/kehadiran/tambah', methods=['POST'])
 def simpan_kehadiran_siswa():
     id_ampu = request.form['id_ampu']

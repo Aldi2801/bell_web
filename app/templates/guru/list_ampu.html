@@ -55,6 +55,10 @@
     {% endfor %}
   </select>
 </div>
+<div class="col-md-12 mb-3">
+  <label for="tanggal">Tanggal </label>
+  <input name="tanggal" type="date" class="form-control" required>
+</div>
 
 {% endblock %}
 
@@ -117,7 +121,9 @@
                   <td>{{ a.tahun_akademik_rel.tahun_akademik }}</td>
                   <td>{{ a.tanggal }}</td>
                   <td>
-                      <button type="button" class="btn btn-success" onclick="openKehadiranModal({{ a.id_ampu }},{{ a.id_kbm }})">Kehadiran</button>
+                      <button type="button" class="btn btn-success"  
+                      onclick="openKehadiranModal({{ a.id_ampu }}, {{ a.id_kbm }}, '{{ a.kelas_rel.id_kelas }}', '{{ a.semester_rel.id_semester }}', '{{ a.tahun_akademik_rel.id_tahun_akademik }}')">
+                      Kehadiran</button>
                       <button type="button" class="btn btn-danger" onclick="deleteData('{{ a.id_ampu }}')">Hapus</button>
                   </td>
                 </tr>
@@ -195,56 +201,72 @@
 
 <script>
 $('#myTable').DataTable();
-$('#kehadiranModal').on('shown.bs.modal', function () {
-    $('#kehadiranTable').DataTable();
-});
 
 </script>
 <script>
-function openKehadiranModal(id_ampu,id_kbm) {
-  console.log(id_ampu)
-  console.log(id_kbm)
-  const keteranganList = {{ keterangan | tojson  }};
-
+function openKehadiranModal(id_ampu, id_kbm, id_kelas, id_semester, id_tahun_akademik) {
+  console.log(id_ampu);
+  console.log(id_kbm);
+  const keteranganList = {{ keterangan | tojson }};
+  
   $('#idAmpuInput').val(id_ampu);
   $('#kehadiranLabel').text('Kehadiran - ID: ' + id_kbm);
-  const tbody = $('#kehadiranTbody').empty();
 
-  $.getJSON(`/api/kehadiran/siswa?id_kbm=${id_kbm}`, function(data) {
+  // Bersihkan dan siapkan tbody
+  const tbody = $('#kehadiranTbody');
+  tbody.empty();
+
+  $.getJSON(`/api/kehadiran/siswa?id_kbm=${id_kbm}&id_kelas=${id_kelas}&id_semester=${id_semester}&id_tahun_akademik=${id_tahun_akademik}`, function(data) {
+    console.log('Jumlah data:', data.length);
+
+    // Jangan lanjut jika data kosong, dan jangan jalankan DataTable
     if (data.length === 0) {
-      tbody.append(`
+      tbody.html(`
         <tr>
           <td colspan="4" class="text-center">Tidak ada data kehadiran.</td>
         </tr>
       `);
-    } else {
-      data.forEach((s, i) => {
-        const options = keteranganList.map(k => `
-          <option value="${k.id_keterangan}" ${s.id_keterangan == k.id_keterangan ? 'selected' : ''}>${k.keterangan}</option>
-        `).join('');
 
-        tbody.append(`
-          <tr>
-            <td>${i+1}<input type='hidden' name='id_kbm' value="${s.id_kbm}"></td>
-            <td>${s.nama}</td>
-            <td>${s.nama_kelas} <input type='hidden' name='nama_kelas' value="${s.nama_kelas}"></td>
-            <td>
-              <select name="status[${s.nis}]" 
-                  {% if session['role'] =='admin' %}
-                  disabled
-                  {% endif %}
-                  class="form-select">
-                ${options}
-              </select>
-            </td>
-          </tr>
-        `);
-      });
+      // Tampilkan modal tanpa inisialisasi DataTable
+      $('#kehadiranModal').modal('show');
+      return;
     }
 
+    // Hancurkan DataTable hanya jika sudah ada
+    if ($.fn.DataTable.isDataTable('#kehadiranTable')) {
+      $('#kehadiranTable').DataTable().clear().destroy();
+    }
+
+    // Buat isi tbody
+    data.forEach((s, i) => {
+      const options = keteranganList.map(k => `
+        <option value="${k.id_keterangan}" ${s.id_keterangan == k.id_keterangan ? 'selected' : ''}>${k.keterangan}</option>
+      `).join('');
+
+      tbody.append(`
+        <tr>
+          <td>${i + 1}<input type="hidden" name="id_kbm" value="${s.id_kbm}"></td>
+          <td>${s.nama}</td>
+          <td>${s.nama_kelas}<input type="hidden" name="nama_kelas" value="${s.nama_kelas}"></td>
+          <td>
+            <select name="status[${s.nis}]" class="form-select" {% if session['role'] == 'admin' %}disabled{% endif %}>
+              ${options}
+            </select>
+          </td>
+        </tr>
+      `);
+    });
+
+    // Setelah data terisi, baru inisialisasi ulang DataTable
+    $('#kehadiranTable').DataTable({
+      responsive: true
+    });
+
+    // Tampilkan modal
     $('#kehadiranModal').modal('show');
   });
 }
+
 
 
   $('#kehadiranForm').on('submit', function(e){
@@ -257,6 +279,11 @@ function openKehadiranModal(id_ampu,id_kbm) {
       })
       .fail(() => alert('Gagal simpan kehadiran'));
   });
+  $('#kehadiranModal').on('hidden.bs.modal', function () {
+  // Refresh halaman setelah modal ditutup
+  location.reload();
+});
+
 </script>
 
 {% endblock %}

@@ -141,7 +141,7 @@ class AmpuMapel(db.Model):
     id_ampu = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date)
     id_semester = db.Column(db.CHAR(1), db.ForeignKey('semester.id_semester', ondelete='CASCADE'), nullable=True)
-    id_mapel = db.Column(db.CHAR(3), db.ForeignKey('mapel.id_mapel', ondelete='CASCADE'), nullable=True)
+    id_mapel = db.Column(db.CHAR(4), db.ForeignKey('mapel.id_mapel', ondelete='CASCADE'), nullable=True)
     nip = db.Column(db.String(25), db.ForeignKey('guru.nip', ondelete='CASCADE'), nullable=True)
     id_tahun_akademik = db.Column(db.Integer, db.ForeignKey('tahun_akademik.id_tahun_akademik', ondelete='CASCADE'), nullable=True)
     id_kelas = db.Column(db.String(6), db.ForeignKey('kelas.id_kelas', ondelete='CASCADE'), nullable=True)
@@ -151,6 +151,7 @@ class AmpuMapel(db.Model):
     semester_rel = db.relationship("Semester", backref="ampu_mapel", passive_deletes=True)
     tahun_akademik_rel = db.relationship("TahunAkademik", backref="ampu_mapel", passive_deletes=True)
     kelas_rel = db.relationship("Kelas", backref="ampu_mapel", passive_deletes=True)
+
 class Kbm(db.Model):
     __tablename__ = 'kbm'
 
@@ -185,9 +186,7 @@ class Kehadiran(db.Model):
 
     # Relasi ke tabel Siswa
     siswa_rel = db.relationship('Siswa', backref='kehadiran_list', lazy=True)  
-    __table_args__ = (
-        db.UniqueConstraint('id_kbm', 'nis', 'nama_kelas', 'id_keterangan', name='unique_kehadiran'),
-    )
+    
 
 class Siswa(db.Model):
     nis = db.Column(db.Integer, primary_key=True)
