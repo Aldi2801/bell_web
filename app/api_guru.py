@@ -138,10 +138,11 @@ def kbm_tambah():
             nip = session.get('nip', '')
         else:
             nip = request.json.get('nip')
+            print(repr(request.json.get("id_mapel")))
+
         new_ampu = AmpuMapel(
             nip = nip,
-            id_mapel = request.json.get('id_mapel'),
-            
+            id_mapel = request.json.get("id_mapel").strip(),
             id_semester = id_semester,
             id_kelas = id_kelas,
             id_tahun_akademik = id_tahun_akademik,
@@ -161,6 +162,15 @@ def kbm_tambah():
         nama_kelas = Kelas.query.filter_by(id_kelas=id_kelas).first()
         # Tambahkan data kehadiran default "Hadir"
         for siswa in siswa_kelas:
+            existing = Kehadiran.query.filter_by(
+                id_kbm=new_kbm.id_kbm,
+                nis=siswa.nis,
+                nama_kelas=nama_kelas.nama_kelas,
+                id_keterangan=1
+            ).first()
+            if existing:
+                continue  # skip kalau sudah ada
+
             new_kehadiran = Kehadiran(
                 id_kbm=new_kbm.id_kbm,
                 nis=siswa.nis,
@@ -168,6 +178,7 @@ def kbm_tambah():
                 id_keterangan=1
             )
             db.session.add(new_kehadiran)
+
 
         db.session.commit()
         flash("Data berhasil ditambahkan", "success")
