@@ -110,29 +110,36 @@
 </div>
 <div class="container-fluid">
   <div class="row">
-    <div class="col-12">
+    <div class="col-10">
       <div class="card">
         <div class="card-body">
         <h2>Jadwal Pelajaran</h2>
-<div class="table-responsive mb-5">
-    <table class="container-table" id="scheduleTable">
-        <thead>
-            <tr>
-                <th>Hari</th>
-                <th>Waktu</th>
-                <th>Jam Ke</th>
-                {% for item in kelas %}
-                <th>{{ item.nama_kelas }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+        <div class="table-responsive mb-5">
+            <table class="container-table" id="scheduleTable">
+                <thead>
+                    <tr>
+                        <th>Hari</th>
+                        <th>Waktu</th>
+                        <th>Jam Ke</th>
+                        {% for item in kelas %}
+                        <th>{{ item.nama_kelas }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        </div>
+      </div>
     </div>
-    <div class="container-keterangan" id="container-keterangan">
     
+    <div class="col-2">
+    <div class="container-keterangan" id="container-keterangan">
     </div>
+    </div>
+  </div>
+</div>
 <script>
     const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
     const schedule = {{ schedule | tojson | safe }};

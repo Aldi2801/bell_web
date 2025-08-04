@@ -50,13 +50,22 @@
       </nav>
       <h1 class="mb-0 fw-bold">Data {{title}}</h1>
     </div>
-	{% if btn_tambah %}
+	
     <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+    {% if btn_tambah %}
 		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
 		  <i class="ri-add-line me-1"></i> Tambah Data
 		</button>
-    </div>
     {% endif %}
+    
+      <button type="button" class="btn btn-success d-flex align-items-center ms-2">
+        <i class="excell me-1"></i> Export Excell
+      </button>
+      <button type="button" class="btn btn-danger d-flex align-items-center ms-2">
+        <i class="pdf me-1"></i> Export Pdf
+      </button>
+    </div>
+    
   </div>
 </div>
 <div class="container-fluid">
@@ -67,7 +76,7 @@
         <h2>Menu Pembayaran</h2>
 <div class="table-responsive">
   <table id="myTable" class="table table-bordered table-striped mt-4 container-table">
-            <thead class="table-dark">
+            <thead class="table-info">
                 <tr>
                     <th>No</th>
                     {% if session['role'] != 'murid' %}
@@ -250,19 +259,20 @@ function populateTagihanTable(tagihan) {
             <td>Rp ${parseInt(item.total).toLocaleString('id-ID')}</td>
             <td>${item.status}</td>
             <td>
-			 {% if session['role'] != 'murid' %}
-                ${lunas ? `
-                      <button onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Offline</button>`
-                      : '<button style="width:100px; margin-bottom:5px"  class="btn btn-success btn-sm">Lunas</button>'}
+			      {% if session['role'] != 'murid' %}
+              ${lunas ? `
+                <button onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Offline</button>`
+                : '<button onclick="" style="width:100px; margin-bottom:5px" class="btn btn-info btn-sm">Lihat Bukti</button>'}
                
                 <button onclick="editTagihan('${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-warning btn-sm">Edit</button>
                 <button onclick=" deleteData('${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-danger btn-sm">Hapus</button>
-                {% else %}
-				
-			${lunas ? `<button onclick="bayar(${item.total}, '${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Online</button>`
-                      : '<button style="width:100px; margin-bottom:5px"  class="btn btn-success btn-sm">Lunas</button>'}
-               
-				{% endif %}
+                
+            {% else %}
+			        ${lunas ? `<button onclick="bayar(${item.total}, '${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Online</button>`
+                  : '<button onclick="" style="width:100px; margin-bottom:5px" class="btn btn-info btn-sm">Lihat Bukti</button>'}
+                  
+                  
+				    {% endif %}
             </td>`;
         container.appendChild(row);
     

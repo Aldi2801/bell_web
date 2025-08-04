@@ -363,6 +363,7 @@ def edit_admin_siswa(nis):
     else:
         # Fallback ke request.form jika bukan JSON
         data = request.form
+    print(data)
     nis = data.get('nis')
     nis_baru = data.get('nis')
     username = data.get('username')
@@ -563,12 +564,18 @@ def get_guru(nip):
     })
 @app.route('/admin/guru/edit/<nip>', methods=['PUT'])
 def edit_guru(nip):
-    nip_baru = request.json.get('nip')
-    username = request.json.get('username')
-    email = request.json.get('email')
-    nip = request.json.get('nip')
-    password = request.json.get('password','')
-
+    if request.is_json:
+        data = request.get_json()
+    else:
+        # Fallback ke request.form jika bukan JSON
+        data = request.form
+    nip_baru = data.get('nip','')
+    username = data.get('username','')
+    email = data.get('email','')
+    nip = data.get('nip','')
+    password = data.get('password','')
+    print(nip_baru)
+    print(nip)
     user = User.query.filter_by(nip=nip).first()
     # Cek jika username/email yang baru mau diganti ke milik orang lain
     if User.query.filter(User.username == username, User.id != user.id).first():
@@ -584,6 +591,7 @@ def edit_guru(nip):
             user.password = bcrypt.generate_password_hash(password).decode('utf-8')
     file = request.files.get('img_profile')
     if not file or not allowed_file_img_profile(file.filename):
+        print("file salah")
         flash('File img_profile tidak valid atau belum diunggah', 'warning')
         pass
     else:
@@ -604,17 +612,18 @@ def edit_guru(nip):
     
     # Simpan data terbaru
     guru = Guru.query.filter_by(nip=nip).first()
-    guru.nama = request.json.get('nama_lengkap')
+    guru.nama = data.get('nama_lengkap')
     guru.email=email
     guru.nip = nip_baru
-    guru.inisial = request.json.get('inisial')
-    guru.tempat_lahir = request.json.get('tempat_lahir')
-    guru.tanggal_lahir = request.json.get('tanggal_lahir')
-    guru.alamat = request.json.get('alamat')
-    guru.no_hp = request.json.get('no_hp')
-    guru.spesialisasi = request.json.get('spesialisasi')
-    guru.id_gender = request.json.get('id_gender')
-    guru.id_status = request.json.get('id_status')
+    guru.inisial = data.get('inisial')
+    guru.tempat_lahir = data.get('tempat_lahir')
+    guru.tanggal_lahir = data.get('tanggal_lahir')
+    guru.alamat = data.get('alamat')
+    guru.no_hp = data.get('no_hp')
+    guru.spesialisasi = data.get('spesialisasi')
+    guru.id_gender = data.get('id_gender')
+    if data.get('id_status'):
+        guru.id_status = data.get('id_status')
     db.session.commit()
     
     flash('Data guru berhasil diperbarui', 'success')

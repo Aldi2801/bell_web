@@ -319,7 +319,7 @@ def dashboard():
             'gender': siswa.gender_rel.gender,
             'status': siswa.status_rel.status,
             'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
-            'role': 'Murid'
+            'role': 'Siswa'
         }
 
         # 6. Ambil data dashboard murid
@@ -345,6 +345,68 @@ def dashboard():
                             evaluasi_persen=evaluasi_persen,
                             evaluasi=evaluasi_perlu,
                             berita=berita_terbaru)
+
+@app.route('/profile')
+def profile():
+    role = session.get('role')
+    user = User.query.filter_by(username=session.get('username')).first()
+    if role == 'admin':
+        profil = {
+            'username': user.username,
+            'email': user.email,
+            'role': 'admin',
+            'id':user.id,
+            'img_profile':user.img_profile
+        }
+        return render_template('admin/dashboard.html',profil=profil )
+
+    elif role == 'guru':
+        guru = Guru.query.filter_by(nip=user.nip).first()
+        profil = {
+            'nip': guru.nip,
+            'img_profile':user.img_profile,
+            'username': user.username,
+            'nama': guru.nama,
+            'inisial': guru.inisial,
+            'tempat_lahir': guru.tempat_lahir,
+            'tanggal_lahir': guru.tanggal_lahir,
+            'alamat': guru.alamat,
+            'no_hp': guru.no_hp,
+            'email': user.email,
+            'gender': guru.gender_rel.gender,
+            'status': guru.status_rel.status,
+            'spesialisasi': guru.spesialisasi,
+            'role': 'guru'
+        }
+        return render_template('profile.html', profil=profil)
+
+    elif role == 'murid':
+        # Ambil data murid dan kelas aktif
+        siswa = Siswa.query.filter_by(nis=user.nis).first()
+        kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(
+            PembagianKelas.tanggal.desc()
+        ).first()
+
+        # Buat profil murid
+        profil = {
+            'img_profile': user.img_profile,
+            'username': user.username,
+            'nama': siswa.nama,
+            'nis': siswa.nis,
+            'tempat_lahir': siswa.tempat_lahir,
+            'tanggal_lahir': siswa.tanggal_lahir,
+            'alamat': siswa.alamat,
+            'no_hp': siswa.no_hp,
+            'email': user.email,
+            'gender': siswa.gender_rel.gender,
+            'status': siswa.status_rel.status,
+            'kelas': kelas_aktif.kelas_rel.nama_kelas if kelas_aktif else 'Belum dibagi',
+            'role': 'siswa'
+        }
+
+        # Kirim ke template dashboard
+        return render_template('/profile.html',profil=profil)
+    
 def ambil_jadwal_guru(inisial):
     # Ambil 1 jadwal 
     hari_ini = datetime.now().strftime('%A')  # Contoh: 'Monday'

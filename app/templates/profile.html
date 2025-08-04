@@ -25,121 +25,42 @@
 {% block content %}
 <div class="container-fluid">
 
-    <h1 class="mb-4">Selamat datang, {{ profil.nama or profil.username }}!</h1>
-    <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-header bg-success text-white">Mata Pelajaran yang Diampu</div>
-            <div class="card-body">
-                <ul class="list-group">
-                    <li class="list-group-item text-muted">{{ profil.spesialisasi }}</li>
-                    
-                </ul>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header bg-info text-white">Kelas yang Diampu</div>
-            <div class="card-body">
-                <ul class="list-group">
-                    {% for kelas in profil.kelas_diampu %}
-                    <li class="list-group-item">{{ kelas }}</li>
-                    {% else %}
-                    <li class="list-group-item text-muted">Belum ada kelas</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-warning text-dark">Jadwal Mengajar Hari Ini</div>
-            <div class="card-body table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-info">
-                        <tr>
-                            <th>Jam</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Kelas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for jadwal in jadwal_hari_ini %}
-                        <tr>
-                            <td>{{ jadwal.jam}}</td>
-                            <td>{{ jadwal.mapel }}</td>
-                            <td>{{ jadwal.kelas }}</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Tidak ada jadwal hari ini</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-header bg-primary text-white">Top 3 Siswa Berprestasi</div>
-            <div class="card-body">
-                <ol class="list-group list-group-numbered">
-                    {% for siswa in siswa_terbaik %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ siswa.nama }}
-                        <span class="badge bg-success rounded-pill">{{ siswa.nilai }}</span>
-                    </li>
-                    {% else %}
-                    <li class="list-group-item text-muted">Belum ada data</li>
-                    {% endfor %}
-                </ol>
-            </div>
-        </div>
-    </div>
-</div>
-    <div class="row mt-4">
+    <div class="row mt-3">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     Informasi Profil - {{ profil.role }}
                 </div>
-                <div class="card-body ">
-                <div class="row">
-                    <div class="col-lg-2 ">
+                <div class="card-body d-flex">
                     {% if profil.img_profile %}
-                    <img src="/static/img_profile/{{ profil.img_profile }}" height="100px" class="img img-responsive card w-100" alt="Profile">
+                    <img src="/static/img_profile/{{ profil.img_profile }}" width="100px"  height="100px" class="img img-responsive card " style="margin-right:20px" alt="Profile">
                     {% else %}
                     <div class="fallback-icon"
                         style='background-color: {{ ["#f94144", "#f3722c", "#f9c74f", "#90be6d", "#43aa8b", "#577590"] | random }};'>
                         {{ profil.username[0]|upper }}
                     </div>
                     {% endif %}
-                    </div>
 
-                    <div class="col-lg-10 ">
                     <div class="w-100">
                         <ul class="list-group">
                             {% for key, value in profil.items() if key not in ['role', 'img_profile', 'username'] %}
                             <li class="list-group-item d-flex align-items-center">
-                                <strong> {{ key.replace('_', ' ').title() }}:</strong>&nbsp;{{ value }}
+                                <strong>{{ key.replace('_', ' ').title() }}:</strong>&nbsp;{{ value }}
                             </li>
                             {% endfor %}
                         </ul>
 
                         <!-- Tombol edit bisa disesuaikan role -->
-                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#editModalguru">Edit
-                            Profil</button>
+                        <button class="btn btn-primary mt-3" data-bs-toggle="modal"
+                            data-bs-target="#editModalmurid">Edit Profil</button>
                     </div>
-                    </div>
-                </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modal Edit -->
-    <div class="modal fade" id="editModalguru" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
+    <div class="modal fade" id="editModalmurid" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
         <div class="modal-dialog  modal-lg">
             <div class="modal-content">
 
@@ -152,11 +73,13 @@
                 <!-- Modal Body -->
                 <div class="modal-body">
                     <form id="editprofile" enctype="multipart/form-data">
-                        <input type="hidden" class="form-control" id="nip" value="{{profil.nip}}" name="nip"
-                            placeholder="NIP" required>
+
+                        <input type="hidden" class="form-control" id="nis" value="{{profil.nis}}" name="nis"
+                            placeholder="nis" required>
+
                         <div class="col-md-12 mb-2">
                             <label for="img_profile">Img Profile</label>
-                            <input type="file" class="form-control" id="img_profile" name="img_profile">
+                            <input type="file" class="form-control" id="img_profile" accept="jpeg, jpg, png" name="img_profile">
                         </div>
                         <div class="col-md-12 mb-2">
                             <label for="username">Username</label>
@@ -165,15 +88,9 @@
                         </div>
 
                         <div class="col-md-12 mb-2">
-                            <label for="nama_lengkap">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="nama" value="{{profil.nama}}"
-                                name="nama_lengkap" placeholder="Nama Lengkap" required>
-                        </div>
-
-                        <div class="col-md-12 mb-2">
-                            <label for="inisial">Inisial</label>
-                            <input type="text" class="form-control" id="inisial" value="{{profil.inisial}}"
-                                name="inisial" placeholder="Inisial">
+                            <label for="nama">Nama Lengkap</label>
+                            <input type="text" class="form-control" id="nama " value="{{profil.nama}}"
+                                name="nama" placeholder="Nama Lengkap" required>
                         </div>
 
                         <div class="col-md-12 mb-2">
@@ -189,12 +106,6 @@
                         </div>
 
                         <div class="col-md-12 mb-2">
-                            <label for="alamat">Alamat</label>
-                            <input type="text" class="form-control" id="alamat" value="{{profil.alamat}}" name="alamat"
-                                placeholder="Alamat" required>
-                        </div>
-
-                        <div class="col-md-12 mb-2">
                             <label for="no_hp">Nomor HP</label>
                             <input type="text" class="form-control" id="no_hp" value="{{profil.no_hp}}" name="no_hp"
                                 placeholder="Nomor HP" required>
@@ -207,9 +118,9 @@
                         </div>
 
                         <div class="col-md-12 mb-2">
-                            <label for="spesialisasi">Spesialisasi</label>
-                            <input type="text" class="form-control" id="spesialisasi" value="{{profil.spesialisasi}}"
-                                name="spesialisasi" placeholder="Spesialisasi">
+                            <label for="kelas">Kelas</label>
+                            <input type="text" class="form-control" id="kelas" value="{{profil.kelas}}" name="kelas"
+                                placeholder="kelas">
                         </div>
 
                         <div class="col-md-12 mb-2">
@@ -223,6 +134,10 @@
                             </select>
                         </div>
 
+                        <div class="col-md-12 mb-2">
+                            <label for="alamat">Alamat</label>
+                            <textarea class="form-control" id="alamat" name="alamat" required> {{ profil.alamat }}</textarea>
+                        </div>
                         <button type="button" class="btn btn-secondary mb-2" onclick="togglePasswordFields()">
                             Ubah Password
                         </button>
@@ -257,28 +172,6 @@
             </div>
         </div>
     </div>
-
-    
-<div class="row mt-4">
-    
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-dark text-white">Aktivitas Terakhir</div>
-            <div class="card-body">
-                <ul class="list-group">
-                    {% for log in log_aktivitas %}
-                    <li class="list-group-item">
-                        {{ log.timestamp }} - {{ log.kegiatan }}
-                    </li>
-                    {% else %}
-                    <li class="list-group-item text-muted">Belum ada aktivitas</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
     <script>
         document.getElementById("editprofile").addEventListener("submit", function (event) {
             event.preventDefault();
@@ -288,11 +181,22 @@
             formData.forEach((value, key) => {
                 data[key] = value.trim ? value.trim() : value;
             });
+            console.log(formData);
+            console.log(data);
             const tombol = document.getElementById("submit-profile");
             tombol.disabled = true;
             tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+            {% if role == 'admin' %}
+            const url = {{ ('/admin/edit/' + profile.id) | tojson }};
+            {% elif role == 'siswa' %}
+            const url = {{ ('/admin/siswa/edit/' + profile.nis) | tojson }};
+            {% elif role == 'guru' %}
+            const url = {{ ('/admin/guru/edit/' + profile.nip) | tojson }};
+            {% else %}
+            const url = '';
+            {% endif %}
             $.ajax({
-                url: '/admin/guru/edit/{{ profil.nip }}',
+                url: url,
                 type: 'PUT',
                 data: formData,
                 contentType: false,
@@ -303,7 +207,7 @@
                 success: function (response) {
                     tombol.innerHTML = "Simpan";
                     tombol.disabled = false;
-                    alert(response.msg || "Berhasil update guru");
+                    alert(response.msg || "Berhasil update Murid");
                     window.location.reload();
                 },
                 error: function (xhr, status, error) {
@@ -321,6 +225,8 @@
             });
         });
     </script>
+
+    {% endif %}
     <script>
         const now = new Date();
         const year = now.getFullYear();
@@ -330,4 +236,5 @@
         document.getElementById("tahunPelajaran").innerHTML =
             `Tahun Pelajaran ${startYear}/${endYear} - Semester ${semester}`;
     </script>
+</div>
 {% endblock %}
