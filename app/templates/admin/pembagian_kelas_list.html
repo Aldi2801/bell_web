@@ -8,7 +8,7 @@
     </div>
     <div class="col-md-12">
         <label for="nis" class="form-label">Siswa</label>
-        <select class="form-select" name="nis" id="nis" required>
+        <select class="form-control form-select" name="nis" id="nis" required>
             <option value="" disabled selected>Pilih Siswa</option>
             {% for siswa in siswa %}
                 <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
@@ -17,7 +17,7 @@
     </div>
     <div class="col-md-12">
         <label for="id_kelas" class="form-label">Kelas</label>
-        <select class="form-select" name="id_kelas" id="id_kelas" required>
+        <select class="form-control form-select" name="id_kelas" id="id_kelas" required>
             <option value="" disabled selected>Pilih Kelas</option>
             {% for kelas in kelas %}
                 <option value="{{ kelas.id_kelas }}">{{ kelas.id_kelas }} - {{ kelas.nama_kelas }}</option>
@@ -26,7 +26,7 @@
     </div>
     <div class="col-md-12">
         <label for="id_tahun_akademik" class="form-label">Tahun Akademik</label>
-        <select class="form-select" name="id_tahun_akademik" id="id_tahun_akademik" required>
+        <select class="form-control form-select" name="id_tahun_akademik" id="id_tahun_akademik" required>
             <option value="" disabled selected>Pilih Tahun Akademik</option>
             {% for tahun in tahunakademik %}
                 <option value="{{ tahun.id_tahun_akademik }}">{{ tahun.tahun_akademik }}</option>
@@ -35,7 +35,7 @@
     </div>
     <div class="col-md-12">
         <label for="nip" class="form-label">NIP Guru</label>
-        <select class="form-select" name="nip" id="nip" required>
+        <select class="form-control form-select" name="nip" id="nip" required>
             <option value="" disabled selected>Pilih Guru</option>
             {% for guru in guru %}
                 <option value="{{ guru.nip }}">{{ guru.nip }} - {{ guru.nama }}</option>
@@ -77,11 +77,11 @@
 <!-- templates/crud/semester.html -->
 <h4>Data Semester</h4>
 <div class="table-responsive">
-<table id="myTable" class="table table-stripped" >
+<table id="myTable" class="table table-striped" >
     <thead class="table-info">
         <tr>
-            <th>ID Pembagian Kelas</th>
-            <th>Tanggal</th>
+            <th style="white-space: nowrap;">ID Pembagian Kelas</th>
+            <th width="40%">Tanggal</th>
             <th>NIS</th>
             <th>Nama Siswa</th>
             <th>ID Kelas</th>
@@ -96,19 +96,19 @@
         {% for s in pembagian_kelas %}
         <tr>
             <td>{{ s.id_pembagian }}</td>
-            <td>{{ s.tanggal }}</td>
+            <td style="white-space: nowrap;">{{ s.tanggal.strftime("%d-%m-%Y") }}</td>
             <td>{{ s.nis }}</td>
             <td>{{ s.siswa_rel.nama }}</td>
             <td>{{ s.id_kelas }}</td>
             <td>{{ s.kelas_rel.nama_kelas }}</td>
             <td>{{ s.ida_rel.tahun_akademik}}</td>
             <td>{{ s.nip }}</td>
-            <td>{{ s.guru_rel.nama}}</td>
+            <td style="white-space: nowrap;">{{ s.guru_rel.nama}}</td>
             <td >
             <div class="d-flex gap-2">
                 <!-- Tombol aksi -->
-                <button type="button" class="btn btn-warning btn-sm" onclick="openEditModal('{{ s.id_pembagian }}')">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="deleteData('{{ s.id_pembagian }}')">Hapus</button>
+                <button type="button" class="btn btn-warning" onclick="openEditModal('{{ s.id_pembagian }}')">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="deleteData('{{ s.id_pembagian }}')">Hapus</button>
             </div>
             </td>
         </tr>
@@ -133,7 +133,7 @@
             </div>
             <div class="mb-3">
                 <label for="nis-{{ s.id_pembagian }}" class="form-label">Siswa</label>
-                <select name="nis" id="nis-{{ s.id_pembagian }}" class="form-select" required>
+                <select name="nis" id="nis-{{ s.id_pembagian }}" class="form-control form-select" required>
                 {% for siswa in siswa %}
                     <option value="{{ siswa.nis }}" {% if siswa.nis == s.nis %}selected{% endif %}>{{ siswa.nis }} - {{ siswa.nama }}</option>
                 {% endfor %}
@@ -141,7 +141,7 @@
             </div>
             <div class="mb-3">
                 <label for="id_kelas-{{ s.id_pembagian }}" class="form-label">Kelas</label>
-                <select name="id_kelas" id="id_kelas-{{ s.id_pembagian }}" class="form-select" required>
+                <select name="id_kelas" id="id_kelas-{{ s.id_pembagian }}" class="form-control form-select" required>
                 {% for kelas in kelas %}
                     <option value="{{ kelas.id_kelas }}" {% if kelas.id_kelas == s.id_kelas %}selected{% endif %}>{{ kelas.id_kelas }} - {{ kelas.nama_kelas }}</option>
                 {% endfor %}
@@ -149,7 +149,7 @@
             </div>
             <div class="mb-3">
                 <label for="id_tahun_akademik-{{ s.id_pembagian }}" class="form-label">Tahun Akademik</label>
-                <select name="id_tahun_akademik" id="id_tahun_akademik-{{ s.id_pembagian }}" class="form-select" required>
+                <select name="id_tahun_akademik" id="id_tahun_akademik-{{ s.id_pembagian }}" class="form-control form-select" required>
                 {% for tahun in tahunakademik %}
                     <option value="{{ tahun.id_tahun_akademik }}" {% if tahun.id_tahun_akademik == s.id_tahun_akademik %}selected{% endif %}>{{ tahun.tahun_akademik }}</option>
                 {% endfor %}
@@ -157,7 +157,7 @@
             </div>
             <div class="mb-3">
                 <label for="nip-{{ s.id_pembagian }}" class="form-label">NIP Guru</label>
-                <select name="nip" id="nip-{{ s.id_pembagian }}" class="form-select" required>
+                <select name="nip" id="nip-{{ s.id_pembagian }}" class="form-control form-select" required>
                 {% for guru in guru %}
                     <option value="{{ guru.nip }}" {% if guru.nip == s.nip %}selected{% endif %}>{{ guru.nip }} - {{ guru.nama }}</option>
                 {% endfor %}

@@ -214,7 +214,7 @@
 
                         <div class="col-md-12 mb-2">
                             <label for="id_gender">Gender</label>
-                            <select class="form-select" id="id_gender" name="id_gender" required>
+                            <select class="form-control form-select" id="id_gender" name="id_gender" required>
                                 <option value="" selected disabled>Pilih Gender</option>
                                 <option value="L" {% if profil.gender == 'laki-laki' %} selected {% endif %}>Laki-laki
                                 </option>
@@ -223,22 +223,34 @@
                             </select>
                         </div>
 
-                        <button type="button" class="btn btn-secondary mb-2" onclick="togglePasswordFields()">
+                        <!-- Tombol untuk membuka kolom password -->
+                        <button type="button" class="btn btn-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#collapsePassword">
                             Ubah Password
                         </button>
+
+                        <!-- Bagian Password yang bisa di-collapse -->
                         <div id="collapsePassword" class="collapse">
                             <div class="col-md-12 mb-2">
                                 <label for="password">Password</label>
-                                <input type="password" autocomplete="off" class="form-control" id="password" name="password"
-                                    placeholder="Password tidak wajibb diisi">
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="password" placeholder="Isi Password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="col-md-12 mb-2">
                                 <label for="re-password">Ulangi Password</label>
-                                <input type="password" autocomplete="off" class="form-control" id="re-password"
-                                    name="re-password" placeholder="Ulangi Password" value="">
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="re-password" placeholder="Ulangi Password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+
                         <script>
                             function togglePasswordFields() {
                                 const passwordFields = document.getElementById("collapsePassword");

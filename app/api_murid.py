@@ -85,9 +85,7 @@ def get_menu_pembayaran():
                 'semester': t.semester,
                 'tahun_ajaran': t.tahun_ajaran,
                 'created_at': (
-                    t.created_at.isoformat() 
-                    if isinstance(t.created_at, datetime) else 
-                    None
+                    t.created_at.strftime("%d-%m-%Y %H:%M")
                 ),
                 'status': status,
                 'siswa': siswa_info  # tambahkan ini jika ingin tampilkan info siswa
@@ -107,6 +105,226 @@ def get_menu_pembayaran():
         return jsonify({'valid': False, 'message': 'Token expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'valid': False, 'message': 'Invalid token'}), 403
+from flask import send_file, jsonify
+from io import BytesIO
+from openpyxl import Workbook
+from datetime import datetime
+
+@app.route('/export_tagihan_excel')
+def export_tagihan_excel():
+    if not session.get('email'):
+        return jsonify({'message': 'Token is missing'}), 403
+    if not session.get('role'):
+        return jsonify({'message': 'Token is missing'}), 403
+    try:
+        user_email = session.get('email')
+        role = session.get('role')
+
+        if role == 'murid':
+            all_tagihan = Tagihan.query.filter_by(user_id=session['id']).all()
+            paid_transactions = Transaksi.query.filter(
+                Transaksi.email == user_email,
+                Transaksi.status.in_(['settlement', 'paid'])
+            ).all()
+        else:
+            all_tagihan = Tagihan.query.all()
+            paid_transactions = Transaksi.query.filter(
+                Transaksi.status.in_(['settlement', 'paid'])
+            ).all()
+
+        paid_tagihan_ids = {tr.id_tagihan for tr in paid_transactions if tr.id_tagihan is not None}
+        siswa_map = {}
+
+        def get_siswa_data(user_id):
+            user = User.query.filter_by(id=user_id).first()
+            if not user or not user.nis:
+                return None
+            nis = user.nis
+            if nis in siswa_map:
+                return siswa_map[nis]
+            siswa = Siswa.query.filter_by(nis=nis).first()
+            if not siswa:
+                siswa_map[nis] = None
+                return None
+            pembagian = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
+            kelas_nama = pembagian.kelas_rel.nama_kelas if pembagian and pembagian.kelas_rel else 'Belum dibagi'
+            data = {
+                'nama': siswa.nama,
+                'kelas': kelas_nama
+            }
+            siswa_map[nis] = data
+            return data
+
+        result_tagihan = []
+        for t in all_tagihan:
+            status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
+            siswa_info = get_siswa_data(t.user_id) if role != 'murid' else None
+
+            result = {
+                'id_tagihan': t.id_tagihan,
+                'deskripsi': t.deskripsi,
+                'total': t.total,
+                'semester': t.semester,
+                'tahun_ajaran': t.tahun_ajaran,
+                'created_at': (
+                    t.created_at.strftime("%d-%m-%Y %H:%M")  if isinstance(t.created_at, datetime) else '-'
+                ),
+                'status': status,
+                'nama_siswa': siswa_info['nama'] if siswa_info else '-',
+                'kelas': siswa_info['kelas'] if siswa_info else '-',
+            }
+            result_tagihan.append(result)
+
+        if not result_tagihan:
+            return jsonify({"message": "Data tagihan tidak ditemukan"})
+
+        # ===== Generate Excell =====
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Tagihan Siswa"
+
+        headers = ["ID Tagihan", "Nama Siswa", "Kelas", "Deskripsi", "Total", "Semester", "Tahun Ajaran", "Tanggal Dibuat", "Status"]
+        ws.append(headers)
+
+        for item in result_tagihan:
+            ws.append([
+                item['id_tagihan'],
+                item.get('nama_siswa', '-'),
+                item.get('kelas', '-'),
+                item['deskripsi'],
+                item['total'],
+                item['semester'],
+                item['tahun_ajaran'],
+                item['created_at'],
+                item['status']
+            ])
+
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        return send_file(output, as_attachment=True, download_name="data_tagihan.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'valid': False, 'message': 'Token expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'valid': False, 'message': 'Invalid token'}), 403
+    
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+
+@app.route('/export_tagihan_pdf')
+def export_tagihan_pdf():
+    if not session.get('email'):
+        return jsonify({'message': 'Token is missing'}), 403
+    if not session.get('role'):
+        return jsonify({'message': 'Token is missing'}), 403
+    try:
+        user_email = session.get('email')
+        role = session.get('role')
+
+        if role == 'murid':
+            all_tagihan = Tagihan.query.filter_by(user_id=session['id']).all()
+            paid_transactions = Transaksi.query.filter(
+                Transaksi.email == user_email,
+                Transaksi.status.in_(['settlement', 'paid'])
+            ).all()
+        else:
+            all_tagihan = Tagihan.query.all()
+            paid_transactions = Transaksi.query.filter(
+                Transaksi.status.in_(['settlement', 'paid'])
+            ).all()
+
+        paid_tagihan_ids = {tr.id_tagihan for tr in paid_transactions if tr.id_tagihan is not None}
+        siswa_map = {}
+
+        def get_siswa_data(user_id):
+            user = User.query.filter_by(id=user_id).first()
+            if not user or not user.nis:
+                return None
+            nis = user.nis
+            if nis in siswa_map:
+                return siswa_map[nis]
+            siswa = Siswa.query.filter_by(nis=nis).first()
+            if not siswa:
+                siswa_map[nis] = None
+                return None
+            pembagian = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(PembagianKelas.tanggal.desc()).first()
+            kelas_nama = pembagian.kelas_rel.nama_kelas if pembagian and pembagian.kelas_rel else 'Belum dibagi'
+            data = {
+                'nama': siswa.nama,
+                'kelas': kelas_nama
+            }
+            siswa_map[nis] = data
+            return data
+
+        result_tagihan = []
+        for t in all_tagihan:
+            status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
+            siswa_info = get_siswa_data(t.user_id) if role != 'murid' else None
+
+            result = {
+                'id_tagihan': t.id_tagihan,
+                'deskripsi': t.deskripsi,
+                'total': t.total,
+                'semester': t.semester,
+                'tahun_ajaran': t.tahun_ajaran,
+                'created_at': (
+                    t.created_at.strftime("%d-%m-%Y %H:%M") if isinstance(t.created_at, datetime) else '-'
+                ),
+                'status': status,
+                'nama_siswa': siswa_info['nama'] if siswa_info else '-',
+                'kelas': siswa_info['kelas'] if siswa_info else '-',
+            }
+            result_tagihan.append(result)
+
+        if not result_tagihan:
+            return jsonify({"message": "Data tagihan tidak ditemukan"})
+
+        # ===== Generate PDF =====
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        elements = [Paragraph("Data Tagihan Siswa", styles["Title"])]
+
+        data = [["ID", "Nama Siswa", "Kelas", "Deskripsi", "Total", "Semester", "Tahun Ajaran", "Tanggal Dibuat", "Status"]]
+        for item in result_tagihan:
+            data.append([
+                item["id_tagihan"],
+                item["nama_siswa"],
+                item["kelas"],
+                item["deskripsi"],
+                f"Rp {item['total']:,.0f}",
+                item["semester"],
+                item["tahun_ajaran"],
+                item["created_at"],
+                item["status"]
+            ])
+
+        table = Table(data, repeatRows=1)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.lightblue),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.black),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('FONTSIZE', (0,0), (-1,-1), 8),
+            ('BOTTOMPADDING', (0,0), (-1,0), 6),
+        ]))
+
+        elements.append(table)
+        doc.build(elements)
+        buffer.seek(0)
+
+        return send_file(buffer, as_attachment=True, download_name="data_tagihan.pdf", mimetype="application/pdf")
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'valid': False, 'message': 'Token expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'valid': False, 'message': 'Invalid token'}), 403
+
 @app.route('/murid/kehadiran')
 def kehadiran():
     nis = session.get('nis')

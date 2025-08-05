@@ -50,8 +50,8 @@ INSERT INTO `berita` (`id_berita`, `judul`, `isi`, `nip`, `tanggal_dibuat`, `pen
 -- Dumping data untuk tabel `evaluasi_guru`
 --
 
-INSERT INTO `evaluasi_guru` (`id`, `nip`, `id_ampu`, `evaluator_id`, `evaluator_role`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `komentar`, `tanggal`) VALUES
-(3, '198203202020041006', NULL, 3, 'murid', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 'baik', '2025-07-22');
+INSERT INTO `evaluasi_guru` (`id`, `nip`, `id_ampu`, `evaluator_id`, `evaluator_role`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `q11`, `komentar`, `tanggal`) VALUES
+(3, '198203202020041006', NULL, 3, 'murid', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 'baik', '2025-07-22');
 
 --
 -- Dumping data untuk tabel `gender`

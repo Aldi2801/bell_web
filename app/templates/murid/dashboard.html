@@ -196,78 +196,93 @@
         });
     </script>
     {% endif %}
-    <h1 class="mb-4">Selamat datang, {{ profil.nama or profil.username }}!</h1>
-    <h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
+ <h1 class="mb-4">Selamat datang,
+    {{ profil.nama or profil.username }}!</h1>
+<h3 id="tahunPelajaran">Tahun Pelajaran 2024/2025 - Semester Genap</h3>
 <div class="row mt-4">
-  <div class="col-lg-6">
-  <div class="card">
-      <div class="card-header bg-info text-white">
-        Kelas Anda Tahun pelajaran dan Semester ini
-      </div>
-      <div class="card-body">
-        {{profil.kelas}}
-      </div>
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                Kelas Anda Tahun pelajaran dan Semester ini
+            </div>
+            <div class="card-body">
+                {{profil.kelas}}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                Rata Rata Nilai Semester ini
+            </div>
+            <div class="card-body">
+                {% if ringkasan_nilai %}
+                    <ul class="list-group">
+                        {% for i in ringkasan_nilai %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>{{ i.mapel }}</span>
+                                <span>
+                                    <strong>{{ i.rata_rata }}</strong>
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Belum ada nilai yang tersedia.</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
-    <div class="card">
-      <div class="card-header bg-info text-white">
-        Rata Rata Nilai Semester ini
-      </div>
-      <div class="card-body">
-        {% if ringkasan_nilai %}
-          <ul class="list-group">
-            {% for i in ringkasan_nilai %}
-              <li class="list-group-item d-flex justify-content-between">
-                <span>{{ i.mapel }}</span>
-                <span><strong>{{ i.rata_rata }}</strong></span>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p>Belum ada nilai yang tersedia.</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-6">
-    <div class="card">
-      <div class="card-header bg-warning text-dark">
-        Jadwal Hari Ini
-      </div>
-      <div class="card-body">
-        {% if jadwal_hari_ini %}
-          <ul class="list-group">
-            {% for pelajaran in jadwal_hari_ini %}
-              <li class="list-group-item">
-                {{ pelajaran.jam }} - {{ pelajaran.mapel }} ({{ pelajaran.guru }})
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p>Tidak ada jadwal pelajaran hari ini.</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
-<div class="card mt-4">
-  <div class="card-header bg-success text-white">
-    Progress Evaluasi Guru Tahun Pelajaran ini
-  </div>
-  <div class="card-body">
-    <div class="progress mb-2">
-      <div class="progress-bar" role="progressbar" style="width: {{ evaluasi_persen }}%;" aria-valuenow="{{ evaluasi_persen }}" aria-valuemin="0" aria-valuemax="100">
-        {{ evaluasi_persen }}%
-      </div>
-    </div>
-    <p>{{ evaluasi_terisi }} dari {{ total_guru }} guru telah diisi evaluasinya.</p>
+    <div class="col-lg-9">
+        <div class="card ">
+            <div class="card-header bg-success text-white">
+                Progress Evaluasi Guru Tahun Pelajaran ini
+            </div>
+            <div class="card-body">
+                <div class="progress mb-2">
+                    <div
+                        class="progress-bar"
+                        role="progressbar"
+                        style="width: {{ evaluasi_persen }}%;"
+                        aria-valuenow="{{ evaluasi_persen }}"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                        {{ evaluasi_persen }}%
+                    </div>
+                </div>
+                <p>{{ evaluasi_terisi }}
+                    dari
+                    {{ total_guru }}
+                    guru telah diisi evaluasinya.</p>
 
-    <!-- Tombol Isi Evaluasi -->
-    <button type="button" class="btn btn-primary mt-3" id="btnIsiEvaluasi">
-      Isi Evaluasi Guru
-    </button>
-  </div>
+                <!-- Tombol Isi Evaluasi -->
+                <button type="button" class="btn btn-primary mt-3" id="btnIsiEvaluasi">
+                    Isi Evaluasi Guru
+                </button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                Jadwal Hari Ini
+            </div>
+            <div class="card-body">
+                {% if jadwal_hari_ini %}
+                    <ul class="list-group">
+                        {% for pelajaran in jadwal_hari_ini %}
+                            <li class="list-group-item">
+                                {{ pelajaran.jam }}
+                                -
+                                {{ pelajaran.mapel }}
+                                ({{ pelajaran.guru }})
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Tidak ada jadwal pelajaran hari ini.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
+
 <script> 
 document.addEventListener("DOMContentLoaded", function () {
 const evaluasiModal = new bootstrap.Modal(document.getElementById('evaluasiModal'), {
@@ -415,20 +430,31 @@ document.getElementById("btnIsiEvaluasi").addEventListener("click", function () 
                             <label for="alamat">Alamat</label>
                             <textarea class="form-control" id="alamat" name="alamat" required> {{ profil.alamat }}</textarea>
                         </div>
-                        <button type="button" class="btn btn-secondary mb-2" onclick="togglePasswordFields()">
+                        <!-- Tombol untuk membuka kolom password -->
+                        <button type="button" class="btn btn-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#collapsePassword">
                             Ubah Password
                         </button>
+
+                        <!-- Bagian Password yang bisa di-collapse -->
                         <div id="collapsePassword" class="collapse">
                             <div class="col-md-12 mb-2">
                                 <label for="password">Password</label>
-                                <input type="password" autocomplete="off" class="form-control" id="password" name="password"
-                                    placeholder="Password tidak wajibb diisi">
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="password" placeholder="Isi Password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="col-md-12 mb-2">
                                 <label for="re-password">Ulangi Password</label>
-                                <input type="password" autocomplete="off" class="form-control" id="re-password"
-                                    name="re-password" placeholder="Ulangi Password" value="">
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="re-password" placeholder="Ulangi Password">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <script>

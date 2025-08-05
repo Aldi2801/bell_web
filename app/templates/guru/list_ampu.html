@@ -5,7 +5,7 @@
 
 <div class="col-md-12 mb-3">
   <label for="nip">Pilih Guru</label>
-  <select name="nip" class="form-control" required>
+  <select name="nip" class="form-control form-select" required>
     {% for g in data_guru %}
     <option value="{{ g.nip }}">{{ g.nama }}</option>
     {% endfor %}
@@ -15,7 +15,7 @@
 {% endif %}
 <div class="col-md-12 mb-3">
   <label for="id_mapel">Mata Pelajaran</label>
-  <select name="id_mapel" class="form-control" required>
+  <select name="id_mapel" class="form-control form-select" required>
     {% for m in daftar_mapel %}
     <option value="{{ m.id_mapel }}">{{ m.nama_mapel }}</option>
     {% endfor %}
@@ -31,7 +31,7 @@
 </div>
 <div class="col-md-12 mb-3">
   <label for="id_kelas">Kelas</label>
-  <select name="id_kelas" class="form-control" required>
+  <select name="id_kelas" class="form-control form-select" required>
     {% for k in daftar_kelas %}
     <option value="{{ k.id_kelas }}">{{ k.nama_kelas }}</option>
     {% endfor %}
@@ -40,7 +40,7 @@
 
 <div class="col-md-12 mb-3">
   <label for="id_semester">Semester</label>
-  <select name="id_semester" class="form-control" required>
+  <select name="id_semester" class="form-control form-select" required>
     {% for s in daftar_semester %}
     <option value="{{ s.id_semester }}">{{ s.semester }}</option>
     {% endfor %}
@@ -49,7 +49,7 @@
 
 <div class="col-md-12 mb-3">
   <label for="id_tahun_akademik">Tahun Akademik</label>
-  <select name="id_tahun_akademik" class="form-control" required>
+  <select name="id_tahun_akademik" class="form-control form-select" required>
     {% for t in daftar_tahun %}
     <option value="{{ t.id_tahun_akademik }}">{{ t.tahun_akademik }}</option>
     {% endfor %}
@@ -112,15 +112,15 @@
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ a.id_ampu }}</td>
-                  <td>{{ a.guru_rel.nama }}</td>
+                  <td style="white-space: nowrap;">{{ a.guru_rel.nama }}</td>
                   <td>{{ a.mapel_rel.nama_mapel }}</td>
                   <td>{{ a.materi }}</td>
                   <td>{{ a.sub_materi }}</td>
                   <td>{{ a.kelas_rel.nama_kelas }}</td>
                   <td>{{ a.semester_rel.semester }}</td>
                   <td>{{ a.tahun_akademik_rel.tahun_akademik }}</td>
-                  <td>{{ a.tanggal }}</td>
-                  <td>
+                  <td style="white-space: nowrap;">{{ a.tanggal.strftime("%d-%m-%Y") }}</td>
+                  <td style="white-space: nowrap;">
                       <button type="button" class="btn btn-success"  
                       onclick="openKehadiranModal({{ a.id_ampu }}, {{ a.id_kbm }}, '{{ a.kelas_rel.id_kelas }}', '{{ a.semester_rel.id_semester }}', '{{ a.tahun_akademik_rel.id_tahun_akademik }}')">
                       Kehadiran</button>
@@ -248,10 +248,10 @@ function openKehadiranModal(id_ampu, id_kbm, id_kelas, id_semester, id_tahun_aka
       tbody.append(`
         <tr>
           <td>${i + 1}<input type="hidden" name="id_kbm" value="${s.id_kbm}"></td>
-          <td>${s.nama}</td>
+          <td style="white-space: nowrap;">${s.nama}</td>
           <td>${s.nama_kelas}<input type="hidden" name="nama_kelas" value="${s.nama_kelas}"></td>
           <td>
-            <select name="status[${s.nis}]" class="form-select" {% if session['role'] == 'admin' %}disabled{% endif %}>
+            <select name="status[${s.nis}]" class="form-control form-select" {% if session['role'] == 'admin' %}disabled{% endif %}>
               ${options}
             </select>
           </td>

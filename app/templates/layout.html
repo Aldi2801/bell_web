@@ -34,9 +34,9 @@
         width: auto ; /* Keep the image responsive */
         height: 50px;    /* Maintain aspect ratio */
       }
-      #main-wrapper[data-layout=vertical] .left-sidebar[data-sidebarbg=skin6] .sidebar-nav ul .sidebar-item.selected>.sidebar-link {
+      #main-wrapper[data-layout=vertical] .left-sidebar[data-sidebarbg=skin2] .sidebar-nav ul .sidebar-item.selected>.sidebar-link {
           color: #fff;
-          background-color: #1a9bfc;
+          background-color: linear-gradient(to right, #fbc2eb, #a6c1ee);
       }
     </style>
     
@@ -138,7 +138,7 @@
     <script src="/static/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
     {% block head %}{% endblock %}
 </head>
-<body>
+<body style="!background-color:!linear-gradient(to right, #fbc2eb, #a6c1ee)!">
   <div class="main-loader"> </div>
     <div id="main-wrapper">
       <header class="topbar">
@@ -451,6 +451,30 @@ document.getElementById("tombolSubmit").addEventListener("click", function(event
       document.getElementById('main-wrapper').style.display = 'block';
     });
   </script>
+  <!-- Tambahkan ke <head> jika belum -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+<script>
+  document.querySelectorAll('.toggle-password').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const input = this.closest('.input-group').querySelector('input[type="password"], input[type="text"]');
+      const icon = this.querySelector('i');
+
+      // Toggle password visibility
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    });
+  });
+</script>
+
+
   </body>
 </html>
 {% else %}

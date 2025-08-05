@@ -56,7 +56,7 @@
 
 <div class="col-md-12 mb-2">
   <label for="id_gender">Gender</label>
-  <select class="form-select" id="id_gender" name="id_gender" required>
+  <select class="form-control form-select" id="id_gender" name="id_gender" required>
     <option value="" selected disabled>Pilih Gender</option>
     <option value="L">Laki-laki</option>
     <option value="P">Perempuan</option>
@@ -65,7 +65,7 @@
 
 <div class="col-md-12 mb-2">
   <label for="id_status">Status</label>
-  <select class="form-select" id="id_status" name="id_status" required>
+  <select class="form-control form-select" id="id_status" name="id_status" required>
     <option value="" selected disabled>Pilih Status</option>
     <option value="1">Aktif</option>
     <option value="0">Non-Aktif</option>
@@ -117,7 +117,7 @@
 <!-- templates/crud/Guru.html -->
 <h4>Data Guru</h4>
 <div class="table-responsive">
-<table id="myTable" class="table table-stripped" >
+<table id="myTable" class="table table-striped" >
     <thead class="table-info">
         <tr>            
         <th>No</th>
@@ -143,14 +143,14 @@
         {% for s in guru %}
         <tr>
             <td>{{loop.index}}</td>
-            <td><img src="/static/image/img_profile/{{s.img_profile}}" width="50px" height="50px" alt="Image Profile {{s.nama}}" ></td>
+            <td><img src="/static/image/img_profile/{{s.img_profile}}" width="50px" height="50px" class="img img-responsive card "  alt="Image Profile {{s.nama}}" ></td>
             <td>{{s.username}}</td>
             <td>{{s.nip}}</td>
             <td>{{s.inisial}}</td>
-            <td>{{s.nama}}</td>
+            <td style="white-space: nowrap;">{{s.nama}}</td>
             <td>{{s.tempat_lahir}}</td>
-            <td>{{s.tanggal_lahir}}</td>
-            <td>{{s.alamat}}</td>
+            <td style="white-space: nowrap;">{{s.tanggal_lahir.strftime("%d-%m-%Y")}}</td>
+            <td style="white-space: nowrap;">{{s.alamat}}</td>
             <td>{{s.no_hp}}</td>
             <td>{{s.email}}</td>
             <td>{{s.spesialisasi}}</td>
@@ -236,7 +236,7 @@
 
 				  <div class="col-md-12 mb-2">
 					<label for="id_gender">Gender</label>
-					<select class="form-select" id="id_gender" name="id_gender" required>
+					<select class="form-control form-select" id="id_gender" name="id_gender" required>
 					  <option value="" selected disabled>Pilih Gender</option>
 					  <option value="L" {% if s.gender == 'laki-laki' %} selected {% endif %}>Laki-laki</option>
 					  <option value="P" {% if s.gender == 'perempuan' %} selected {% endif %}>Perempuan</option>
@@ -245,22 +245,30 @@
 
 				  <div class="col-md-12 mb-2">
 					<label for="id_status">Status</label>
-					<select class="form-select" id="id_status" name="id_status" required>
+					<select class="form-control form-select" id="id_status" name="id_status" required>
 					  <option value="" selected disabled>Pilih Status</option>
 					  <option value="1" {% if s.status == 'aktif' %} selected {% endif %}>Aktif</option>
 					  <option value="0" {% if s.status == 'tidak aktif' %} selected {% endif %}>Non-Aktif</option>
 					</select>
 				  </div>
 
-				  <div class="col-md-12 mb-2">
-					<label for="password">Password</label>
-					<input type="password" autocomplete="off" class="form-control" id="password" name="password" placeholder="Password">
-				  </div>
+				  <!-- Tombol untuk membuka kolom password -->
+            <button type="button" class="btn btn-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#collapsePassword">
+                Ubah Password
+            </button>
 
-				  <div class="col-md-12 mb-2">
-					<label for="re-password">Ulangi Password</label>
-					<input type="password" autocomplete="off" class="form-control" id="re-password" name="re-password" placeholder="Ulangi Password">
-				  </div>
+            <!-- Bagian Password yang bisa di-collapse -->
+            <div id="collapsePassword" class="collapse">
+                <div class="col-md-12 mb-2">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Isi Password">
+                        <button class="btn btn-outline-secondary toggle-password" type="button">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
 				  <div class="modal-footer">
 					<button type="submit" id="tombol-edit-{{ s.nip }}" class="btn btn-success">Simpan</button>

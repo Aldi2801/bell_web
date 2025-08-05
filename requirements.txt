@@ -19,3 +19,5 @@ python-dateutil
 num2words
 faker
 pandas
+openpyxl 
+reportlab

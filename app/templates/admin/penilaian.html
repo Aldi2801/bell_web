@@ -3,7 +3,7 @@
 {% block form_tambah %}
 <div class="col-md-12 mb-3">
   <label for="nis" class="form-label">Siswa</label><br>
-    <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
+    <select class="form-control form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
       <option value="" disabled selected>Pilih Siswa</option>
       {% for siswa in data_siswa %}
         <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
@@ -13,7 +13,7 @@
 
 <div class="col-md-12 mb-3">
   <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label><br>
-  <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
+  <select class="form-control form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
       <option value="" disabled selected>Pilih Ampu Mapel</option>
       {% for ampu in data_ampu %}
           <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
@@ -22,7 +22,7 @@
 </div>
 
 <div class="col-md-12 mb-3">
-  <select name="jenis_penilaian" class="form-control" required>
+  <select name="jenis_penilaian" class="form-control form-select" required>
     <option value="">Pilih Jenis Penilaian</option>
     <option value="UH">UH</option>
     <option value="Tugas">Tugas</option>
@@ -80,7 +80,7 @@
                <!-- Siswa -->
     <div class="col-sm-3">
       <div class="mb-3">
-        <select class="form-select select2 " 
+        <select class="form-control form-select select2 " 
               style="width: 100%; height: 36px" id="siswa_data" name="nis">
           <option value="" selected>Semua Siswa</option>
           {% for s in data_siswa %}
@@ -93,7 +93,7 @@
     <!-- Guru -->
     <div class="col-sm-3">
       <div class="mb-3">
-        <select class="form-select select2 " 
+        <select class="form-control form-select select2 " 
               style="width: 100%; height: 36px" id="guru_data" name="nip">
           <option value="" selected>Semua Guru</option>
           {% for g in data_guru %}
@@ -106,7 +106,7 @@
     <!-- Kelas -->
     <div class="col-sm-3">
       <div class="mb-3">
-        <select class="form-select select2 " 
+        <select class="form-control form-select select2 " 
               style="width: 100%; height: 36px"id="kelas_data" name="id_kelas">
           <option value="" selected>Semua Kelas</option>
           {% for k in data_kelas %}
@@ -119,7 +119,7 @@
     <!-- Mapel -->
     <div class="col-sm-3">
       <div class="mb-3">
-        <select class="form-select select2 " 
+        <select class="form-control form-select select2 " 
               style="width: 100%; height: 36px" id="mapel_data" name="id_mapel">
           <option value="" selected>Semua Mapel</option>
           {% for m in data_mapel %}
@@ -132,7 +132,7 @@
     <!-- Jenis Penilaian -->
     <div class="col-sm-3">
       <div class="mb-3">
-        <select class="form-select select2 " 
+        <select class="form-control form-select select2 " 
               style="width: 100%; height: 36px" id="jenis_data" name="jenis">
           <option value="" selected>Semua Jenis</option>
           <option value="UH">UH</option>
@@ -145,7 +145,7 @@
 
             <div class="col-sm-3">
               <div class="mb-3">
-              <select class="form-select select2" 
+              <select class="form-control form-select select2" 
               style="width: 100%; height: 36px" id="tahun_data" name="tahun">
              <option value="" {% if not request.args.get('tahun') %}selected{% endif %}>Semua Tahun</option>
   {% for i in tahun %}
@@ -156,7 +156,7 @@
             </div>
             <div class="col-sm-3">
               <div class="mb-3">
-              <select class="form-select select2" 
+              <select class="form-control form-select select2" 
               style="width: 100%; height: 36px" id="bulan_data" name="bulan">
                 <option  value="" selected>Semua Bulan</option>
                 {% for i in [{"value":"1","nama_bulan":"Januari"},{"value":"2","nama_bulan":"Februari"},{"value":"3","nama_bulan":"Maret"},
@@ -170,7 +170,7 @@
             </div>
             <div class="col-sm-3">
               <div class="mb-3">
-              <select class="form-select select2 " 
+              <select class="form-control form-select select2 " 
               style="width: 100%; height: 36px" id="tanggal_data" name="tanggal">
                 <option value="" selected>Semua Tanggal</option>
                 {% for i in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16",
@@ -238,7 +238,7 @@
                           <input type="hidden" name="id_penilaian" value="{{ p.id_penilaian }}">
                           <div class="col-md-12 mb-3">
                           <label for="nis" class="form-label">Siswa</label><br>
-                            <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
+                            <select class="form-control form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
                               <option value="" disabled selected>Pilih Siswa</option>
                               {% for siswa in data_siswa %}
                                 <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
@@ -248,7 +248,7 @@
 
                         <div class="col-md-12 mb-3">
                           <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label><br>
-                          <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
+                          <select class="form-control form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
                               <option value="" disabled selected>Pilih Ampu Mapel</option>
                               {% for ampu in data_ampu %}
                                   <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>

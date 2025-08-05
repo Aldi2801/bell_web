@@ -6,7 +6,7 @@
 </div>
 <div class="col-md-12 mb-3">
   <label>Guru yang Dinilai</label>
-  <select class="form-control" name="nip" required>
+  <select class="form-control form-select" name="nip" required>
     {% for g in guru %}
     <option value="{{ g.nip }}">{{ g.nama }}</option>
     {% endfor %}
@@ -14,7 +14,7 @@
 </div>
 <div class="col-md-12 mb-3">
   <label>Mapel yang Diampu</label>
-  <select class="form-control" name="id_ampu" required>
+  <select class="form-control form-select" name="id_ampu" required>
     {% for a in ampu %}
     <option value="{{ a.id_ampu }}">{{ a.guru_rel.nama }} - {{ a.mapel_rel.nama_mapel }} </option>
     {% endfor %}
@@ -30,7 +30,7 @@
 </div>
 <div class="col-md-12 mb-3">
   <label>Penilai</label>
-  <select class="form-control" name="evaluator_id" required>
+  <select class="form-control form-select" name="evaluator_id" required>
     {% for user in users %}
     <option value="{{ user.id }}">{{ user.username }} - 
       {% if user.roles %}
@@ -42,7 +42,7 @@
 </div>
 <div class="col-md-12 mb-3">
   <label>Role Penilai</label>
-  <select class="form-control" name="evaluator_role" required>
+  <select class="form-control form-select" name="evaluator_role" required>
     <option value="murid">Murid</option>
     <option value="admin" selected>Admin</option>
   </select>
@@ -83,7 +83,7 @@
 <!-- templates/crud/semester.html -->
 <h4>Data Semester</h4>
 <div class="table-responsive">
-<table id="myTable" class="table table-stripped" >
+<table id="myTable" class="table table-striped" >
     <thead class="table-info">
         <tr>
 		  <th width="60">Guru</th>
@@ -98,11 +98,11 @@
          {% for e in evaluasi %}
 		<tr>
       
-		  <td>{{ e.guru.nama }}</td>
-		  <td>{{ e.ampu.mapel_rel.nama_mapel if e.ampu and e.ampu.mapel_rel else 'semua mapel' }}</td>
-		  <td><button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#LihatHasil-{{loop.index}}" >Lihat Hasil</button></td>
-		  <td>{{ e.evaluator.nis }} | {{ e.evaluator.siswa.nama }}  ({{ e.evaluator_role }})</td>
-		  <td>{{ e.tanggal.strftime("%d-%m-%Y %H:%M") }}  </td>
+		  <td style="white-space: nowrap;">{{ e.guru.nama }}</td>
+		  <td style="white-space: nowrap;">{{ e.ampu.mapel_rel.nama_mapel if e.ampu and e.ampu.mapel_rel else 'semua mapel' }}</td>
+		  <td style="white-space: nowrap;"><button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#LihatHasil-{{loop.index}}" >Lihat Hasil</button></td>
+		  <td style="white-space: nowrap;">{{ e.evaluator.nis }} | {{ e.evaluator.siswa.nama }}  ({{ e.evaluator_role }})</td>
+		  <td style="white-space: nowrap;">{{ e.tanggal.strftime("%d-%m-%Y") }}  </td>
 		  <td>
 			<button type="button" class="btn btn-danger" onclick="deleteData('{{ e.id }}')">Hapus</button>
 		  </td>

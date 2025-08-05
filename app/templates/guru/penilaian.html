@@ -233,7 +233,7 @@
                           <input type="hidden" name="id_penilaian" value="{{ p.id_penilaian }}">
                           <div class="col-md-12 mb-3">
                           <label for="nis" class="form-label">Siswa</label><br>
-                            <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
+                            <select class="form-control form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
                               <option value="" disabled selected>Pilih Siswa</option>
                               {% for siswa in data_siswa %}
                                 <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
@@ -243,7 +243,7 @@
 
                         <div class="col-md-12 mb-3">
                           <label for="id_ampu" class="form-label">Pilih Ampu Mapel</label><br>
-                          <select class="form-select select2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
+                          <select class="form-control form-selectselect2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
                               <option value="" disabled selected>Pilih Ampu Mapel</option>
                               {% for ampu in data_ampu %}
                                   <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>

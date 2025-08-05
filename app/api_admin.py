@@ -7,7 +7,6 @@ from flask import abort, render_template, request, jsonify, session, redirect, u
 from flask import flash
 # Import dari aplikasi lokal
 from . import AmpuMapel,Kelas, Mapel,allowed_file_img_profile, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
-from .form import FormSiswa
 from sqlalchemy import case
 from sqlalchemy.orm import joinedload
 from itertools import zip_longest
@@ -216,7 +215,7 @@ def tambah_admin_siswa():
             id_gender=data.get('id_gender'),
             id_status=data.get('id_status'),
         )
-
+    
         # Add siswa and commit all
     db.session.add(siswa)
     db.session.commit()
@@ -465,7 +464,7 @@ def view_register_guru():
             'inisial': i.inisial,
             'nama': i.nama,
             'tempat_lahir': i.tempat_lahir,
-            'tanggal_lahir': i.tanggal_lahir.strftime('%Y-%m-%d'),
+            'tanggal_lahir': i.tanggal_lahir,
             'alamat': i.alamat,
             'no_hp': i.no_hp,
             'email': i.email,

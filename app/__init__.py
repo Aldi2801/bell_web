@@ -283,7 +283,7 @@ class EvaluasiGuru(db.Model):
     q11 = db.Column(db.Integer, nullable=False)
     
     komentar = db.Column(db.Text, nullable=True)
-    tanggal = db.Column(db.Date, default=time_zone_wib)
+    tanggal = db.Column(db.DateTime, default=time_zone_wib)
 
     # Relasi
     guru = db.relationship("Guru", backref="evaluasi_list", passive_deletes=True)
@@ -297,7 +297,7 @@ class LogAktivitas(db.Model):
     aksi = db.Column(db.String(255))
     model = db.Column(db.String(100))
     keterangan = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=time_zone_wib)
 
     user = db.relationship('User')  # opsional, kalau ingin relasi ke user
 from sqlalchemy import event
