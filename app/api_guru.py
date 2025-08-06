@@ -231,27 +231,22 @@ def api_kehadiran_siswa():
     id_kelas = request.args.get('id_kelas')  # jika kamu pakai
     id_semester = request.args.get('id_semester')
     id_tahun = request.args.get('id_tahun_akademik')
-
-    siswa_list = (
-        db.session.query(Kehadiran.nis, Siswa.nama, Kehadiran.nama_kelas, Kehadiran.id_keterangan)
-        .join(Siswa, Siswa.nis == Kehadiran.nis)
-        .join(Kbm, Kbm.id_kbm == Kehadiran.id_kbm)
-        .join(AmpuMapel, AmpuMapel.id_ampu == Kbm.id_ampu)
-        .join(PembagianKelas, PembagianKelas.nis == Siswa.nis)
-        .filter(Kehadiran.id_kbm == id_kbm)
-        .filter(PembagianKelas.id_tahun_akademik == id_tahun)
-        .filter(PembagianKelas.id_kelas == id_kelas)
-        .all()
-    )
-    return jsonify([
-  {
-    'nis': s[0],
-    'nama': s[1],
-    'nama_kelas': s[2],
-    'id_kbm': id_kbm,
-    'id_keterangan': s[3]
-  } for s in siswa_list
-])
+    print(f"id_kbm: {id_kbm}, id_kelas: {id_kelas}, id_semester: {id_semester}, id_tahun: {id_tahun}")
+    kehadiran_all = Kehadiran.query.filter_by(id_kbm=id_kbm).all()
+    print(f"Jumlah kehadiran untuk id_kbm {id_kbm}: {len(kehadiran_all)}")
+    pembagian_all = PembagianKelas.query.filter_by(id_kelas=id_kelas, id_tahun_akademik=id_tahun).all()
+    print(f"Jumlah pembagian kelas untuk id_kelas {id_kelas} dan id_tahun_akademik {id_tahun}: {len(pembagian_all)}")
+    siswa_list= []
+    for i in kehadiran_all:
+        for j in pembagian_all:
+            print(f"Memeriksa NIS {i.nis} dengan {j.nis}")
+            if i.nis == j.nis:
+                siswa = {"nis": i.nis, "nama":i.siswa_rel.nama, "nama_kelas": i.nama_kelas,"id_kbm": i.id_kbm, "id_keterangan": i.id_keterangan}
+                siswa_list.append(siswa)
+                print(f"Menambahkan nama kelas {i.nama_kelas} untuk NIS {i.nis}")
+    
+    print(siswa_list)
+    return jsonify(siswa_list)
 @app.route('/guru/kehadiran/tambah', methods=['POST'])
 def simpan_kehadiran_siswa():
     id_ampu = request.form['id_ampu']
