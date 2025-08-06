@@ -51,7 +51,7 @@ def create_transaction():
             return jsonify({'error': 'Amount is required'}), 400
 
         order_id = f"ORDER-{uuid.uuid4()}"
-        callback_url = f"http://127.0.0.1:4040/menu_pembayaran?status_code=200&order_id={order_id}&transaction_status=paid"
+        callback_url = f"http://127.0.0.1:5000/menu_pembayaran?status_code=200&order_id={order_id}&transaction_status=paid"
         payload = {
             "transaction_details": {
                 "order_id": order_id,
@@ -160,12 +160,13 @@ def cetak_bukti_pembayaran(id_tagihan):
     print(transaksi.nis)
 
     kelas_sekarang = PembagianKelas.query.filter(PembagianKelas.nis == transaksi.nis).all()
-
+    kelaas_sekarang = "-"
     for i in kelas_sekarang:
         print(i)
         if i.tahun_akademik_rel.tahun_akademik == tagihan.tahun_ajaran:
             print(i)
             kelaas_sekarang = i.kelas_rel.nama_kelas
+            
 
     if not transaksi:
         return "Transaksi tidak ditemukan untuk tagihan ini", 404
@@ -216,7 +217,7 @@ def cetak_bukti_pembayaran(id_tagihan):
             "recipient_company": "PT. Midtrans Payment Gateway",
             "transaction_details": tagihan.deskripsi,
             "nominal": f"Rp {transaksi.total:,.0f}".replace(',', '.'),
-            "admin_fee": "2.500"
+            "admin_fee": "0"  # tidak ada biaya admin
         }
 
     return render_template('bukti_pembayaran.html', **transaction_data)
