@@ -32,13 +32,19 @@
 </div>
 <div class="col-md-12 mb-3">
   <input type="text"
-       pattern="^100$|^[1-9]?[0-9]{1,3}$"
-        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if (parseInt(this.value) > 100) this.value = '100';"
-       title="Masukkan angka antara 0 sampai 100"
-         class="form-control"
-         name="nilai"
-         placeholder="Nilai"
-         required>
+    pattern="^(100(\.0{1,2})?|([0-9]{1,2}(\.[0-9]{1,2})?))$"
+    oninput="
+        this.value = this.value
+            .replace(/[^0-9.]/g, '')   // hanya angka & titik
+            .replace(/(\..*?)\..*/g, '$1'); // hanya 1 titik
+        if (parseFloat(this.value) > 100) this.value = '100';
+    "
+    title="Masukkan angka antara 0 sampai 100 dengan maksimal 2 angka desimal (contoh: 78.5)"
+    class="form-control"
+    name="nilai"
+    placeholder="Nilai"
+    required>
+
 </div>
 
 <div class="col-md-12 mb-3">
@@ -59,21 +65,45 @@
       </nav>
       <h1 class="mb-0 fw-bold">Data Penilaian</h1>
     </div>
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
     {% if btn_tambah %}
     {% if session['role'] == 'guru' %}
-    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
     <form id="uploadExcelForm" action="/guru/penilaian/tambah_excell" method="POST" enctype="multipart/form-data" style="display: inline;">
       <input type="file" id="excelInput" name="file" accept=".xls,.xlsx" style="display: none;" onchange="document.getElementById('uploadExcelForm').submit();">
       <button type="button" class="btn btn-success d-flex align-items-center ms-2" onclick="document.getElementById('excelInput').click();">
-        <i class="ri-add-line me-1"></i> Tambah Banyak Data Lewat Excel
+        <i class="ri-add-line me-1"></i> Import Excel
       </button>
     </form>
       <button type="button" class="btn btn-info d-flex align-items-center ms-2" data-bs-toggle="modal" data-bs-target="#tambahModal">
         <i class="ri-add-line me-1"></i> Tambah Data
       </button>
+    {% endif %}
+    {% endif %}
+        <a href="{{ url_for('export_excel_penilaian',
+            tahun=request.args.get('tahun'),
+            bulan=request.args.get('bulan'),
+            tanggal=request.args.get('tanggal'),
+            nis=request.args.get('nis'),
+            id_kelas=request.args.get('id_kelas'),
+            id_mapel=request.args.get('id_mapel'),
+            jenis_penilaian=request.args.get('jenis_penilaian')) }}"
+          class="btn btn-success d-flex align-items-center ms-2">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+        </a>
+
+        <a href="{{ url_for('export_pdf_penilaian',
+            tahun=request.args.get('tahun'),
+            bulan=request.args.get('bulan'),
+            tanggal=request.args.get('tanggal'),
+            nis=request.args.get('nis'),
+            id_kelas=request.args.get('id_kelas'),
+            id_mapel=request.args.get('id_mapel'),
+            jenis_penilaian=request.args.get('jenis_penilaian')) }}"
+          class="btn btn-danger d-flex align-items-center ms-2">
+            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+        </a>
+
     </div>
-    {% endif %}
-    {% endif %}
   </div>
 </div>
 
@@ -90,9 +120,9 @@
       <div class="mb-3">
         <select class="form-select select2 " 
               style="width: 100%; height: 36px" id="siswa_data" name="nis">
-          <option value="" selected>Semua Siswa</option>
+          <option value="" {% if not request.args.get('nis') %}selected{% endif %}>Semua Siswa</option>
           {% for s in data_siswa %}
-          <option value="{{ s.nis }}">{{ s.nama }}</option>
+          <option value="{{ s.nis }}" {% if request.args.get('nis') == s.nis|string %}selected{% endif %}>{{ s.nama }}</option>
           {% endfor %}
         </select>
       </div>
@@ -103,9 +133,9 @@
       <div class="mb-3">
         <select class="form-select select2 " 
               style="width: 100%; height: 36px"id="kelas_data" name="id_kelas">
-          <option value="" selected>Semua Kelas</option>
+          <option value="" {% if not request.args.get('id_kelas') %}selected{% endif %}>Semua Kelas</option>
           {% for k in data_kelas %}
-          <option value="{{ k.id_kelas }}">{{ k.nama_kelas }}</option>
+          <option value="{{ k.id_kelas }}" {% if request.args.get('id_kelas') == k.id_kelas|string %}selected{% endif %}>{{ k.nama_kelas }}</option>
           {% endfor %}
         </select>
       </div>
@@ -116,9 +146,9 @@
       <div class="mb-3">
         <select class="form-select select2 " 
               style="width: 100%; height: 36px" id="mapel_data" name="id_mapel">
-          <option value="" selected>Semua Mapel</option>
+          <option value="" {% if not request.args.get('id_mapel') %}selected{% endif %}>Semua Mapel</option>
           {% for m in data_mapel %}
-          <option value="{{ m.id_mapel }}">{{ m.nama_mapel }}</option>
+          <option value="{{ m.id_mapel }}" {% if request.args.get('id_mapel') == m.id_mapel|string %}selected{% endif %}>{{ m.nama_mapel }}</option>
           {% endfor %}
         </select>
       </div>
@@ -129,11 +159,10 @@
       <div class="mb-3">
         <select class="form-select select2 " 
               style="width: 100%; height: 36px" id="jenis_data" name="jenis">
-          <option value="" selected>Semua Jenis</option>
-          <option value="UH">UH</option>
-          <option value="TUGAS">TUGAS</option>
-          <option value="UTS">UTS</option>
-          <option value="UAS">UAS</option>
+          <option value="" {% if not request.args.get('jenis_penilaian') %}selected{% endif %}>Semua Jenis</option>
+          {% for jenis in ['UH', 'TUGAS', 'UTS', 'UAS'] %}
+          <option value="{{ jenis }}" {% if request.args.get('jenis_penilaian') == jenis %}selected{% endif %}>{{ jenis }}</option>
+          {% endfor %}
         </select>
       </div>
     </div>
@@ -142,23 +171,23 @@
               <div class="mb-3">
               <select class="form-select select2" 
               style="width: 100%; height: 36px" id="tahun_data" name="tahun">
-             <option value="" {% if not request.args.get('tahun') %}selected{% endif %}>Semua Tahun</option>
-  {% for i in tahun %}
-    <option value="{{ i }}" {% if request.args.get('tahun') == i|string %}selected{% endif %}>{{ i }}</option>
-  {% endfor %}
-  </select>
+                <option value="" {% if not request.args.get('tahun') %}selected{% endif %}>Semua Tahun</option>
+                {% for i in tahun %}
+                <option value="{{ i }}" {% if request.args.get('tahun') == i|string %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+              </select>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="mb-3">
               <select class="form-select select2" 
               style="width: 100%; height: 36px" id="bulan_data" name="bulan">
-                <option  value="" selected>Semua Bulan</option>
+                <option value="" {% if not request.args.get('bulan') %}selected{% endif %}>Semua Bulan</option>
                 {% for i in [{"value":"1","nama_bulan":"Januari"},{"value":"2","nama_bulan":"Februari"},{"value":"3","nama_bulan":"Maret"},
                 {"value":"4","nama_bulan":"April"},{"value":"5","nama_bulan":"Mei"},{"value":"6","nama_bulan":"Juni"},{"value":"7","nama_bulan":"Juli"},
                 {"value":"8","nama_bulan":"Agustus"},{"value":"9","nama_bulan":"September"},{"value":"10","nama_bulan":"Oktober"},
                 {"value":"11","nama_bulan":"November"},{"value":"12","nama_bulan":"Desember"}] %}
-                <option value="{{ i.value }}">{{ i.nama_bulan }}</option>
+                <option value="{{ i.value }}" {% if request.args.get('bulan') == i.value %}selected{% endif %}>{{ i.nama_bulan }}</option>
                 {% endfor %}
               </select>
               </div>
@@ -167,10 +196,9 @@
               <div class="mb-3">
               <select class="form-select select2 " 
               style="width: 100%; height: 36px" id="tanggal_data" name="tanggal">
-                <option value="" selected>Semua Tanggal</option>
-                {% for i in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16",
-                "17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"] %}
-                <option value="{{ i }}">{{ i }}</option>
+                <option value="" {% if not request.args.get('tanggal') %}selected{% endif %}>Semua Tanggal</option>
+                {% for i in range(1, 32) %}
+                <option value="{{ i }}" {% if request.args.get('tanggal') == i|string %}selected{% endif %}>{{ i }}</option>
                 {% endfor %}
               </select>
               </div>
@@ -185,7 +213,7 @@
         </div>
         <div class="card-body">
           <h4>Data Penilaian</h4>
-          <div class="table-responsive">
+          <div class="">
             <table id="myTable" class="table table-striped">
               <thead class="table-info">
                 <tr>
@@ -197,6 +225,8 @@
                   <th>Guru</th>
                   <th>Jenis Penilaian</th>
                   <th>Nilai</th>
+                  <th>Semester</th>
+                  <th>Tahun Akademik</th>
                   <th>Tanggal</th>
                   <th>Aksi</th>
                 </tr>
@@ -205,16 +235,18 @@
                 {% for p in penilaian %}
                 <tr>
                   <!-- <td>{{ (page - 1) * per_page + loop.index }}</td> -->
-                   <td>{{loop.index}}</td>
+                  <td>{{loop.index}}</td>
                   <td>{{ p.nis }}</td>
                   <td>{{ p.siswa_rel.nama }}</td>
-                  <td>{{ p.siswa_rel.pembagian_rel[-1].kelas_rel.nama_kelas if p.siswa_rel.pembagian_rel else '' }}</td>
+                  <td>{{ p.ampu_rel.kelas_rel.nama_kelas if p.ampu_rel.kelas_rel else '' }}</td>
                   <td>{{ p.ampu_rel.mapel_rel.nama_mapel }}</td>
-                  <td>{{ p.ampu_rel.guru_rel.nama }}</td>
+                  <td style="white-space: nowrap;">{{ p.ampu_rel.guru_rel.nama }}</td>
                   <td>{{ p.jenis_penilaian }}</td>
                   <td>{{ p.nilai }}</td>
-                  <td>{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}</td>
-                  <td>
+                  <td>{{ p.ampu_rel.semester_rel.semester }}</td>
+                  <td>{{ p.ampu_rel.tahun_akademik_rel.tahun_akademik}}</td>
+                  <td style="white-space: nowrap;">{{ p.tanggal.strftime('%Y-%m-%d') if p.tanggal else '' }}</td>
+                  <td style="white-space: nowrap;">
                     <button type="button" class="btn btn-warning" onclick="openEditModal('{{ p.id_penilaian }}')">Edit</button>
                     <button type="button" class="btn btn-danger" onclick="deleteData('{{ p.id_penilaian }}')">Hapus</button>
                   </td>
@@ -236,7 +268,7 @@
                             <select class="form-control form-select select2tambah"style="width: 100%; height: 36px"  name="nis" id="nis" required>
                               <option value="" disabled selected>Pilih Siswa</option>
                               {% for siswa in data_siswa %}
-                                <option value="{{ siswa.nis }}">{{ siswa.nis }} - {{ siswa.nama }}</option>
+                                <option value="{{ siswa.nis }}" {% if p.nis|string  == siswa.nis|string %}selected{% endif %}>{{ siswa.nis }} - {{ siswa.nama }}</option>
                               {% endfor %}
                             </select>
                         </div>
@@ -246,7 +278,7 @@
                           <select class="form-control form-selectselect2tambah"style="width: 100%; height: 36px"  name="id_ampu" id="id_ampu" required>
                               <option value="" disabled selected>Pilih Ampu Mapel</option>
                               {% for ampu in data_ampu %}
-                                  <option value="{{ ampu.id_ampu }}">{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
+                                  <option value="{{ ampu.id_ampu }}" {% if p.id_ampu  == ampu.id_ampu  %}selected{% endif %}>{{ ampu.mapel_rel.nama_mapel }} - {{ ampu.guru_rel.nama }} - {{ ampu.semester_rel.semester }}</option>
                               {% endfor %}
                           </select>
                         </div>
@@ -266,14 +298,19 @@
                           <label>Nilai:</label>
                           <div class="col-md-12 mb-3">
                           <input type="text"
-                              pattern="^100$|^[1-9]?[0-9]{1,3}$"
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3); if (parseInt(this.value) > 100) this.value = '100';"
-                                title="Masukkan angka 1 sampai 3 digit (0-100)"
-                                class="form-control"
-                                name="nilai"
-                                placeholder="Nilai"
-                                value="{{ p.nilai }}" 
-                                required>
+                              pattern="^(100(\.0{1,2})?|([0-9]{1,2}(\.[0-9]{1,2})?))$"
+                              oninput="
+                                  this.value = this.value
+                                      .replace(/[^0-9.]/g, '')   // hanya angka & titik
+                                      .replace(/(\..*?)\..*/g, '$1'); // hanya 1 titik
+                                  if (parseFloat(this.value) > 100) this.value = '100';
+                              "
+                              title="Masukkan angka antara 0 sampai 100 dengan maksimal 2 angka desimal (contoh: 78.5)"
+                              class="form-control"
+                              name="nilai"
+                              placeholder="Nilai"
+                              value="{{ p.nilai }}"
+                              required>
                         </div>
                         </div>
 
@@ -362,10 +399,14 @@
 </div>
 
 <script>
-$('#myTable').DataTable({
-  paging: false, // atau pagination: false juga bisa
-   info: false
+$(document).ready(function () {
+  $('#myTable').DataTable({
+    scrollX: true,     // AKTIFKAN scroll horizontal
+    paging: false,      // aktifkan kalau kamu mau pagination
+    info: false,
+  });
 });
+
 
 
   {% for p in penilaian %}

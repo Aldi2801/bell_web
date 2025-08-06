@@ -2,8 +2,8 @@ import pandas as pd
 from . import AmpuMapel, Berita, Kehadiran, Keterangan, PembagianKelas, Penilaian, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik
 from flask import flash, redirect, request, jsonify, url_for, render_template, session, abort
 from sqlalchemy import case, extract
-import datetime
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime
 
 @app.route("/kbm/list")
 def list_kbm():
@@ -107,7 +107,7 @@ def list_kbm():
     # Buat list tahun dari hasil query
     tahun_list = [int(row.tahun) for row in tahun_query if row.tahun is not None]
     return render_template("guru/list_ampu.html",
-                            title="Pelajaran Diampu",
+                            title="Pelajaran Diampu Anda",
                             btn_tambah=True,
                             thn=tahun_list,
                             data_guru = data_guru,
@@ -128,8 +128,7 @@ def list_kbm():
                             has_next=has_next,
                             has_prev=has_prev,
                             page_range=page_range)
-from sqlalchemy.exc import IntegrityError
-from datetime import datetime
+
 
 @app.route("/kbm/list/tambah", methods=["POST"])
 def kbm_tambah():
@@ -257,7 +256,7 @@ def api_kehadiran_siswa():
 def simpan_kehadiran_siswa():
     id_ampu = request.form['id_ampu']
     id_kbm = request.form['id_kbm']
-    tanggal = datetime.datetime.now().date()
+    tanggal = datetime.now().date()
 
     # Tambahkan data ke KBM (karena kehadiran harus ada ID KBM)
  

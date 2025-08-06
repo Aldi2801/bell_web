@@ -81,6 +81,39 @@
         font-weight: 500;
         margin-bottom: 8px;
     }
+  .sticky-keterangan {
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  width: 215px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: white;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+/* MEDIA QUERY UNTUK MOBILE */
+@media (max-width: 768px) {
+  .sticky-keterangan {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    box-shadow: none !important;
+    z-index: auto !important;
+    margin-top: 10px;
+    display:block;
+  }
+  /* Sembunyikan tombol di mobile */
+  #tampil, #sembunyi {
+    display: none !important;
+  }
+}
+
+
 </style>
 {% endblock %}
 {% block content %}
@@ -110,12 +143,11 @@
 </div>
 <div class="container-fluid">
   <div class="row">
-    <div class="col-10">
+    <div class="col-md-10">
       <div class="card">
         <div class="card-body">
-        <h2>Jadwal Pelajaran</h2>
         <div class="table-responsive mb-5">
-            <table class="container-table" id="scheduleTable">
+            <table class="container-table w-100" id="scheduleTable">
                 <thead>
                     <tr>
                         <th>Hari</th>
@@ -134,13 +166,32 @@
       </div>
     </div>
     
-    <div class="col-2">
-    <div class="container-keterangan" id="container-keterangan">
-    </div>
+    <div class="col-md-2">
+    <button class="btn btn-sm btn-secondary mb-2" id="tampil" onclick="toggleKeterangan()">Tampilkan Keterangan</button>
+    <div class="card sticky-keterangan fadeInUp" id="box-keterangan">
+        <button class="btn btn-sm btn-secondary m-2" id="sembunyi" onclick="toggleKeterangan()">Sembunyikan Keterangan</button>
+        <div class="container-keterangan " style="padding-top:10px" id="container-keterangan">
+        </div>
     </div>
   </div>
 </div>
 <script>
+    const box = document.getElementById('box-keterangan');
+      box.classList.add('d-none');
+  function toggleKeterangan() {
+    const box = document.getElementById('box-keterangan');
+    const btnTampil = document.getElementById('tampil');
+
+    if (box.classList.contains('d-none')) {
+      // Tampilkan keterangan
+      box.classList.remove('d-none');
+      btnTampil.classList.add('d-none');
+    } else {
+      // Sembunyikan keterangan
+      box.classList.add('d-none');
+      btnTampil.classList.remove('d-none');
+    }
+  }
     const scheduleTable = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
     const schedule = {{ schedule | tojson | safe }};
     console.log(schedule); // sudah berupa object/array JS, tidak perlu parse lagi
@@ -216,7 +267,7 @@ schedule.forEach(day => {
     }
 
     // Render kedua list
-    renderList("Kode Mapel", kode_mapel);
     renderList("List Guru", kode_guru);
+    renderList("Kode Mapel", kode_mapel);
 </script>
 {% endblock %}

@@ -1,10 +1,9 @@
-import ast
+import ast, jwt
 from collections import defaultdict
 from . import AmpuMapel, LogAktivitas, app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,get_semester_and_year, TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime, timedelta
-import jwt
 from sqlalchemy import case, func, extract
 from flask_mail import Message
 from jwt import ExpiredSignatureError, InvalidTokenError
@@ -122,6 +121,12 @@ def keluar():
     unset_jwt_cookies(response)
     session.pop('jwt_token', None)
     session.pop('username', None)
+    session.pop('id', None)
+    session.pop('email', None)
+    session.pop('role', None)
+    session.pop('nip', None)
+    session.pop('nis', None)
+
     flash('Sukses Logout', 'success')
     return redirect(url_for('login'))
     
@@ -499,7 +504,6 @@ def get_semester_info_custom(tahun_awal: int, semester: str):
     }
 
 def get_ringkasan_nilai(id_murid):
-    from sqlalchemy.sql import func
     semester, awal_semester, akhir_semester, tahun_ajaran, mulai, selesai = get_semester_and_year()
     print(f"Semester: {semester}, Tahun Ajaran: {tahun_ajaran}, Awal semester: {awal_semester.date()}, Akhir semester: {akhir_semester.date()}")
     # Ambil semua nilai siswa dan hitung rata-rata per mapel
@@ -539,7 +543,7 @@ def get_jumlah_evaluasi(id_murid):
     ).count()
     return jumlah
 # def get_tugas_murid(id_murid):
-#     from datetime import datetime
+#     
 
 #     siswa = Siswa.query.filter_by(user_id=id_murid).first()
 #     if not siswa:

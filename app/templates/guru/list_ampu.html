@@ -90,13 +90,15 @@
       <div class="card">
         <div class="card-body">
           <h4>Daftar Pelajaran</h4>
-          <div class="table-responsive">
+          <div class="">
             <table id="myTable" class="table table-striped">
               <thead class="table-info">
                 <tr>
                   <th>No</th>
                   <th>ID ampu</th>
+                  {% if session.get('role') == "admin" %}
                   <th>Nama Guru</th>
+                  {% endif %}
                   <th>Mata Pelajaran</th>
                   <th>Materi</th>
                   <th>Submateri</th>
@@ -112,7 +114,9 @@
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ a.id_ampu }}</td>
+                  {% if session.get('role') == "admin" %}
                   <td style="white-space: nowrap;">{{ a.guru_rel.nama }}</td>
+                  {% endif %}
                   <td>{{ a.mapel_rel.nama_mapel }}</td>
                   <td>{{ a.materi }}</td>
                   <td>{{ a.sub_materi }}</td>
@@ -174,7 +178,7 @@
       <div class="modal-body">
         <form id="kehadiranForm">
           <input type="hidden" name="id_ampu" id="idAmpuInput">
-          <div class="table-responsive">
+          <div class="">
             <table id="kehadiranTable" class="table table-striped">
               <thead class="table-info">
                 <tr>
@@ -202,8 +206,14 @@
 </div>
 
 <script>
-$('#myTable').DataTable();
 
+$(document).ready(function () {
+  $('#myTable').DataTable({
+    scrollX: true,     // AKTIFKAN scroll horizontal
+    paging: true,      // aktifkan kalau kamu mau pagination
+    info: true,
+  });
+});
 </script>
 <script>
 function openKehadiranModal(id_ampu, id_kbm, id_kelas, id_semester, id_tahun_akademik) {

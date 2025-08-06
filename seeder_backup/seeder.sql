@@ -33,9 +33,7 @@ INSERT INTO `ampu_mapel` (`id_ampu`, `tanggal`, `id_semester`, `id_mapel`, `nip`
 (5, '2025-06-06', '0', 'MTK', '197512012020041001', 6, '8b'),
 (6, '2025-06-07', '0', 'MTK', '197512012020041001', 6, '8c'),
 (7, '2025-06-09', '0', 'MTK', '197512012020041001', 6, '9a'),
-(8, '2025-06-10', '0', 'MTK', '197512012020041001', 6, '9b'),
-(9, '2025-07-22', '0', 'BI', '198609252020041004', 7, '7c'),
-(10, '2025-07-22', '0', 'BI', '197512012020041001', 7, '7a');
+(8, '2025-06-10', '0', 'MTK', '197512012020041001', 6, '9b');
 
 --
 -- Dumping data untuk tabel `berita`
@@ -159,10 +157,7 @@ INSERT INTO `kbm` (`id_kbm`, `tanggal`, `materi`, `sub_materi`, `id_ampu`) VALUE
 (5, '2025-06-06', 'Persamaan Linear', 'Pengenalan PLDV', 5),
 (6, '2025-06-07', 'Persamaan Linear', 'Pengenalan PLDV', 6),
 (7, '2025-06-09', 'Persamaan Linear', 'Pengenalan PLDV', 7),
-(8, '2025-06-10', 'Persamaan Linear', 'Pengenalan PLDV', 8),
-(9, NULL, 'jnk', 'dds', 9),
-(10, NULL, 'esfe', 'ewfw', 10),
-(11, '2025-07-22', 'Kehadiran', '-', 9);
+(8, '2025-06-10', 'Persamaan Linear', 'Pengenalan PLDV', 8);
 
 --
 -- Dumping data untuk tabel `kehadiran`
@@ -1702,7 +1697,7 @@ INSERT INTO `tahun_akademik` (`id_tahun_akademik`, `tahun_akademik`, `mulai`, `s
 --
 
 INSERT INTO `transaksi` (`id_transaksi`, `kode_order`, `id_tagihan`, `nis`, `email`, `total`, `status`, `fraud_status`, `created_at`, `updated_at`) VALUES
-(1, 'Bla-123', 1, NULL, 'man@gmail.com', 100000, 'paid', '0', NULL, NULL),
+(1, 'Bla-123', 1, 20001, 'man@gmail.com', 100000, 'paid', '0', '2025-05-29 00:00:00', NULL),
 (2, 'ORD20001', 1002, 20001, 'man@gmail.com', 100000, 'settlement', NULL, '2025-05-29 00:00:00', NULL),
 (3, 'ORD20002', 1003, 20002, 'ulyakuswandarispt0@mail.com', 100000, 'settlement', NULL, '2025-06-01 00:00:00', NULL),
 (4, 'ORD20003', 1004, 20003, 'rinatampubolon1@mail.com', 100000, 'settlement', NULL, '2025-06-05 00:00:00', NULL),
@@ -1783,11 +1778,11 @@ INSERT INTO `transaksi` (`id_transaksi`, `kode_order`, `id_tagihan`, `nis`, `ema
 (79, 'ORD20078', 1079, 20078, 'tariwulan@mail.com', 517879, 'settlement', NULL, '2025-06-13 00:00:00', NULL),
 (80, 'ORD20079', 1080, 20079, 'wahyudewi@mail.com', 623384, 'settlement', NULL, '2025-06-10 00:00:00', NULL),
 (81, 'ORD20080', 1081, 20080, 'wulandina@mail.com', 623384, 'settlement', NULL, '2025-06-10 00:00:00', NULL),
-(82, 'ORDER-badae653-80b8-4eb8-baf5-a9019859f65c', 6, NULL, 'man@gmail.com', 10000, 'pending', NULL, '2025-07-16 14:02:04', '2025-07-16 14:02:04'),
-(83, 'ORDER-75d23193-2913-45c2-8dc7-05181e478fbd', 1082, NULL, 'man@gmail.com', 10005, 'pending', NULL, '2025-07-21 21:09:33', '2025-07-21 21:09:33'),
-(84, 'ORDER-87e25b8d-634e-4d06-ad27-aba4424ba13c', 1082, NULL, 'man@gmail.com', 100, 'settlement', NULL, '2025-07-21 21:11:14', '2025-07-21 21:12:11'),
-(85, 'ORDER-de8da5e2-2c00-4821-9050-f52618a6b6c7', 6, NULL, 'man@gmail.com', 100, 'pending', NULL, '2025-07-21 21:12:52', '2025-07-21 21:12:52'),
-(86, 'ORDER-78933d52-156a-4200-bc1b-f3f684df91e9', 6, NULL, 'man@gmail.com', 100, 'settlement', NULL, '2025-07-21 21:13:14', '2025-07-21 21:13:56');
+(82, 'ORDER-badae653-80b8-4eb8-baf5-a9019859f65c', 6, 20001, 'man@gmail.com', 10000, 'pending', NULL, '2025-07-16 14:02:04', '2025-07-16 14:02:04'),
+(83, 'ORDER-75d23193-2913-45c2-8dc7-05181e478fbd', 1082, 20001, 'man@gmail.com', 10005, 'pending', NULL, '2025-07-21 21:09:33', '2025-07-21 21:09:33'),
+(84, 'ORDER-87e25b8d-634e-4d06-ad27-aba4424ba13c', 1082, 20001, 'man@gmail.com', 100, 'settlement', NULL, '2025-07-21 21:11:14', '2025-07-21 21:12:11'),
+(85, 'ORDER-de8da5e2-2c00-4821-9050-f52618a6b6c7', 6, 20001, 'man@gmail.com', 100, 'pending', NULL, '2025-07-21 21:12:52', '2025-07-21 21:12:52'),
+(86, 'ORDER-78933d52-156a-4200-bc1b-f3f684df91e9', 6, 20001, 'man@gmail.com', 100, 'settlement', NULL, '2025-07-21 21:13:14', '2025-07-21 21:13:56');
 
 --
 -- Dumping data untuk tabel `user`

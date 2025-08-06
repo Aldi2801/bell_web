@@ -266,14 +266,14 @@ function populateTagihanTable(tagihan) {
 			      {% if session['role'] != 'murid' %}
               ${lunas ? `
                 <button onclick="bayar_offline(${item.total}, '${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Offline</button>`
-                : '<button onclick="" style="width:100px; margin-bottom:5px" class="btn btn-info btn-sm">Lihat Bukti</button>'}
+                : `<a href="/cetak-bukti/${item.id_tagihan}" target="_blank"><button type="button" style="width:100px; margin-bottom:5px" class="btn btn-info btn-sm">Lihat Bukti</button></a>`}
                
                 <button onclick="editTagihan('${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-warning btn-sm">Edit</button>
                 <button onclick=" deleteData('${item.id_tagihan}')"style="width:100px; margin-bottom:5px" class="btn btn-danger btn-sm">Hapus</button>
                 
             {% else %}
 			        ${lunas ? `<button onclick="bayar(${item.total}, '${item.id_tagihan}')" style="width:100px; margin-bottom:5px" class="btn btn-primary btn-sm">Bayar Online</button>`
-                  : '<button onclick="" style="width:100px; margin-bottom:5px" class="btn btn-info btn-sm">Lihat Bukti</button>'}
+                  : `<a href="/cetak-bukti/${item.id_tagihan}" target="_blank"><button type="button" style="width:100px; margin-bottom:5px" class="btn btn-info btn-sm">Lihat Bukti</button></a>`}
                   
                   
 				    {% endif %}

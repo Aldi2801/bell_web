@@ -1,6 +1,5 @@
 from flask import Flask,jsonify,request,session,render_template,g,send_from_directory,abort
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin
@@ -209,6 +208,7 @@ class Siswa(db.Model):
     status_rel = db.relationship("Status", backref="siswa_list", passive_deletes=True)
     user = db.relationship("User", back_populates="siswa", passive_deletes=True)
     pembagian_rel = db.relationship("PembagianKelas", back_populates="siswa_rel", passive_deletes=True)
+    transaksi_rel = db.relationship("Transaksi", back_populates="siswa_rel", passive_deletes=True)
 class PembagianKelas(db.Model):
     id_pembagian = db.Column(db.Integer, primary_key=True)
     tanggal = db.Column(db.Date)
@@ -219,7 +219,7 @@ class PembagianKelas(db.Model):
 
     kelas_rel = db.relationship("Kelas", backref="pembagian_list", passive_deletes=True)
     siswa_rel = db.relationship("Siswa", back_populates="pembagian_rel", passive_deletes=True)
-    ida_rel = db.relationship("TahunAkademik", backref="pembagian_list", passive_deletes=True)
+    tahun_akademik_rel = db.relationship("TahunAkademik", backref="pembagian_list", passive_deletes=True)
 
 class Tagihan(db.Model):
     id_tagihan = db.Column(db.Integer, primary_key=True)
@@ -230,17 +230,28 @@ class Tagihan(db.Model):
     total = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=time_zone_wib)
 
+    # Tambahkan relasi untuk cetak bukti
+    transaksi_rel = db.relationship('Transaksi', backref='tagihan', lazy=True, uselist=False)  # one-to-one
+
+
 class Transaksi(db.Model):
     id_transaksi = db.Column(db.Integer, primary_key=True)
     kode_order = db.Column(db.String(100), unique=True, nullable=True)
     id_tagihan = db.Column(db.Integer, db.ForeignKey('tagihan.id_tagihan', ondelete='SET NULL'), nullable=True)
-    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='SET NULL'), nullable=True)
+    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=True)
     email = db.Column(db.String(120), nullable=True)
     total = db.Column(db.Float, nullable=True)
     status = db.Column(db.String(50), default="pending")
     fraud_status = db.Column(db.String(50), nullable=True)
+    metode_pembayaran = db.Column(db.String(50))  # contoh: transfer_bank, e-wallet
+    bank = db.Column(db.String(50),nullable=True)              # contoh: BRI, BCA
+    admin_fee = db.Column(db.Integer)            # dalam rupiah
     created_at = db.Column(db.DateTime, default=time_zone_wib)
     updated_at = db.Column(db.DateTime, default=time_zone_wib, onupdate=time_zone_wib)
+
+    # Relasi opsional
+    siswa_rel = db.relationship("Siswa", back_populates="transaksi_rel", passive_deletes=True)
+
 
 class JadwalPelajaran(db.Model):
     id_jadwal = db.Column(db.Integer, primary_key=True)

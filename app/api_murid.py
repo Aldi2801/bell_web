@@ -1,11 +1,15 @@
-import os
-import uuid
+import os, uuid, jwt, datetime, ast, pandas as pd
 from . import EvaluasiGuru, Kelas, Siswa, app, db,allowed_file_surat_izin, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
-from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for
-import jwt, datetime, ast
+from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for, send_file, jsonify
 from datetime import datetime
 from sqlalchemy import extract, case
 from collections import defaultdict
+from io import BytesIO
+from openpyxl import Workbook
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 
 @app.route('/get_menu_pembayaran')
 def get_menu_pembayaran():
@@ -105,10 +109,6 @@ def get_menu_pembayaran():
         return jsonify({'valid': False, 'message': 'Token expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'valid': False, 'message': 'Invalid token'}), 403
-from flask import send_file, jsonify
-from io import BytesIO
-from openpyxl import Workbook
-from datetime import datetime
 
 @app.route('/export_tagihan_excel')
 def export_tagihan_excel():
@@ -158,7 +158,7 @@ def export_tagihan_excel():
         result_tagihan = []
         for t in all_tagihan:
             status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
-            siswa_info = get_siswa_data(t.user_id) if role != 'murid' else None
+            siswa_info = get_siswa_data(t.user_id) 
 
             result = {
                 'id_tagihan': t.id_tagihan,
@@ -170,8 +170,8 @@ def export_tagihan_excel():
                     t.created_at.strftime("%d-%m-%Y %H:%M")  if isinstance(t.created_at, datetime) else '-'
                 ),
                 'status': status,
-                'nama_siswa': siswa_info['nama'] if siswa_info else '-',
-                'kelas': siswa_info['kelas'] if siswa_info else '-',
+                'nama_siswa': siswa_info['nama'] ,
+                'kelas': siswa_info['kelas'] ,
             }
             result_tagihan.append(result)
 
@@ -210,10 +210,6 @@ def export_tagihan_excel():
     except jwt.InvalidTokenError:
         return jsonify({'valid': False, 'message': 'Invalid token'}), 403
     
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
 
 @app.route('/export_tagihan_pdf')
 def export_tagihan_pdf():
@@ -263,7 +259,7 @@ def export_tagihan_pdf():
         result_tagihan = []
         for t in all_tagihan:
             status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
-            siswa_info = get_siswa_data(t.user_id) if role != 'murid' else None
+            siswa_info = get_siswa_data(t.user_id) 
 
             result = {
                 'id_tagihan': t.id_tagihan,
@@ -275,8 +271,8 @@ def export_tagihan_pdf():
                     t.created_at.strftime("%d-%m-%Y %H:%M") if isinstance(t.created_at, datetime) else '-'
                 ),
                 'status': status,
-                'nama_siswa': siswa_info['nama'] if siswa_info else '-',
-                'kelas': siswa_info['kelas'] if siswa_info else '-',
+                'nama_siswa': siswa_info['nama'] ,
+                'kelas': siswa_info['kelas'] ,
             }
             result_tagihan.append(result)
 
@@ -287,13 +283,17 @@ def export_tagihan_pdf():
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=A4)
         styles = getSampleStyleSheet()
-        elements = [Paragraph("Data Tagihan Siswa", styles["Title"])]
+        if role == 'murid':
+            siswa = Siswa.query.filter_by(nis=session.get('nis')).first()
+            elements = [Paragraph(f"Data Tagihan {siswa.nama}", styles["Title"])]
+        else:
+            elements = [Paragraph("Data Tagihan Siswa", styles["Title"])]
 
         data = [["ID", "Nama Siswa", "Kelas", "Deskripsi", "Total", "Semester", "Tahun Ajaran", "Tanggal Dibuat", "Status"]]
         for item in result_tagihan:
             data.append([
                 item["id_tagihan"],
-                item["nama_siswa"],
+                item["nama_siswa"] ,
                 item["kelas"],
                 item["deskripsi"],
                 f"Rp {item['total']:,.0f}",
@@ -548,19 +548,20 @@ def penilaian_murid():
     title = "Nilai Anda"
     title_data = "Nilai Anda"
     # Ambil filter query
-    nip = request.args.get('nip')
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    nip = session.get('nip') or request.args.get('nip')
     id_kelas = request.args.get('id_kelas')
     id_mapel = request.args.get('id_mapel')
     jenis_penilaian = request.args.get('jenis_penilaian')
     tahun = request.args.get('tahun', type=int)
     bulan = request.args.get('bulan', type=int)
     tanggal = request.args.get('tanggal', type=int)
-    page = request.args.get('page', default=1, type=int)
-    per_page = request.args.get('per_page', default=10, type=int)
-    siswa_now = int(session.get('nis', 0))
-    # Mulai query dari Penilaian
-    query = Penilaian.query
-    # Filter berdasarkan tanggal jika ada
+    siswa_now = request.args.get('nis') or session.get('nis')
+
+    # Join dengan AmpuMapel
+    query = Penilaian.query.join(AmpuMapel, Penilaian.id_ampu == AmpuMapel.id_ampu)
+
     if tahun:
         query = query.filter(extract('year', Penilaian.tanggal) == tahun)
     if bulan:
@@ -568,9 +569,13 @@ def penilaian_murid():
     if tanggal:
         query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
     if siswa_now:
-        query = query.filter(Penilaian.nis == siswa_now)
+        exists = db.session.query(Penilaian.query.filter(Penilaian.nis == siswa_now).exists()).scalar()
+        if exists:
+            query = query.filter(Penilaian.nis == siswa_now)
     if nip:
-        query = query.filter(AmpuMapel.nip == nip)
+        exists = db.session.query(AmpuMapel.query.filter(AmpuMapel.nip == nip).exists()).scalar()
+        if exists:
+            query = query.filter(AmpuMapel.nip == nip)
     if id_mapel:
         query = query.filter(AmpuMapel.id_mapel == id_mapel)
     if jenis_penilaian:
@@ -582,8 +587,9 @@ def penilaian_murid():
             .subquery()
         )
         query = query.filter(Penilaian.nis.in_(subq))
-    # Urutkan berdasarkan ID (atau sesuaikan dengan kolom yang diinginkan)
-    query = query.order_by(Penilaian.id_penilaian.desc())
+
+    data = query.order_by(Penilaian.id_penilaian.desc())
+    print(f"Jumlah data diekspor: {data.count()}")
     # Pagination
     paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
     info_list = paginated_data.items
@@ -603,6 +609,154 @@ def penilaian_murid():
     )
     thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
     return render_template('murid/penilaian.html', penilaian=info_list, tahun=thn, data_guru=Guru.query.all(), data_kelas=Kelas.query.all(), data_mapel=Mapel.query.all(), data_siswa=Siswa.query.all(), data_ampu=AmpuMapel.query.filter_by(nip=nip).all(), btn_tambah=btn_tambah, title=title, title_data=title_data, page=page, per_page=per_page, total_pages=total_pages, total_records=total_records, has_next=paginated_data.has_next, has_prev=paginated_data.has_prev, page_range=page_range )
+
+
+@app.route('/murid/penilaian/export/excel')
+def export_excel_penilaian():
+    nip = session.get('nip') or request.args.get('nip')
+    id_kelas = request.args.get('id_kelas')
+    id_mapel = request.args.get('id_mapel')
+    jenis_penilaian = request.args.get('jenis_penilaian')
+    tahun = request.args.get('tahun', type=int)
+    bulan = request.args.get('bulan', type=int)
+    tanggal = request.args.get('tanggal', type=int)
+    siswa_now = request.args.get('nis') or session.get('nis')
+
+    # Join dengan AmpuMapel
+    query = Penilaian.query.join(AmpuMapel, Penilaian.id_ampu == AmpuMapel.id_ampu)
+
+    if tahun:
+        query = query.filter(extract('year', Penilaian.tanggal) == tahun)
+    if bulan:
+        query = query.filter(extract('month', Penilaian.tanggal) == bulan)
+    if tanggal:
+        query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
+    if siswa_now:
+        exists = db.session.query(Penilaian.query.filter(Penilaian.nis == siswa_now).exists()).scalar()
+        if exists:
+            query = query.filter(Penilaian.nis == siswa_now)
+    if nip:
+        exists = db.session.query(AmpuMapel.query.filter(AmpuMapel.nip == nip).exists()).scalar()
+        if exists:
+            query = query.filter(AmpuMapel.nip == nip)
+    if id_mapel:
+        query = query.filter(AmpuMapel.id_mapel == id_mapel)
+    if jenis_penilaian:
+        query = query.filter(Penilaian.jenis_penilaian == jenis_penilaian)
+    if id_kelas:
+        subq = (
+            db.session.query(PembagianKelas.nis)
+            .filter(PembagianKelas.id_kelas == id_kelas)
+            .subquery()
+        )
+        query = query.filter(Penilaian.nis.in_(subq))
+
+    data = query.order_by(Penilaian.id_penilaian.desc())
+    print(f"Jumlah data diekspor: {data.count()}")
+
+    # Buat DataFrame
+    df = pd.DataFrame([{
+        'No': index,
+        'Nis':d.nis ,
+        "Nama":d.siswa_rel.nama ,
+        'Kelas':d.ampu_rel.kelas_rel.nama_kelas if d.ampu_rel.kelas_rel else '' ,
+        'Mapel':d.ampu_rel.mapel_rel.nama_mapel ,
+        'Guru': d.ampu_rel.guru_rel.nama ,
+        'Jenis Penilaian': d.jenis_penilaian ,
+        'Nilai':d.nilai ,
+        'Semester': d.ampu_rel.semester_rel.semester ,
+        'Tahun Akademik': d.ampu_rel.tahun_akademik_rel.tahun_akademik,
+        'Tanggal': d.tanggal.strftime('%Y-%m-%d') if d.tanggal else '' ,
+    } for index, d in enumerate(data, start=1)])
+
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Penilaian')
+
+    output.seek(0)
+    return send_file(output, download_name="penilaian.xlsx", as_attachment=True)
+
+
+@app.route('/murid/penilaian/export/pdf')
+def export_pdf_penilaian():
+    # Tambahkan filter seperti di atas...
+    nip = session.get('nip') or request.args.get('nip')
+    id_kelas = request.args.get('id_kelas')
+    id_mapel = request.args.get('id_mapel')
+    jenis_penilaian = request.args.get('jenis_penilaian')
+    tahun = request.args.get('tahun', type=int)
+    bulan = request.args.get('bulan', type=int)
+    tanggal = request.args.get('tanggal', type=int)
+    siswa_now = request.args.get('nis') or session.get('nis')
+
+    # Join dengan AmpuMapel
+    query = Penilaian.query.join(AmpuMapel, Penilaian.id_ampu == AmpuMapel.id_ampu)
+
+    if tahun:
+        query = query.filter(extract('year', Penilaian.tanggal) == tahun)
+    if bulan:
+        query = query.filter(extract('month', Penilaian.tanggal) == bulan)
+    if tanggal:
+        query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
+    if siswa_now:
+        exists = db.session.query(Penilaian.query.filter(Penilaian.nis == siswa_now).exists()).scalar()
+        if exists:
+            query = query.filter(Penilaian.nis == siswa_now)
+    if nip:
+        exists = db.session.query(AmpuMapel.query.filter(AmpuMapel.nip == nip).exists()).scalar()
+        if exists:
+            query = query.filter(AmpuMapel.nip == nip)
+    if id_mapel:
+        query = query.filter(AmpuMapel.id_mapel == id_mapel)
+    if jenis_penilaian:
+        query = query.filter(Penilaian.jenis_penilaian == jenis_penilaian)
+    if id_kelas:
+        subq = (
+            db.session.query(PembagianKelas.nis)
+            .filter(PembagianKelas.id_kelas == id_kelas)
+            .subquery()
+        )
+        query = query.filter(Penilaian.nis.in_(subq))
+
+    data = query.order_by(Penilaian.id_penilaian.desc())
+    print(f"Jumlah data diekspor: {data.count()}")
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4))
+    elements = []
+    style = getSampleStyleSheet()
+    elements.append(Paragraph("Laporan Penilaian", style['Title']))
+
+    table_data = [["No", 'Nis', "Nama", 'Kelas', "Mapel", "Guru", "Jenis", "Nilai", "Semester", "Tahun Akademik", "Tanggal"]]
+
+    for index, d in enumerate(data, start=1):  # start=1 agar index mulai dari 1 seperti loop.index
+        table_data.append([
+            index,
+            d.nis ,
+            d.siswa_rel.nama ,
+            d.ampu_rel.kelas_rel.nama_kelas if d.ampu_rel.kelas_rel else '' ,
+            d.ampu_rel.mapel_rel.nama_mapel ,
+            d.ampu_rel.guru_rel.nama ,
+            d.jenis_penilaian ,
+            d.nilai ,
+            d.ampu_rel.semester_rel.semester ,
+            d.ampu_rel.tahun_akademik_rel.tahun_akademik,
+            d.tanggal.strftime('%Y-%m-%d') if d.tanggal else '' ,
+        ])
+
+    table = Table(table_data, hAlign='LEFT')
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.grey),
+        ('TEXTCOLOR',(0,0),(-1,0),colors.whitesmoke),
+        ('ALIGN',(0,0),(-1,-1),'CENTER'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.black),
+    ]))
+    elements.append(table)
+    doc.build(elements)
+
+    buffer.seek(0)
+    return send_file(buffer, download_name='penilaian.pdf', as_attachment=True)
 
 # === TAMBAH EVALUASI GURU ===
 @app.route('/evaluasi_guru/tambah', methods=['POST'])

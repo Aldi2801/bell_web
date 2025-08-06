@@ -1,6 +1,13 @@
 from flask import request, jsonify, render_template, session
 import os, uuid, base64, json, requests, jwt
-from . import app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User
+from . import PembagianKelas, app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User
+from flask import send_file
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
+from io import BytesIO
+from datetime import datetime
 print(os.getenv('ENV') )
 if os.getenv('ENV') == 'production':
     url = "https://app.midtrans.com/snap/v1/transactions"
@@ -72,6 +79,7 @@ def create_transaction():
             new_transaction = Transaksi(
                 kode_order = order_id,
                 id_tagihan = tagihan_id,
+                nis = session.get('nis'),
                 email = data['email'],
                 total = data['amount'],
                 status = "pending"
@@ -140,4 +148,93 @@ def view_menu_pembayaran():
         title_data = "Pembayaran"
     return render_template("menu_pembayaran.html", siswa = data_siswa, tahun_ajaran = tahun_ajaran, 
     btn_tambah = btn_tambah, title = title, title_data = title_data)
+@app.route('/cetak-bukti/<int:id_tagihan>')
+def cetak_bukti_pembayaran(id_tagihan):
+
+    tagihan = Tagihan.query.get_or_404(id_tagihan)
+
+    # Ambil transaksi terakhir yang sesuai dengan tagihan
+    transaksi = Transaksi.query.filter_by(id_tagihan=id_tagihan).order_by(Transaksi.created_at.desc()).first()
+    print(id_tagihan)
+    print(tagihan.tahun_ajaran)
+    print(transaksi.nis)
+
+    kelas_sekarang = PembagianKelas.query.filter(PembagianKelas.nis == transaksi.nis).all()
+
+    for i in kelas_sekarang:
+        print(i)
+        if i.tahun_akademik_rel.tahun_akademik == tagihan.tahun_ajaran:
+            print(i)
+            kelaas_sekarang = i.kelas_rel.nama_kelas
+
+    if not transaksi:
+        return "Transaksi tidak ditemukan untuk tagihan ini", 404
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4))
+    style = getSampleStyleSheet()
+    elements = []
+
+    elements.append(Paragraph("Bukti Pembayaran", style['Title']))
+    elements.append(Spacer(1, 12))
+
+    data = [
+        ['Tanggal Cetak', datetime.now().strftime('%d-%m-%Y')],
+        ['Tanggal Transaksi', transaksi.created_at.strftime('%d-%m-%Y %H:%M WIB')],
+        ['Nama Siswa', transaksi.siswa_rel.nama if transaksi.siswa_rel else '-'],
+        ['NIS', transaksi.nis],
+        ['Kelas', kelaas_sekarang],
+        ['Semester', tagihan.semester],
+        ['Tahun Ajaran', tagihan.tahun_ajaran],
+        ['Deskripsi Pembayaran', tagihan.deskripsi],
+        ['Kode Transaksi', transaksi.kode_order],
+        ['Status Pembayaran', transaksi.status],
+        ['Total Dibayar', f"Rp {transaksi.total:,.0f}".replace(',', '.')],
+    ]
+
+    table = Table(data, colWidths=[200, 400])
+    table.setStyle(TableStyle([
+        ('GRID', (0,0), (-1,-1), 0.5, colors.black),
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('BACKGROUND', (0,0), (1,0), colors.lightgrey),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+    ]))
+
+    elements.append(table)
+    doc.build(elements)
+    buffer.seek(0)
+
+    
+    transaction_data = {
+            "transaction_date": transaksi.created_at.strftime('%d-%m-%Y %H:%M WIB'),
+            "total_amount":  f"Rp {transaksi.total:,.0f}".replace(',', '.'),
+            "transaction_id": transaksi.kode_order,
+            "payer_name":  transaksi.siswa_rel.nama,
+            "payer_type": "Transfer Bank ",
+            "payer_bank": "Bank BRI",
+            "recipient_name": "Midtrans",
+            "recipient_company": "PT. Midtrans Payment Gateway",
+            "transaction_details": tagihan.deskripsi,
+            "nominal": f"Rp {transaksi.total:,.0f}".replace(',', '.'),
+            "admin_fee": "2.500"
+        }
+
+    return render_template('bukti_pembayaran.html', **transaction_data)
+@app.route('/bukti-pembayaran')
+def bukti_pembayaran():
+    # Data transaksi, bisa didapatkan dari database atau parameter lainnya
+    transaction_data = {
+        "transaction_date": "15 Juli 2025, 17:27 WIB",
+        "total_amount": "1.002.500",
+        "transaction_id": "TXN1234567890",
+        "payer_name": "RIZKY DWI SAPUTRA",
+        "payer_bank": "Bank BRI",
+        "recipient_name": "DEA WIJAYANTI",
+        "recipient_company": "PT. Odeo Teknologi Indonesia",
+        "transaction_details": "Pembayaran Tagihan 2025",
+        "nominal": "1.000.000",
+        "admin_fee": "2.500"
+    }
+
+    return render_template('bukti_pembayaran.html', **transaction_data)
 
