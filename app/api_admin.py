@@ -214,6 +214,7 @@ def tambah_admin_siswa():
             asal_sekolah=data.get('asal_sekolah'),
             id_gender=data.get('id_gender'),
             id_status=data.get('id_status'),
+            user_id = user.id  # Link Siswa to User
         )
     
         # Add siswa and commit all
@@ -439,11 +440,13 @@ def edit_admin_siswa(nis):
 def hapus_admin_siswa(nis):
     if session.get('role') == 'murid':
         abort(403)
-
     siswa = Siswa.query.get(nis)
     if not siswa:
         return jsonify({'error': 'Siswa tidak ditemukan'}), 404
-
+    user = User.query.get(siswa.user_id)
+    if not user:
+        return jsonify({'error': 'Siswa tidak ditemukan'}), 404
+    db.session.delete(user)
     db.session.delete(siswa)
     db.session.commit()
     flash('Siswa berhasil dihapus', 'warning')
@@ -672,6 +675,94 @@ def tambah_pembagian_kelas():
     db.session.commit()
     flash('Pembagian kelas berhasil ditambahkan', 'success')
     return jsonify({'msg': 'Pembagian kelas berhasil ditambahkan'})
+@app.route('/admin/pembagian_kelas/tambah_excell', methods=['POST'])
+def tambah_pembagian_kelas_excell():
+    if session.get('role') != 'admin':
+        abort(403)
+
+    file = request.files.get('file')
+    if not file:
+        flash('Tidak ada file yang diunggah', 'danger')
+        return redirect('/admin/pembagian_kelas')
+
+    try:
+        df = pd.read_excel(file, dtype={'nis': str, 'nip': str, 'id_kelas': str, 'id_tahun_akademik': str})
+        df = df[['nis', 'id_kelas', 'id_tahun_akademik', 'nip', 'tanggal']]
+        df = df.dropna(subset=['nis','id_kelas', 'id_tahun_akademik', 'nip', 'tanggal'])
+
+        inserted_count = 0
+        failed_rows = []
+
+        for _, row in df.iterrows():
+            error_msgs = []
+
+            nis = str(row['nis'])
+            nip = str(row['nip'])
+            id_kelas = row['id_kelas']
+            id_tahun_akademik = row['id_tahun_akademik']
+            tanggal = row['tanggal']
+
+            # Cek duplikat
+            existing = PembagianKelas.query.filter_by(
+                nis=nis,
+                id_kelas=id_kelas,
+                id_tahun_akademik=id_tahun_akademik,
+                nip=nip,
+                tanggal=tanggal
+            ).first()
+            if existing:
+                error_msgs.append(f"Sudah ada data pembagian kelas untuk NIS {nis} di kelas {id_kelas}")
+
+            # Validasi data di database
+            if not Siswa.query.filter_by(nis=nis).first():
+                error_msgs.append(f"NIS tidak ditemukan: {nis}")
+            if not Guru.query.filter_by(nip=nip).first():
+                error_msgs.append(f"NIP tidak ditemukan: {nip}")
+            if not Kelas.query.filter_by(id_kelas=id_kelas).first():
+                error_msgs.append(f"Kelas tidak ditemukan: {id_kelas}")
+            if not TahunAkademik.query.filter_by(id_tahun_akademik=id_tahun_akademik).first():
+                error_msgs.append(f"Tahun Akademik tidak ditemukan: {id_tahun_akademik}")
+
+            # Jika ada error, skip insert
+            if error_msgs:
+                failed_rows.append({
+                    'nis': nis,
+                    'error': error_msgs
+                })
+                continue
+
+            # Simpan ke database
+            try:
+                pembagian = PembagianKelas(
+                    nis=nis,
+                    nip=nip,
+                    id_kelas=id_kelas,
+                    id_tahun_akademik=id_tahun_akademik,
+                    tanggal=tanggal
+                )
+                db.session.add(pembagian)
+                inserted_count += 1
+            except Exception as db_error:
+                db.session.rollback()
+                failed_rows.append({
+                    'nis': nis,
+                    'error': [f'Gagal simpan ke database: {str(db_error)}']
+                })
+                continue
+
+        db.session.commit()
+
+        # Flash hasil
+        flash(f'{inserted_count} data pembagian kelas berhasil ditambahkan.', 'success')
+        if failed_rows:
+            for fail in failed_rows:
+                flash(f"❌ NIS {fail['nis']} gagal: {', '.join(fail['error'])}", 'danger')
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Gagal memproses file: {e}', 'danger')
+
+    return redirect('/admin/pembagian_kelas')
 
 @app.route('/admin/pembagian_kelas/edit/<id_pembagian>', methods=['PUT'])
 def edit_pembagian_kelas(id_pembagian):

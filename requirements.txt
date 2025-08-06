@@ -14,7 +14,6 @@ Pillow
 flask-jwt-extended
 flask-security
 email_validator
-openpyxl
 python-dateutil
 num2words
 faker

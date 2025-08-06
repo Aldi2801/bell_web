@@ -1798,6 +1798,15 @@ INSERT INTO `user` (`id`, `username`, `password`, `nis`, `nip`, `email`, `active
 (57, 'Purwati',  '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '198203202020041006', 'Purwati@gmail.com', 1, NULL, NULL),
 (58, 'Hakim',      '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '197911102020041007', 'Hakimarifin@gmail.com', 1, NULL, NULL),
 (59, 'Fitria',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '198911152020041008', 'Fitriaarofiyah@gmail.com', 1, NULL, NULL),
+(93, 'Edi',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '198112022020041009', 'Edi@gmail.com', 1, NULL, NULL),
+(94, 'Yuli_S',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '197801152020041010', 'YuliSetiawan@gmail.com', 1, NULL, NULL),
+(95, 'Nur_A',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '199005202020041011', 'NurAsiyah@gmail.com', 1, NULL, NULL),
+(96, 'Cholil',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '198002102020041012', 'Cholil@gmail.com', 1, NULL, NULL),
+(97, 'Ahmad_S',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '198506172020041013', 'AhmadSoleh@gmail.com', 1, NULL, NULL),
+(98, 'Kurun',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '199012082020041014', 'KurunKhusniyah@gmail.com', 1, NULL, NULL),
+(99, 'Fatihaturizqillah',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '199305192020041015', 'Fatihaturizqillah@gmail.com', 1, NULL, NULL),
+(100, 'Nadzyf',    '$2b$12$jUdOw7DYoMGhEZ7.UwpNJu707GTJZJ9zaRuKiPidCdjvA6NDWD5ka', NULL, '197703202020041016', 'MNadzyfMasruhan@gmail.com', 1, NULL, NULL),
+
 (3, 'Salman',      '$2b$12$N2D4cncbxLazOpAUX1GZnOsbyr7uFCTc41NtbxMgCO6ZGPJFtlHc.', 20001, NULL, 'man@gmail.com', 1, NULL, NULL),
 (4, 'Ulya',        '$2b$12$N2D4cncbxLazOpAUX1GZnOsbyr7uFCTc41NtbxMgCO6ZGPJFtlHc.', 20002, NULL, 'ulyakuswandarispt0@mail.com', 1, NULL, NULL),
 (5, 'Rina',        '$2b$12$N2D4cncbxLazOpAUX1GZnOsbyr7uFCTc41NtbxMgCO6ZGPJFtlHc.', 20003, NULL, 'rinatampubolon1@mail.com', 1, NULL, NULL),
@@ -1972,7 +1981,15 @@ INSERT INTO `user_roles` (`id`, `user_id`, `role_id`) VALUES
 (89, 89, 3),
 (90, 90, 3),
 (91, 91, 3),
-(92, 92, 3);
+(92, 92, 3),
+(93, 93, 2),
+(94, 94, 2),
+(95, 95, 2),
+(96, 96, 2),
+(97, 97, 2),
+(98, 98, 2),
+(99, 99, 2),
+(100, 100, 2);
 
 COMMIT;
 
