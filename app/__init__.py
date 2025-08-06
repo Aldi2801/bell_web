@@ -241,11 +241,11 @@ class Transaksi(db.Model):
     nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=True)
     email = db.Column(db.String(120), nullable=True)
     total = db.Column(db.Float, nullable=True)
-    status = db.Column(db.String(50), default="pending")
+    status = db.Column(db.String(50), default="pending",nullable=True)
     fraud_status = db.Column(db.String(50), nullable=True)
-    metode_pembayaran = db.Column(db.String(50))  # contoh: transfer_bank, e-wallet
+    metode_pembayaran = db.Column(db.String(50),nullable=True)  # contoh: transfer_bank, e-wallet
     bank = db.Column(db.String(50),nullable=True)              # contoh: BRI, BCA
-    admin_fee = db.Column(db.Integer)            # dalam rupiah
+    admin_fee = db.Column(db.Integer,nullable=True)            # dalam rupiah
     created_at = db.Column(db.DateTime, default=time_zone_wib)
     updated_at = db.Column(db.DateTime, default=time_zone_wib, onupdate=time_zone_wib)
 
