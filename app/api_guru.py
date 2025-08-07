@@ -347,9 +347,8 @@ def lihat_surat_izin_murid():
     # Tambahkan info kelas ke data kehadiran
     enriched_kehadiran = []
     for d in data_kehadiran:
-        print(d.kbm_rel.ampu_rel.nip, session.get('nip', ''))
-
-        if d.kbm_rel.ampu_rel.nip == session.get('nip', ''):
+        nip_now = d.kbm_rel.ampu_rel.nip if d.kbm_rel else ''
+        if nip_now == session.get('nip', ''):
             enriched_kehadiran.append({
                 "id_kehadiran": d.id_kehadiran,
                 "surat_izin": d.surat_izin,
