@@ -294,11 +294,23 @@ def upload_excel():
 
             try:
                 # Buat User
+                pswd_raw = row['password']
+                if isinstance(pswd_raw, float) and pswd_raw.is_integer():
+                    pswd = str(int(pswd_raw))  # Convert float 123.0 to int 123 then to str => '123'
+                else:
+                    pswd = str(pswd_raw)
+                print(pswd)
+                pswd_hash = bcrypt.generate_password_hash(pswd).decode('utf-8')
+                print(pswd_hash)
+                if bcrypt.check_password_hash(pswd_hash, pswd):
+                    print('benar')
+                else:
+                    print("salah")
                 user = User(
                     username=username,
                     nis=int(nis),
                     email=email,
-                    password=bcrypt.generate_password_hash(str(row['password'])).decode('utf-8'),
+                    password=pswd_hash,
                     active=True
                 )
 
@@ -455,6 +467,7 @@ def hapus_admin_siswa(nis):
 @app.route('/admin/guru')
 def view_register_guru():
     data_guru = Guru.query.all()
+    user = User.query.filter_by(username=session.get('username')).first()
     data_fix = []
     btn_tambah = True
     title = "Manage Guru"
@@ -473,7 +486,8 @@ def view_register_guru():
             'email': i.email,
             'spesialisasi': i.spesialisasi,
             'gender': i.gender_rel.gender if i.gender_rel else '-',
-            'status': i.status_rel.status if i.status_rel else '-'
+            'status': i.status_rel.status if i.status_rel else '-',
+            'img_profile':user.img_profile,
         })
     return render_template("admin/tambah_guru.html",guru=data_fix, btn_tambah=btn_tambah, title=title, title_data=title_data   )
 

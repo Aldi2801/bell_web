@@ -1,10 +1,6 @@
 {% extends "layout.html" %}
 {% block form_tambah %}
 <div class="col-md-12 mb-2">
-  <label for="img_profile">Img Profile</label>
-  <input type="file" class="form-control" id="img_profile" name="img_profile">
-</div>
-<div class="col-md-12 mb-2">
   <label for="nip">NIP</label>
   <input type="text" class="form-control" id="nip" name="nip" placeholder="NIP" required>
 </div>
@@ -143,7 +139,7 @@
         {% for s in guru %}
         <tr>
             <td>{{loop.index}}</td>
-            <td><img src="/static/image/img_profile/{{s.img_profile}}" width="50px" height="50px" class="img img-responsive card "  alt="Image Profile {{s.nama}}" ></td>
+            <td><img src="/static/img_profile/{{s.img_profile}}" width="50px" height="50px" class="img img-responsive card "  alt="Image Profile {{s.nama}}" ></td>
             <td>{{s.username}}</td>
             <td>{{s.nip}}</td>
             <td>{{s.inisial}}</td>
@@ -180,10 +176,7 @@
 			  <!-- Modal Body -->
 			  <div class="modal-body">
 				<form id="editForm-{{ s.nip }}" enctype="multipart/form-data">
-          <div class="col-md-12 mb-2">
-          <label for="img_profile">Img Profile</label>
-          <input type="file" class="form-control" id="img_profile" name="img_profile">
-          </div>
+          
 				  <div class="col-md-12 mb-2">
 					<label for="nip">NIP</label>
 					<input type="text" class="form-control" id="nip" value="{{s.nip}}" name="nip" placeholder="NIP" required>
@@ -334,7 +327,7 @@ document.getElementById("editForm-{{ s.nip }}").addEventListener("submit", funct
             if (xhr.responseJSON && xhr.responseJSON.msg){
                 errorTxt = xhr.responseJSON.msg;
             }
-            alert(`Edit failed: ${errorTxt}`);
+            alert(Edit failed: ${errorTxt});
         }
     });
 });

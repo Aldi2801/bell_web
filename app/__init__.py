@@ -18,7 +18,7 @@ app.config['UPLOAD_SURAT_IZIN'] = upload_surat_izin
 app.config['UPLOAD_IMG_PROFILE'] = upload_img_profile
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/bell_web_sistem'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'isahc8u2e0921e12osa00-=[./vds]'
+app.config['SECRET_KEY'] = 'bukan rahasia'
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
 app.config['SECURITY_PASSWORD_SALT'] = b'asahdjhwquoyo192382qo'
 # Nonaktifkan rute login bawaan
@@ -304,13 +304,11 @@ class LogAktivitas(db.Model):
     __tablename__ = 'log_aktivitas'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # atau relasi user kamu
+    user_id = db.Column(db.Integer)  # atau relasi user kamu
     aksi = db.Column(db.String(255))
     model = db.Column(db.String(100))
     keterangan = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=time_zone_wib)
-
-    user = db.relationship('User')  # opsional, kalau ingin relasi ke user
 from sqlalchemy import event
 
 def log_crud_action(mapper, connection, target):
