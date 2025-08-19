@@ -263,29 +263,21 @@
             <div class="card-header bg-warning text-dark">
                 Jadwal Hari Ini
             </div>
-            <div class="card-body table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-info">
-                        <tr>
-                            <th>Jam</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Guru</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for jadwal in jadwal_hari_ini %}
-                        <tr>
-                            <td>{{ jadwal.jam}}</td>
-                            <td>{{ jadwal.mapel }}</td>
-                            <td>{{ jadwal.guru }}</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Tidak ada jadwal hari ini</td>
-                        </tr>
+            <div class="card-body">
+                {% if jadwal_hari_ini %}
+                    <ul class="list-group">
+                        {% for pelajaran in jadwal_hari_ini %}
+                            <li class="list-group-item">
+                                {{ pelajaran.jam }}
+                                -
+                                {{ pelajaran.mapel }}
+                                ({{ pelajaran.guru }})
+                            </li>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </ul>
+                {% else %}
+                    <p>Tidak ada jadwal pelajaran hari ini.</p>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -331,9 +323,7 @@ document.getElementById("btnIsiEvaluasi").addEventListener("click", function () 
                 <div class="card-header bg-primary text-white">
                     Informasi Profil - {{ profil.role }}
                 </div>
-                <div class="card-body ">
-                <div class="row">
-                    <div class="col-lg-2 ">
+                <div class="card-body d-flex">
                     {% if profil.img_profile %}
                     <img src="/static/img_profile/{{ profil.img_profile }}" width="100px"  height="100px" class="img img-responsive card " style="margin-right:20px" alt="Profile">
                     {% else %}
@@ -342,8 +332,7 @@ document.getElementById("btnIsiEvaluasi").addEventListener("click", function () 
                         {{ profil.username[0]|upper }}
                     </div>
                     {% endif %}
-                    </div>
-                    <div class="col-lg-10 ">
+
                     <div class="w-100">
                         <ul class="list-group">
                             {% for key, value in profil.items() if key not in ['role', 'img_profile', 'username'] %}
@@ -357,8 +346,6 @@ document.getElementById("btnIsiEvaluasi").addEventListener("click", function () 
                         <button class="btn btn-primary mt-3" data-bs-toggle="modal"
                             data-bs-target="#editModalmurid">Edit Profil</button>
                     </div>
-                    </div>
-                </div>
                 </div>
             </div>
         </div>
