@@ -478,7 +478,7 @@ def surat_izin_simpan():
     flash('Surat izin berhasil ditambahkan.', 'success')
     return redirect(request.referrer or url_for('surat_izin'))
 @app.route('/jadwal')
-def view_jadwal():    
+def view_jadwal(dashboard = None):    
     formatted_teacher_map = {}
     data_guru = Guru.query.order_by(Guru.nama.asc()).all() # Urutkan berdasarkan nama ASC
     formatted_teacher_map["kodeGuru"] = [
@@ -525,8 +525,11 @@ def view_jadwal():
         {"id_kelas": k.id_kelas, "nama_kelas": k.nama_kelas}
         for k in data_kelas
     ]
+    if dashboard:
+        return formatted_schedule , formatted_teacher_map, users, kelas_dict
 
-    return render_template("murid/jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict,
+    else:
+        return render_template("murid/jadwal.html", schedule=formatted_schedule, kode_guru=formatted_teacher_map["kodeGuru"], kode_mapel=formatted_teacher_map["kodeMapel"], users=users, kelas=kelas_dict,
                            
     btn_tambah = False,
     title = "Jadwal Pelajaran",
