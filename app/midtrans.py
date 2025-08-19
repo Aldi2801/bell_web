@@ -1,6 +1,6 @@
 from flask import request, jsonify, render_template, session
 import os, uuid, base64, json, requests, jwt
-from . import PembagianKelas, app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User
+from . import Kelas, PembagianKelas, app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User
 from flask import send_file
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.pagesizes import A4, landscape
@@ -147,7 +147,7 @@ def view_menu_pembayaran():
         title = "Pembayaran"
         title_data = "Pembayaran"
     return render_template("menu_pembayaran.html", siswa = data_siswa, tahun_ajaran = tahun_ajaran, 
-    btn_tambah = btn_tambah, title = title, title_data = title_data)
+    btn_tambah = btn_tambah, title = title, title_data = title_data, data_kelas = Kelas.query.all())
 @app.route('/cetak-bukti/<int:id_tagihan>')
 def cetak_bukti_pembayaran(id_tagihan):
 

@@ -1,5 +1,5 @@
 import os, uuid, jwt, datetime, ast, pandas as pd
-from . import EvaluasiGuru, Kelas, Siswa, app, db,allowed_file_surat_izin, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
+from . import EvaluasiGuru, Kelas, Siswa, TahunAkademik, app, db,allowed_file_surat_izin, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
 from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for, send_file, jsonify
 from datetime import datetime
 from sqlalchemy import extract, case
@@ -43,45 +43,39 @@ def get_menu_pembayaran():
         # Buat set id_tagihan yang sudah lunas
         paid_tagihan_ids = {tr.id_tagihan for tr in paid_transactions if tr.id_tagihan is not None}
 
-        # Cache untuk siswa, gunakan dictionary
-        siswa_map = {}
-
-        def get_siswa_data(user_id):
+        def get_siswa_data(user_id,tahun_ajaran=None):
             user = User.query.filter_by(id=user_id).first()
             if not user or not user.nis:
                 return None
 
-            # Cek cache dulu berdasarkan NIS
-            nis = user.nis
-            if nis in siswa_map:
-                return siswa_map[nis]
-
-            siswa = Siswa.query.filter_by(nis=nis).first()
+            siswa = Siswa.query.filter_by(nis=user.nis).first()
             if not siswa:
-                siswa_map[nis] = None
                 return None
-
+            print(user_id)
+            print(tahun_ajaran)
+            tahun_akademik = TahunAkademik.query.filter_by(tahun_akademik=tahun_ajaran).first() if tahun_ajaran else None
+            print(f"{siswa.nis} tahun_akademik: {tahun_akademik.id_tahun_akademik if tahun_akademik else 'None'}")
             pembagian = PembagianKelas.query \
-                .filter_by(nis=siswa.nis) \
-                .order_by(PembagianKelas.tanggal.desc()) \
+                .filter_by(nis=siswa.nis, id_tahun_akademik = tahun_akademik.id_tahun_akademik ) \
                 .first()
-
+            print(f"{siswa.nis} pembagian: {pembagian.id_kelas if pembagian else 'None'}")
             kelas_nama = pembagian.kelas_rel.nama_kelas if pembagian and pembagian.kelas_rel else 'Belum dibagi'
-
+            print(f"{siswa.nis} kelas_nama: {kelas_nama}")
             data = {
                 'nama': siswa.nama,
                 'kelas': kelas_nama
             }
-
-            siswa_map[nis] = data
             return data
 
         # Bangun response
         result_tagihan = []
         for t in all_tagihan:
             status = 'Lunas' if t.id_tagihan in paid_tagihan_ids else 'Belum Lunas'
-            siswa_info = get_siswa_data(t.user_id) if role != 'murid' else None
-
+            print(t.user_id)
+            print(t.tahun_ajaran)
+            siswa_info = None
+            siswa_info = get_siswa_data(t.user_id, t.tahun_ajaran) 
+            print(f"siswa {siswa_info}")
             result = {
                 'id_tagihan': t.id_tagihan,
                 'deskripsi': t.deskripsi,
@@ -98,6 +92,7 @@ def get_menu_pembayaran():
             if siswa_info:
                 result['nama_siswa'] = siswa_info['nama']
                 result['kelas'] = siswa_info['kelas']
+                print(f"Tagihan {t.id_tagihan} siswa: {siswa_info['nama']} kelas: {siswa_info['kelas']}")
 
             result_tagihan.append(result)
         if result_tagihan ==[]:

@@ -160,6 +160,8 @@ def view_admin_siswa():
     btn_tambah = True
     title = "Manage Siswa"
     title_data = "Siswa"
+    data_fix ={}
+    
     return render_template('admin/siswa.html', siswa_list=siswa_list,gender_list=gender_list,status_list=status_list,
     btn_tambah=btn_tambah, title=title, title_data=title_data, message_time=False)
 
@@ -467,7 +469,6 @@ def hapus_admin_siswa(nis):
 @app.route('/admin/guru')
 def view_register_guru():
     data_guru = Guru.query.all()
-    user = User.query.filter_by(username=session.get('username')).first()
     data_fix = []
     btn_tambah = True
     title = "Manage Guru"
@@ -1007,6 +1008,28 @@ def tambah_tagihan():
 
     email_target = data.get('nis')
     print(email_target)
+    data_kelas = Kelas.query.all()
+    for kelas in data_kelas:
+        if kelas.id_kelas == email_target:
+            siswa_list = Siswa.query.all()
+            tahun_akademik_terbaru = TahunAkademik.query.filter_by(tahun_akademik = request.json.get('tahun_ajaran')).first()
+            print(tahun_akademik_terbaru.id_tahun_akademik)
+            pembagian_kelas_list = PembagianKelas.query.filter_by(id_kelas=kelas.id_kelas, id_tahun_akademik = tahun_akademik_terbaru.id_tahun_akademik).all()
+            for pembagian in pembagian_kelas_list:  
+                for siswa in siswa_list:
+                    if pembagian.nis == siswa.nis:
+                        
+                        user = User.query.filter_by(nis=siswa.nis).first()
+                        tagihan = Tagihan(
+                            semester=request.json.get('semester'),
+                            user_id = user.id,
+                            tahun_ajaran=request.json.get('tahun_ajaran'),
+                            deskripsi=request.json.get('deskripsi'),
+                            total=request.json.get('total'),
+                        )
+                        db.session.add(tagihan)
+            db.session.commit()
+            return jsonify({'msg': 'Tagihan berhasil ditambahkan'})
     if email_target == 'semua_siswa':
         siswa_list = Siswa.query.all()
         for siswa in siswa_list:

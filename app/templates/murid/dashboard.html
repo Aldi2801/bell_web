@@ -36,7 +36,7 @@
                 <div class="modal-body" id="body">
                     <form id="evaluasiForm" class="needs-validation" novalidate action="/evaluasi_guru/tambah" method="POST">
         <input type="hidden" name="evaluator_role" value="murid" required>
-        <input type="hidden" name="evaluator_id" value="{{ session.get('id','') }}" required>
+        <input type="hidden" name="evaluator_id" value="{{ session.get('id')}}" required>
         <div class="col-md-12 mb-3">
           <label>Guru yang Dinilai</label>
           <select name="nip" class="form-select" required>

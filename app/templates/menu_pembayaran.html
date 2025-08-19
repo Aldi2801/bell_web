@@ -9,9 +9,12 @@
         </select>
       </div>
       <div class="mb-3">
-        <label>Pilih Siswa:</label>
+        <label>Pilih Siswa / Kelas:</label>
         <select class="form-control"  name="nis" class="form-control form-search" id="tambah_nis" required>
           <option value="semua_siswa">Semua Siswa</option>
+          {% for i in data_kelas %}
+          <option value="{{i.id_kelas}}">{{i.nama_kelas}}</option>
+          {% endfor %}
           {% for i in siswa %}
           <option value="{{i.nis}}">{{i.nama}}</option>
           {% endfor %}

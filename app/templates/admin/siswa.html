@@ -3,10 +3,6 @@
 
 <div class="row">
     <div class="col-md-6 mb-3">
-        <label for="img_profile">Img Profile</label>
-        <input type="file" class="form-control" id="img_profile" name="img_profile">
-    </div>
-    <div class="col-md-6 mb-3">
         <label for="nis">NIS</label>
         <input type="number" class="form-control" id="nis" name="nis" placeholder="NIS" required >
     </div>
@@ -156,7 +152,7 @@
            {% for s in siswa_list %}
                 <tr>
                         <td>{{loop.index}}</td>
-                        <td><img src="/static/image/img_profile/{{s.img_profile}}" width="50px" height="50px" class="img img-responsive card " alt="Image Profile {{s.nama}}" ></td>
+                        <td><img src="/static/img_profile/{{s.user.img_profile}}" width="50px" height="50px" class="img img-responsive card " alt="Image Profile {{s.nama}}" ></td>
                         <td>{{ s.nis }}</td>
                         <td>{{ s.nisn }}</td>
                         <td>{{ s.nama }}</td>
@@ -192,10 +188,7 @@
 					<div class="modal-body">
 					  <form id="editForm-{{ s.nis }}" enctype="multipart/form-data">
 						<input type="hidden" name="nis_old" value="{{ s.nis }}">
-            <div class="m-1"style="">
-              <label for="img_profile_{{ s.nis }}">Img Profile</label>
-              <input type="file" class="form-control w-100"  id="img_profile_{{ s.nis }}" name="img_profile">
-            </div>
+            
 						<div class="mb-2 row">
 						  <label for="nis_{{ s.nis }}" class="col-sm-4 col-form-label">NIS</label>
 						  <div class="col-sm-8">

@@ -522,10 +522,14 @@ def tambah_penilaian_excel():
             row_index = index + 2  # baris di Excel
             error_msgs = []
             nis = str(row['nis'])
-            id_ampu = str(row['id_ampu'])
-
+            id_ampu = row['id_ampu']
+            if isinstance(id_ampu, float) and id_ampu.is_integer():
+                    id_ampu = int(id_ampu)  # Convert float 123.0 to int 123 then to str => '123'
+            else:
+                    id_ampu = id_ampu
+            print(id_ampu)
             siswa = Siswa.query.filter_by(nis=int(nis)).first()
-            ampu = AmpuMapel.query.filter_by(id_ampu=id_ampu).first()
+            ampu = AmpuMapel.query.filter_by(id_ampu=id_ampu,nip=session.get('nip')).first()
 
             if not siswa:
                 error_msgs.append(f"NIS tidak ditemukan")
