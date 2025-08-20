@@ -1,6 +1,6 @@
 from flask import request, jsonify, render_template, session
 import os, uuid, base64, json, requests, jwt
-from . import Kelas, PembagianKelas, app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User
+from . import Kelas, PembagianKelas, app, db, Tagihan, Transaksi , Siswa, TahunAkademik,User, time_zone_wib
 from flask import send_file
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.pagesizes import A4, landscape
@@ -180,7 +180,7 @@ def cetak_bukti_pembayaran(id_tagihan):
     elements.append(Spacer(1, 12))
 
     data = [
-        ['Tanggal Cetak', datetime.now().strftime('%d-%m-%Y')],
+        ['Tanggal Cetak', time_zone_wib().strftime('%d-%m-%Y')],
         ['Tanggal Transaksi', transaksi.created_at.strftime('%d-%m-%Y %H:%M WIB')],
         ['Nama Siswa', transaksi.siswa_rel.nama if transaksi.siswa_rel else '-'],
         ['NIS', transaksi.nis],

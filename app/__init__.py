@@ -335,7 +335,7 @@ def log_crud_action(mapper, connection, target):
             aksi=aksi,
             model=model,
             keterangan=keterangan,
-            timestamp=datetime.now()
+            timestamp=time_zone_wib()
         )
         db.session.add(log)
         db.session.flush()  # biar nggak pending
@@ -399,7 +399,7 @@ def page_not_found(error):
     return render_template('404.html'), 404
 
 def get_semester_and_year():
-    now = datetime.now()
+    now = time_zone_wib()
     year = now.year
     month = now.month
 
@@ -451,7 +451,7 @@ def create_automatic_tahun_ajaran():
         # "Januari", "Februari", "Maret", "April", "Mei", "Juni",
         # "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     # ]
-    # bulan_sekarang = bulan_mapping[datetime.now().month - 1]
+    # bulan_sekarang = bulan_mapping[time_zone_wib().month - 1]
 
     # spp_bulanan = f"SPP Bulanan - {bulan_sekarang} {tahun_ajaran} {semester}"
     # ujian_tahunan = f"Uang Ujian {tahun_ajaran} {semester}"
@@ -474,7 +474,7 @@ def create_automatic_tahun_ajaran():
                 # total=10000,
                 # semester=semester,
                 # tahun_ajaran=tahun_ajaran,
-                # created_at=datetime.now()
+                # created_at=time_zone_wib()
             # )
             # db.session.add(tagihan_spp)
 
@@ -493,7 +493,7 @@ def create_automatic_tahun_ajaran():
                 # total=1000000,
                 # semester=semester,
                 # tahun_ajaran=tahun_ajaran,
-                # created_at=datetime.now()
+                # created_at=time_zone_wib()
             # )
             # db.session.add(tagihan_ujian)
 

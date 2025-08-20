@@ -6,7 +6,7 @@ from flask import abort, render_template, request, jsonify, session, redirect, u
 # Fungsi untuk mengubah angka menjadi teks (terbilang)
 from flask import flash
 # Import dari aplikasi lokal
-from . import AmpuMapel,Kelas, Mapel,allowed_file_img_profile, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
+from . import AmpuMapel,Kelas, Mapel,allowed_file_img_profile, time_zone_wib, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
 from sqlalchemy import case
 from sqlalchemy.orm import joinedload
 from itertools import zip_longest
@@ -1133,7 +1133,7 @@ def bayar_offline():
         total=total,
         fraud_status = 0,
         status="settlement",
-        created_at=datetime.datetime.now()
+        created_at=time_zone_wib()
     )
     db.session.add(transaksi)
 

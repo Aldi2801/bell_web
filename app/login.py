@@ -33,7 +33,7 @@ def proses_login():
             'username': username,
             'role': user.roles[0].name if user.roles else None,
             'email' : user.email,
-            'exp': datetime.utcnow()+timedelta(hours=7) + timedelta(hours=24)
+            'exp': time_zone_wib() + timedelta(hours=24)
         }
         access_token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
         session['jwt_token'] = access_token
@@ -160,7 +160,7 @@ def dashboard():
     role = session.get('role')
     user = User.query.filter_by(username=session.get('username')).first()
     # Ambil berita terbaru < 14 hari
-    batas_waktu = datetime.utcnow()+timedelta(hours=7) - timedelta(days=14)
+    batas_waktu = time_zone_wib() - timedelta(days=14)
   
     profil = {}
     evaluasi = False
@@ -199,7 +199,7 @@ def dashboard():
             rata_siswa_per_kelas = 0
 
         # Jadwal KBM hari ini
-        hari_ini = datetime.now().strftime('%A')  # 'Monday', 'Tuesday', etc
+        hari_ini = time_zone_wib().strftime('%A')  # 'Monday', 'Tuesday', etc
         jadwal_hari_ini = JadwalPelajaran.query.filter_by(day=hari_ini).all()
 
         # Siswa terbaru (berdasarkan ID User karena ada relasi user_id)
@@ -208,7 +208,7 @@ def dashboard():
         # Rata-rata nilai penilaian per bulan (12 bulan terakhir)
         chart_bulan = []
         chart_rata = []
-        now = datetime.now()
+        now = time_zone_wib()
         
         data_guru = Guru.query.all()
         for i in range(11, -1, -1):
@@ -290,12 +290,8 @@ def dashboard():
 
         # 1. Ambil tahun akademik aktif (semester aktif)
         tahun_aktif = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).first()
-        if tahun_aktif:
-            tanggal_awal = tahun_aktif.mulai
-            tanggal_akhir = tahun_aktif.sampai
-        else:
-            now = datetime.utcnow() + timedelta(hours=7)
-            tanggal_awal = tanggal_akhir = now
+        tanggal_awal = tahun_aktif.mulai
+        tanggal_akhir = tahun_aktif.sampai\
 
         # 2. Cek apakah murid ini sudah pernah mengisi evaluasi di semester aktif
         evaluasi_exist = EvaluasiGuru.query.filter(
@@ -599,7 +595,7 @@ def get_jumlah_evaluasi(id_murid):
 #     if not siswa:
 #         return []
 
-#     now = datetime.utcnow() + timedelta(hours=7)
+#     now = time_zone_wib()
 
 #     # Tugas yang belum lewat deadline
 #     tugas_aktif = Tugas.query.join(PembagianKelas, Tugas.id_kelas == PembagianKelas.id)\

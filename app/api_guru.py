@@ -1,5 +1,5 @@
 import pandas as pd
-from . import AmpuMapel, Berita, Kehadiran, Keterangan, PembagianKelas, Penilaian, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik
+from . import AmpuMapel, Berita, Kehadiran, Keterangan, PembagianKelas, Penilaian, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik, time_zone_wib
 from flask import flash, redirect, request, jsonify, url_for, render_template, session, abort
 from sqlalchemy import case, extract
 from sqlalchemy.exc import IntegrityError
@@ -251,7 +251,7 @@ def api_kehadiran_siswa():
 def simpan_kehadiran_siswa():
     id_ampu = request.form['id_ampu']
     id_kbm = request.form['id_kbm']
-    tanggal = datetime.now().date()
+    tanggal = time_zone_wib().date()
 
     # Tambahkan data ke KBM (karena kehadiran harus ada ID KBM)
  
