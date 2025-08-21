@@ -1,6 +1,6 @@
 import random
 from datetime import date, timedelta
-from . import db, Guru
+from __init__ import db, Guru
 # Data referensi dari user
 nis_list = [20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 20009, 20010,
 20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020,
@@ -89,9 +89,9 @@ sql_kehadiran = make_insert_sql("kehadiran",
     ['id_kehadiran', 'id_keterangan', 'id_kbm', 'nis'],
     kehadiran_data)
 
-print(sql_ampu)  # Preview agar tidak terlalu panjang
-print(sql_kbm)  # Preview agar tidak terlalu panjang
-print(sql_kehadiran)  # Preview agar tidak terlalu panjang
+#print(sql_ampu)  # Preview agar tidak terlalu panjang
+#print(sql_kbm)  # Preview agar tidak terlalu panjang
+#print(sql_kehadiran)  # Preview agar tidak terlalu panjang
 
 # seeder
 # seeder_siswa.py
@@ -222,3 +222,73 @@ def import_data_guru():
 
     db.session.commit()
     print(f"{generated} data guru berhasil ditambahkan.")
+
+import random
+from datetime import date
+
+# Konfigurasi dasar
+nip_guru = "197512012020041001"
+tahun_id = 6
+semester_id = 2
+tanggal_list = [
+    date(2025, 6, 12).isoformat(),
+    date(2025, 6, 13).isoformat(),
+    date(2025, 6, 14).isoformat(),
+    date(2025, 6, 15).isoformat(),
+    date(2025, 6, 16).isoformat(),
+    date(2025, 6, 17).isoformat(),
+    date(2025, 6, 18).isoformat(),
+    date(2025, 6, 19).isoformat(),
+    date(2025, 6, 20).isoformat(),
+    date(2025, 6, 21).isoformat(),
+    date(2025, 6, 22).isoformat(),
+    date(2025, 6, 23).isoformat(),
+    date(2025, 6, 24).isoformat(),
+    date(2025, 6, 25).isoformat(),
+    date(2025, 6, 26).isoformat(),
+    date(2025, 6, 27).isoformat(),
+    date(2025, 6, 28).isoformat(),
+    date(2025, 6, 29).isoformat(),
+    date(2025, 6, 30).isoformat(),
+]
+
+# Range NIS murid
+nis_start = 20021
+nis_end = 20110
+
+# Contoh komentar yang divariasikan
+komentar_list = [
+    "sangat baik",
+    "baik sekali",
+    "cukup baik",
+    "mantap",
+    "perlu ditingkatkan",
+    "cukup saja",
+    "kurang jelas dalam menjelaskan",
+    "interaktif dan menyenangkan",
+    "mudah dipahami",
+    "serius tapi enak",
+]
+
+# Generate SQL
+sql_statements = []
+sql = f"INSERT INTO `evaluasi_guru` (`nip`, `id_ampu`, `nis`, `evaluator_role`, " \
+          f"`q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `q11`, " \
+          f"`komentar`, `tanggal`, `tahun_id`, `semester_id`) VALUES " 
+sql_statements.append(sql)
+          
+for nis in range(nis_start, nis_end + 1):
+    # Generate jawaban q1 - q11 acak antara 1-4
+    jawaban = [str(random.randint(1, 4)) for _ in range(11)]
+    komentar = random.choice(komentar_list)
+    sql = f"('{nip_guru}', NULL, {nis}, 'murid', {', '.join(jawaban)}, " \
+          f"'{komentar}', '{random.choice(tanggal_list)}', {tahun_id}, {semester_id})"
+    if nis < nis_end:
+        sql += ","
+    else:
+        sql += ";"
+    sql_statements.append(sql)
+
+# Gabungkan semua SQL
+output_sql = "\n".join(sql_statements)
+print(output_sql)  # tampilkan sebagian biar tidak kepanjangan

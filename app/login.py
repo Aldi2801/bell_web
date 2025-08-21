@@ -1,6 +1,6 @@
 import ast, jwt
 from collections import defaultdict
-from . import AmpuMapel, LogAktivitas, Mapel, app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,get_semester_and_year, time_zone_wib, TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
+from . import AmpuMapel, LogAktivitas, Mapel, Semester, TahunSemester, app, bcrypt, User,Role,UserRoles, mail,db,Berita, Kelas,get_semester_and_year, time_zone_wib, TahunAkademik, EvaluasiGuru, Siswa, Guru, Penilaian, JadwalPelajaran, PembagianKelas, Siswa
 from flask import request, render_template, redirect, url_for, jsonify, session, flash
 from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime, timedelta
@@ -292,8 +292,10 @@ def dashboard():
 
         # 1. Ambil tahun akademik aktif (semester aktif)
         tahun_aktif = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).first()
-        tanggal_awal = tahun_aktif.mulai
-        tanggal_akhir = tahun_aktif.sampai\
+        tahun_semester_aktif = TahunSemester.query.order_by(TahunSemester.mulai.desc()).first()
+        tanggal_awal = tahun_semester_aktif.mulai
+        tanggal_akhir = tahun_semester_aktif.sampai
+        print(f" dari {tanggal_awal} sampai {tanggal_akhir}")   
 
         # 2. Cek apakah murid ini sudah pernah mengisi evaluasi di semester aktif
         evaluasi_exist = EvaluasiGuru.query.filter(
@@ -304,8 +306,12 @@ def dashboard():
         ).first()
 
         # 3. Evaluasi masih perlu diisi jika belum pernah mengisi
-        evaluasi_perlu = False if evaluasi_exist else True
+        now = time_zone_wib()
+        batas_buka = tanggal_akhir - timedelta(days=14)
 
+        evaluasi_perlu = False
+        if not evaluasi_exist and now.date() >= batas_buka and now.date() <= tanggal_akhir:
+            evaluasi_perlu = True
         # 4. Ambil data murid dan kelas aktif
         siswa = Siswa.query.filter_by(nis=user.nis).first()
         kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis,id_tahun_akademik = tahun_aktif.id_tahun_akademik).first()
@@ -345,10 +351,11 @@ def dashboard():
         evaluasi_terisi = get_jumlah_evaluasi(id_murid)
         total_guru = len(data_guru)
         evaluasi_persen = int((evaluasi_terisi / total_guru) * 100) if total_guru else 0
-
         # 7. Kirim ke template dashboard
         return render_template('murid/dashboard.html',
                             profil=profil,
+    tahun_list = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).all(),
+    semester_list = Semester.query.order_by(Semester.id_semester.asc()).all(),
                             ringkasan_nilai=ringkasan_nilai,
                             jadwal_hari_ini=jadwal_hari_ini,
                             #tugas=tugas,

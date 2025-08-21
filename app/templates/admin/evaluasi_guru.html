@@ -61,10 +61,10 @@
               <i class="ri-home-3-line fs-5"></i>
             </a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{title_data}}</li>
         </ol>
       </nav>
-      <h1 class="mb-0 fw-bold">Data {{title}}</h1>
+      <h1 class="mb-0 fw-bold">{{title}}</h1>
     </div>
 	{% if btn_tambah %}
     <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
@@ -77,11 +77,46 @@
 </div>
 <div class="container-fluid">
   <div class="row">
+    <div class="col-lg-12 mb-4">
+      <div class="card">
+        <div class="card-body">
+            <form method="get" action="{{ url_for('evaluasi_guru_list') }}" class="mb-3 row">
+                <div class="col-md-5">
+                    <label for="tahun_id">Tahun Akademik</label>
+                    <select name="tahun_id" id="tahun_id" class="form-control form-select">
+                        {% for t in tahun_list %}
+                            <option value="{{ t.id_tahun_akademik }}" {% if t.id_tahun_akademik == tahun_aktif %}selected{% endif %}>
+                                {{ t.tahun_akademik }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label for="semester_id">Semester</label>
+                    <select name="semester_id" id="semester_id" class="form-control form-select">
+                        {% for s in semester_list %}
+                            <option value="{{ s.id_semester }}" {% if s.id_semester == semester_aktif %}selected{% endif %}>
+                                {{ s.semester }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
+                </div>
+            </form>
+
+            <h3 class="text-center">Hasil Evaluasi Guru</h3>
+            <canvas id="edomGuruChart" height="120"></canvas>
+        </div>
+      </div>
+
+    </div>
     <div class="col-12">
       <div class="card">
         <div class="card-body">
 <!-- templates/crud/semester.html -->
-<h4>Data Semester</h4>
+<h4>Data {{title_data}}</h4>
 <div class="table-responsive">
 <table id="myTable" class="table table-striped" >
     <thead class="table-info">
@@ -101,7 +136,7 @@
 		  <td style="white-space: nowrap;">{{ e.guru.nama }}</td>
 		  <td style="white-space: nowrap;">{{ e.ampu.mapel_rel.nama_mapel if e.ampu and e.ampu.mapel_rel else 'semua mapel' }}</td>
 		  <td style="white-space: nowrap;"><button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#LihatHasil-{{loop.index}}" >Lihat Hasil</button></td>
-		  <td style="white-space: nowrap;">{{ e.evaluator.nis }} | {{ e.evaluator.siswa_rel }}  ({{ e.evaluator_role }})</td>
+		  <td style="white-space: nowrap;">{{ e.evaluator.nis if e.evaluator else e.nis }} | {{ e.evaluator.siswa.nama if e.evaluator else e.siswa_rel.nama  }} ({{ e.evaluator_role }})</td>
 		  <td style="white-space: nowrap;">{{ e.tanggal.strftime("%d-%m-%Y") }}  </td>
 		  <td>
 			<button type="button" class="btn btn-danger" onclick="deleteData('{{ e.id }}')">Hapus</button>
@@ -298,5 +333,65 @@ document.getElementById("editForm-{{ e.id }}").addEventListener("submit", functi
 });
 {% endfor %}
 </script>
-    
+<!-- Script Chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const labels = {{ chart_data | map(attribute="nama") | list | tojson }};
+    const values = {{ chart_data | map(attribute="rata") | list | tojson }};
+
+    if (values.length > 0) {
+        const ctx = document.getElementById('edomGuruChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Rata-rata EDOM',
+                    data: values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 4,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false // legend default dimatikan
+                    }
+                }
+            }
+        });
+
+        // Tambahkan legenda manual
+        const legendHtml = `
+          <div class="mt-3">
+            <strong>Keterangan Skala:</strong>
+            <ul style="list-style:none; padding-left:0;">
+              <li><span style="display:inline-block;width:15px;height:15px;background:#ddd;margin-right:5px;"></span>0 = Sangat Kurang / Belum diinput murid</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#f87171;margin-right:5px;"></span>1 = Kurang</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#facc15;margin-right:5px;"></span>2 = Cukup</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#34d399;margin-right:5px;"></span>3 = Baik</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#60a5fa;margin-right:5px;"></span>4 = Sangat Baik</li>
+            </ul>
+          </div>
+        `;
+        document.getElementById("edomGuruChart").insertAdjacentHTML("afterend", legendHtml);
+    } else {
+        document.getElementById("edomGuruChart").outerHTML =
+          "<p class='text-muted text-center'>Belum ada data evaluasi bulan ini</p>";
+    }
+});
+</script>
+
 {% endblock %}

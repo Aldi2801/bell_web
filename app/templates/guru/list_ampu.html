@@ -252,19 +252,19 @@ function openKehadiranModal(id_ampu, id_kbm, id_kelas, id_semester, id_tahun_aka
     // Buat isi tbody
     data.forEach((s, i) => {
       const options = keteranganList.map(k => `
-        <option value="${k.id_keterangan}" ${s.id_keterangan == k.id_keterangan ? 'selected' : ''}>${k.keterangan}</option>
+        <option value="${k.id_keterangan}-${s.id_kehadiran}" ${s.id_keterangan == k.id_keterangan ? 'selected' : ''}>${k.keterangan}</option>
       `).join('');
 
       tbody.append(`
         <tr>
-          <td>${i + 1}<input type="hidden" name="id_kbm" value="${s.id_kbm}"></td>
+          <td>${i + 1}</td>
           <td style="white-space: nowrap;">${s.nama}</td>
-          <td>${s.nama_kelas}<input type="hidden" name="nama_kelas" value="${s.nama_kelas}"></td>
+          <td>${s.nama_kelas}</td>
           <td>
             <select name="status[${s.nis}]" class="form-control form-select" {% if session['role'] == 'admin' %}disabled{% endif %}>
               ${options}
             </select>
-          </td>
+          </td> 
         </tr>
       `);
     });
@@ -276,21 +276,31 @@ function openKehadiranModal(id_ampu, id_kbm, id_kelas, id_semester, id_tahun_aka
 
     // Tampilkan modal
     $('#kehadiranModal').modal('show');
+    $('#kehadiranForm').on('submit', function(e){
+      e.preventDefault();
+
+      let data = $(this).serialize();
+      data += `&id_kbm=${id_kbm}&id_kelas=${id_kelas}&id_semester=${id_semester}&id_tahun_akademik=${id_tahun_akademik}`;
+
+      $.ajax({
+        url: '/guru/kehadiran/edit',
+        type: 'PUT',
+        data: data,
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+        success: function () {
+          alert('Kehadiran tersimpan!');
+          $('#kehadiranModal').modal('hide');
+          window.location.reload();
+        },
+        error: function () {
+          alert('Gagal simpan kehadiran');
+          window.location.reload();
+        }
+      });
+    });
   });
 }
 
-
-
-  $('#kehadiranForm').on('submit', function(e){
-    e.preventDefault();
-    const data = $(this).serialize();
-    $.post('/guru/kehadiran/tambah', data)
-      .done(() => {
-        alert('Kehadiran tersimpan!');
-        $('#kehadiranModal').modal('hide');
-      })
-      .fail(() => alert('Gagal simpan kehadiran'));
-  });
   $('#kehadiranModal').on('hidden.bs.modal', function () {
   // Refresh halaman setelah modal ditutup
   location.reload();

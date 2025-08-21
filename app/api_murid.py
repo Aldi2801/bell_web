@@ -371,6 +371,7 @@ def kehadiran():
         )
         kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
         enriched_kehadiran.append({
+            "id_kehadiran": d.id_kehadiran,
             "siswa_rel": d.siswa_rel,
             "kbm_rel": d.kbm_rel,
             "keterangan_rel": d.keterangan_rel,
@@ -791,6 +792,9 @@ def tambah_evaluasi_guru():
             q10=data.get('q10'),
             q11=data.get('q11'),
             evaluator_role=data.get('evaluator_role'),
+            nis=session.get('nis'),
+            tahun_id = data.get('tahun_id'),
+            semester_id = data.get('semester_id'),
             komentar=data.get('komentar')
         )
         db.session.add(evaluasi)
@@ -812,6 +816,9 @@ def tambah_evaluasi_guru():
             q9=data.get('q9'),
             q10=data.get('q10'),
             q11=data.get('q11'),
+            nis=session.get('nis'),
+            tahun_id = data.get('tahun_id'),
+            semester_id = data.get('semester_id'),
             komentar=data.get('komentar')
         )
         db.session.add(evaluasi)

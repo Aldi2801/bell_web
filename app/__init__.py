@@ -131,7 +131,7 @@ class TahunSemester(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     tahun_id = db.Column(db.Integer, db.ForeignKey("tahun_akademik.id_tahun_akademik", ondelete="CASCADE"), nullable=False)
-    semester_id = db.Column(db.String(1), db.ForeignKey("semester.id_semester", ondelete="CASCADE"), nullable=False)
+    semester_id = db.Column(db.CHAR(1), db.ForeignKey("semester.id_semester", ondelete="CASCADE"), nullable=False)
     mulai = db.Column(db.Date, nullable=False)
     sampai = db.Column(db.Date, nullable=False)
 
@@ -294,6 +294,7 @@ class EvaluasiGuru(db.Model):
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='SET NULL'), nullable=True)
 
     evaluator_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+    nis = db.Column(db.Integer, db.ForeignKey('siswa.nis', ondelete='CASCADE'), nullable=False)
     evaluator_role = db.Column(db.String(10), nullable=False)  # 'murid', 'admin', 'guru'
 
     q1 = db.Column(db.Integer, nullable=False)
@@ -310,11 +311,17 @@ class EvaluasiGuru(db.Model):
     
     komentar = db.Column(db.Text, nullable=True)
     tanggal = db.Column(db.DateTime, default=time_zone_wib)
+    # Tahun akademik & semester
+    tahun_id = db.Column(db.Integer, db.ForeignKey("tahun_akademik.id_tahun_akademik", ondelete="CASCADE"), nullable=False)
+    semester_id = db.Column(db.CHAR(1), db.ForeignKey("semester.id_semester", ondelete="CASCADE"), nullable=False)
 
     # Relasi
     guru = db.relationship("Guru", backref="evaluasi_list", passive_deletes=True)
     ampu = db.relationship("AmpuMapel", backref="evaluasi_list", passive_deletes=True)
     evaluator = db.relationship("User", backref="evaluasi_dibuat", passive_deletes=True)
+    tahun = db.relationship("TahunAkademik", backref="evaluasi_guru")
+    semester = db.relationship("Semester", backref="evaluasi_guru")
+    siswa_rel = db.relationship("Siswa", backref="evaluasi_guru")
 class LogAktivitas(db.Model):
     __tablename__ = 'log_aktivitas'
 
@@ -442,18 +449,16 @@ def is_valid_email(email):
 @app.before_request
 def create_automatic_tahun_ajaran():
     semester, awal_semester, akhir_semester, tahun_ajaran, mulai, selesai = get_semester_and_year()
-
     # Cek apakah data tahun akademik dan semester ini sudah ada
     existing = TahunAkademik.query.filter_by(
         tahun_akademik = tahun_ajaran,
     ).first()
-
     if not existing:
         # Buat entri baru
         new_ta = TahunAkademik(
             tahun_akademik=tahun_ajaran,
-            mulai=mulai,
-            sampai=selesai
+            mulai=mulai.date(),
+            sampai=selesai.date()
         )
         db.session.add(new_ta)
         db.session.commit()

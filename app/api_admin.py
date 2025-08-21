@@ -7,7 +7,7 @@ from flask import abort, render_template, request, jsonify, session, redirect, u
 from flask import flash
 # Import dari aplikasi lokal
 from . import AmpuMapel,Kelas, Mapel, TahunSemester,allowed_file_img_profile, time_zone_wib, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
-from sqlalchemy import case
+from sqlalchemy import case, extract, func
 from sqlalchemy.orm import joinedload
 from itertools import zip_longest
 import pandas as pd
@@ -973,16 +973,66 @@ def tambah_ubah_jadwal():
 # === LIST EVALUASI GURU ===
 @app.route('/evaluasi_guru')
 def evaluasi_guru_list():
-    if session.get('role') == 'admin':
-        btn_tambah = False
-        evaluasi_list = EvaluasiGuru.query.all()
-    guru = Guru.query.all()
+    if session.get('role') != 'admin':
+        abort(403)
+    evaluasi_list = EvaluasiGuru.query.all()
+    guru_list = Guru.query.all()
     users = User.query.all()
     ampu = AmpuMapel.query.all()
+
     title = "Manage Evaluasi Guru"
     title_data = "Evaluasi Guru"
-    return render_template('admin/evaluasi_guru.html', ampu=ampu, guru=guru,users=users, btn_tambah=False, evaluasi=evaluasi_list, title=title, title_data=title_data)
 
+    tahun_list = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).all()
+    semester_master = Semester.query.order_by(Semester.id_semester.asc()).all()  # '1' Ganjil, '2' Genap
+    # Ambil tahun & semester aktif
+    # Default aktif (berdasarkan periode paling baru di TahunSemester)
+    tahun_semester_aktif = TahunSemester.query.order_by(TahunSemester.mulai.desc()).first()
+    
+    # Ambil pilihan dari querystring
+    tahun_id = request.args.get('tahun_id', type=int)  # INTEGER (id_tahun_akademik)
+    semester_id = request.args.get('semester_id')      # CHAR(1) ('1' / '2')
+    if not tahun_id and tahun_semester_aktif:
+        tahun_id = tahun_semester_aktif.tahun_id
+    if not semester_id and tahun_semester_aktif:
+        semester_id = tahun_semester_aktif.semester_id  # CHAR(1) sesuai master Semester
+
+    now = time_zone_wib()
+    # Ambil semua guru
+    guru_list = Guru.query.all()
+
+    # Query rata-rata nilai evaluasi guru sesuai tahun & semester aktif
+    hasil = (
+        db.session.query(
+            EvaluasiGuru.nip,
+            func.avg(
+                (EvaluasiGuru.q1 + EvaluasiGuru.q2 + EvaluasiGuru.q3 +
+                 EvaluasiGuru.q4 + EvaluasiGuru.q5 + EvaluasiGuru.q6 +
+                 EvaluasiGuru.q7 + EvaluasiGuru.q8 + EvaluasiGuru.q9 +
+                 EvaluasiGuru.q10 + EvaluasiGuru.q11) / 11.0
+            ).label("rata")
+        )
+        .filter(
+            EvaluasiGuru.tahun_id == tahun_id,
+            EvaluasiGuru.semester_id == semester_id
+        )
+        .group_by(EvaluasiGuru.nip)
+        .all()
+    )
+
+    # Ubah hasil ke dict biar cepat dicari
+    hasil_dict = {nip: round(rata, 2) for nip, rata in hasil}
+
+    # Susun chart_data: semua guru harus tampil, meski belum ada nilai
+    chart_data = []
+    for g in guru_list:
+        chart_data.append({
+            "nip": g.nip,
+            "nama": g.nama,
+            "rata": hasil_dict.get(g.nip, 0)   # default 0 kalau tidak ada
+        })
+    return render_template( 'admin/evaluasi_guru.html', tahun_aktif=tahun_id,
+        semester_aktif=semester_id,tahun_list= tahun_list, semester_list = semester_master, evaluasi=evaluasi_list, chart_data=chart_data, ampu=AmpuMapel.query.all(), guru=guru_list, users=User.query.all(), btn_tambah=False, title=title, title_data=title_data )
 
 # === HAPUS EVALUASI GURU ===
 @app.route('/evaluasi_guru/hapus/<int:id>', methods=['DELETE'])

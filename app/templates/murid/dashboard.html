@@ -37,6 +37,7 @@
                     <form id="evaluasiForm" class="needs-validation" novalidate action="/evaluasi_guru/tambah" method="POST">
         <input type="hidden" name="evaluator_role" value="murid" required>
         <input type="hidden" name="evaluator_id" value="{{ session.get('id')}}" required>
+        <input type="hidden" name="nis" value="{{ session.get('nis')}}" required>
         <div class="col-md-12 mb-3">
           <label>Guru yang Dinilai</label>
           <select name="nip" class="form-select" required>
@@ -46,6 +47,27 @@
             {% endfor %}
           </select>
         </div>
+        <div class="col-md-12 mb-3">
+                    <label for="tahun_id">Tahun Akademik</label>
+                    <select name="tahun_id" id="tahun_id" class="form-control form-select">
+                        {% for t in tahun_list %}
+                            <option value="{{ t.id_tahun_akademik }}">
+                                {{ t.tahun_akademik }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+        <div class="col-md-12 mb-3">
+                    <label for="semester_id">Semester</label>
+                    <select name="semester_id" id="semester_id" class="form-control form-select">
+                        {% for s in semester_list %}
+                            <option value="{{ s.id_semester }}" >
+                                {{ s.semester }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    </div>
+               
         <div class="col-md-12 mb-3">
           <label>Bagaimana Guru menyampaikan Materi Pelajaran ?</label><br>
 			<label><input type="radio" name="q1" value="1" required> Sangat Baik</label>

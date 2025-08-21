@@ -242,12 +242,53 @@ def api_kehadiran_siswa():
         for j in pembagian_all:
             print(f"Memeriksa NIS {i.nis} dengan {j.nis}")
             if i.nis == j.nis:
-                siswa = {"nis": i.nis, "nama":i.siswa_rel.nama, "nama_kelas": i.nama_kelas,"id_kbm": i.id_kbm, "id_keterangan": i.id_keterangan}
+                siswa = {"nis": i.nis, "nama":i.siswa_rel.nama, "nama_kelas": i.nama_kelas,"id_kbm": i.id_kbm,"id_kehadiran":i.id_kehadiran , "id_keterangan": i.id_keterangan}
                 siswa_list.append(siswa)
                 print(f"Menambahkan nama kelas {i.nama_kelas} untuk NIS {i.nis}")
     
     print(siswa_list)
     return jsonify(siswa_list)
+@app.route('/guru/kehadiran/edit', methods=["PUT"])
+def edit_kehadiran_siswa():
+    if request.is_json:
+        data = request.get_json()
+    else:
+        # Fallback ke request.form jika bukan JSON
+        data = request.form.to_dict(flat=False)  # biar bisa tampung multiple key
+    
+    print("DATA MASUK:", data)
+
+    id_ampu = data.get('id_ampu', [None])[0] if isinstance(data.get('id_ampu'), list) else data.get('id_ampu')
+    id_kbm = data.get('id_kbm', [None])[0] if isinstance(data.get('id_kbm'), list) else data.get('id_kbm')
+    tanggal = time_zone_wib().date()
+
+    print("KELAS:", data.get('nama_kelas'))
+
+    # Loop semua key di request.form atau dict
+    for key, value in data.items():
+        if key.startswith("status["):
+            nis = key[7:-1]  # ambil isi dalam kurung []
+            print(nis)
+            value= str(value).replace("['","").replace("']","")
+            id_kehadiran = value.split("-")[1]
+            print(id_kehadiran)
+            value = value.split("-")[0]
+            id_keterangan = int(value if not isinstance(value, list) else value[0])  # ambil statusnya
+            print(id_keterangan)
+            # cek apakah sudah ada record
+            exists = Kehadiran.query.filter_by(id_kehadiran=id_kehadiran).first()
+
+            if exists:
+                exists.id_keterangan = id_keterangan
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "Gagal update kehadiran"}), 500
+
+    return jsonify({"success": True, "message": "Kehadiran berhasil diupdate"}), 200
+
 @app.route('/guru/kehadiran/tambah', methods=['POST'])
 def simpan_kehadiran_siswa():
     id_ampu = request.form['id_ampu']
