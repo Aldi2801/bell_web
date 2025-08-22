@@ -35,7 +35,7 @@
 <table id="myTable"class="table table-striped">
     <thead class="table-info">
         <tr>
-            <th width="600">Nama Murid</th>
+            <th style="white-space: nowrap;">Nama Murid</th>
             <th>Tanggal</th>
             <th>Mata Pelajaran</th>
             <th>Nama Kelas</th>
@@ -60,7 +60,7 @@
       <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
       <td>{{ i.keterangan_rel.keterangan if i.keterangan_rel else '-' }}</td>
       <td>
-          {% if i.surat_izin == NULL %}
+          {% if not i.surat_izin or i.surat_izin == 'null' %}
           <span>upload surat izin<span><br>
           <form action="/murid/surat_izin_simpan" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="id_kehadiran" value="{{ i.id_kehadiran }}">
@@ -71,7 +71,7 @@
 
           {% else %}
           <span>Anda sudah mengupload surat izin</span><br>
-          <a href="/static/surat_izin/{{i.surat_izin}}" class="btn btn-primary btn-sm">Download Surat Izin</a><br>
+          <a href="/static/surat_izin/{{i.surat_izin}}" target="_blank" class="btn btn-primary btn-sm">Download Surat Izin</a><br>
           <span>Upload ulang apabila ingin menganti</span>
           <form action="/murid/surat_izin_simpan" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="id_kehadiran" value="{{ i.id_kehadiran }}">

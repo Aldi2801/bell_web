@@ -61,7 +61,7 @@
           {% if i.surat_izin == NULL %}
           <span>Murid Belum Mengupload Surat Izin<span><br>
           {% else %}
-          <a href="/static/surat_izin/{{i.surat_izin}}" class="btn btn-primary btn-sm">Lihat Surat Izin</a><br>
+          <a href="/static/surat_izin/{{i.surat_izin}}" target="_blank"  class="btn btn-primary btn-sm">Lihat Surat Izin</a><br>
           {% endif %}
       </td>
       {% elif i.keterangan_rel.keterangan == 'sakit' %}

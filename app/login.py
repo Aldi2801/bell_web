@@ -48,6 +48,8 @@ def proses_login():
             session['nip'] = user.nip
         elif user.roles[0].name == 'murid':
             session['nis'] = user.nis
+            status = Siswa.query.filter_by(nis=user.nis).first()
+            session['status_aktif'] = status.id_status
         else:
             session['role'] = 'admin'
 
@@ -174,7 +176,7 @@ def dashboard():
         }
         berita_terbaru = None
         # Jumlah data
-        jumlah_siswa = db.session.query(Siswa).count()
+        jumlah_siswa = db.session.query(Siswa).filter_by(id_status = 1).count()
         jumlah_guru = db.session.query(Guru).count()
         jumlah_kelas = db.session.query(Kelas).count()
         # Ambil tahun akademik terbaru berdasarkan tanggal mulai
