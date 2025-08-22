@@ -263,7 +263,7 @@ def dashboard():
             'status': guru.status_rel.status,
             'spesialisasi': guru.spesialisasi,
             'role': 'Guru',
-            'wali_kelas':wali_kelas.kelas_rel.nama_kelas
+            'wali_kelas':wali_kelas.kelas_rel.nama_kelas if wali_kelas else 'Belum ada'
         }
         data_guru = Guru.query.all()
         
@@ -309,6 +309,7 @@ def dashboard():
         kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(
             PembagianKelas.tanggal.desc()
         ).first()
+        
 
         # 5. Buat profil murid
         profil = {
@@ -331,9 +332,7 @@ def dashboard():
         id_murid = session.get('id')
         data_guru = Guru.query.all()
         ringkasan_nilai = get_ringkasan_nilai(id_murid)
-        print(ringkasan_nilai)
-        print(kelas_aktif.kelas_rel.nama_kelas)
-        jadwal_hari_ini = get_jadwal_hari_ini(kelas_aktif.kelas_rel.nama_kelas)
+        jadwal_hari_ini = get_jadwal_hari_ini(kelas_aktif.kelas_rel.nama_kelas) if kelas_aktif else None
         print(jadwal_hari_ini)
         #tugas = get_tugas_murid(id_murid)
         evaluasi_terisi = get_jumlah_evaluasi(id_murid)
