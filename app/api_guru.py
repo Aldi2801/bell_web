@@ -177,6 +177,7 @@ def kbm_tambah():
         new_kbm = Kbm(
             materi=request.json.get('materi'),
             sub_materi=request.json.get('sub_materi'),
+            tanggal=tanggal_str,
             id_ampu=new_ampu.id_ampu
         )
         db.session.add(new_kbm)

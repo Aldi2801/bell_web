@@ -306,11 +306,16 @@ def dashboard():
 
         # 4. Ambil data murid dan kelas aktif
         siswa = Siswa.query.filter_by(nis=user.nis).first()
-        kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis).order_by(
-            PembagianKelas.tanggal.desc()
-        ).first()
-        
-
+        kelas_aktif = PembagianKelas.query.filter_by(nis=siswa.nis,id_tahun_akademik = tahun_aktif.id_tahun_akademik).first()
+        if not kelas_aktif:
+            # ambil semua tahun akademik urut dari terbaru
+            semua_tahun = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).all()
+            if len(semua_tahun) >= 2:
+                tahun_aktif_sebelumnya = semua_tahun[1]   # index ke-2 (0 = terbaru, 1 = sebelumnya)
+                kelas_aktif = PembagianKelas.query.filter_by(
+                    nis=siswa.nis,
+                    id_tahun_akademik=tahun_aktif_sebelumnya.id_tahun_akademik
+                ).first()
         # 5. Buat profil murid
         profil = {
             'img_profile': user.img_profile,

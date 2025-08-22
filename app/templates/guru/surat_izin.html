@@ -52,7 +52,7 @@
       <td>{{ i.siswa_rel.nama }}</td>
       <td>{{ i.kbm_rel.tanggal if i.kbm_rel else '-' }}</td>
       <td>
-        {{ i.kbm_rel.ampu_rel.mapel_rel.nama_mapel if i.kbm_rel and i.kbm_rel.ampu_rel and i.kbm_rel.ampu_rel.mapel_rel else '-' }}
+        {{ i.kbm_rel.ampu_rel.mapel_rel.nama_mapel if i.kbm_rel and i.kbm_rel.ampu_rel and i.kbm_rel.ampu_rel.mapel_rel else i.kbm_rel.ampu_rel.id_mapel }}
       </td>
       <td>{{ i.nama_kelas }}</td>
       <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
