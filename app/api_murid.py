@@ -553,6 +553,7 @@ def penilaian_murid():
     bulan = request.args.get('bulan', type=int)
     tanggal = request.args.get('tanggal', type=int)
     siswa_now = request.args.get('nis') or session.get('nis')
+    print(siswa_now)
 
     # Join dengan AmpuMapel
     query = Penilaian.query.join(AmpuMapel, Penilaian.id_ampu == AmpuMapel.id_ampu)
@@ -564,13 +565,9 @@ def penilaian_murid():
     if tanggal:
         query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
     if siswa_now:
-        exists = db.session.query(Penilaian.query.filter(Penilaian.nis == siswa_now).exists()).scalar()
-        if exists:
-            query = query.filter(Penilaian.nis == siswa_now)
+        query = query.filter(Penilaian.nis == siswa_now)
     if nip:
-        exists = db.session.query(AmpuMapel.query.filter(AmpuMapel.nip == nip).exists()).scalar()
-        if exists:
-            query = query.filter(AmpuMapel.nip == nip)
+        query = query.filter(AmpuMapel.nip == nip)
     if id_mapel:
         query = query.filter(AmpuMapel.id_mapel == id_mapel)
     if jenis_penilaian:
@@ -597,11 +594,15 @@ def penilaian_murid():
     page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
     tahun_query = (
         db.session.query(extract('year', AmpuMapel.tanggal).label("tahun"))
+        .join(Penilaian, Penilaian.id_ampu == AmpuMapel.id_ampu)  # sesuaikan dengan relasi yang benar
         .filter(Penilaian.nis == siswa_now)
         .group_by(extract('year', AmpuMapel.tanggal))
         .order_by(extract('year', AmpuMapel.tanggal).desc())
         .all()
     )
+    print(tahun_query)
+    print(info_list)
+
     thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
     return render_template('murid/penilaian.html', penilaian=info_list, tahun=thn, data_guru=Guru.query.all(), data_kelas=Kelas.query.all(), data_mapel=Mapel.query.all(), data_siswa=Siswa.query.all(), data_ampu=AmpuMapel.query.filter_by(nip=nip).all(), btn_tambah=btn_tambah, title=title, title_data=title_data, page=page, per_page=per_page, total_pages=total_pages, total_records=total_records, has_next=paginated_data.has_next, has_prev=paginated_data.has_prev, page_range=page_range )
 
