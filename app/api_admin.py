@@ -1118,18 +1118,20 @@ def bayar_offline():
     data = request.json
     id_tagihan = data.get('id_tagihan')
     total = data.get('total')
-    user = session.get('username')  # atau session['username']
+
 
     if not id_tagihan or not total:
         return jsonify(success=False, message="Data tidak lengkap")
 
     tagihan = Tagihan.query.options(joinedload(Tagihan.user)).filter_by(id_tagihan=id_tagihan).first()
-    kode_order = f"offline_{user}"
+    kode_order = f"offline_{uuid.uuid4()}"
     print(tagihan.user.email)
+    print(tagihan.user.nis)
     transaksi = Transaksi(
         id_tagihan=id_tagihan,
         kode_order=kode_order,
         email= tagihan.user.email,
+        nis = tagihan.user.nis,
         total=total,
         fraud_status = 0,
         status="settlement",
