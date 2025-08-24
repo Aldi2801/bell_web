@@ -1139,3 +1139,6 @@ def bayar_offline():
 
     db.session.commit()
     return jsonify(success=True)
+@app.route("/blabla")
+def view_blabla():
+    return render_template("blabla.html")
