@@ -573,7 +573,7 @@ def get_jadwal_hari_ini(kelas_ini):
             print(kelas)
             print(f"Processing subject: {subject} at index {idx}")
             if kelas == kelas_ini:
-                if subject != '':
+                if subject != '' and subject != 'Upacara' :
                     print(f"Found matching subject: {subject} for kelas {kelas_ini}")
                     mapel = subject.split("-")[1]
                     mapel = Mapel.query.filter_by(id_mapel = mapel).first()
