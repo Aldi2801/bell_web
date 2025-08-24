@@ -291,7 +291,17 @@ function bayar_offline(total, id) {
     if (alertIfNoToken()) return;
     if (!confirm("Yakin ingin menandai sebagai 'Offline Paid'?")) return;
     fetch('/bayar_offline', { method: 'POST', headers: headers(), body: JSON.stringify({ id_tagihan: id, total }) })
-        .then(res => handleResponses(res, 'Pembayaran offline berhasil.', 'Gagal memproses pembayaran offline: '))
+        .then(res => {
+            handleResponses(
+                res, 
+                'Pembayaran offline berhasil.', 
+                'Gagal memproses pembayaran offline: '
+            );
+            // Delay 1 detik sebelum reload
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        })
         .catch(() => alert('Terjadi kesalahan saat memproses pembayaran offline.'));
 }
 
