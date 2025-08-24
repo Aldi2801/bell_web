@@ -10,6 +10,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A3
 
 @app.route('/get_menu_pembayaran')
 def get_menu_pembayaran():
@@ -276,7 +277,15 @@ def export_tagihan_pdf():
 
         # ===== Generate PDF =====
         buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
+                
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A3,
+            leftMargin=40,   # padding kiri
+            rightMargin=40,  # padding kanan
+            topMargin=40,
+            bottomMargin=40
+        )
         styles = getSampleStyleSheet()
         if role == 'murid':
             siswa = Siswa.query.filter_by(nis=session.get('nis')).first()
@@ -307,6 +316,8 @@ def export_tagihan_pdf():
             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
             ('FONTSIZE', (0,0), (-1,-1), 8),
             ('BOTTOMPADDING', (0,0), (-1,0), 6),
+    ('LEFTPADDING', (0, 0), (-1, -1), 6),   # Tambahkan padding kiri
+    ('RIGHTPADDING', (0, 0), (-1, -1), 6),  # Tambahkan padding kanan
         ]))
 
         elements.append(table)
@@ -695,13 +706,9 @@ def export_pdf_penilaian():
     if tanggal:
         query = query.filter(extract('day', Penilaian.tanggal) == tanggal)
     if siswa_now:
-        exists = db.session.query(Penilaian.query.filter(Penilaian.nis == siswa_now).exists()).scalar()
-        if exists:
-            query = query.filter(Penilaian.nis == siswa_now)
+        query = query.filter(Penilaian.nis == siswa_now)
     if nip:
-        exists = db.session.query(AmpuMapel.query.filter(AmpuMapel.nip == nip).exists()).scalar()
-        if exists:
-            query = query.filter(AmpuMapel.nip == nip)
+        query = query.filter(AmpuMapel.nip == nip)
     if id_mapel:
         query = query.filter(AmpuMapel.id_mapel == id_mapel)
     if jenis_penilaian:
@@ -718,7 +725,7 @@ def export_pdf_penilaian():
     print(f"Jumlah data diekspor: {data.count()}")
 
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4))
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4) )
     elements = []
     style = getSampleStyleSheet()
     elements.append(Paragraph("Laporan Penilaian", style['Title']))
@@ -747,6 +754,8 @@ def export_pdf_penilaian():
         ('ALIGN',(0,0),(-1,-1),'CENTER'),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
         ('GRID', (0,0), (-1,-1), 0.5, colors.black),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),   # Tambahkan padding kiri
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),  # Tambahkan padding kanan
     ]))
     elements.append(table)
     doc.build(elements)
