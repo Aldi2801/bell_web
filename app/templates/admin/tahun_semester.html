@@ -2,16 +2,33 @@
 
 {% block form_tambah %}
 <div class="col-md-12 mb-3">
-  <label for="id_semester">ID Semester</label>
-  <input type="text" class="form-control" name="id_semester" id="id_semester"
-    placeholder="id semester (1 digit angka / huruf)" required pattern="[A-Za-z0-9]{1}" maxlength="1"
-    title="Masukkan 1 digit angka atau huruf saja">
-</div><br>
+  <label for="tahun_akademik">Tahun Akademik</label>
+  <select class="form-select" name="tahun_id" id="tahun_akademik" required>
+    <option value="">-- Pilih Tahun Akademik --</option>
+    {% for t in thn_akademik %}
+    <option value="{{ t.id_tahun_akademik }}">{{ t.tahun_akademik }}</option>
+    {% endfor %}
+  </select>
+</div>
 
 <div class="col-md-12 mb-3">
-  <label for="nama_semester">Nama Semester (max 6 digit huruf)</label>
-  <input type="text" class="form-control" name="nama_semester" id="nama_semester" placeholder="nama semester" required
-    maxlength="6" pattern="^[A-Za-z]{1,6}$" title="Hanya boleh huruf (maksimal 6 karakter)">
+  <label for="semester">Semester</label>
+  <select class="form-select" name="semester_id" id="semester" required>
+    <option value="">-- Pilih Semester --</option>
+    {% for s in semester %}
+    <option value="{{s.id_semester}}">{{s.semester}}</option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="mulai">Tanggal Mulai</label>
+  <input type="date" class="form-control" name="mulai" id="mulai" required>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="sampai">Tanggal Sampai</label>
+  <input type="date" class="form-control" name="sampai" id="sampai" required>
 </div>
 {% endblock %}
 
@@ -27,7 +44,7 @@
               <i class="ri-home-3-line fs-5"></i>
             </a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">Data {{title}}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{title_data}}</li>
         </ol>
       </nav>
       <h1 class="mb-0 fw-bold">Data {{title}}</h1>
@@ -48,30 +65,34 @@
       <div class="card">
         <div class="card-body">
           <!-- templates/crud/semester.html -->
-          <h4>Data Semester</h4>
+          <h4>Data Semester serta Tahun Akademik</h4>
           <div class="table-responsive">
             <table id="myTable" class="table table-striped">
               <thead class="table-info">
                 <tr>
-                  <th>ID Semester</th>
-                  <th>Nama Semester</th>
+                  <th>Tahun Akademik</th>
+                  <th>Semester</th>
+                  <th>Mulai</th>
+                  <th>Sampai</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {% for s in semester %}
+                {% for ts in data %}
                 <tr>
-                  <td>{{ s.id_semester }} </td>
-                  <td>{{ s.semester }}</td>
+                    <td>{{ ts.tahun_akademik}}</td>
+                    <td>{{ ts.semester}}</td>
+                    <td>{{ ts.mulai}}</td>
+                    <td>{{ ts.sampai}}</td>
                   <td>
                     <button type="button" class="btn btn-warning"
-                      onclick="openEditModal('{{ s.id_semester }}')">Edit</button>
+                      onclick="openEditModal('{{ ts.id }}')">Edit</button>
                     <button type="button" class="btn btn-danger"
-                      onclick="deleteData('{{ s.id_semester }}')">Hapus</button>
+                      onclick="deleteData('{{ ts.id }}')">Hapus</button>
                   </td>
                 </tr>
                 <!-- Modal Edit -->
-                <div class="modal fade" id="editModal-{{ s.id_semester }}" tabindex="-1" aria-labelledby="editLabel"
+                <div class="modal fade" id="editModal-{{ ts.id }}" tabindex="-1" aria-labelledby="editLabel"
                   aria-hidden="true">
                   <div class="modal-dialog  modal-lg">
                     <div class="modal-content">
@@ -84,28 +105,47 @@
 
                       <!-- Modal Body -->
                       <div class="modal-body">
-                        <form id="editForm-{{ s.id_semester }}">
-                          <input type="hidden" name="id_semester_old" value="{{ s.id_semester }}">
+                      <form id="editForm-{{ ts.id }}">
+                        <input type="hidden" name="id" value="{{ ts.id }}">
 
-                          <input type="hidden" name="id_semester" id="edit_id_semester_{{ s.id_semester }}"
-                            value="{{ s.id_semester }}" class="form-control">
+                        <div class="mb-3">
+                          <label for="edit_tahun_akademik_{{ ts.id }}">Tahun Akademik</label>
+                          <select class="form-select" name="tahun_id" id="edit_tahun_akademik_{{ ts.id }}" required>
+                            {% for t in thn_akademik %}
+                            <option value="{{ t.id_tahun_akademik }}" {% if t.tahun_akademik == ts.tahun_akademik %}selected{% endif %}>
+                              {{ t.tahun_akademik }}
+                            </option>
+                            {% endfor %}
+                          </select>
+                        </div>
 
-                          <div class="mb-3">
-                            <label for="edit_nama_semester_{{ s.id_semester }}">Nama Semester (max 6 digit
-                              huruf)</label>
-                            <input type="text" name="nama_semester" id="edit_nama_semester_{{ s.id_semester }}"
-                              value="{{ s.semester }}" class="form-control" required maxlength="6"
-                              pattern="^[A-Za-z]{1,6}$" title="Hanya boleh huruf (maksimal 6 karakter)">
-                          </div>
+                        <div class="mb-3">
+                          <label for="edit_semester_{{ ts.id }}">Semester</label>
+                          <select class="form-select" name="semester_id" id="edit_semester_{{ ts.id }}" required>
+                            {% for s in semester %}
+                            <option value="{{s.id_semester}}" {% if ts.semester_id == s.id_semester %}selected{% endif %}>{{s.semester}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
 
+                        <div class="mb-3">
+                          <label for="edit_mulai_{{ ts.id }}">Tanggal Mulai</label>
+                          <input type="date" class="form-control" name="mulai" id="edit_mulai_{{ ts.id }}"
+                                value="{{ ts.mulai.strftime('%Y-%m-%d') if ts.mulai else '' }}" required>
+                        </div>
 
-                          <div class="modal-footer">
-                            <button type="submit" id="tombol-edit-{{ s.id_semester }}"
-                              class="btn btn-success">Simpan</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                          </div>
-                        </form>
-                      </div>
+                        <div class="mb-3">
+                          <label for="edit_sampai_{{ ts.id }}">Tanggal Sampai</label>
+                          <input type="date" class="form-control" name="sampai" id="edit_sampai_{{ ts.id }}"
+                                value="{{ ts.sampai.strftime('%Y-%m-%d') if ts.sampai else '' }}" required>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="submit" id="tombol-edit-{{ ts.id }}" class="btn btn-success">Simpan</button>
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        </div>
+                      </form>
+                    </div>
 
                     </div>
                   </div>
@@ -120,7 +160,9 @@
   </div>
 </div>
 <script>
-  $('#myTable').DataTable();
+  $('#myTable').DataTable({
+    order: [[0, 'desc']] // kolom pertama DESC
+  });
   document.addEventListener('input', function (e) {
     if (e.target && e.target.name === 'nama_semester') {
       const value = e.target.value.trim ? e.target.value.trim() : e.target.value;
@@ -134,11 +176,11 @@
     }
   });
 </script>
-{% for s in semester %}
+{% for ts in data %}
 <script>
   // AJAX for Edit Semester (PUT)
 
-  document.getElementById("editForm-{{ s.id_semester }}").addEventListener("submit", function (event) {
+  document.getElementById("editForm-{{ ts.id }}").addEventListener("submit", function (event) {
     event.preventDefault();
     const form = this;
     const formData = new FormData(form);
@@ -170,12 +212,12 @@
     formData.forEach((value, key) => {
       data[key] = value.trim ? value.trim() : value;
     });
-    const tombol = document.getElementById("tombol-edit-{{ s.id_semester }}");
+    const tombol = document.getElementById("tombol-edit-{{ ts.id }}");
     tombol.disabled = true;
     tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
     const baseUrl = window.location.origin + window.location.pathname;
     $.ajax({
-      url: baseUrl + '/edit/{{ s.id_semester }}',
+      url: baseUrl + '/edit/{{ ts.id }}',
       type: 'PUT',
       contentType: 'application/json',
       dataType: 'json',

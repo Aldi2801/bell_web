@@ -126,6 +126,21 @@ class TahunAkademik(db.Model):
     tahun_akademik = db.Column(db.String(9), unique=True, nullable=True)  # e.g., "2024/2025"
     mulai = db.Column(db.Date, nullable=True)
     sampai = db.Column(db.Date, nullable=True)
+class TahunSemester(db.Model):
+    __tablename__ = "tahun_semester"
+
+    id = db.Column(db.Integer, primary_key=True)
+    tahun_id = db.Column(db.Integer, db.ForeignKey("tahun_akademik.id_tahun_akademik", ondelete="CASCADE"), nullable=False)
+    semester_id = db.Column(db.String(1), db.ForeignKey("semester.id_semester", ondelete="CASCADE"), nullable=False)
+    mulai = db.Column(db.Date, nullable=False)
+    sampai = db.Column(db.Date, nullable=False)
+
+    tahun = db.relationship("TahunAkademik", backref="tahun_semesters")
+    semester = db.relationship("Semester", backref="tahun_semesters")
+
+    __table_args__ = (
+        db.UniqueConstraint("tahun_id", "semester_id", name="uniq_tahun_semester"),
+    )
 
 class Status(db.Model):
     id_status = db.Column(db.CHAR(1), primary_key=True)

@@ -6,73 +6,125 @@ from flask import abort, render_template, request, jsonify, session, redirect, u
 # Fungsi untuk mengubah angka menjadi teks (terbilang)
 from flask import flash
 # Import dari aplikasi lokal
-from . import AmpuMapel,Kelas, Mapel,allowed_file_img_profile, time_zone_wib, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
+from . import AmpuMapel,Kelas, Mapel, TahunSemester,allowed_file_img_profile, time_zone_wib, EvaluasiGuru,Role,PembagianKelas, Semester, Tagihan, TahunAkademik, Transaksi, app, db, User, Siswa, Guru, Role, bcrypt, JadwalPelajaran,Berita, Gender, Status, is_valid_email
 from sqlalchemy import case
 from sqlalchemy.orm import joinedload
 from itertools import zip_longest
 import pandas as pd
         
-@app.route('/admin/semester')
+@app.route('/admin/tahun_semester')
 def semester_list():
     if session.get('role') != 'admin':
         abort(403)
-    semester = Semester.query.all()
-    btn_tambah = True
-    title = "Manage Semester"
-    title_data = "Semester"
-    return render_template('admin/semester.html', semester=semester, btn_tambah=btn_tambah, title=title, title_data = title_data)
 
-@app.route('/admin/semester/tambah', methods=['POST'])
-def tambah_semester():
-    if session.get('role') != 'admin':
-        abort(403)
-        
-    nama_semester=request.json.get('nama_semester')
-
-    if not re.fullmatch(r'[A-Za-z]{1,6}', nama_semester):
-        return jsonify({'error': 'Nama semester hanya boleh huruf maksimal 6 karakter'}), 400
-    if Semester.query.filter_by(id_semester=request.json.get('id_semester')).first():
-        return jsonify({'error': 'ID Semester sudah ada'}), 400
-    if Semester.query.filter_by(semester=nama_semester).first():
-        return jsonify({'error': 'Nama semester sudah ada'}), 400
-    
-    semester = Semester(
-            id_semester=request.json.get('id_semester'),
-            semester=nama_semester
+    # ambil semua data tahun_semester (join ke tahun_akademik dan semester)
+    tahun_semesters = (
+        db.session.query(TahunSemester, TahunAkademik, Semester)
+        .join(TahunAkademik, TahunSemester.tahun_id == TahunAkademik.id_tahun_akademik)
+        .join(Semester, TahunSemester.semester_id == Semester.id_semester)
+        .order_by(TahunAkademik.tahun_akademik.desc(), Semester.id_semester.asc())
+        .all()
     )
-    db.session.add(semester)
-    db.session.commit()
-    flash('Semester berhasil ditambahkan', 'success')
-    return jsonify({'msg':'Semester berhasil ditambahkan'})
 
-@app.route('/admin/semester/edit/<id_semester_old>', methods=['PUT'])
-def edit_semester(id_semester_old):
+    data = []
+    for ts, th, sm in tahun_semesters:
+        data.append({
+            "id": ts.id,
+            "tahun_akademik": th.tahun_akademik,
+            "semester": sm.semester,     # contoh: "Ganjil" / "Genap"
+            "mulai": ts.mulai,
+            "sampai": ts.sampai
+        })
+
+    btn_tambah = True
+    title = "Manage Semester dan Tahun Akademik"
+    title_data = "Semester dan Tahun Akademik"
+
+    return render_template(
+        'admin/tahun_semester.html',
+        data=data,
+        btn_tambah=btn_tambah,
+        thn_akademik=TahunAkademik.query.order_by(TahunAkademik.tahun_akademik.desc()).all(),
+        semester=Semester.query.all(),
+        title=title,
+        title_data=title_data
+    )
+
+@app.route('/admin/tahun_semester/tambah', methods=['POST'])
+def tambah_tahun_semester():
     if session.get('role') != 'admin':
         abort(403)
-    semester = Semester.query.filter_by(id_semester=id_semester_old).first()
-    if not semester:
-        return jsonify({'error': 'Semester tidak ditemukan'}), 404
-    nama_semester=request.json.get('nama_semester')
-    if not re.fullmatch(r'[A-Za-z]{1,6}', nama_semester):
-        return jsonify({'error': 'Nama semester hanya boleh huruf maksimal 6 karakter'}), 400
-    
-    semester.id_semester = request.json.get('id_semester')
-    semester.semester = nama_semester
-    db.session.commit()
-    flash('Semester berhasil diperbarui', 'info')
-    return jsonify({'msg': 'Semester berhasil diperbarui'})
 
-@app.route('/admin/semester/hapus/<id_semester>', methods=['DELETE'])
-def hapus_semester(id_semester):
+    tahun_id = request.json.get('tahun_id')
+    semester_id = request.json.get('semester_id')
+    mulai = request.json.get('mulai')
+    sampai = request.json.get('sampai')
+
+    if not tahun_id or not semester_id or not mulai or not sampai:
+        return jsonify({'error': 'Semua field wajib diisi'}), 400
+
+    # Cek duplikat
+    cek = TahunSemester.query.filter_by(tahun_id=tahun_id, semester_id=semester_id).first()
+    if cek:
+        return jsonify({'error': 'Semester untuk tahun akademik ini sudah ada'}), 400
+
+    ts = TahunSemester(
+        tahun_id=tahun_id,
+        semester_id=semester_id,
+        mulai=mulai,
+        sampai=sampai
+    )
+    db.session.add(ts)
+    db.session.commit()
+
+    flash('Semester tahun akademik berhasil ditambahkan', 'success')
+    return jsonify({'msg': 'Semester tahun akademik berhasil ditambahkan'})
+
+@app.route('/admin/tahun_semester/edit/<int:id>', methods=['PUT'])
+def edit_tahun_semester(id):
     if session.get('role') != 'admin':
         abort(403)
-    semester = Semester.query.filter_by(id_semester=id_semester).first()
-    if not semester:
-        return jsonify({'error': 'Semester tidak ditemukan'}), 404
-    db.session.delete(semester)
+
+    ts = TahunSemester.query.get(id)
+    if not ts:
+        return jsonify({'error': 'Data tidak ditemukan'}), 404
+
+    tahun_id = request.json.get('tahun_id')
+    semester_id = request.json.get('semester_id')
+    mulai = request.json.get('mulai')
+    sampai = request.json.get('sampai')
+
+    # Cek duplikat selain dirinya
+    cek = TahunSemester.query.filter(
+        TahunSemester.tahun_id == tahun_id,
+        TahunSemester.semester_id == semester_id,
+        TahunSemester.id != id
+    ).first()
+    if cek:
+        return jsonify({'error': 'Semester untuk tahun akademik ini sudah ada'}), 400
+
+    ts.tahun_id = tahun_id
+    ts.semester_id = semester_id
+    ts.mulai = mulai
+    ts.sampai = sampai
+
     db.session.commit()
-    flash('Semester berhasil dihapus', 'warning')
-    return jsonify({'msg': 'Semester berhasil dihapus'})
+    flash('Semester tahun akademik berhasil diperbarui', 'info')
+    return jsonify({'msg': 'Semester tahun akademik berhasil diperbarui'})
+
+@app.route('/admin/tahun_semester/hapus/<int:id>', methods=['DELETE'])
+def hapus_tahun_semester(id):
+    if session.get('role') != 'admin':
+        abort(403)
+
+    ts = TahunSemester.query.get(id)
+    if not ts:
+        return jsonify({'error': 'Data tidak ditemukan'}), 404
+
+    db.session.delete(ts)
+    db.session.commit()
+    flash('Semester tahun akademik berhasil dihapus', 'warning')
+    return jsonify({'msg': 'Semester tahun akademik berhasil dihapus'})
 
 @app.route('/admin/kelas')
 def kelas_list():
