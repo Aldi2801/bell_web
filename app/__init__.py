@@ -71,12 +71,12 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), unique=True, nullable=True)
     active = db.Column(db.Boolean, default=True)
     reset_token = db.Column(db.String(255), nullable=True)
+    img_profile = db.Column(db.String(255),nullable=True)
     roles = db.relationship('Role', secondary='user_roles',
                             primaryjoin='User.id == UserRoles.user_id',
                             secondaryjoin='Role.id == UserRoles.role_id',
                             backref=db.backref('users', lazy='dynamic'),
                             passive_deletes=True)
-    img_profile = db.Column(db.String(255),nullable=True)
 
     siswa = db.relationship("Siswa", back_populates="user", uselist=False, passive_deletes=True)
     tagihan = db.relationship("Tagihan", backref="user", passive_deletes=True)
@@ -231,7 +231,7 @@ class Tagihan(db.Model):
     created_at = db.Column(db.DateTime, default=time_zone_wib)
 
     # Tambahkan relasi untuk cetak bukti
-    transaksi_rel = db.relationship('Transaksi', backref='tagihan', lazy=True, uselist=False)  # one-to-one
+    transaksi_rel = db.relationship('Transaksi', backref='tagihan', lazy=True)  # one-to-manye
 
 
 class Transaksi(db.Model):
@@ -266,7 +266,7 @@ class Penilaian(db.Model):
     id_ampu = db.Column(db.Integer, db.ForeignKey('ampu_mapel.id_ampu', ondelete='CASCADE'), nullable=True)
     jenis_penilaian = db.Column(db.String(20), nullable=False)  # Contoh: 'UH', 'UTS', 'UAS', 'Tugas'
     nilai = db.Column(db.Float, nullable=False)
-    tanggal = db.Column(db.Date, default=time_zone_wib)
+    tanggal = db.Column(db.DateTime, default=time_zone_wib)  # <--- perbaikan
 
     siswa_rel = db.relationship("Siswa", backref="penilaian_list", passive_deletes=True)
     ampu_rel = db.relationship("AmpuMapel", backref="penilaian_list", passive_deletes=True)

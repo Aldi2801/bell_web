@@ -527,8 +527,8 @@ def get_ringkasan_nilai(id_murid):
     ).join(Penilaian, Penilaian.id_ampu == AmpuMapel.id_ampu)\
      .join(Siswa, Penilaian.nis == Siswa.nis)\
      .filter(Siswa.user_id == id_murid)\
-     .filter(Penilaian.tanggal >= awal_semester.date(),
-             Penilaian.tanggal <= akhir_semester.date())\
+     .filter(Penilaian.tanggal >= awal_semester,
+        Penilaian.tanggal <= akhir_semester)\
      .group_by(AmpuMapel.id_mapel)\
      .all()
     print(f"Rata-rata nilai per mapel: {hasil}")

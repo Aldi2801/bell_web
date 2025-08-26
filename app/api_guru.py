@@ -598,7 +598,9 @@ def edit_penilaian(id_penilaian_old):
         penilaian.id_ampu = request.json.get('id_ampu', penilaian.id_ampu)
         penilaian.jenis_penilaian = request.json.get('jenis_penilaian', penilaian.jenis_penilaian)
         penilaian.nilai = request.json.get('nilai', penilaian.nilai)
-        penilaian.tanggal = request.json.get('tanggal', penilaian.tanggal)  # Format: 'YYYY-MM-DD'
+        tgl_str = request.json.get('tanggal')
+        if tgl_str:
+            penilaian.tanggal = datetime.strptime(tgl_str, "%Y-%m-%d") # Format: 'YYYY-MM-DD'
 
         db.session.commit()
         flash('Penilaian berhasil diperbarui', 'info')
