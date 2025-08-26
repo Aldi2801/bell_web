@@ -101,7 +101,7 @@
 		  <td style="white-space: nowrap;">{{ e.guru.nama }}</td>
 		  <td style="white-space: nowrap;">{{ e.ampu.mapel_rel.nama_mapel if e.ampu and e.ampu.mapel_rel else 'semua mapel' }}</td>
 		  <td style="white-space: nowrap;"><button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#LihatHasil-{{loop.index}}" >Lihat Hasil</button></td>
-		  <td style="white-space: nowrap;">{{ e.evaluator.nis }} | {{ e.evaluator.siswa.nama }}  ({{ e.evaluator_role }})</td>
+		  <td style="white-space: nowrap;">{{ e.evaluator.nis }} | {{ e.evaluator.siswa_rel }}  ({{ e.evaluator_role }})</td>
 		  <td style="white-space: nowrap;">{{ e.tanggal.strftime("%d-%m-%Y") }}  </td>
 		  <td>
 			<button type="button" class="btn btn-danger" onclick="deleteData('{{ e.id }}')">Hapus</button>
