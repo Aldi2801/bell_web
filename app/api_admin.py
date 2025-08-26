@@ -659,6 +659,17 @@ def hapus_guru(nip):
     flash('Data guru berhasil dihapus', 'success')
     return jsonify({'msg': 'Data guru berhasil dihapus'})
 
+@app.route("/orangtua")
+def view_blabla():
+    return render_template("dashboard.html")
+    data = PembagianKelas.query.all()
+    orangtua = orangtua.query.all()
+    guru = Guru.query.all()
+    tahunakademik = TahunAkademik.query.all()
+    kelas = Kelas.query.all()
+    btn_tambah = True
+    title = "Manage Pembagian Kelas"
+    title_data = "Pembagian Kelas"
 
 @app.route('/admin/pembagian_kelas')
 def pembagian_kelas_list():
@@ -918,9 +929,6 @@ def evaluasi_guru_list():
     ampu = AmpuMapel.query.all()
     title = "Manage Evaluasi Guru"
     title_data = "Evaluasi Guru"
-    if session.get('role') == 'siswa':
-        btn_tambah = True
-        evaluasi_list = EvaluasiGuru.query.filter_by(nis=session.get('nis',''))
     return render_template('admin/evaluasi_guru.html', ampu=ampu, guru=guru,users=users, btn_tambah=False, evaluasi=evaluasi_list, title=title, title_data=title_data)
 
 
@@ -1141,6 +1149,3 @@ def bayar_offline():
 
     db.session.commit()
     return jsonify(success=True)
-@app.route("/blabla")
-def view_blabla():
-    return render_template("blabla.html")
