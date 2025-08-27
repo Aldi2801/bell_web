@@ -1,5 +1,5 @@
 import os, uuid, jwt, datetime, ast, pandas as pd
-from . import EvaluasiGuru, Kelas, Siswa, TahunAkademik, app, db,allowed_file_surat_izin, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
+from . import EvaluasiGuru, Kbm, Kelas, Siswa, TahunAkademik, app, db,allowed_file_surat_izin,Keterangan, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
 from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for, send_file, jsonify
 from datetime import datetime
 from sqlalchemy import extract, case
@@ -341,21 +341,71 @@ def kehadiran():
     if not siswa:
         return "Siswa tidak ditemukan", 404
 
-    data_kehadiran = Kehadiran.query.filter_by(nis=nis).all()
-    
-    # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
-    if not data_kehadiran:
-        return render_template(
-            'murid/kehadiran.html',
-            data_kehadiran=None,
-            btn_tambah=False,
-            title="Kehadiran",
-            title_data="Kehadiran"
+    # Ambil filter query
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    nip =  request.args.get('nip')
+    id_kelas = request.args.get('id_kelas')
+    id_mapel = request.args.get('id_mapel')
+    id_keterangan = request.args.get('id_keterangan')
+    tahun = request.args.get('tahun', type=int)
+    bulan = request.args.get('bulan', type=int)
+    tanggal = request.args.get('tanggal', type=int)
+    siswa_now = nis
+    print(siswa_now)
+
+    # Join dengan kbm daan AmpuMapel
+    query = Kehadiran.query.join(Kbm, Kbm.id_kbm == Kehadiran.id_kbm).join(AmpuMapel, AmpuMapel.id_ampu == Kbm.id_ampu)
+
+    if tahun:
+        query = query.filter(extract('year', Kbm.tanggal) == tahun)
+    if bulan:
+        query = query.filter(extract('month', Kbm.tanggal) == bulan)
+    if tanggal:
+        query = query.filter(extract('day', Kbm.tanggal) == tanggal)
+    if siswa_now:
+        query = query.filter(Kehadiran.nis == siswa_now)
+    if nip:
+        query = query.filter(AmpuMapel.nip == nip)
+    if id_mapel:
+        query = query.filter(AmpuMapel.id_mapel == id_mapel)
+    if id_keterangan:
+        query = query.filter(Kehadiran.id_keterangan == id_keterangan)
+    if id_kelas:
+        subq = (
+            db.session.query(PembagianKelas.nis)
+            .filter(PembagianKelas.id_kelas == id_kelas)
+            .subquery()
         )
+        query = query.filter(Kehadiran.nis.in_(subq))
 
+    data = query.order_by(Kehadiran.id_kehadiran.desc())
+    print(f"Jumlah data diekspor: {data.count()}")
+    # Pagination
+    paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+    info_list = paginated_data.items
+    # Cek total data dulu
+    total_records = query.count()
+    total_pages = (total_records + per_page - 1) // per_page
+    # Jika halaman diminta melebihi total halaman, reset ke 1
+    if page > total_pages:
+        page = 1
+    page_range = range(max(1, page - 3), min(total_pages + 1, page + 3))
+    tahun_query = (
+        db.session.query(extract('year', Kbm.tanggal).label("tahun"))
+        .join(Kehadiran, Kehadiran.id_kbm == Kbm.id_ampu)  # sesuaikan dengan relasi yang benar
+        .filter(Kehadiran.nis == siswa_now)
+        .group_by(extract('year', Kbm.tanggal))
+        .order_by(extract('year', Kbm.tanggal).desc())
+        .all()
+    )
+    print(tahun_query)
+    print(info_list)
+
+    thn = [int(row.tahun) for row in tahun_query if row.tahun is not None]
+
+    # Mapping pembagian kelas
     pembagian = PembagianKelas.query.filter_by(nis=nis).all()
-
-    # Mapping pembagian berdasarkan tahun akademik
     pembagian_map = {
         p.id_tahun_akademik: {
             "nama_kelas": p.kelas_rel.nama_kelas,
@@ -363,12 +413,10 @@ def kehadiran():
         } for p in pembagian
     }
 
-    # Tambahkan info kelas ke data kehadiran
+    # Enrich data
     enriched_kehadiran = []
-    for d in data_kehadiran:
-        id_tahun = (
-            d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
-        )
+    for d in info_list:
+        id_tahun = d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
         kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
         enriched_kehadiran.append({
             "id_kehadiran": d.id_kehadiran,
@@ -384,8 +432,9 @@ def kehadiran():
         data_kehadiran=enriched_kehadiran,
         btn_tambah=False,
         title="Kehadiran",
-        title_data="Kehadiran"
-    )
+        title_data="Kehadiran", keterangan = Keterangan.query.all(), 
+        data_guru=Guru.query.all(), data_kelas=Kelas.query.all(), data_mapel=Mapel.query.all(), tahun=thn, 
+     page=page, per_page=per_page, total_pages=total_pages, total_records=total_records, has_next=paginated_data.has_next, has_prev=paginated_data.has_prev, page_range=page_range )
 
 @app.route('/murid/surat_izin')
 def surat_izin():
@@ -402,7 +451,7 @@ def surat_izin():
     # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
     if not data_kehadiran:
         return render_template(
-            'murid/kehadiran.html',
+            'murid/upload_surat_izin.html',
             data_kehadiran=None,
             btn_tambah=False,
             title="Kehadiran",

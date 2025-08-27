@@ -28,6 +28,108 @@
   <div class="row">
     <div class="col-12">
       <div class="card">
+      
+        <div class="border-bottom title-part-padding">
+          <h4>Filter:</h4>
+            <div class="row col-12"> 
+               <!-- guru -->
+              <form method="get" action="{{ url_for('kehadiran') }}" class="mt-1 row">
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="nip" name="nip">
+                    <option value="" {% if not request.args.get('nip') %}selected{% endif %}>Semua guru</option>
+                    {% for s in data_guru %}
+                    <option value="{{ s.nip }}" {% if request.args.get('nip') == s.nis|string %}selected{% endif %}>{{ s.nama }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <!-- Kelas -->
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="kelas_data" name="id_kelas">
+                    <option value="" {% if not request.args.get('id_kelas') %}selected{% endif %}>Semua Kelas</option>
+                    {% for k in data_kelas %}
+                    <option value="{{ k.id_kelas }}" {% if request.args.get('id_kelas') == k.id_kelas|string %}selected{% endif %}>{{ k.nama_kelas }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <!-- Mapel -->
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="mapel_data" name="id_mapel">
+                    <option value="" {% if not request.args.get('id_mapel') %}selected{% endif %}>Semua Mapel</option>
+                    {% for m in data_mapel %}
+                    <option value="{{ m.id_mapel }}" {% if request.args.get('id_mapel') == m.id_mapel|string %}selected{% endif %}>{{ m.nama_mapel }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <!-- Keterangan -->
+              <div class="col-sm-3">
+                <div class="mb-3">
+                  <select class="form-select select2 " 
+                        style="width: 100%; height: 36px" id="id_keterangan" name="id_keterangan">
+                    <option value="" {% if not request.args.get('id_keterangan') %}selected{% endif %}>Semua Keterangan</option>
+                    {% for ket in keterangan %}
+                    <option value="{{ ket.id_keterangan }}" {% if request.args.get('id_keterangan') == ket.id_keterangan %}selected{% endif %}>{{ ket.keterangan }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2" 
+              style="width: 100%; height: 36px" id="tahun_data" name="tahun">
+                <option value="" {% if not request.args.get('tahun') %}selected{% endif %}>Semua Tahun</option>
+              {% for i in tahun %}
+                <option value="{{ i }}" {% if request.args.get('tahun') == i|string %}selected{% endif %}>{{ i }}</option>
+              {% endfor %}
+              </select>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2" 
+              style="width: 100%; height: 36px" id="bulan_data" name="bulan">
+                <option value="" {% if not request.args.get('bulan') %}selected{% endif %}>Semua Bulan</option>
+                  {% for i in [{"value":"1","nama_bulan":"Januari"},{"value":"2","nama_bulan":"Februari"},{"value":"3","nama_bulan":"Maret"},
+                  {"value":"4","nama_bulan":"April"},{"value":"5","nama_bulan":"Mei"},{"value":"6","nama_bulan":"Juni"},{"value":"7","nama_bulan":"Juli"},
+                  {"value":"8","nama_bulan":"Agustus"},{"value":"9","nama_bulan":"September"},{"value":"10","nama_bulan":"Oktober"},
+                  {"value":"11","nama_bulan":"November"},{"value":"12","nama_bulan":"Desember"}] %}
+                  <option value="{{ i.value }}" {% if request.args.get('bulan') == i.value %}selected{% endif %}>{{ i.nama_bulan }}</option>
+                  {% endfor %}
+              </select>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+              <select class="form-select select2 " 
+              style="width: 100%; height: 36px" id="tanggal_data" name="tanggal">
+                <option value="" {% if not request.args.get('tanggal') %}selected{% endif %}>Semua Tanggal</option>
+                  {% for i in range(1, 32) %}
+                  <option value="{{ i }}" {% if request.args.get('tanggal') == i|string %}selected{% endif %}>{{ i }}</option>
+                  {% endfor %}
+              </select>
+              </div>
+            </div>
+            
+            <div class="col-sm-3">
+              <div class="mb-3">
+                <button class="btn btn-info" type="Submit">Submit</button>
+              </div>
+            </div>
+            </form>
+          </div>
+        </div>
         <div class="card-body">
             <h2>Data Kehadiran</h2>
             <p>Berikut adalah data kehadiran Anda. Silakan periksa dan pastikan informasi yang tercantum sudah benar.</p>
@@ -35,8 +137,8 @@
 <table id="myTable"class="table table-striped">
     <thead class="table-info">
         <tr>
-            <th>Nama Murid</th>
             <th>Tanggal</th>
+            <th>Nama Guru</th>
             <th>Mata Pelajaran</th>
             <th>Nama Kelas</th>
             <th>Tingkat</th>
@@ -48,7 +150,7 @@
       {% if data_kehadiran %}
   {% for i in data_kehadiran %}
     <tr>
-      <td>{{ i.siswa_rel.nama }}</td>
+      <td>{{ i.kbm_rel.ampu_rel.guru_rel.nama}}</td>
       <td>{{ i.kbm_rel.tanggal if i.kbm_rel else '-' }}</td>
 
       <td>
@@ -72,11 +174,72 @@
     </tbody>
 </table>
 </div>
+ <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <strong>Halaman {{ page }} dari {{ total_pages }}</strong> — Total Data: {{ total_records }}
+            </div>
+            <nav aria-label="Page navigation">
+              <ul class="pagination mb-0">
+
+                <!-- Tombol pertama -->
+                {% if page > 1 %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page=1&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">&laquo; First</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&laquo; First</span></li>
+                {% endif %}
+
+                <!-- Tombol sebelumnya -->
+                {% if has_prev %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page - 1 }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+
+                <!-- Nomor halaman -->
+                {% for p in page_range %}
+                  {% if p == page %}
+                    <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                  {% else %}
+                    <li class="page-item">
+                      <a class="page-link" href="?page={{ p }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">{{ p }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+
+                <!-- Tombol selanjutnya -->
+                {% if has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ page + 1 }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+
+                <!-- Tombol terakhir -->
+                {% if page < total_pages %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ total_pages }}&per_page={{ per_page }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">Last &raquo;</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">Last &raquo;</span></li>
+                {% endif %}
+
+              </ul>
+            </nav>
+          </div>
         </div>
       </div>
     </div>
   </div>
 <script>
- $('#myTable').DataTable();
+ $('#myTable').DataTable({info: false, paging: false, searching: true});
  </script>
 {% endblock %}
