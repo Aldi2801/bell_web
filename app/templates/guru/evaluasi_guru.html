@@ -1,0 +1,348 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="page-titles">
+  <div class="row">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 d-flex align-items-center">
+          <li class="breadcrumb-item">
+            <a href="index.html" class="link">
+              <i class="ri-home-3-line fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{title_data}}</li>
+        </ol>
+      </nav>
+      <h1 class="mb-0 fw-bold">{{title}}</h1>
+    </div>
+	{% if btn_tambah %}
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
+		  <i class="ri-add-line me-1"></i> Tambah Data
+		</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12 mb-4">
+      <div class="card">
+        <div class="card-body">
+            <form method="get" action="{{ url_for('evaluasi_guru') }}" class="mb-3 row">
+                <div class="col-md-5">
+                    <label for="tahun_id">Tahun Akademik</label>
+                    <select name="tahun_id" id="tahun_id" class="form-control form-select">
+                        {% for t in tahun_list %}
+                            <option value="{{ t.id_tahun_akademik }}" {% if t.id_tahun_akademik == tahun_aktif %}selected{% endif %}>
+                                {{ t.tahun_akademik }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label for="semester_id">Semester</label>
+                    <select name="semester_id" id="semester_id" class="form-control form-select">
+                        {% for s in semester_list %}
+                            <option value="{{ s.id_semester }}" {% if s.id_semester == semester_aktif %}selected{% endif %}>
+                                {{ s.semester }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
+                </div>
+            </form>
+
+            <h3 class="text-center">Hasil Evaluasi Guru</h3>
+            <canvas id="edomGuruChart" height="120"></canvas>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+<!-- templates/crud/semester.html -->
+<h4>Data {{title_data}}</h4>
+<div class="table-responsive">
+<table id="myTable" class="table table-striped" >
+    <thead class="table-info">
+        <tr>
+		  <th width="60">Guru</th>
+		  <th>Mapel</th>
+		  <th>Hasil</th>
+		  <th width="100">Penilai</th>
+		  <th>Tanggal</th>
+		  <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+         {% for e in evaluasi %}
+		<tr>
+      
+		  <td style="white-space: nowrap;">{{ e.guru.nama }}</td>
+		  <td style="white-space: nowrap;">{{ e.ampu.mapel_rel.nama_mapel if e.ampu and e.ampu.mapel_rel else 'semua mapel' }}</td>
+		  <td style="white-space: nowrap;"><button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#LihatHasil-{{loop.index}}" >Lihat Hasil</button></td>
+		  <td style="white-space: nowrap;">{{ e.evaluator.nis if e.evaluator else e.nis }} | {{ e.evaluator.siswa.nama if e.evaluator else e.siswa_rel.nama  }} ({{ e.evaluator_role }})</td>
+		  <td style="white-space: nowrap;">{{ e.tanggal.strftime("%d-%m-%Y") }}  </td>
+		  <td>
+			<button type="button" class="btn btn-danger" onclick="deleteData('{{ e.id }}')">Hapus</button>
+		  </td>
+		</tr>
+		<!-- Modal Edit -->
+		<div class="modal fade" id="editForm-{{ e.id }}" tabindex="-1" aria-labelledby="editLabel" aria-hidden="true">
+		  <div class="modal-dialog  modal-lg"> 
+			<div class="modal-content">
+			  
+			  <!-- Modal Header -->
+			  <div class="modal-header">
+				<h5 class="modal-title" id="editLabel">Edit {{title_data}}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+			  </div>
+
+			  <!-- Modal Body -->
+			  <div class="modal-body">
+				<form id="editForm-{{ e.id }}">
+				  <input type="hidden" name="id" value="{{ e.id }}">
+
+				  <label>Aspek:</label>
+				  <input type="text" name="aspek" value="{{ e.aspek }}" class="form-control mb-3" required>
+
+				  <label>Skor (1-100):</label>
+				  <input type="number" name="skor" value="{{ e.skor }}" min="1" max="100" class="form-control mb-3" required>
+
+				  <label>Komentar:</label>
+				  <textarea name="komentar" class="form-control mb-3">{{ e.komentar }}</textarea>
+
+				  <!-- Hidden Fields (dibutuhkan di backend) -->
+				  <input type="hidden" name="nip" value="{{ e.nip }}">
+				  <input type="hidden" name="id_ampu" value="{{ e.id_ampu }}">
+				  <input type="hidden" name="evaluator_id" value="{{ e.evaluator_id }}">
+				  <input type="hidden" name="evaluator_role" value="{{ e.evaluator_role }}">
+
+				  <div class="modal-footer">
+					<button type="submit" id="tombol-edit-{{ e.id }}" class="btn btn-success">Simpan</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+				  </div>
+				</form>
+
+			  </div>
+			</div>
+		  </div>
+		</div>
+     <!-- Modal untuk evaluasi -->
+    <div class="modal fade" id="LihatHasil-{{loop.index}}" tabindex="-1" aria-labelledby="evaluasiModalLabel" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="evaluasiModalLabel">Evaluasi</h5>
+                </div>
+                <div class="modal-body" id="body">
+                    <form>
+      
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Guru menyampaikan Materi Pelajaran ?</label><br>
+					  {% set options = [(1, 'Sangat Baik'), (2, 'Baik'), (3, 'Cukup'), (4, 'Buruk')] %}
+            {% for val, label in options %}
+              <label><input type="radio" name="q1" value="{{ val }}" {% if e.q1 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+
+					</select>  
+        </div>
+        
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Guru mengelola Kelas dengan Baik?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q2" value="{{ val }}" {% if e.q2 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Guru memotivasi Siswa untuk Belajar?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q3" value="{{ val }}" {% if e.q3 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Seberapa sering guru mennggunakan media pembelajaran yang bervariasi?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q4" value="{{ val }}" {% if e.q4 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Bagaimana Penilaian Guru terhadap hasil belajar siswa?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q5" value="{{ val }}" {% if e.q5 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menguasai materi pelajaran yang diajarkan?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q6" value="{{ val }}" {% if e.q6 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label> Apakah guru menunjukkan sikap disiplin dan tanggung jawab?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q7" value="{{ val }}" {% if e.q7 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menjadi teladan dalam bertutur kata dan bersikap?</label><br>
+          {% for val, label in options %}
+              <label><input type="radio" name="q8" value="{{ val }}" {% if e.q8 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menjaga penampilan yang sopan dan rapi?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q9" value="{{ val }}" {% if e.q9 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru menjalin komunikasi yang baik dengan orang tua siswa?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q10" value="{{ val }}" {% if e.q10 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-12 mb-3">
+          <label>Apakah guru hadir dan tepat waktu dalam kegiatan sekolah?</label><br>
+					  {% for val, label in options %}
+              <label><input type="radio" name="q11" value="{{ val }}" {% if e.q11 == val %}checked{% endif %} disabled> {{ label }}</label>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-12 mb-3">
+          <label>Komentar</label>
+          <textarea class="form-control" name="komentar" disabled>{{e.komentar}}</textarea>
+        </div>
+
+      </form>
+    
+                </div>
+                <div class="modal-footer" id="modal-footer">
+					      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+				{% endfor %}
+			</tbody>
+		</table>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+   
+<script>
+ $('#myTable').DataTable();
+ 
+{% for e in evaluasi %}
+document.getElementById("editForm-{{ e.id }}").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    const data = {};
+
+    // Ambil dan trim semua input
+    formData.forEach((value, key) => {
+        data[key] = value.trim ? value.trim() : value;
+    });
+
+    // Konversi skor jadi number
+    data["skor"] = parseInt(data["skor"]);
+
+    const tombol = document.getElementById("tombol-edit-{{ e.id }}");
+    tombol.disabled = true;
+    tombol.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    $.ajax({
+        url: baseUrl + '/edit/{{ e.id }}',
+        type: 'PUT',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        success: function (response) {
+            tombol.innerHTML = "Simpan";
+            tombol.disabled = false;
+            alert(response.msg || "Berhasil update evaluasi");
+            window.location.reload();
+        },
+        error: function (xhr) {
+            tombol.innerHTML = "Simpan";
+            tombol.disabled = false;
+            alert(`Edit gagal: ${xhr.responseJSON?.msg || xhr.responseJSON?.error || "Server Error"}`);
+        }
+    });
+});
+{% endfor %}
+</script>
+<!-- Script Chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const labels = {{ chart_data | map(attribute="label") | list | tojson }};
+    const values = {{ chart_data | map(attribute="rata") | list | tojson }};
+
+    if (values.length > 0) {
+        const ctx = document.getElementById('edomGuruChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Rata-rata EDOM',
+                    data: values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 4,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false // legend default dimatikan
+                    }
+                }
+            }
+        });
+
+        // Tambahkan legenda manual
+        const legendHtml = `
+          <div class="mt-3">
+            <strong>Keterangan Skala:</strong>
+            <ul style="list-style:none; padding-left:0;">
+              <li><span style="display:inline-block;width:15px;height:15px;background:#ddd;margin-right:5px;"></span>0 = Sangat Kurang / Belum diinput murid</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#f87171;margin-right:5px;"></span>1 = Kurang</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#facc15;margin-right:5px;"></span>2 = Cukup</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#34d399;margin-right:5px;"></span>3 = Baik</li>
+              <li><span style="display:inline-block;width:15px;height:15px;background:#60a5fa;margin-right:5px;"></span>4 = Sangat Baik</li>
+            </ul>
+          </div>
+        `;
+        document.getElementById("edomGuruChart").insertAdjacentHTML("afterend", legendHtml);
+    } else {
+        document.getElementById("edomGuruChart").outerHTML =
+          "<p class='text-muted text-center'>Belum ada data evaluasi bulan ini</p>";
+    }
+});
+</script>
+
+{% endblock %}

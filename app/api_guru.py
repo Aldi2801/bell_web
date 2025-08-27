@@ -1,7 +1,7 @@
 import pandas as pd
-from . import AmpuMapel, Berita, Kehadiran, Keterangan, PembagianKelas, Penilaian, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik, time_zone_wib
+from . import AmpuMapel, Berita, EvaluasiGuru, Kehadiran, Keterangan, PembagianKelas, Penilaian, TahunSemester, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik, time_zone_wib
 from flask import flash, redirect, request, jsonify, url_for, render_template, session, abort
-from sqlalchemy import case, extract
+from sqlalchemy import case, extract, func
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -669,3 +669,58 @@ def view_guru_pengumuman():
     title = "Pengumuman"
     title_data = "Pengumuman"
     return render_template('guru/berita.html', berita=berita,btn_tambah=btn_tambah,title=title,title_data=title_data)
+@app.route('/guru/evaluasi_guru')
+def evaluasi_guru():
+    if session.get('role') != 'guru':
+        abort(403)
+
+    nip = session.get('nip')
+    guru = Guru.query.filter_by(nip=nip).first_or_404()
+
+    # Ambil daftar tahun akademik & semester master (untuk filter dropdown kalau perlu)
+    tahun_list = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).all()
+    semester_master = Semester.query.order_by(Semester.id_semester.asc()).all()
+
+    # Tahun & semester aktif (default)
+    tahun_semester_aktif = TahunSemester.query.order_by(TahunSemester.mulai.desc()).first()
+    tahun_id = request.args.get('tahun_id')
+    semester_id = request.args.get('semester_id')
+    if not tahun_id and tahun_semester_aktif:
+        tahun_id = tahun_semester_aktif.tahun_id
+    if not semester_id and tahun_semester_aktif:
+        semester_id = tahun_semester_aktif.semester_id
+
+    # Evaluasi detail untuk guru tsb (filter by tahun_id & semester_id kalau user pilih)
+    evaluasi_list = (
+        EvaluasiGuru.query
+        .filter_by(nip=nip)
+        .all()
+    )
+
+    # Ambil semua tahunsemester (dari lama ke baru → perjalanan)
+    tahun_semester_list = TahunSemester.query.order_by(TahunSemester.mulai.asc()).all()
+
+    chart_data = []
+    for ts in tahun_semester_list:
+        rata = (
+            db.session.query(
+                func.avg(
+                    (EvaluasiGuru.q1 + EvaluasiGuru.q2 + EvaluasiGuru.q3 +
+                     EvaluasiGuru.q4 + EvaluasiGuru.q5 + EvaluasiGuru.q6 +
+                     EvaluasiGuru.q7 + EvaluasiGuru.q8 + EvaluasiGuru.q9 +
+                     EvaluasiGuru.q10 + EvaluasiGuru.q11) / 11.0
+                )
+            )
+            .filter(
+                EvaluasiGuru.nip == nip,
+                EvaluasiGuru.tahun_id == ts.tahun_id,
+                EvaluasiGuru.semester_id == ts.semester_id
+            )
+            .scalar()
+        )
+        chart_data.append({
+            "label": f"{ts.tahun.tahun_akademik } - {ts.semester.semester}",  # contoh: "2024/2025 - Ganjil"
+            "rata": round(rata, 2) if rata else 0
+        })
+
+    return render_template( "guru/evaluasi_guru.html", tahun_aktif=tahun_id, semester_aktif=semester_id, tahun_list=tahun_list, semester_list=semester_master, evaluasi=evaluasi_list, chart_data=chart_data, guru=guru, btn_tambah=False, title="Manage Evaluasi Guru", title_data="Evaluasi Guru" )

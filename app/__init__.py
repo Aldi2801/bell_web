@@ -126,6 +126,7 @@ class TahunAkademik(db.Model):
     tahun_akademik = db.Column(db.String(9), unique=True, nullable=True)  # e.g., "2024/2025"
     mulai = db.Column(db.Date, nullable=True)
     sampai = db.Column(db.Date, nullable=True)
+    
 class TahunSemester(db.Model):
     __tablename__ = "tahun_semester"
 
