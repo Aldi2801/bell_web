@@ -683,22 +683,30 @@ def evaluasi_guru():
 
     # Tahun & semester aktif (default)
     tahun_semester_aktif = TahunSemester.query.order_by(TahunSemester.mulai.desc()).first()
-    tahun_id = request.args.get('tahun_id')
+    tahun_id = request.args.get('tahun_id', type=int)
     semester_id = request.args.get('semester_id')
-    if not tahun_id and tahun_semester_aktif:
-        tahun_id = tahun_semester_aktif.tahun_id
-    if not semester_id and tahun_semester_aktif:
-        semester_id = tahun_semester_aktif.semester_id
+    print(tahun_id)
+    print(semester_id)
 
+    print(tahun_id)
+    print(semester_id)
     # Evaluasi detail untuk guru tsb (filter by tahun_id & semester_id kalau user pilih)
     evaluasi_list = (
         EvaluasiGuru.query
         .filter_by(nip=nip)
         .all()
     )
-
+    
     # Ambil semua tahunsemester (dari lama ke baru → perjalanan)
-    tahun_semester_list = TahunSemester.query.order_by(TahunSemester.mulai.asc()).all()
+    query = TahunSemester.query
+
+    # Filter hanya kalau ada input dari request
+    if tahun_id:
+        query = query.filter(TahunSemester.tahun_id == tahun_id)
+    if semester_id:
+        query = query.filter(TahunSemester.semester_id == semester_id)
+
+    tahun_semester_list = query.order_by(TahunSemester.mulai.asc()).all()
 
     chart_data = []
     for ts in tahun_semester_list:

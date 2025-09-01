@@ -977,8 +977,6 @@ def evaluasi_guru_list():
         abort(403)
     evaluasi_list = EvaluasiGuru.query.all()
     guru_list = Guru.query.all()
-    users = User.query.all()
-    ampu = AmpuMapel.query.all()
 
     title = "Manage Evaluasi Guru"
     title_data = "Evaluasi Guru"
