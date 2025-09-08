@@ -1,10 +1,21 @@
 import pandas as pd
 from . import AmpuMapel, Berita, EvaluasiGuru, Kehadiran, Keterangan, PembagianKelas, Penilaian, TahunSemester, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik, time_zone_wib
-from flask import flash, redirect, request, jsonify, url_for, render_template, session, abort
-from sqlalchemy import case, extract, func
+from flask import flash, redirect, request, jsonify, url_for, render_template, session, abort, send_file
+from sqlalchemy import case, extract, func, literal
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
+from io import BytesIO
 
+# PDF
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+
+# Excel
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 @app.route("/kbm/list")
 def list_kbm():
     if 'role' not in session or session['role'] == 'murid':
@@ -732,3 +743,284 @@ def evaluasi_guru():
         })
 
     return render_template( "guru/evaluasi_guru.html", tahun_aktif=tahun_id, semester_aktif=semester_id, tahun_list=tahun_list, semester_list=semester_master, evaluasi=evaluasi_list, chart_data=chart_data, guru=guru, btn_tambah=False, title="Manage Evaluasi Guru", title_data="Evaluasi Guru" )
+
+def _get_filter_params():
+    tahun_id = request.args.get('tahun_id', type=int)
+    semester_id = request.args.get('semester_id')  # CHAR(1) → biarkan string
+    return tahun_id, semester_id
+
+def _get_tahun_semester_aktif(tahun_id, semester_id):
+    if not (tahun_id and semester_id):
+        return None
+    # SESUAIKAN nama kolom di model TahunSemester: tahun_id/semester_id atau id_tahun/id_semester
+    return TahunSemester.query.filter_by(tahun_id=tahun_id, semester_id=semester_id).first()
+# Ekspresi nilai rata-rata
+def _score_expr():
+    return (
+        (EvaluasiGuru.q1 + EvaluasiGuru.q2 + EvaluasiGuru.q3 + EvaluasiGuru.q4 + EvaluasiGuru.q5 +
+         EvaluasiGuru.q6 + EvaluasiGuru.q7 + EvaluasiGuru.q8 + EvaluasiGuru.q9 + EvaluasiGuru.q10 + EvaluasiGuru.q11)
+        / literal(11.0)
+    )
+def _apply_scope_filters(query):
+    role = session.get('role')
+    if role not in ('admin', 'guru'):
+        abort(403)
+
+    tahun_id, semester_id = _get_filter_params()
+
+    if role == 'guru':
+        nip = session.get('nip')
+        query = query.filter(EvaluasiGuru.nip == nip)
+
+    if tahun_id:
+        query = query.filter(EvaluasiGuru.tahun_id == tahun_id)
+    if semester_id:
+        query = query.filter(EvaluasiGuru.semester_id == semester_id)
+
+    return query, role
+
+def _summary_query():
+    score = _score_expr()
+    q = (
+        db.session.query(
+            EvaluasiGuru.nip.label('nip'),
+            Guru.nama_guru.label('nama_guru'),
+            TahunAkademik.tahun_akademik.label('tahun'),
+            Semester.semester.label('semester'),
+            func.avg(score).label('rata'),
+            func.count(EvaluasiGuru.nip).label('jml_respon')
+        )
+        .join(Guru, Guru.nip == EvaluasiGuru.nip)
+        .join(TahunAkademik, TahunAkademik.id_tahun_akademik == EvaluasiGuru.tahun_id)
+        .join(Semester, Semester.id_semester == EvaluasiGuru.semester_id)
+    )
+    q, role = _apply_scope_filters(q)
+    q = q.group_by('nip', 'nama_guru', 'tahun', 'semester') \
+         .order_by(Guru.nama_guru.asc(), TahunAkademik.mulai.asc(), Semester.id_semester.asc())
+    return q, role
+
+def _detail_query():
+    score = _score_expr()
+    q = (
+        db.session.query(
+            EvaluasiGuru.nip.label('nip'),
+            Guru.nama_guru.label('nama_guru'),
+            TahunAkademik.tahun_akademik.label('tahun'),
+            Semester.semester.label('semester'),
+            EvaluasiGuru.q1, EvaluasiGuru.q2, EvaluasiGuru.q3, EvaluasiGuru.q4, EvaluasiGuru.q5,
+            EvaluasiGuru.q6, EvaluasiGuru.q7, EvaluasiGuru.q8, EvaluasiGuru.q9, EvaluasiGuru.q10, EvaluasiGuru.q11,
+            score.label('rata')
+        )
+        .join(Guru, Guru.nip == EvaluasiGuru.nip)
+        .join(TahunAkademik, TahunAkademik.id_tahun_akademik == EvaluasiGuru.tahun_id)
+        .join(Semester, Semester.id_semester == EvaluasiGuru.semester_id)
+    )
+    q, role = _apply_scope_filters(q)
+    q = q.order_by(Guru.nama_guru.asc(), TahunAkademik.mulai.asc(), Semester.id_semester.asc())
+    return q, role
+@app.route('/evaluasi_guru/pdf')
+def evaluasi_guru_pdf():
+    q, role = _summary_query()
+    rows = q.all()
+
+    tahun_id, semester_id = _get_filter_params()
+    ts_aktif = _get_tahun_semester_aktif(tahun_id, semester_id)
+
+    from io import BytesIO
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
+                            rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20)
+    styles = getSampleStyleSheet()
+    story = []
+
+    judul = "Laporan Evaluasi Guru - Ringkasan"
+    scope = f"Role: {role}"
+    periode = (
+        f"Periode: {ts_aktif.tahun.tahun_akademik} - {ts_aktif.semester.semester}"
+        if ts_aktif else "Periode: Semua Tahun & Semester"
+    )
+    story.append(Paragraph(judul, styles['Title']))
+    story.append(Paragraph(scope, styles['Normal']))
+    story.append(Paragraph(periode, styles['Normal']))
+    story.append(Spacer(1, 0.3 * cm))
+
+    data = [["NIP", "Nama Guru", "Tahun", "Semester", "Rata-rata", "Jml Respon"]]
+    if rows:
+        for r in rows:
+            data.append([
+                r.nip,
+                r.nama_guru or "-",
+                r.tahun or "-",
+                r.semester or "-",
+                f"{(r.rata or 0):.2f}",
+                int(r.jml_respon or 0)
+            ])
+    else:
+        data.append(["-", "Tidak ada data", "-", "-", "-", "-"])
+
+    tbl = Table(data, repeatRows=1)
+    tbl.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f0f0f0')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#333333')),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#999999')),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fafafa')]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+    story.append(tbl)
+
+    doc.build(story)
+    buf.seek(0)
+
+    ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"evaluasi_guru_{role}_{tahun_id or 'all'}_{semester_id or 'all'}_{ts}.pdf"
+    return send_file(buf, mimetype='application/pdf', download_name=filename, as_attachment=True)
+# Alias: kamu minta /excell, aku buat dua-duanya /excell dan /excel
+@app.route('/evaluasi_guru/excell')
+@app.route('/evaluasi_guru/excel')
+def evaluasi_guru_excel():
+    q_sum, role = _summary_query()
+    sum_rows = q_sum.all()
+
+    q_det, _ = _detail_query()
+    det_rows = q_det.all()
+
+    tahun_id, semester_id = _get_filter_params()
+    ts_aktif = _get_tahun_semester_aktif(tahun_id, semester_id)
+    periode_txt = (
+        f"{ts_aktif.tahun.tahun_akademik} - {ts_aktif.semester.semester}"
+        if ts_aktif else "Semua Tahun & Semester"
+    )
+
+    wb = Workbook()
+    thin = Side(style="thin", color="CCCCCC")
+    border_all = Border(left=thin, right=thin, top=thin, bottom=thin)
+    header_fill = PatternFill("solid", fgColor="F0F0F0")
+
+    # Sheet Ringkasan
+    ws = wb.active
+    ws.title = "Ringkasan"
+
+    # Title + Periode
+    ws.merge_cells('A1:F1')
+    ws['A1'] = "Laporan Evaluasi Guru - Ringkasan"
+    ws['A1'].font = Font(bold=True, size=14)
+    ws['A1'].alignment = Alignment(horizontal='center')
+    ws.merge_cells('A2:F2')
+    ws['A2'] = f"Role: {role} | Periode: {periode_txt}"
+    ws['A2'].alignment = Alignment(horizontal='center')
+
+    ws.append([])  # baris 3 kosong
+
+    headers_sum = ["NIP", "Nama Guru", "Tahun", "Semester", "Rata-rata", "Jml Respon"]
+    ws.append(headers_sum)  # baris 4
+
+    # Styling header
+    for c in range(1, len(headers_sum) + 1):
+        cell = ws.cell(row=4, column=c)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+        cell.fill = header_fill
+        cell.border = border_all
+
+    # Data mulai baris 5
+    start_row = 5
+    if sum_rows:
+        for idx, r in enumerate(sum_rows):
+            row = [
+                r.nip,
+                r.nama_guru or "",
+                r.tahun or "",
+                r.semester or "",
+                float(f"{(r.rata or 0):.2f}"),
+                int(r.jml_respon or 0),
+            ]
+            ws.append(row)
+            for c in range(1, len(headers_sum) + 1):
+                cell = ws.cell(row=start_row + idx, column=c)
+                cell.border = border_all
+                cell.alignment = Alignment(horizontal="center" if c != 5 else "right")
+    else:
+        ws.append(["-", "Tidak ada data", "-", "-", 0.0, 0])
+        for c in range(1, len(headers_sum) + 1):
+            cell = ws.cell(row=start_row, column=c)
+            cell.border = border_all
+            cell.alignment = Alignment(horizontal="center")
+
+    ws.column_dimensions['A'].width = 16
+    ws.column_dimensions['B'].width = 28
+    ws.column_dimensions['C'].width = 16
+    ws.column_dimensions['D'].width = 16
+    ws.column_dimensions['E'].width = 12
+    ws.column_dimensions['F'].width = 14
+    ws.freeze_panes = "A5"
+
+    # Sheet Detail
+    ws2 = wb.create_sheet(title="Detail")
+    ws2.merge_cells('A1:P1')
+    ws2['A1'] = "Laporan Evaluasi Guru - Detail"
+    ws2['A1'].font = Font(bold=True, size=14)
+    ws2['A1'].alignment = Alignment(horizontal='center')
+    ws2.merge_cells('A2:P2')
+    ws2['A2'] = f"Role: {role} | Periode: {periode_txt}"
+    ws2['A2'].alignment = Alignment(horizontal='center')
+
+    ws2.append([])  # baris 3 kosong
+
+    headers_det = ["NIP", "Nama Guru", "Tahun", "Semester",
+                   "Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q9","Q10","Q11","Rata-rata"]
+    ws2.append(headers_det)  # baris 4
+
+    for c in range(1, len(headers_det) + 1):
+        cell = ws2.cell(row=4, column=c)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+        cell.fill = header_fill
+        cell.border = border_all
+
+    start_row2 = 5
+    if det_rows:
+        for idx, r in enumerate(det_rows):
+            row = [
+                r.nip,
+                r.nama_guru or "",
+                r.tahun or "",
+                r.semester or "",
+                r.q1, r.q2, r.q3, r.q4, r.q5, r.q6, r.q7, r.q8, r.q9, r.q10, r.q11,
+                float(f"{(r.rata or 0):.2f}")
+            ]
+            ws2.append(row)
+            for c in range(1, len(headers_det) + 1):
+                cell = ws2.cell(row=start_row2 + idx, column=c)
+                cell.border = border_all
+                cell.alignment = Alignment(horizontal="center")
+    else:
+        ws2.append(["-", "Tidak ada data", "-", "-"] + [0]*12)
+        for c in range(1, len(headers_det) + 1):
+            cell = ws2.cell(row=start_row2, column=c)
+            cell.border = border_all
+            cell.alignment = Alignment(horizontal="center")
+
+    ws2.column_dimensions['A'].width = 16
+    ws2.column_dimensions['B'].width = 28
+    ws2.column_dimensions['C'].width = 16
+    ws2.column_dimensions['D'].width = 16
+    for col in "EFGHIJKLMNOP":
+        ws2.column_dimensions[col].width = 10
+    ws2.freeze_panes = "A5"
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"evaluasi_guru_{role}_{tahun_id or 'all'}_{semester_id or 'all'}_{ts}.xlsx"
+    return send_file(buf,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        download_name=filename, as_attachment=True)

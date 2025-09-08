@@ -446,14 +446,26 @@ def surat_izin():
     if not siswa:
         return "Siswa tidak ditemukan", 404
 
-    data_kehadiran = Kehadiran.query.filter_by(nis=nis).all()
-    
+    data_kehadiran_all = Kehadiran.query.filter_by(nis=nis).all()
+    data_kbm = []
+    data_kehadiran = []
+    for i in data_kehadiran_all:
+        print(i.id_keterangan)
+        if str(i.id_keterangan) == str(2):  # Hanya ambil yang keterangan 'Izin'
+            print(f"Menambahkan kehadiran dengan id {i.id_kehadiran} karena keterangan 'Izin'")
+            data_kehadiran.append(i)
+        else:
+            print(f"Melewati kehadiran dengan id {i.id_kehadiran} karena keterangan bukan 'Izin'")
+            kbm = Kbm.query.filter_by(id_kbm=i.id_kbm).first()
+            data_kbm.append(kbm)
+    print(data_kbm)
     # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
     if not data_kehadiran:
         return render_template(
             'murid/upload_surat_izin.html',
+            data_kbm=data_kbm,
             data_kehadiran=None,
-            btn_tambah=False,
+            btn_tambah=True,
             title="Kehadiran",
             title_data="Kehadiran"
         )
@@ -484,14 +496,39 @@ def surat_izin():
             "nama_kelas": kelas_info["nama_kelas"],
             "tingkat": kelas_info["tingkat"]
         })
-
+    
     return render_template(
         'murid/upload_surat_izin.html',
         data_kehadiran=enriched_kehadiran,
-        btn_tambah=False,
+        data_kbm=data_kbm,
+        btn_tambah=True,
         title="Kehadiran Izin",
         title_data="Kehadiran Izin"
     )
+
+@app.route('/murid/surat_izin/tambah', methods=['POST'])
+def surat_izin_tambah():
+    try:
+        payload = request.get_json(silent=True) or request.form
+        id_kbm = payload.get('id_kbm')
+        nis = session.get('nis')
+
+        if not nis:
+            return jsonify({'error': 'Session NIS tidak ditemukan'}), 401
+        if not id_kbm:
+            return jsonify({'error': 'id_kbm wajib diisi'}), 400
+
+        rec = Kehadiran.query.filter_by(nis=nis, id_kbm=id_kbm).first()
+        print(rec)
+        print(rec.id_kehadiran)
+        print(rec.id_kbm)
+        rec.id_keterangan = "2"  # Set keterangan edit ke 'Izin'
+        db.session.commit()
+        print("edit berhasil")
+        return jsonify({'msg': 'Izin berhasil ditambahkan.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 @app.route('/murid/surat_izin_simpan', methods=['POST'])
 def surat_izin_simpan():
     if session.get('role') != 'murid':

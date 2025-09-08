@@ -1,4 +1,76 @@
 {% extends "layout.html" %}
+{% block form_tambah %}
+<div class="col-md-12 mb-3">
+  <label for="kbm">Pilih Pelajaran</label>
+  <select id="kbm" name="id_kbm" class="form-control form-select" required>
+    <option value="">-- pilih --</option>
+    {% for g in data_kbm %}
+      <option
+        value="{{ g.id_kbm }}"
+        data-tanggal="{{ g.tanggal.strftime('%Y-%m-%d') if g.tanggal else '' }}"
+        data-materi="{{ g.materi or '' }}"
+        data-sub_materi="{{ g.sub_materi or '' }}"
+      >
+        {{ (g.tanggal.strftime('%d/%m/%Y') ~ ' - ' if g.tanggal else '') ~ (g.materi or 'Tanpa materi') }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="tanggal">Tanggal</label>
+  <input id="tanggal" class="form-control" disabled>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="materi">Materi</label>
+  <input id="materi" class="form-control" disabled>
+</div>
+
+<div class="col-md-12 mb-3">
+  <label for="sub_materi">Sub Materi</label>
+  <input id="sub_materi" class="form-control" disabled>
+</div>
+
+<!-- Jika ingin ikut terkirim saat submit form, tambahkan hidden inputs -->
+<input type="hidden" name="tanggal" id="tanggal_hidden">
+<input type="hidden" name="materi" id="materi_hidden">
+<input type="hidden" name="sub_materi" id="sub_materi_hidden">
+
+<script>
+  (function() {
+    const sel = document.getElementById('kbm');
+    const inTanggal = document.getElementById('tanggal');
+    const inMateri = document.getElementById('materi');
+    const inSub = document.getElementById('sub_materi');
+
+    const hTanggal = document.getElementById('tanggal_hidden');
+    const hMateri = document.getElementById('materi_hidden');
+    const hSub = document.getElementById('sub_materi_hidden');
+
+    function fill() {
+      const opt = sel.selectedOptions[0];
+      if (!opt) return;
+
+      const tanggal = opt.dataset.tanggal || '';
+      const materi = opt.dataset.materi || '';
+      const sub = opt.dataset.sub_materi || '';
+
+      inTanggal.value = tanggal;
+      inMateri.value = materi;
+      inSub.value = sub;
+
+      if (hTanggal) hTanggal.value = tanggal;
+      if (hMateri) hMateri.value = materi;
+      if (hSub) hSub.value = sub;
+    }
+
+    sel.addEventListener('change', fill);
+    // Isi awal (kalau default sudah terpilih)
+    fill();
+  })();
+</script>
+{% endblock %}
 {% block content %}
 <div class="page-titles">
   <div class="row">

@@ -18,12 +18,15 @@
       <h1 class="mb-0 fw-bold">{{title}}</h1>
     </div>
 	{% if btn_tambah %}
-    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
-		<button type="button" class="btn btn-info d-flex align-items-center ms-2" class="logout-button" data-bs-toggle="modal" data-bs-target="#tambahModal">
-		  <i class="ri-add-line me-1"></i> Tambah Data
-		</button>
-    </div>
     {% endif %}
+    <div class="col-lg-4 col-md-6 d-md-flex align-items-center justify-content-end">
+    <a href="{{ url_for('evaluasi_guru_pdf', tahun_id=tahun_aktif, semester_id=semester_aktif) }}"
+    class="btn btn-danger d-flex align-items-center ms-2">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Unduh PDF</a>
+    <a href="{{ url_for('evaluasi_guru_excel', tahun_id=tahun_aktif, semester_id=semester_aktif) }}"
+    class="btn btn-success d-flex align-items-center ms-2">
+            <i class="bi bi-file-earmark-excel me-1"></i> Unduh Excel</a>
+    </div>
   </div>
 </div>
 <div class="container-fluid">
@@ -35,6 +38,7 @@
                 <div class="col-md-5">
                     <label for="tahun_id">Tahun Akademik</label>
                     <select name="tahun_id" id="tahun_id" class="form-control form-select">
+                        <option value="">Pilih Semua</option>
                         {% for t in tahun_list %}
                             <option value="{{ t.id_tahun_akademik }}" {% if t.id_tahun_akademik == tahun_aktif %}selected{% endif %}>
                                 {{ t.tahun_akademik }}
@@ -45,6 +49,7 @@
                 <div class="col-md-5">
                     <label for="semester_id">Semester</label>
                     <select name="semester_id" id="semester_id" class="form-control form-select">
+                        <option value="">Pilih Semua</option>
                         {% for s in semester_list %}
                             <option value="{{ s.id_semester }}" {% if s.id_semester == semester_aktif %}selected{% endif %}>
                                 {{ s.semester }}
