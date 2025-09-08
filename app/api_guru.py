@@ -784,7 +784,7 @@ def _summary_query():
     q = (
         db.session.query(
             EvaluasiGuru.nip.label('nip'),
-            Guru.nama_guru.label('nama_guru'),
+            Guru.nama.label('nama_guru'),
             TahunAkademik.tahun_akademik.label('tahun'),
             Semester.semester.label('semester'),
             func.avg(score).label('rata'),
@@ -796,7 +796,7 @@ def _summary_query():
     )
     q, role = _apply_scope_filters(q)
     q = q.group_by('nip', 'nama_guru', 'tahun', 'semester') \
-         .order_by(Guru.nama_guru.asc(), TahunAkademik.mulai.asc(), Semester.id_semester.asc())
+         .order_by(Guru.nama.asc(), TahunAkademik.mulai.asc(), Semester.id_semester.asc())
     return q, role
 
 def _detail_query():
@@ -804,7 +804,7 @@ def _detail_query():
     q = (
         db.session.query(
             EvaluasiGuru.nip.label('nip'),
-            Guru.nama_guru.label('nama_guru'),
+            Guru.nama.label('nama_guru'),
             TahunAkademik.tahun_akademik.label('tahun'),
             Semester.semester.label('semester'),
             EvaluasiGuru.q1, EvaluasiGuru.q2, EvaluasiGuru.q3, EvaluasiGuru.q4, EvaluasiGuru.q5,
@@ -816,7 +816,7 @@ def _detail_query():
         .join(Semester, Semester.id_semester == EvaluasiGuru.semester_id)
     )
     q, role = _apply_scope_filters(q)
-    q = q.order_by(Guru.nama_guru.asc(), TahunAkademik.mulai.asc(), Semester.id_semester.asc())
+    q = q.order_by(Guru.nama.asc(), TahunAkademik.mulai.asc(), Semester.id_semester.asc())
     return q, role
 @app.route('/evaluasi_guru/pdf')
 def evaluasi_guru_pdf():
