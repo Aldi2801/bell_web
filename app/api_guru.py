@@ -216,15 +216,17 @@ def kbm_tambah():
             if exists:
                 continue
 
-            db.session.add(Kehadiran(
+            obj = Kehadiran(
                 id_kbm=new_kbm.id_kbm,
                 nis=siswa.nis,
                 nama_kelas=nama_kelas.nama_kelas,
-                id_keterangan=1
-            ))
+                id_keterangan=None
+            )
+            db.session.add(obj)
             print(f"Menambahkan Kehadiran untuk NIS {siswa.nis} di kelas {nama_kelas.nama_kelas}")
 
         db.session.commit()
+                
         print(f"KBM dan Kehadiran berhasil ditambahkan untuk kelas {nama_kelas.nama_kelas} dengan ID KBM {new_kbm.id_kbm}.")
         flash("Data berhasil ditambahkan", "success")
         return jsonify({'msg': 'Data berhasil ditambahkan'})

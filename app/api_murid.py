@@ -1,5 +1,5 @@
 import os, uuid, jwt, datetime, ast, pandas as pd
-from . import EvaluasiGuru, Kbm, Kelas, Siswa, TahunAkademik, app, db,allowed_file_surat_izin,Keterangan, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User
+from . import EvaluasiGuru, Kbm, Kelas, Siswa, TahunAkademik, app, db,allowed_file_surat_izin,Keterangan, Tagihan,JadwalPelajaran, Transaksi, AmpuMapel, Kehadiran,Penilaian, Mapel, PembagianKelas, Berita, Guru,User, time_zone_wib
 from flask import flash, render_template, request, jsonify, session, redirect, abort, url_for, send_file, jsonify
 from datetime import datetime
 from sqlalchemy import extract, case
@@ -418,11 +418,20 @@ def kehadiran():
     for d in info_list:
         id_tahun = d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
         kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
+                
+        tanggal_sekarang = time_zone_wib().date()  # date, bukan string
+        tgl_kbm = getattr(d.kbm_rel, 'tanggal', None)
+
+        # Kalau kolom tanggal ternyata datetime, ubah ke date
+        if isinstance(tgl_kbm, datetime):
+            tgl_kbm = tgl_kbm.date()
+
+        ket = None if (tgl_kbm and tgl_kbm > tanggal_sekarang) else d.keterangan_rel
         enriched_kehadiran.append({
             "id_kehadiran": d.id_kehadiran,
             "siswa_rel": d.siswa_rel,
             "kbm_rel": d.kbm_rel,
-            "keterangan_rel": d.keterangan_rel,
+            "keterangan_rel": ket,
             "nama_kelas": kelas_info["nama_kelas"],
             "tingkat": kelas_info["tingkat"]
         })
