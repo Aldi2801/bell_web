@@ -981,20 +981,20 @@ def evaluasi_guru_list():
     title = "Manage Evaluasi Guru"
     title_data = "Evaluasi Guru"
 
+    # Ambil daftar tahun akademik & semester master (untuk filter dropdown kalau perlu)
     tahun_list = TahunAkademik.query.order_by(TahunAkademik.mulai.desc()).all()
-    semester_master = Semester.query.order_by(Semester.id_semester.asc()).all()  # '1' Ganjil, '2' Genap
-    # Ambil tahun & semester aktif
-    # Default aktif (berdasarkan periode paling baru di TahunSemester)
-    tahun_semester_aktif = TahunSemester.query.order_by(TahunSemester.mulai.desc()).first()
-    
-    # Ambil pilihan dari querystring
-    tahun_id = request.args.get('tahun_id', type=int)  # INTEGER (id_tahun_akademik)
-    semester_id = request.args.get('semester_id')      # CHAR(1) ('1' / '2')
-    if not tahun_id and tahun_semester_aktif:
-        tahun_id = tahun_semester_aktif.tahun_id
-    if not semester_id and tahun_semester_aktif:
-        semester_id = tahun_semester_aktif.semester_id  # CHAR(1) sesuai master Semester
+    semester_master = Semester.query.order_by(Semester.id_semester.asc()).all()
 
+    # Tahun & semester aktif (default)
+    tahun_semester_aktif = TahunSemester.query.order_by(TahunSemester.mulai.desc()).first()
+    tahun_id = request.args.get('tahun_id', type=int)
+    semester_id = request.args.get('semester_id')
+    print(tahun_id)
+    print(semester_id)
+
+    print(tahun_id)
+    print(semester_id)
+    
     now = time_zone_wib()
     # Ambil semua guru
     guru_list = Guru.query.all()
