@@ -58,7 +58,7 @@
       <td>{{ i.kbm_rel.materi if i.kbm_rel else '-' }}</td>
       <td>{{ i.keterangan_rel.keterangan if i.keterangan_rel else '-' }}</td>
       <td>
-          {% if i.surat_izin == NULL %}
+          {% if not i.surat_izin or i.surat_izin == 'null' %}
           <span>Murid Belum Mengupload Surat Izin<span><br>
           {% else %}
           <a href="/static/surat_izin/{{i.surat_izin}}" target="_blank"  class="btn btn-primary btn-sm">Lihat Surat Izin</a><br>

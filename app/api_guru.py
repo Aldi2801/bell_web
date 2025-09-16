@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from . import AmpuMapel, Berita, EvaluasiGuru, Kehadiran, Keterangan, PembagianKelas, Penilaian, TahunSemester, User, app, db, Kbm, Kelas, Siswa, Guru, Mapel, Semester, TahunAkademik, time_zone_wib
 from flask import flash, redirect, request, jsonify, url_for, render_template, session, abort, send_file
@@ -404,9 +405,14 @@ def lihat_surat_izin_murid():
     for d in data_kehadiran:
         nip_now = d.kbm_rel.ampu_rel.nip if d.kbm_rel else ''
         if nip_now == session.get('nip', ''):
+            file_path = os.path.join(app.config['UPLOAD_SURAT_IZIN'],d.surat_izin if d.surat_izin else "")
+            if not d.surat_izin or not os.path.exists(file_path):
+                surat_izin = 'null'
+            else:
+                surat_izin = d.surat_izin
             enriched_kehadiran.append({
                 "id_kehadiran": d.id_kehadiran,
-                "surat_izin": d.surat_izin,
+                "surat_izin": surat_izin,
                 "siswa_rel": d.siswa_rel,
                 "kbm_rel": d.kbm_rel,
                 "keterangan_rel": d.keterangan_rel,

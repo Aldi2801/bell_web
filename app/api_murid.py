@@ -466,7 +466,8 @@ def surat_izin():
         else:
             print(f"Melewati kehadiran dengan id {i.id_kehadiran} karena keterangan bukan 'Izin'")
             kbm = Kbm.query.filter_by(id_kbm=i.id_kbm).first()
-            data_kbm.append(kbm)
+            if kbm:
+                data_kbm.append(kbm)
     print(data_kbm)
     # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
     if not data_kehadiran:
@@ -475,8 +476,8 @@ def surat_izin():
             data_kbm=data_kbm,
             data_kehadiran=None,
             btn_tambah=True,
-            title="Kehadiran",
-            title_data="Kehadiran"
+            title="Kehadiran Izin",
+            title_data="Kehadiran Izin"
         )
 
     pembagian = PembagianKelas.query.filter_by(nis=nis).all()
@@ -496,9 +497,14 @@ def surat_izin():
             d.kbm_rel.ampu_rel.id_tahun_akademik if d.kbm_rel and d.kbm_rel.ampu_rel else None
         )
         kelas_info = pembagian_map.get(id_tahun, {"nama_kelas": "-", "tingkat": "-"})
+        file_path = os.path.join(app.config['UPLOAD_SURAT_IZIN'],d.surat_izin if d.surat_izin else "")
+        if not d.surat_izin or not os.path.exists(file_path):
+            surat_izin = 'null'
+        else:
+            surat_izin = d.surat_izin
         enriched_kehadiran.append({
             "id_kehadiran": d.id_kehadiran,
-            "surat_izin": d.surat_izin,
+            "surat_izin": surat_izin,
             "siswa_rel": d.siswa_rel,
             "kbm_rel": d.kbm_rel,
             "keterangan_rel": d.keterangan_rel,
