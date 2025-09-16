@@ -460,7 +460,8 @@ def surat_izin():
     data_kehadiran = []
     for i in data_kehadiran_all:
         print(i.id_keterangan)
-        if str(i.id_keterangan) == str(2):  # Hanya ambil yang keterangan 'Izin'
+        print(i.surat_izin)
+        if i.surat_izin != None :  # Hanya ambil yang keterangan 'Izin'
             print(f"Menambahkan kehadiran dengan id {i.id_kehadiran} karena keterangan 'Izin'")
             data_kehadiran.append(i)
         else:
@@ -537,7 +538,7 @@ def surat_izin_tambah():
         print(rec)
         print(rec.id_kehadiran)
         print(rec.id_kbm)
-        rec.id_keterangan = "2"  # Set keterangan edit ke 'Izin'
+        rec.surat_izin = "dummy"  # Set keterangan edit ke 'Izin'
         db.session.commit()
         print("edit berhasil")
         return jsonify({'msg': 'Izin berhasil ditambahkan.'}), 200

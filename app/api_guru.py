@@ -359,12 +359,11 @@ def hapus_ampu(id):
     # Hapus semua KBM yang terkait dengan ampu ini
     daftar_kbm = Kbm.query.filter_by(id_ampu=ampu.id_ampu).all()
     for kbm in daftar_kbm:
+        # Hapus semua kehadiran yang terkait dengan ampu ini
+        daftar_kehidaran = Kehadiran.query.filter_by(id_kbm=kbm.id_kbm).all()
+        for kehadiran in daftar_kehidaran:
+            db.session.delete(kehadiran)
         db.session.delete(kbm)
-
-    # Hapus semua kehadiran yang terkait dengan ampu ini
-    daftar_kehidaran = Kehadiran.query.filter_by(id_kbm=ampu.id_ampu).all()
-    for kehadiran in daftar_kehidaran:
-        db.session.delete(kehadiran)
     db.session.delete(ampu)
     db.session.commit()
 
@@ -378,8 +377,17 @@ def lihat_surat_izin_murid():
     if not siswa:
         return "Siswa tidak ditemukan", 404
 
-    data_kehadiran = Kehadiran.query.all()
-    
+    data_kehadiran_all = Kehadiran.query.all()
+    data_kehadiran = []
+    for i in data_kehadiran_all:
+        print(i.id_keterangan)
+        print(i.surat_izin)
+        if i.surat_izin != None :  # Hanya ambil yang keterangan 'Izin'
+            print(f"Menambahkan kehadiran dengan id {i.id_kehadiran} karena keterangan 'Izin'")
+            data_kehadiran.append(i)
+        else:
+            print(f"Melewati kehadiran dengan id {i.id_kehadiran} karena keterangan bukan 'Izin'")
+
     # Jika tidak ada data kehadiran, langsung render tanpa proses lanjut
     if not data_kehadiran:
         return render_template(
