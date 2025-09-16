@@ -272,6 +272,11 @@
           <label>Komentar</label>
           <textarea class="form-control" name="komentar" disabled>{{e.komentar}}</textarea>
         </div>
+        <div class="col-md-12 mb-3">
+          <label>Nilai Hasil (rata-rata) </label>
+		  {% set hasil = (e.q1 + e.q2 + e.q3 + e.q4 + e.q5 + e.q6 + e.q7 + e.q8 + e.q9 + e.q10 + e.q11 )/11 %}
+          <input class="form-control" type="text" name="hasil" value="{{hasil|round(2)}}" disabled  >
+        </div>
 
       </form>
     
